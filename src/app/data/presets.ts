@@ -1,0 +1,326 @@
+import { Character } from '../models/character';
+
+export interface CharacterPreset {
+  name: string;
+  description: string;
+  character: Character;
+}
+
+export const CHARACTER_PRESETS: CharacterPreset[] = [
+  {
+    name: 'Potępiony Lv206 — Łuk',
+    description: 'Potępiony, poziom 206, broń dystansowa LukRefleksyjny',
+    character: {
+      rasa: 'Potepiony',
+      poziom: 206,
+      blaszkaZaMoba: true,
+      blaszkaZaKronosa: true,
+      blaszkaZaHastura: false,
+      attributes: {
+        sila: 100,
+        zwinnosc: 139,
+        odpornosc: 75,
+        wyglad: 69,
+        charyzma: 68,
+        wplywy: 68,
+        spostrzegawczosc: 139,
+        inteligencja: 97,
+        wiedza: 97,
+      },
+      talizmanLevels: {
+        ambicja: 0, lewiatan: 0, behemot: 3, kamienZla: 0, kamienDobra: 0,
+        kamienPrzestrzeni: 0, kamienCzasu: 0, szponyNocy: 0, zycieISmierc: 3,
+        otchlaniCiszy: 0, potegaMocy: 0, furiaBestii: 0, auraBestii: 0,
+        maskaWladzy: 0, maskaStachu: 0, cichyLowca: 0, piesnKrwi: 0, ziz: 4,
+      },
+      arcaneLevels: {
+        maskaAdnisa: 0, maskaKaliguli: 0, majestat: 0, krewZycia: 0,
+        kocieSciezki: 0, zarKrwi: false, ciszaKrwi: 0, wyssanieMocy: 0,
+        mocKrwi: 0, dzikiSzal: 0, skoraBestii: 56, cienBestii: false,
+        nocnyLowca: 0, tchnienieSmierci: 60, groza: true,
+      },
+      evolutions: {
+        skrzydla: 6, pancerz: 5, klyPazuryKolce: 0, gruczolyJadowe: 6,
+        wzmocnioneSciegna: 8, dodatkowaKomora: 0, krewDemona: 0, mutacjaDna: 0,
+        oswiecony: 0, szostyZmysl: 10, absorpcja: 0, harmonijnyRozwoj: 6,
+        pietnoDemona: 0, wzmocnioneMiesnie: 0,
+      },
+      mysliwy: 5,
+      ninja: 5,
+      strateg: 5,
+      kaplica: 6,
+      posredniak: 79,
+      domPubliczny: 20,
+      rzeznia: 28,
+      obronaPrzeciwnika: 1716,
+      odpornoscPrzeciwnika: 0,
+      huntBonuses: [],
+      eventBonus: null,
+      oneTimeBonus: 'Ząb ghula',
+      szczesciePrzeciwnika: 0,
+      trafieniePrzeciwnika: 0,
+      runeValues: [
+        'obrazenia 5', 'kryt 12', 'sila 4', 'spostrzegawczosc 3',
+        'spostrzegawczosc 3', 'zwinnosc 4', 'szczescie 12', 'obrona 3',
+        'zycie 250', 'szczescie 8', 'multi 10', 'odpornosc 4', 'twardosc 3', 'kryt 5',
+      ],
+      umagiValues: [
+        'zycie 1000', 'zycie 1000', 'zycie 1000', 'zycie 1000', 'zycie 1000',
+        'zycie 1000', 'zycie 1000', 'zycie 1000', 'trafienie 25', 'trafienie 25',
+        'zwinnosc 14', 'wiedza 14', 'dodatkowyAtak', 'dodatkowyAtak', 'wiedza 14', 'szczescie 20',
+      ],
+      equipment: {
+        weaponMode: '2h',
+        head: { rarity: 'EPICKI', prefix: 'Tygrysi', base: 'Bandana', suffix: 'Wieszcza' },
+        chest: { rarity: 'EPICKI', prefix: 'Tygrysi', base: 'Peleryna', suffix: 'Orchidei' },
+        legs: { rarity: 'EPICKI', prefix: 'Tygrysi', base: 'Szorty', suffix: 'Nocy' },
+        neck: { rarity: 'EPICKI', prefix: 'Spaczony', base: 'Krawat', suffix: 'Wilkolaka' },
+        finger1: { rarity: 'EPICKI', prefix: 'Spaczony', base: 'Sygnet', suffix: 'Madrosci' },
+        finger2: { rarity: 'EPICKI', prefix: 'Spaczony', base: 'Pierscien', suffix: 'Wilkolaka' },
+        weapon1: { rarity: 'EPICKI', prefix: '', base: 'LukRefleksyjny', suffix: 'Driady' },
+      },
+    },
+  },
+  {
+    name: 'Potępiony Lv206 — Shuriken DS',
+    description: 'Potępiony, poziom 206, broń dystansowa Shuriken',
+    character: {
+      rasa: 'Potepiony',
+      poziom: 206,
+      blaszkaZaMoba: true,
+      blaszkaZaKronosa: true,
+      blaszkaZaHastura: false,
+      attributes: {
+        sila: 100,
+        zwinnosc: 139,
+        odpornosc: 75,
+        wyglad: 69,
+        charyzma: 68,
+        wplywy: 68,
+        spostrzegawczosc: 139,
+        inteligencja: 97,
+        wiedza: 97,
+      },
+      talizmanLevels: {
+        ambicja: 0, lewiatan: 0, behemot: 3, kamienZla: 0, kamienDobra: 0,
+        kamienPrzestrzeni: 0, kamienCzasu: 0, szponyNocy: 0, zycieISmierc: 3,
+        otchlaniCiszy: 0, potegaMocy: 0, furiaBestii: 0, auraBestii: 0,
+        maskaWladzy: 0, maskaStachu: 0, cichyLowca: 0, piesnKrwi: 0, ziz: 4,
+      },
+      arcaneLevels: {
+        maskaAdnisa: 0, maskaKaliguli: 0, majestat: 0, krewZycia: 0,
+        kocieSciezki: 0, zarKrwi: false, ciszaKrwi: 0, wyssanieMocy: 0,
+        mocKrwi: 0, dzikiSzal: 0, skoraBestii: 56, cienBestii: false,
+        nocnyLowca: 0, tchnienieSmierci: 60, groza: true,
+      },
+      evolutions: {
+        skrzydla: 6, pancerz: 5, klyPazuryKolce: 0, gruczolyJadowe: 6,
+        wzmocnioneSciegna: 8, dodatkowaKomora: 0, krewDemona: 0, mutacjaDna: 0,
+        oswiecony: 0, szostyZmysl: 10, absorpcja: 0, harmonijnyRozwoj: 6,
+        pietnoDemona: 0, wzmocnioneMiesnie: 0,
+      },
+      mysliwy: 5,
+      ninja: 5,
+      strateg: 5,
+      kaplica: 6,
+      posredniak: 79,
+      domPubliczny: 20,
+      rzeznia: 28,
+      obronaPrzeciwnika: 1716,
+      odpornoscPrzeciwnika: 0,
+      huntBonuses: [],
+      eventBonus: null,
+      oneTimeBonus: 'Ząb ghula',
+      szczesciePrzeciwnika: 0,
+      trafieniePrzeciwnika: 0,
+      runeValues: [
+        'obrazenia 5', 'kryt 12', 'sila 4', 'spostrzegawczosc 3',
+        'spostrzegawczosc 3', 'zwinnosc 4', 'szczescie 12', 'obrona 3',
+        'zycie 250', 'szczescie 8', 'multi 10', 'odpornosc 4', 'twardosc 3', 'kryt 5',
+      ],
+      umagiValues: [
+        'zycie 1000', 'zycie 1000', 'zycie 1000', 'zycie 1000', 'zycie 1000',
+        'zycie 1000', 'zycie 1000', 'zycie 1000', 'trafienie 25', 'trafienie 25',
+        'zwinnosc 14', 'wiedza 14', 'dodatkowyAtak', 'dodatkowyAtak', 'wiedza 14', 'szczescie 20',
+      ],
+      equipment: {
+        weaponMode: '2h',
+        head: { rarity: 'EPICKI', prefix: 'Tygrysi', base: 'Bandana', suffix: 'Wieszcza' },
+        chest: { rarity: 'EPICKI', prefix: 'Tygrysi', base: 'Peleryna', suffix: 'Orchidei' },
+        legs: { rarity: 'EPICKI', prefix: 'Tygrysi', base: 'Szorty', suffix: 'Nocy' },
+        neck: { rarity: 'EPICKI', prefix: 'Spaczony', base: 'Krawat', suffix: 'Wilkolaka' },
+        finger1: { rarity: 'EPICKI', prefix: 'Spaczony', base: 'Sygnet', suffix: 'Madrosci' },
+        finger2: { rarity: 'EPICKI', prefix: 'Spaczony', base: 'Pierscien', suffix: 'Wilkolaka' },
+        weapon1: { rarity: 'EPICKI', prefix: '', base: 'Shuriken', suffix: 'DalekiegoZasiegu' },
+      },
+    }
+  },
+  {
+    name: 'WZ 210 Opiekuncze Kastety',
+    description: '',
+    character: {
+      "rasa": "WladcaZwierzat",
+      "poziom": 210,
+      "blaszkaZaMoba": true,
+      "blaszkaZaKronosa": true,
+      "blaszkaZaHastura": false,
+      "attributes": {
+        "sila": 150,
+        "zwinnosc": 175,
+        "odpornosc": 90,
+        "wyglad": 90,
+        "charyzma": 90,
+        "wplywy": 90,
+        "spostrzegawczosc": 130,
+        "inteligencja": 120,
+        "wiedza": 120
+      },
+      "talizmanLevels": {
+        "ambicja": 0,
+        "lewiatan": 0,
+        "behemot": 4,
+        "kamienZla": 0,
+        "kamienDobra": 0,
+        "kamienPrzestrzeni": 0,
+        "kamienCzasu": 0,
+        "szponyNocy": 0,
+        "zycieISmierc": 0,
+        "otchlaniCiszy": 0,
+        "potegaMocy": 0,
+        "furiaBestii": 0,
+        "auraBestii": 0,
+        "maskaWladzy": 0,
+        "maskaStachu": 0,
+        "cichyLowca": 0,
+        "piesnKrwi": 4,
+        "ziz": 4
+      },
+      "arcaneLevels": {
+        "maskaAdnisa": 0,
+        "maskaKaliguli": 0,
+        "majestat": 0,
+        "krewZycia": 150,
+        "kocieSciezki": 0,
+        "zarKrwi": false,
+        "ciszaKrwi": 0,
+        "wyssanieMocy": 0,
+        "mocKrwi": 0,
+        "dzikiSzal": 0,
+        "skoraBestii": 100,
+        "cienBestii": true,
+        "nocnyLowca": 0,
+        "tchnienieSmierci": 0,
+        "groza": false
+      },
+      "evolutions": {
+        "skrzydla": 0,
+        "pancerz": 10,
+        "klyPazuryKolce": 5,
+        "gruczolyJadowe": 11,
+        "wzmocnioneSciegna": 10,
+        "dodatkowaKomora": 13,
+        "krewDemona": 5,
+        "mutacjaDna": 0,
+        "oswiecony": 0,
+        "szostyZmysl": 0,
+        "absorpcja": 10,
+        "harmonijnyRozwoj": 0,
+        "pietnoDemona": 5,
+        "wzmocnioneMiesnie": 9
+      },
+      "mysliwy": 5,
+      "ninja": 5,
+      "strateg": 5,
+      "kaplica": 6,
+      "posredniak": 0,
+      "domPubliczny": 0,
+      "rzeznia": 0,
+      "obronaPrzeciwnika": 1716,
+      "odpornoscPrzeciwnika": 0,
+      "huntBonuses": [],
+      "eventBonus": "",
+      "oneTimeBonus": "",
+      "szczesciePrzeciwnika": 0,
+      "trafieniePrzeciwnika": 0,
+      "runeValues": [
+        "obrazenia 5",
+        "kryt 12",
+        "ignore 10",
+        "sila 4",
+        "zwinnosc 4",
+        "spostrzegawczosc 4",
+        "inteligencja 4",
+        "obrona 4",
+        "zycie 250",
+        "odpornosc 4",
+        "twardosc 4",
+        "szczescie 12",
+        "multi 10",
+        "szczescie 12"
+      ],
+      "umagiValues": [
+        "obrazenia 1/4",
+        "obrazenia 1/4",
+        "dodatkowyAtak",
+        "zycie 1000",
+        "zycie 1000",
+        "zycie 1000",
+        "zycie 1000",
+        "zycie 1000",
+        "zycie 1000",
+        "obrona 6/4"
+      ],
+      "equipment": {
+        "head": {
+          "rarity": "EPICKI",
+          "prefix": "Tygrysi",
+          "base": "Helm",
+          "suffix": "Magii"
+        },
+        "weaponMode": "dual1h",
+        "chest": {
+          "rarity": "EPICKI",
+          "prefix": "Tygrysi",
+          "base": "Peleryna",
+          "suffix": "Orchidei"
+        },
+        "legs": {
+          "rarity": "EPICKI",
+          "prefix": "Tygrysi",
+          "base": "Szorty",
+          "suffix": "Nocy"
+        },
+        "neck": {
+          "rarity": "EPICKI",
+          "prefix": "Tytanowy",
+          "base": "Lancuch",
+          "suffix": "Wilkolaka"
+        },
+        "finger1": {
+          "rarity": "EPICKI",
+          "prefix": "Tytanowy",
+          "base": "Pierscien",
+          "suffix": "Lewitacji"
+        },
+        "finger2": {
+          "rarity": "EPICKI",
+          "prefix": "Tytanowy",
+          "base": "Pierscien",
+          "suffix": ""
+        },
+        "weapon1": {
+          "rarity": "EPICKI",
+          "prefix": "Szybki",
+          "base": "Kastet",
+          "suffix": ""
+        },
+        "weapon2": {
+          "rarity": "EPICKI",
+          "prefix": "Opiekunczy",
+          "base": "Kastet",
+          "suffix": "Podkowy"
+        }
+      }
+    }
+  }
+];

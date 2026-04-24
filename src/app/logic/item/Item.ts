@@ -1,0 +1,51 @@
+
+import { Affix } from './Affix';
+import { Base } from './Base';
+import { ItemGenre } from './constants';
+import { ItemRarity } from './constants/itemRarity';
+export class Item {
+  prefix?: Affix;
+  suffix?: Affix;
+  base?: Base;
+  rarity?: ItemRarity;
+  constructor(prefix?: Affix, suffix?: Affix, base?: Base, rarity?: ItemRarity) {
+    this.prefix = prefix;
+    this.suffix = suffix;
+    this.base = base;
+    this.rarity = rarity;
+  }
+  getRarity(): ItemRarity {
+    return this.rarity ?? ItemRarity.ZWYKLY;
+  }
+  getGenre(): ItemGenre {
+    return this.base?.genre ?? ItemGenre.CHEST;
+  }
+  static builder(): ItemBuilder {
+    return new ItemBuilder();
+  }
+}
+export class ItemBuilder {
+  public prefix?: Affix;
+  public suffix?: Affix;
+  public base?: Base;
+  public rarity?: ItemRarity;
+  setPrefix(prefix: Affix): this {
+    this.prefix = prefix;
+    return this;
+  }
+  setSuffix(suffix: Affix): this {
+    this.suffix = suffix;
+    return this;
+  }
+  setBase(base: Base): this {
+    this.base = base;
+    return this;
+  }
+  setRarity(rarity: ItemRarity): this {
+    this.rarity = rarity;
+    return this;
+  }
+  build(): Item {
+    return new Item(this.prefix, this.suffix, this.base, this.rarity);
+  }
+}

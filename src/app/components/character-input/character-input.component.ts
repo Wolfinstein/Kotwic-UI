@@ -1,0 +1,921 @@
+import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectModule } from 'primeng/select';
+import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { CharacterService } from '../../services/character.service';
+import { Character, EquipmentItem } from '../../models/character';
+import { WeaponDictionary, ArmourDictionary, JewelsDictionary, BaseDictionary } from '../../logic/dictionaries';
+import { ItemGenre, PrefixType, SuffixType, ItemType, ItemRarity, Stats } from '../../logic/item';
+import { WeaponStats } from '../../logic/item/WeaponStats';
+import { applyQualityMultiplier } from '../../logic/item/qualityMultiplier';
+import { applyQualityWeaponMultiplier } from '../../logic/item/qualityWeaponMultiplier';
+import { CHARACTER_PRESETS, CharacterPreset } from '../../data/presets';
+import { DashboardService } from '../../services/calculate';
+import { ChartModule } from 'primeng/chart';
+
+export type SlotCategory = 'head' | 'chest' | 'legs' | 'neck' | 'finger' | 'weapon1h' | 'weapon2h';
+export interface BaseItemDef {
+  name: string;
+  category: SlotCategory;
+  hasPrefix: boolean;
+  hasSuffix: boolean;
+}
+export const RARITIES = ['ZWYKLY', 'DOBRY', 'DOSKONALY', 'LEGENDARNY', 'LEGENDARNY_DOBRY', 'LEGENDARNY_DOSKONALY', 'EPICKI'] as const;
+export const BASE_ITEMS: BaseItemDef[] = [
+  { name: 'Czapka', category: 'head', hasPrefix: true, hasSuffix: true },
+  { name: 'Kask', category: 'head', hasPrefix: true, hasSuffix: true },
+  { name: 'Helm', category: 'head', hasPrefix: true, hasSuffix: true },
+  { name: 'Maska', category: 'head', hasPrefix: true, hasSuffix: true },
+  { name: 'Obrecz', category: 'head', hasPrefix: true, hasSuffix: true },
+  { name: 'Kominiarka', category: 'head', hasPrefix: true, hasSuffix: true },
+  { name: 'Kapelusz', category: 'head', hasPrefix: true, hasSuffix: true },
+  { name: 'Korona', category: 'head', hasPrefix: true, hasSuffix: true },
+  { name: 'Opaska', category: 'head', hasPrefix: true, hasSuffix: true },
+  { name: 'Bandana', category: 'head', hasPrefix: true, hasSuffix: true },
+  { name: 'Kurtka', category: 'chest', hasPrefix: true, hasSuffix: true },
+  { name: 'Kamizelka', category: 'chest', hasPrefix: true, hasSuffix: true },
+  { name: 'Kolczuga', category: 'chest', hasPrefix: true, hasSuffix: true },
+  { name: 'ZbrojaWarstwowa', category: 'chest', hasPrefix: true, hasSuffix: true },
+  { name: 'Koszulka', category: 'chest', hasPrefix: true, hasSuffix: true },
+  { name: 'Marynarka', category: 'chest', hasPrefix: true, hasSuffix: true },
+  { name: 'PelnaZbroja', category: 'chest', hasPrefix: true, hasSuffix: true },
+  { name: 'Peleryna', category: 'chest', hasPrefix: true, hasSuffix: true },
+  { name: 'Gorset', category: 'chest', hasPrefix: true, hasSuffix: true },
+  { name: 'Smoking', category: 'chest', hasPrefix: true, hasSuffix: true },
+  { name: 'Szorty', category: 'legs', hasPrefix: true, hasSuffix: true },
+  { name: 'Spodnie', category: 'legs', hasPrefix: true, hasSuffix: true },
+  { name: 'Kilt', category: 'legs', hasPrefix: true, hasSuffix: true },
+  { name: 'Spodnica', category: 'legs', hasPrefix: true, hasSuffix: true },
+  { name: 'Amulet', category: 'neck', hasPrefix: true, hasSuffix: true },
+  { name: 'Apaszka', category: 'neck', hasPrefix: true, hasSuffix: true },
+  { name: 'Naszyjnik', category: 'neck', hasPrefix: true, hasSuffix: true },
+  { name: 'Lancuch', category: 'neck', hasPrefix: true, hasSuffix: true },
+  { name: 'Krawat', category: 'neck', hasPrefix: true, hasSuffix: true },
+  { name: 'Pierscien', category: 'finger', hasPrefix: true, hasSuffix: true },
+  { name: 'Bransoleta', category: 'finger', hasPrefix: true, hasSuffix: true },
+  { name: 'Sygnet', category: 'finger', hasPrefix: true, hasSuffix: true },
+  { name: 'Palka', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
+  { name: 'Noz', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
+  { name: 'Sztylet', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
+  { name: 'Rapier', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
+  { name: 'Miecz', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
+  { name: 'Topor', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
+  { name: 'Kastet', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
+  { name: 'Kama', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
+  { name: 'PiescNiebios', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
+  { name: 'Wakizashi', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
+  { name: 'Glock', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
+  { name: 'Magnum', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
+  { name: 'DesertEagle', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
+  { name: 'Beretta', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
+  { name: 'Uzi', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
+  { name: 'Mp5k', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
+  { name: 'Skorpion', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
+  { name: 'KarabinMysliwski', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
+  { name: 'Strzelba', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
+  { name: 'AK47', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
+  { name: 'MiotaczPlomieni', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
+  { name: 'FnFal', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
+  { name: 'PolautomatSnajperski', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
+  { name: 'KarabinSnajperski', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
+  { name: 'Maczuga', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
+  { name: 'Lom', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
+  { name: 'Pika', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
+  { name: 'ToporDwureczny', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
+  { name: 'MieczDwureczny', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
+  { name: 'Kosa', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
+  { name: 'Korbacz', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
+  { name: 'Halabarda', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
+  { name: 'Katana', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
+  { name: 'PilaLancuchowa', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
+  { name: 'KrotkiLuk', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+  { name: 'Luk', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+  { name: 'DlugiLuk', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+  { name: 'Oszczep', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+  { name: 'Pilum', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+  { name: 'NozDoRzucania', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+  { name: 'ToporekDoRzucania', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+  { name: 'Kusza', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+  { name: 'Shuriken', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+  { name: 'CiezkaKusza', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+  { name: 'LukRefleksyjny', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
+];
+export const PREFIXES_BY_CATEGORY: Record<SlotCategory, string[]> = {
+  head: ['Ozdobna', 'Utwardzana', 'Elegancka', 'Pomocna', 'Kosztowny', 'Wzmocniony', 'Magnetyczna', 'Rogata', 'Bojowa', 'Zlosliwa', 'Leniwa', 'Kuloodporne', 'Szturmowy', 'Szamanska', 'Runiczne', 'Krwawy', 'Tygrysi', 'Smiercionosny', 'Rytualny'],
+  chest: ['Wzmocniony', 'Wladcza', 'Cwiekowany', 'Lekki', 'Kuloodporne', 'Luskowa', 'Gietki', 'Plytowa', 'Szamanska', 'Lowiecka', 'Elfie', 'Bojowa', 'Tygrysi', 'Smiercionosny', 'Krwawy', 'Runiczne'],
+  legs: ['Pikowany', 'Wzmocniony', 'Cwiekowany', 'Lekki', 'Krotkie', 'Aksamitne', 'Kolcze', 'Kuloodporne', 'Gietki', 'Pancerne', 'Kompozytowe', 'Elfie', 'Runiczne', 'Szamanska', 'Tygrysi', 'Krwawy', 'Smiercionosny'],
+  neck: ['Miedziany', 'Srebrny', 'Szmaragdowy', 'Zloty', 'Platynowy', 'Rubinowy', 'Dystyngowany', 'Przebiegly', 'Niedzwiedzi', 'Twardy', 'Gwiezdny', 'Elastyczny', 'Kardynalski', 'Nekromancki', 'Plastikowy', 'Tytanowy', 'Diamentowy', 'Msciwy', 'Spaczony', 'Zdradziecki', 'Archaiczny', 'Hipnotyczny', 'Tanczacy', 'Zwierzecy', 'Jastrzebi', 'Pajeczy', 'Sloneczny', 'Czarny'],
+  finger: ['Miedziany', 'Szmaragdowy', 'Srebrny', 'Rubinowy', 'Zloty', 'Platynowy', 'Dystyngowany', 'Przebiegly', 'Niedzwiedzi', 'Twardy', 'Gwiezdny', 'Elastyczny', 'Kardynalski', 'Nekromancki', 'Plastikowy', 'Tytanowy', 'Diamentowy', 'Msciwy', 'Spaczony', 'Zdradziecki', 'Archaiczny', 'Hipnotyczny', 'Tanczacy', 'Zwierzecy', 'Pajeczy', 'Sloneczny', 'Jastrzebi', 'Czarny'],
+  weapon1h: ['Ostry', 'Kasajacy', 'Okrutny', 'Krysztalowy', 'Przyjacielski', 'Jadowity', 'Lekki', 'Zebaty', 'Wzmacniajacy', 'Opiekunczy', 'Mistyczny', 'Swiecacy', 'Kosciany', 'Zatruty', 'Antyczny', 'Zabojczy', 'Zwinny', 'Szybki', 'Przeklety', 'Demoniczny'],
+  weapon2h: ['Ostry', 'Kasajacy', 'Kosztowny', 'Wzmacniajacy', 'Lekki', 'Okrutny', 'Jadowity', 'Swiecacy', 'Krysztalowy', 'Ciezki', 'Szeroki', 'Opiekunczy', 'Mistyczny', 'Napromieniowany', 'Antyczny', 'Zebaty', 'Zatruty', 'Zabojczy', 'Przeklety', 'Demoniczny', 'Zwinny'],
+};
+export const SUFFIXES_BY_CATEGORY: Record<SlotCategory, string[]> = {
+  head: ['Miss', 'Mistera', 'Podroznika', 'Przezornosci', 'Wytrzymalosci', 'Ochrony', 'Zmyslow', 'Narkomana', 'Gladiatora', 'Wieszcza', 'SmoczejLuski', 'Mocy', 'Kary', 'Pasterza', 'Krwi', 'Magii', 'Adrenaliny', 'Prekognicji'],
+  chest: ['Narkomana', 'Zlodzieja', 'Straznika', 'Silacza', 'Gwardzisty', 'Adepta', 'Adrenaliny', 'SkorupyZolwia', 'Zabojcy', 'Kobry', 'Unikow', 'Centuriona', 'Szermierza', 'Kaliguli', 'Odpornosci', 'Grabiezcy', 'Mistrza', 'Orchidei', 'SiewcySmierci', 'Szybkosci'],
+  legs: ['Narkomana', 'Silacza', 'Rzezimieszka', 'CichychRuchow', 'Skrytosci', 'Przemytnika', 'Slonca', 'LowcyCieni', 'HandlarzaBronia', 'Inkow', 'Unikow', 'Weza', 'Pasterza', 'Tropiciela', 'Nocy'],
+  neck: ['Urody', 'Wladzy', 'Wystepku', 'Mlodosci', 'Sily', 'Geniuszu', 'Madrosci', 'TwardejSkory', 'Pielgrzyma', 'Celnosci', 'Przebieglosci', 'Sztuki', 'Wilkolaka', 'Szalenca', 'Koncentracji', 'Lewitacji', 'Krwi', 'Zdolnosci', 'Szczescia'],
+  finger: ['Urody', 'Wladzy', 'Wystepku', 'Sily', 'Geniuszu', 'Madrosci', 'Lisa', 'TwardejSkory', 'Sztuki', 'Mlodosci', 'Celnosci', 'Przebieglosci', 'Wilkolaka', 'Koncentracji', 'Lewitacji', 'Nietoperza', 'Krwi', 'Szalenca', 'Szczescia'],
+  weapon1h: ['Sekty', 'Zdobywcy', 'Mocy', 'Dowodcy', 'Zwinnosci', 'Trafienia', 'Kontuzji', 'Wladzy', 'Bolu', 'Odwagi', 'Precyzji', 'Krwi', 'Przodkow', 'Zarazy', 'Drakuli', 'Zemsty', 'Mestwa', 'Klanu', 'Podkowy', 'Bieglosci', 'Samobojcy', 'Imperatora'],
+  weapon2h: ['Podstepu', 'Hazardzisty', 'Olowiu', 'Mocy', 'Zdrady', 'Wladzy', 'Zdobywcy', 'Bolu', 'Krwiopijcy', 'Inkwizytora', 'Krwi', 'Drakuli', 'Zarazy', 'Zemsty', 'Podkowy', 'Bazyliszka', 'Autokraty', 'Samobojcy', 'DalekiegoZasiegu', 'Precyzji', 'Driady', 'Zemsty', 'Szybkostrzelnosci', 'Wilka', 'Doskonalosci', 'Reakcji'],
+};
+const SLOT_TO_CATEGORY: Record<string, SlotCategory> = {
+  head: 'head',
+  chest: 'chest',
+  legs: 'legs',
+  neck: 'neck',
+  finger1: 'finger',
+  finger2: 'finger',
+  weapon1: 'weapon1h',
+  weapon2: 'weapon1h',
+};
+@Component({
+  selector: 'app-character-input',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    InputNumberModule,
+    SelectModule,
+    CheckboxModule,
+    RadioButtonModule,
+    ButtonModule,
+    DialogModule,
+    TooltipModule,
+    InputTextModule,
+    SelectButtonModule,
+    ChartModule,
+  ],
+  templateUrl: './character-input.component.html',
+  styleUrl: './character-input.component.css'
+})
+export class CharacterInputComponent implements OnInit {
+  character: Character | null = null;
+  showEquipmentModal = false;
+  showRunesModal = false;
+  showUmagiModal = false;
+  showPresetsModal = false;
+  presets = CHARACTER_PRESETS;
+  selectedEquipmentSlot = '';
+  weaponMode: 'dual1h' | '2h' = 'dual1h';
+  draftItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
+  draft2hItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
+  rarities = RARITIES;
+  runeOptions = ['obrazenia 1', 'obrazenia 2', 'obrazenia 3', 'obrazenia 5', 'kryt 3', 'kryt 5', 'kryt 8', 'kryt 12', 'ignore 2', 'ignore 4', 'ignore 6', 'ignore 10', 'sila 1', 'sila 2', 'sila 3', 'sila 4', 'spostrzegawczosc 1', 'spostrzegawczosc 2', 'spostrzegawczosc 3', 'spostrzegawczosc 4', 'inteligencja 1', 'inteligencja 2', 'inteligencja 3', 'inteligencja 4', 'wiedza 1', 'wiedza 2', 'wiedza 3', 'wiedza 4', 'zwinnosc 1', 'zwinnosc 2', 'zwinnosc 3', 'zwinnosc 4', 'obrona 1', 'obrona 2', 'obrona 3', 'obrona 4', 'odpornosc 1', 'odpornosc 2', 'odpornosc 3', 'odpornosc 4', 'twardosc 1', 'twardosc 2', 'twardosc 3', 'twardosc 4', 'zycie 50', 'zycie 100', 'zycie 150', 'zycie 250', 'szczescie 3', 'szczescie 4', 'szczescie 8', 'szczescie 12', 'multi 2', 'multi 4', 'multi 6', 'multi 10'];
+  selectedRunes: string[] = [];
+  runeFilter = '';
+  selectedRuneIndex: number | null = null;
+  umagiOptions = ['obrazenia 1/4', 'ignore 4', 'ignore 6', 'ignore 10', 'ignore 15', 'dodatkowyAtak', 'obrazenia 5', 'obrazenia 7', 'obrazenia 10', 'obrazenia 20', 'kryt 3', 'kryt 5', 'kryt 8', 'kryt 12', 'trafienie 5', 'trafienie 12', 'trafienie 18', 'trafienie 25', 'zycie 25', 'zycie 50', 'zycie 100', 'zycie 250', 'zycie 500', 'zycie 1000', 'obrona 3/4', 'obrona 6/4', 'unik 3', 'unik 5', 'unik 7', 'unik 11', 'obrona 20', 'obrona 30', 'obrona 50', 'obrona 75', 'szczescie 2', 'szczescie 5', 'szczescie 7', 'szczescie 10', 'szczescie 15', 'szczescie 20', 'inicjatywa 36', 'spostrzegawczosc 2', 'spostrzegawczosc 4', 'spostrzegawczosc 8', 'spostrzegawczosc 14', 'zwinnosc 2', 'zwinnosc 4', 'zwinnosc 8', 'zwinnosc 14', 'sila 2', 'sila 4', 'sila 8', 'sila 14', 'charyzma 2', 'charyzma 4', 'charyzma 8', 'charyzma 14', 'wplywy 2', 'wplywy 4', 'wplywy 8', 'wplywy 14', 'odpornosc 2', 'odpornosc 4', 'odpornosc 8', 'odpornosc 14', 'inteligencja 2', 'inteligencja 4', 'inteligencja 8', 'inteligencja 14', 'wiedza 2', 'wiedza 4', 'wiedza 8', 'wiedza 14', 'wyglad 2', 'wyglad 4', 'wyglad 8', 'wyglad 14'];
+  selectedUmagi: string[] = [];
+  umagiFilter = '';
+  selectedUmagiIndex: number | null = null;
+
+  private treningPresets: Record<string, { maxLevel: number; attrs: Record<string, number> }[]> = {
+    biala: [
+      { maxLevel: 24, attrs: { sila: 25, zwinnosc: 25, odpornosc: 15, wyglad: 15, charyzma: 15, wplywy: 15, spostrzegawczosc: 20, inteligencja: 17, wiedza: 17 } },
+      { maxLevel: 49, attrs: { sila: 35, zwinnosc: 40, odpornosc: 25, wyglad: 25, charyzma: 25, wplywy: 25, spostrzegawczosc: 30, inteligencja: 25, wiedza: 25 } },
+      { maxLevel: 99, attrs: { sila: 75, zwinnosc: 75, odpornosc: 50, wyglad: 50, charyzma: 50, wplywy: 50, spostrzegawczosc: 60, inteligencja: 55, wiedza: 55 } },
+      { maxLevel: 199, attrs: { sila: 135, zwinnosc: 135, odpornosc: 70, wyglad: 70, charyzma: 70, wplywy: 70, spostrzegawczosc: 95, inteligencja: 95, wiedza: 95 } },
+      { maxLevel: 399, attrs: { sila: 150, zwinnosc: 175, odpornosc: 90, wyglad: 90, charyzma: 90, wplywy: 90, spostrzegawczosc: 130, inteligencja: 120, wiedza: 120 } },
+      { maxLevel: 699, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+      { maxLevel: Infinity, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+    ],
+    palna: [
+      { maxLevel: 24, attrs: { sila: 20, zwinnosc: 20, odpornosc: 15, wyglad: 15, charyzma: 15, wplywy: 15, spostrzegawczosc: 25, inteligencja: 20, wiedza: 20 } },
+      { maxLevel: 49, attrs: { sila: 25, zwinnosc: 30, odpornosc: 25, wyglad: 25, charyzma: 25, wplywy: 25, spostrzegawczosc: 40, inteligencja: 35, wiedza: 35 } },
+      { maxLevel: 99, attrs: { sila: 55, zwinnosc: 60, odpornosc: 50, wyglad: 50, charyzma: 50, wplywy: 50, spostrzegawczosc: 75, inteligencja: 65, wiedza: 65 } },
+      { maxLevel: 199, attrs: { sila: 95, zwinnosc: 95, odpornosc: 70, wyglad: 70, charyzma: 70, wplywy: 70, spostrzegawczosc: 135, inteligencja: 120, wiedza: 120 } },
+      { maxLevel: 399, attrs: { sila: 90, zwinnosc: 130, odpornosc: 90, wyglad: 90, charyzma: 90, wplywy: 90, spostrzegawczosc: 175, inteligencja: 150, wiedza: 150 } },
+      { maxLevel: 699, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+      { maxLevel: Infinity, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+    ],
+    dystans: [
+      { maxLevel: 24, attrs: { sila: 17, zwinnosc: 25, odpornosc: 15, wyglad: 15, charyzma: 15, wplywy: 15, spostrzegawczosc: 25, inteligencja: 17, wiedza: 17 } },
+      { maxLevel: 49, attrs: { sila: 30, zwinnosc: 35, odpornosc: 25, wyglad: 25, charyzma: 25, wplywy: 25, spostrzegawczosc: 35, inteligencja: 30, wiedza: 30 } },
+      { maxLevel: 99, attrs: { sila: 60, zwinnosc: 70, odpornosc: 50, wyglad: 50, charyzma: 50, wplywy: 50, spostrzegawczosc: 70, inteligencja: 60, wiedza: 60 } },
+      { maxLevel: 199, attrs: { sila: 100, zwinnosc: 135, odpornosc: 70, wyglad: 70, charyzma: 70, wplywy: 70, spostrzegawczosc: 135, inteligencja: 95, wiedza: 95 } },
+      { maxLevel: 399, attrs: { sila: 120, zwinnosc: 160, odpornosc: 90, wyglad: 90, charyzma: 90, wplywy: 90, spostrzegawczosc: 160, inteligencja: 100, wiedza: 100 } },
+      { maxLevel: 699, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+      { maxLevel: Infinity, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+    ],
+  };
+
+  applyTreningPreset(type: string) {
+    if (!this.character) return;
+    const brackets = this.treningPresets[type];
+    const match = brackets.find(b => this.character!.poziom <= b.maxLevel) ?? brackets[brackets.length - 1];
+    this.characterService.updateAttributes(match.attrs as any);
+  }
+
+  attributes = [
+    { key: 'sila', label: 'Siła' },
+    { key: 'zwinnosc', label: 'Zwinność' },
+    { key: 'odpornosc', label: 'Odpornoćć' },
+    { key: 'wyglad', label: 'Wygląd' },
+    { key: 'charyzma', label: 'Charyzma' },
+    { key: 'wplywy', label: 'Wpływy' },
+    { key: 'spostrzegawczosc', label: 'Spostrzegawczość' },
+    { key: 'inteligencja', label: 'Inteligencja' },
+    { key: 'wiedza', label: 'Wiedza' },
+  ];
+  evolutions = [
+    { key: 'skrzydla', label: 'Skrzydła' },
+    { key: 'pancerz', label: 'Pancerz' },
+    { key: 'klyPazuryKolce', label: 'Kły/Pazury/Kolce' },
+    { key: 'gruczolyJadowe', label: 'Gruczoły jadowe' },
+    { key: 'wzmocnioneSciegna', label: 'Wzmocnione scięgna' },
+    { key: 'dodatkowaKomora', label: 'Dodatkowa komora' },
+    { key: 'krewDemona', label: 'Krew demona' },
+    { key: 'mutacjaDna', label: 'Mutacja DNA' },
+    { key: 'oswiecony', label: 'Oświecony' },
+    { key: 'szostyZmysl', label: 'Szósty zmysl' },
+    { key: 'absorpcja', label: 'Absorpcja' },
+    { key: 'harmonijnyRozwoj', label: 'Harmonijny rozwój' },
+    { key: 'pietnoDemona', label: 'Piętno demona' },
+    { key: 'wzmocnioneMiesnie', label: 'Wzmocnione mięsnie' },
+  ];
+  talizmanAttributes = [
+    { key: 'ambicja', label: 'Ambicja' },
+    { key: 'lewiatan', label: 'Lewiatan' },
+    { key: 'behemot', label: 'Behemot' },
+    { key: 'kamienZla', label: 'Kamień Zła' },
+    { key: 'kamienDobra', label: 'Kamień Dobra' },
+    { key: 'kamienPrzestrzeni', label: 'Kamień Przestrzeni' },
+    { key: 'kamienCzasu', label: 'Kamień Czasu' },
+    { key: 'szponyNocy', label: 'Szpony Nocy' },
+    { key: 'zycieISmierc', label: 'Życie i Śmierć' },
+    { key: 'otchlaniCiszy', label: 'Otchlań Ciszy' },
+    { key: 'potegaMocy', label: 'Potęga Mocy' },
+    { key: 'furiaBestii', label: 'Furia Bestii' },
+    { key: 'auraBestii', label: 'Aura Bestii' },
+    { key: 'maskaWladzy', label: 'Maska Władzy' },
+    { key: 'maskaStachu', label: 'Maska Strachu' },
+    { key: 'cichyLowca', label: 'Cichy Łowca' },
+    { key: 'piesnKrwi', label: 'Pieśń Krwi' },
+    { key: 'ziz', label: 'Ziz' }
+  ];
+  arcaneAttributes = [
+    { key: 'maskaAdonisa', label: 'Maska Adonisa', type: 'int', cost: 10 },
+    { key: 'maskaKaliguli', label: 'Maska Kaliguli', type: 'int', cost: 10 },
+    { key: 'majestat', label: 'Majestat', type: 'int', cost: 50 },
+    { key: 'krewZycia', label: 'Krew Życia', type: 'int', cost: 20 },
+    { key: 'kocieSciezki', label: 'Kocie Ścieżki', type: 'int', cost: 15 },
+    { key: 'zarKrwi', label: 'Żar Krwi', type: 'boolean', cost: 210 },
+    { key: 'ciszaKrwi', label: 'Cisza Krwi', type: 'int', cost: 15 },
+    { key: 'wyssanieMocy', label: 'Wyssanie Mocy', type: 'int', cost: 30 },
+    { key: 'mocKrwi', label: 'Moc Krwi', type: 'int', cost: 30 },
+    { key: 'dzikiSzal', label: 'Dziki Szal', type: 'int', cost: 13 },
+    { key: 'skoraBestii', label: 'Skóra Bestii', type: 'int', cost: 14 },
+    { key: 'cienBestii', label: 'Cień Bestii', type: 'boolean', cost: 200 },
+    { key: 'nocnyLowca', label: 'Nocny Łowca', type: 'int', cost: 20 },
+    { key: 'tchnienieSmierci', label: 'Tchnienie Śmierci', type: 'int', cost: 40 },
+    { key: 'groza', label: 'Groza', type: 'boolean', cost: 225 },
+  ];
+
+  get arcaneTotalCost(): number {
+    if (!this.character) return 0;
+    return this.arcaneAttributes.reduce((sum, arcane) => {
+      const value = this.getArcaneValue(arcane.key);
+      const levels = typeof value === 'boolean' ? (value ? 1 : 0) : (value ?? 0);
+      return sum + levels * arcane.cost;
+    }, 0);
+  }
+  rasaOptions = [
+    { label: 'Potępiony', value: 'Potepiony' },
+    { label: 'Łapacz Myśli', value: 'LapaczMysli' },
+    { label: 'Władca Zwierząt', value: 'WladcaZwierzat' },
+    { label: 'Kultysta', value: 'Kultysta' },
+    { label: 'Ssak', value: 'Ssak' },
+  ];
+  weaponModeOptions = [
+    { label: '1H+1H', value: 'dual1h' },
+    { label: '2H', value: '2h' },
+  ];
+  huntBonuses = ['Juggernaut', 'Ronin', 'Adrenalina', 'SokoleOko', 'Rzeźnik'];
+  dailyBonuses = ['Brak', 'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień poszukiwaczy', 'Dzień Vlada', 'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina', 'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you', 'Dzień Przemiany', 'Dzień poszukiwaczy', 'Świąteczna wizja Kaina (deluxe)', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami', 'Pierwszy gol', 'Pierwszy serwis', 'Szczęście Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden'];
+  oneTimeBonuses = ['Brak', 'Krew wilka', 'Jabłko żelaznego drzewa', 'Płetwa rekina', 'Eliksir zmysłów', 'Święcona woda', 'Łza feniksa', 'Magiczna pieczęć', 'Serce nietoperza', 'Kwiat lotosu', 'Jad Wielkopchły', 'Serum oświecenia', 'Wywar z czarnego kota', 'Węgiel', 'Sierść kreta', 'Saletra', 'Sok z żuka', 'Esencja młodości', 'Paznokieć trolla', 'Wilcza jagoda', 'Oko kota', 'Absynt', 'Łuski salamandry', 'Woda źródlana', 'Kość męczennika', 'Napój miłosny', 'Jad skorpiona', 'Korzeń mandragory', 'Gwiezdny pył', 'Fiolka kwasu', 'Siarka', 'Czarny diament', 'Oko topielca', 'Boska łza', 'Ząb ghula', 'Wywar z koralowca', 'Serce proroka', 'Pazur bazyliszka', 'Łuski demona', 'Skrzydła chrząszcza', 'Maska gargulca', 'Sok z modliszki', 'Oddech smoka', 'Ząb wiedźmy', 'Grimoire', 'Czarna żółć', 'Palec kowala', 'Kwiat bzu', 'Ogień z serca ziemi'];
+  private static readonly EXPANDED_STORAGE_KEY = 'expandedBonuses';
+  private static readonly THEME_STORAGE_KEY = 'colorTheme';
+  private static readonly THEMES = [
+    { id: 'klasyczny', label: 'Klasyczny' },
+    { id: 'nanorobot', label: 'Nanorobot' },
+  ];
+  currentThemeLabel = 'Klasyczny';
+  private static readonly EXPANDED_DEFAULTS: { [key: string]: boolean } = {
+    silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false,
+    trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: false, ewolucje: true,
+    przeciwnik: true, inne: false, budynki: false,
+  };
+  expandedBonuses: { [key: string]: boolean } = { ...CharacterInputComponent.EXPANDED_DEFAULTS };
+  issues = [
+    'brak liczenia punktow krwi punkty krwi',
+    'testowanie na waskim zakresie lv'
+  ];
+  showIssuesDropdown = false;
+  selectedHuntBonuses: string[] = [];
+  selectedEventBonus: string | null = null;
+  selectedOneTimeBonus: string | null = null;
+  presetChartData: any = null;
+  presetChartOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#ccc' } } },
+    scales: {
+      x: { title: { display: true, text: 'Runda', color: '#aaa' }, ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+      y: { title: { display: true, text: 'Obrażenia', color: '#aaa' }, ticks: { color: '#aaa', stepSize: 50000 }, grid: { color: 'rgba(255,255,255,0.08)' } },
+    },
+  };
+  readonly CHART_COLORS = ['#4fc3f7','#81c784','#ffb74d','#f06292','#ce93d8','#80cbc4'];
+  presetSelections: boolean[] = [];
+  readonly emptyChartData = { labels: Array.from({ length: 10 }, (_, i) => `R${i + 1}`), datasets: [] };
+
+  constructor(private characterService: CharacterService, private ngZone: NgZone, private cdr: ChangeDetectorRef, private dashboardService: DashboardService) { }
+
+  openPresetsModal() {
+    if (!this.presetSelections.length) {
+      this.presetSelections = this.presets.map(() => true);
+    }
+    this.buildAllPresetsChart();
+    this.showPresetsModal = true;
+  }
+
+  togglePresetSelection(index: number) {
+    this.presetSelections[index] = !this.presetSelections[index];
+    this.buildAllPresetsChart();
+  }
+
+  private buildAllPresetsChart() {
+    const datasets = this.presets
+      .map((preset, i) => {
+        const perWeapon = this.dashboardService.calculateStuff(preset.character).roundsPerWeapon ?? [];
+        const rounds = perWeapon.length
+          ? perWeapon[0].rounds.map((_, r) => perWeapon.reduce((sum, w) => sum + (w.rounds[r] ?? 0), 0))
+          : [];
+        return { preset, i, rounds };
+      })
+      .filter(({ i, rounds }) => this.presetSelections[i] && rounds.length > 0)
+      .map(({ preset, i, rounds }) => ({
+        label: preset.name,
+        data: rounds,
+        borderColor: this.CHART_COLORS[i % this.CHART_COLORS.length],
+        backgroundColor: this.CHART_COLORS[i % this.CHART_COLORS.length] + '33',
+        tension: 0.3,
+        fill: false,
+        pointRadius: 4,
+      }));
+
+    if (!datasets.length) { this.presetChartData = null; return; }
+    const roundCount = datasets[0].data.length;
+    this.presetChartData = {
+      labels: Array.from({ length: roundCount }, (_, i) => `R${i + 1}`),
+      datasets,
+    };
+  }
+  ngOnInit() {
+    try {
+      const saved = localStorage.getItem(CharacterInputComponent.EXPANDED_STORAGE_KEY);
+      if (saved) {
+        this.expandedBonuses = { ...CharacterInputComponent.EXPANDED_DEFAULTS, ...JSON.parse(saved) };
+      }
+    } catch { }
+    try {
+      const savedTheme = localStorage.getItem(CharacterInputComponent.THEME_STORAGE_KEY);
+      const match = CharacterInputComponent.THEMES.find(t => t.id === savedTheme);
+      if (match) {
+        document.documentElement.setAttribute('data-theme', match.id);
+        this.currentThemeLabel = match.label;
+      }
+    } catch { }
+    this.characterService.getCharacter$().subscribe(char => {
+      this.character = char;
+      if (char) {
+        this.selectedHuntBonuses = [...(char.huntBonuses || [])];
+        this.selectedEventBonus = char.eventBonus || null;
+        this.selectedOneTimeBonus = char.oneTimeBonus || null;
+      }
+      if (char?.runeValues) {
+        this.selectedRunes = [...char.runeValues];
+      }
+      if ((char as any)?.umagiValues) {
+        this.selectedUmagi = [...(char as any).umagiValues];
+      }
+      if (char?.equipment?.weaponMode) {
+        this.weaponMode = char.equipment.weaponMode;
+      }
+    });
+  }
+
+  private getSlotCategory(slot: string): SlotCategory {
+    if (slot === 'weapon1' || slot === 'weapon2') {
+      return this.weaponMode === '2h' ? 'weapon2h' : 'weapon1h';
+    }
+    return SLOT_TO_CATEGORY[slot] ?? 'head';
+  }
+  baseItemsForSlot(slot: string): BaseItemDef[] {
+    const cat = this.getSlotCategory(slot);
+    return BASE_ITEMS.filter(b => b.category === cat);
+  }
+  get baseItems2h(): BaseItemDef[] {
+    return BASE_ITEMS.filter(b => b.category === 'weapon2h');
+  }
+  prefixesForDraft(draft: EquipmentItem, slot: string): string[] {
+    if (!draft.base) return [];
+    const def = BASE_ITEMS.find(b => b.name === draft.base);
+    if (!def || !def.hasPrefix) return [];
+    return PREFIXES_BY_CATEGORY[def.category] ?? [];
+  }
+  suffixesForDraft(draft: EquipmentItem, slot: string): string[] {
+    if (!draft.base) return [];
+    const def = BASE_ITEMS.find(b => b.name === draft.base);
+    if (!def || !def.hasSuffix) return [];
+    return SUFFIXES_BY_CATEGORY[def.category] ?? [];
+  }
+  draftHasPrefix(draft: EquipmentItem): boolean {
+    if (!draft.base) return false;
+    return !!BASE_ITEMS.find(b => b.name === draft.base)?.hasPrefix;
+  }
+  draftHasSuffix(draft: EquipmentItem): boolean {
+    if (!draft.base) return false;
+    return !!BASE_ITEMS.find(b => b.name === draft.base)?.hasSuffix;
+  }
+  onBaseChange(draft: EquipmentItem) {
+    draft.prefix = null;
+    draft.suffix = null;
+  }
+  buildItemLabel(item: EquipmentItem | undefined | null): string {
+    if (!item || !item.base) return '';
+    const parts: string[] = [];
+    if (item.rarity) parts.push(item.rarity);
+    if (item.prefix) parts.push(item.prefix);
+    parts.push(item.base);
+    if (item.suffix) parts.push(item.suffix);
+    return parts.join(' ');
+  }
+  slotButtonLabel(slot: string): string {
+    if (!this.character) return this.defaultSlotLabel(slot);
+    const item = (this.character.equipment as any)[slot] as EquipmentItem | undefined;
+    if (item && item.base) {
+      if (item.prefix == null) {
+        item.prefix = ''
+      }
+      if (item.suffix == null) {
+        item.suffix = ''
+      }
+      return item.prefix + ' ' + item.base + ' ' + item.suffix;
+    }
+    return this.defaultSlotLabel(slot);
+  }
+  defaultSlotLabel(slot: string): string {
+    const labels: Record<string, string> = {
+      head: 'Głowa', chest: 'Tułów', legs: 'Nogi',
+      neck: 'Szyja', finger1: 'Palec 1', finger2: 'Palec 2',
+      weapon1: '1H Lewy', weapon2: this.weaponMode === '2h' ? '2H' : '1H Prawy',
+    };
+    return labels[slot] ?? slot;
+  }
+  getEquipmentTooltip(slot: string, playerLvl: number): string {
+    const item = (this.character?.equipment as any)?.[slot] as EquipmentItem | undefined;
+    if (!item || !item.base) return '';
+    try {
+      const itemType = item.base as ItemType;
+      const playerLvl = this.character?.poziom || 1;
+      const rarity = (item.rarity || 'ZWYKLY') as ItemRarity;
+      const genre = this.getGenreForItemType(itemType);
+      const isWeapon = [ItemGenre.RANGE_1H, ItemGenre.RANGE_2H, ItemGenre.WHITE_1H, ItemGenre.WHITE_2H, ItemGenre.GUN_1H, ItemGenre.GUN_2H].includes(genre);
+      let combinedStats: Stats = isWeapon ? new WeaponStats() : new Stats();
+      try {
+        const base = BaseDictionary.getBase(genre, itemType);
+        if (isWeapon) {
+          (combinedStats as WeaponStats).addWeaponStats(base.stats as WeaponStats);
+        } else {
+          combinedStats.addStats(base.stats);
+        }
+      } catch (e) {
+      }
+      if (item.prefix && item.prefix.trim()) {
+        try {
+          const prefixType = this.getPrefixTypeByName(item.prefix);
+          const dictionaryType = this.getDictionaryForGenre(genre);
+          let prefixStats: any = null;
+          switch (dictionaryType) {
+            case 'weapon':
+              prefixStats = WeaponDictionary.getWeaponPrefix(genre, prefixType);
+              break;
+            case 'armour':
+              if (genre === ItemGenre.LEGS) {
+                prefixStats = ArmourDictionary.getLegsPrefix(genre, itemType, prefixType);
+              } else {
+                prefixStats = ArmourDictionary.getArmourPrefix(genre, prefixType);
+              }
+              break;
+            case 'jewel':
+              prefixStats = JewelsDictionary.getJewelPrefix(genre, prefixType);
+              break;
+          }
+          if (prefixStats) {
+            if (isWeapon) {
+              (combinedStats as WeaponStats).addWeaponStats(prefixStats.stats as WeaponStats);
+            } else {
+              combinedStats.addStats(prefixStats.stats);
+            }
+          }
+        } catch (e) {
+        }
+      }
+      if (item.suffix && item.suffix.trim()) {
+        try {
+          const suffixType = this.getSuffixTypeByName(item.suffix);
+          const dictionaryType = this.getDictionaryForGenre(genre);
+          let suffixStats: any = null;
+          switch (dictionaryType) {
+            case 'weapon':
+              suffixStats = WeaponDictionary.getWeaponSuffix(genre, suffixType);
+              break;
+            case 'armour':
+              suffixStats = ArmourDictionary.getArmourSuffix(genre, suffixType, playerLvl);
+              break;
+            case 'jewel':
+              suffixStats = JewelsDictionary.getJewelSuffix(genre, suffixType);
+              break;
+          }
+          if (suffixStats) {
+            if (isWeapon) {
+              (combinedStats as WeaponStats).addWeaponStats(suffixStats.stats as WeaponStats);
+            } else {
+              combinedStats.addStats(suffixStats.stats);
+            }
+          }
+        } catch (e) {
+        }
+      }
+      if (genre == ItemGenre.RANGE_1H || genre == ItemGenre.RANGE_2H || genre == ItemGenre.WHITE_1H || genre == ItemGenre.WHITE_2H || genre == ItemGenre.GUN_2H || genre == ItemGenre.GUN_1H) {
+        const multipliedStats = applyQualityWeaponMultiplier(combinedStats, rarity, genre, playerLvl);
+        return JSON.stringify(this.extractStats(multipliedStats), null, 2);
+      } else {
+        const multipliedStats = applyQualityMultiplier(combinedStats, rarity, playerLvl);
+        return JSON.stringify(this.extractStats(multipliedStats), null, 2);
+      }
+    } catch (error) {
+      return '';
+    }
+  }
+  private getPrefixTypeByName(name: string): PrefixType {
+    const prefixValues = Object.values(PrefixType);
+    const found = prefixValues.find(v => v === name);
+    if (!found) {
+      throw new Error(`Prefix type not found: ${name}`);
+    }
+    return name as PrefixType;
+  }
+  private getSuffixTypeByName(name: string): SuffixType {
+    const suffixValues = Object.values(SuffixType);
+    const found = suffixValues.find(v => v === name);
+    if (!found) {
+      throw new Error(`Suffix type not found: ${name}`);
+    }
+    return name as SuffixType;
+  }
+  private getGenreForItemType(itemType: ItemType): ItemGenre {
+    const legTypes = [ItemType.SZORTY, ItemType.SPODNIE, ItemType.SPODNICA, ItemType.KILT];
+    const chestTypes = [ItemType.KURTKA, ItemType.KAMIZELKA, ItemType.KOLCZUGA, ItemType.ZBROJAWARSTWOWA, ItemType.KOSZULKA, ItemType.MARYNARKA, ItemType.PELNAZBROJA, ItemType.PELERYNA, ItemType.GORSET, ItemType.SMOKING];
+    const headTypes = [ItemType.CZAPKA, ItemType.KASK, ItemType.HELM, ItemType.MASKA, ItemType.OBRECZ, ItemType.KOMINIARKA, ItemType.KAPELUSZ, ItemType.KORONA, ItemType.OPASKA, ItemType.BANDANA];
+    const ringTypes = [ItemType.PIERSCIEN, ItemType.SYGNET, ItemType.BRANSOLETA];
+    const neckTypes = [ItemType.AMULET, ItemType.LANCUCH, ItemType.NASZYJNIK, ItemType.KRAWAT, ItemType.APASZKA];
+    const melee1hTypes = [ItemType.PALKA, ItemType.NOZ, ItemType.SZTYLET, ItemType.RAPIER, ItemType.MIECZ, ItemType.TOPOR, ItemType.KASTET, ItemType.KAMA, ItemType.PIESCNIEBIOS, ItemType.WAKIZASHI];
+    const melee2hTypes = [ItemType.MACZUGA, ItemType.LOM, ItemType.PIKA, ItemType.TOPORDWURECZNY, ItemType.MIECZDWURECZNY, ItemType.KOSA, ItemType.KORBACZ, ItemType.HALABARDA, ItemType.KATANA, ItemType.PILALANCUCHOWA];
+    const gun1hTypes = [ItemType.GLOCK, ItemType.MAGNUM, ItemType.DESERT_EAGLE, ItemType.BERETTA, ItemType.UZI, ItemType.MP5K, ItemType.SKORPION];
+    const gun2hTypes = [ItemType.KARABINMYSLIWSKI, ItemType.STRZELBA, ItemType.AK47, ItemType.MIOTACZPLOMIENI, ItemType.FN_FAL, ItemType.POLAUTOMATSNAJPERSKI, ItemType.KARABINSNAJPERSKI];
+    const range1hTypes = [ItemType.KROTKILUK, ItemType.LUK, ItemType.DLUGILUK, ItemType.NOZDORZUCANIA, ItemType.TOPOREKDORZUCANIA, ItemType.SHURIKEN];
+    const range2hTypes = [ItemType.KUSZA, ItemType.CIEZKAKUSZA, ItemType.LUKREFLEKSYJNY, ItemType.OSZCZEP, ItemType.PILUM];
+    if (legTypes.includes(itemType)) return ItemGenre.LEGS;
+    if (chestTypes.includes(itemType)) return ItemGenre.CHEST;
+    if (headTypes.includes(itemType)) return ItemGenre.HEAD;
+    if (ringTypes.includes(itemType)) return ItemGenre.FINGER;
+    if (neckTypes.includes(itemType)) return ItemGenre.NECK;
+    if (melee1hTypes.includes(itemType)) return ItemGenre.WHITE_1H;
+    if (melee2hTypes.includes(itemType)) return ItemGenre.WHITE_2H;
+    if (gun1hTypes.includes(itemType)) return ItemGenre.GUN_1H;
+    if (gun2hTypes.includes(itemType)) return ItemGenre.GUN_2H;
+    if (range1hTypes.includes(itemType)) return ItemGenre.RANGE_1H;
+    if (range2hTypes.includes(itemType)) return ItemGenre.RANGE_2H;
+    throw new Error(`Unknown item type: ${itemType}`);
+  }
+  private getDictionaryForGenre(genre: ItemGenre): 'weapon' | 'armour' | 'jewel' {
+    const weaponGenres = [ItemGenre.WHITE_1H, ItemGenre.WHITE_2H, ItemGenre.GUN_1H, ItemGenre.GUN_2H, ItemGenre.RANGE_1H, ItemGenre.RANGE_2H];
+    const armourGenres = [ItemGenre.HEAD, ItemGenre.CHEST, ItemGenre.LEGS];
+    const jewelGenres = [ItemGenre.NECK, ItemGenre.FINGER];
+    if (weaponGenres.includes(genre)) return 'weapon';
+    if (armourGenres.includes(genre)) return 'armour';
+    if (jewelGenres.includes(genre)) return 'jewel';
+    throw new Error(`Unknown genre: ${genre}`);
+  }
+  private extractStats(stats: any): Record<string, any> {
+    const result: Record<string, any> = {};
+    if (!stats) return result;
+    const statProps = [
+      'trafienieBiala', 'atakiBiala', 'minDpsBiala1h', 'maxDpsBiala1h', 'minDpsBiala2h', 'maxDpsBiala2h',
+      'critChanceBiala1h', 'critChanceBiala2h', 'critMultiBiala1h', 'unikBiala',
+      'atakiPalna', 'trafieniePalna', 'minDpsPalna1h', 'maxDpsPalna1h', 'minDpsPalna2h', 'maxDpsPalna2h',
+      'critChancePalna1h', 'critChancePalna2h', 'ignoreObrony',
+      'atakiDystans1h', 'atakiDystans2h', 'trafienieDystans', 'minDpsDystans1h', 'maxDpsDystans1h', 'minDpsDystans2h', 'maxDpsDystans2h',
+      'critChanceDystans', 'unikDystans',
+      'obronaPrzedmiotow', 'obronaDodatkowa', 'twardosc', 'redukcjaObrazen', 'mnoznikObrony', 'odpornosc',
+      'sila', 'zwinnosc', 'spostrzegawczosc', 'inteligencja', 'wiedza', 'wyglad', 'charyzma', 'wplywy',
+      'punktyZycia', 'punktyKrwi', 'szczescie',
+      'critMultiDystans1h',
+      'critMultiDystans2h',
+      'critMultiPalna1h',
+      'critMultiPalna2h',
+      'critMultiBiala2h',
+      'trafienieProcentoweDystans',
+      'trafienieProcentowePalna',
+      'trafienieProcentoweBiala',
+    ];
+    statProps.forEach(prop => {
+      if (stats[prop] !== undefined && stats[prop] !== null && stats[prop] !== 0) {
+        result[prop] = stats[prop];
+      }
+    });
+    return result;
+  }
+  get weapon2Locked(): boolean {
+    return this.weaponMode === '2h';
+  }
+  openEquipmentModal(slot: string) {
+    if (slot === 'weapon2' && this.weaponMode === '2h') return;
+    this.selectedEquipmentSlot = slot;
+    const existing = this.character?.equipment
+      ? (this.character.equipment as any)[slot] as EquipmentItem | undefined
+      : undefined;
+    this.draftItem = existing
+      ? { ...existing }
+      : { rarity: null, prefix: null, base: null, suffix: null };
+    this.showEquipmentModal = true;
+  }
+  toggleWeaponMode() {
+    this.weaponMode = this.weaponMode === 'dual1h' ? '2h' : 'dual1h';
+    this.applyWeaponMode(this.weaponMode);
+  }
+  onWeaponModeChange(newMode: 'dual1h' | '2h') {
+    this.applyWeaponMode(newMode);
+  }
+  private applyWeaponMode(mode: 'dual1h' | '2h') {
+    if (!this.character) return;
+    const updated: any = { ...this.character.equipment, weaponMode: mode };
+    if (mode === '2h') updated.weapon2 = undefined;
+    this.characterService.updateCharacter({ ...this.character, equipment: updated });
+  }
+  saveEquipmentItem() {
+    if (!this.character) return;
+    const updated = {
+      ...this.character.equipment,
+      [this.selectedEquipmentSlot]: { ...this.draftItem },
+      weaponMode: this.weaponMode,
+    };
+    this.characterService.updateCharacter({ ...this.character, equipment: updated });
+    this.showEquipmentModal = false;
+  }
+
+  getAttrValue(key: string): number {
+    if (!this.character) return 0;
+    return (this.character.attributes as any)[key] || 0;
+  }
+  setAttrValue(key: string, value: number) {
+    this.characterService.updateAttributes({ [key]: value } as any);
+  }
+  getEvoValue(key: string): number {
+    if (!this.character) return 0;
+    return (this.character.evolutions as any)[key] || 0;
+  }
+  setEvoValue(key: string, value: number) {
+    this.characterService.updateEvolutions({ [key]: value } as any);
+  }
+  getTalizmanValue(key: string): number {
+    if (!this.character) return 0;
+    return (this.character.talizmanLevels as any)[key] || 0;
+  }
+  setTalizmanValue(key: string, value: number) {
+    this.characterService.updateTalizmanLevels({ [key]: value } as any);
+  }
+  getArcaneValue(key: string): any {
+    if (!this.character) return 0;
+    return (this.character.arcaneLevels as any)[key] || 0;
+  }
+  setArcaneValue(key: string, value: any) {
+    this.characterService.updateArcaneLevels({ [key]: value } as any);
+  }
+  updateCharacterField(field: string, value: any) {
+    if (this.character) {
+      this.characterService.updateCharacter({ ...this.character, [field]: value });
+    }
+  }
+  closeModal() {
+    this.showEquipmentModal = false;
+    this.showRunesModal = false;
+    this.showUmagiModal = false;
+  }
+  importCharacter() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e: any) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          this.ngZone.run(() => {
+            if (imported?.bonusValues && !imported?.huntBonuses) {
+              imported.huntBonuses = imported.bonusValues.hunt || [];
+              imported.eventBonus = imported.bonusValues.daily || null;
+              imported.oneTimeBonus = imported.bonusValues.oneTime || null;
+              delete imported.bonusValues;
+            }
+            this.characterService.updateCharacter(imported);
+            if (imported) {
+              this.selectedHuntBonuses = imported.huntBonuses || [];
+              this.selectedEventBonus = imported.eventBonus || null;
+              this.selectedOneTimeBonus = imported.oneTimeBonus || null;
+            }
+            if (imported?.runeValues) {
+              this.selectedRunes = imported.runeValues;
+            }
+            if (imported?.umagiValues) {
+              this.selectedUmagi = imported.umagiValues;
+            }
+            if (imported?.equipment?.weaponMode) {
+              this.weaponMode = imported.equipment.weaponMode;
+            }
+            this.cdr.detectChanges();
+          });
+        } catch (error) {
+          console.error('Error importing character:', error);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+  clearSession() {
+    if (!confirm('Czy na pewno chcesz zresetować postać?')) return;
+    this.characterService.clearCharacter();
+  }
+  loadPreset(preset: CharacterPreset) {
+    this.characterService.updateCharacter(preset.character);
+    this.weaponMode = preset.character.equipment?.weaponMode ?? 'dual1h';
+    this.showPresetsModal = false;
+  }
+  async exportCharacter() {
+    if (!this.character) return;
+    const dataStr = JSON.stringify(this.character, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    if ('showSaveFilePicker' in window) {
+      try {
+        const handle = await (window as any).showSaveFilePicker({
+          suggestedName: `character-${Date.now()}.json`,
+          types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(dataBlob);
+        await writable.close();
+      } catch (e: any) {
+        if (e.name !== 'AbortError') throw e;
+      }
+    } else {
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `character-${Date.now()}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+  }
+  cycleTheme() {
+    const themes = CharacterInputComponent.THEMES;
+    const current = document.documentElement.getAttribute('data-theme') ?? 'klasyczny';
+    const idx = themes.findIndex(t => t.id === current);
+    const next = themes[(idx + 1) % themes.length];
+    document.documentElement.setAttribute('data-theme', next.id);
+    this.currentThemeLabel = next.label;
+    localStorage.setItem(CharacterInputComponent.THEME_STORAGE_KEY, next.id);
+  }
+
+  toggleBonusExpand(bonusType: string) {
+    this.expandedBonuses[bonusType] = !this.expandedBonuses[bonusType];
+    localStorage.setItem(CharacterInputComponent.EXPANDED_STORAGE_KEY, JSON.stringify(this.expandedBonuses));
+  }
+  toggleBonusSelection(bonusType: string, bonus: string, isSingleSelect = false) {
+    if (bonusType === 'hunt') {
+      const index = this.selectedHuntBonuses.indexOf(bonus);
+      if (index >= 0) this.selectedHuntBonuses.splice(index, 1);
+      else this.selectedHuntBonuses.push(bonus);
+    } else if (bonusType === 'daily') {
+      this.selectedEventBonus = this.selectedEventBonus === bonus ? null : bonus;
+    } else if (bonusType === 'oneTime') {
+      this.selectedOneTimeBonus = this.selectedOneTimeBonus === bonus ? null : bonus;
+    }
+    if (this.character) {
+      this.characterService.updateCharacter({
+        ...this.character,
+        huntBonuses: this.selectedHuntBonuses,
+        eventBonus: this.selectedEventBonus,
+        oneTimeBonus: this.selectedOneTimeBonus
+      });
+    }
+  }
+  isBonusSelected(bonusType: string, bonus: string): boolean {
+    if (bonusType === 'hunt') {
+      return this.selectedHuntBonuses.includes(bonus);
+    } else if (bonusType === 'daily') {
+      return this.selectedEventBonus === bonus;
+    } else if (bonusType === 'oneTime') {
+      return this.selectedOneTimeBonus === bonus;
+    }
+    return false;
+  }
+
+  get filteredRuneOptions(): string[] {
+    if (!this.runeFilter.trim()) return this.runeOptions;
+    const f = this.runeFilter.toLowerCase();
+    return this.runeOptions.filter(r => r.toLowerCase().includes(f));
+  }
+  openRunesModal() {
+    this.selectedRunes = this.character?.runeValues ? [...this.character.runeValues] : [];
+    this.runeFilter = '';
+    this.selectedRuneIndex = null;
+    this.showRunesModal = true;
+  }
+  addRune(rune: string) { this.selectedRunes = [...this.selectedRunes, rune]; }
+  removeRuneAt(index: number) {
+    this.selectedRunes = this.selectedRunes.filter((_, i) => i !== index);
+    if (this.selectedRuneIndex === index) this.selectedRuneIndex = null;
+    else if (this.selectedRuneIndex !== null && this.selectedRuneIndex > index) this.selectedRuneIndex--;
+  }
+  moveRuneUp(index: number) {
+    if (index === 0) return;
+    const r = [...this.selectedRunes];
+    [r[index - 1], r[index]] = [r[index], r[index - 1]];
+    this.selectedRunes = r;
+    this.selectedRuneIndex = index - 1;
+  }
+  moveRuneDown(index: number) {
+    if (index >= this.selectedRunes.length - 1) return;
+    const r = [...this.selectedRunes];
+    [r[index], r[index + 1]] = [r[index + 1], r[index]];
+    this.selectedRunes = r;
+    this.selectedRuneIndex = index + 1;
+  }
+  saveRunes() {
+    if (this.character) {
+      this.characterService.updateCharacter({ ...this.character, runeValues: [...this.selectedRunes] });
+    }
+    this.showRunesModal = false;
+  }
+  getRuneCount(rune: string): number { return this.selectedRunes.filter(r => r === rune).length; }
+
+  get filteredUmagiOptions(): string[] {
+    if (!this.umagiFilter.trim()) return this.umagiOptions;
+    const f = this.umagiFilter.toLowerCase();
+    return this.umagiOptions.filter(u => u.toLowerCase().includes(f));
+  }
+  openUmagiModal() {
+    this.selectedUmagi = (this.character as any)?.umagiValues ? [...(this.character as any).umagiValues] : [];
+    this.umagiFilter = '';
+    this.selectedUmagiIndex = null;
+    this.showUmagiModal = true;
+  }
+  addUmagi(umagi: string) { this.selectedUmagi = [...this.selectedUmagi, umagi]; }
+  removeUmagiAt(index: number) {
+    this.selectedUmagi = this.selectedUmagi.filter((_, i) => i !== index);
+    if (this.selectedUmagiIndex === index) this.selectedUmagiIndex = null;
+    else if (this.selectedUmagiIndex !== null && this.selectedUmagiIndex > index) this.selectedUmagiIndex--;
+  }
+  moveUmagiUp(index: number) {
+    if (index === 0) return;
+    const list = [...this.selectedUmagi];
+    [list[index - 1], list[index]] = [list[index], list[index - 1]];
+    this.selectedUmagi = list;
+    this.selectedUmagiIndex = index - 1;
+  }
+  moveUmagiDown(index: number) {
+    if (index >= this.selectedUmagi.length - 1) return;
+    const list = [...this.selectedUmagi];
+    [list[index], list[index + 1]] = [list[index + 1], list[index]];
+    this.selectedUmagi = list;
+    this.selectedUmagiIndex = index + 1;
+  }
+  saveUmagi() {
+    if (this.character) {
+      this.characterService.updateCharacter({ ...this.character, umagiValues: [...this.selectedUmagi] } as any);
+    }
+    this.showUmagiModal = false;
+  }
+  getUmagiCount(umagi: string): number { return this.selectedUmagi.filter(u => u === umagi).length; }
+}

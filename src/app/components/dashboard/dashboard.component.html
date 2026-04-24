@@ -1,0 +1,190 @@
+<div class="dashboard-panel">
+  <div class="attributes-display">
+    <!-- Health Stats Section -->
+    <div class="attr-section">
+      <div class="attr-section-header health-header">
+      </div>
+      <div class="attr-grid attr-grid--2col">
+        <div class="attr-item">
+          <span class="attr-label">Punkty Zycia</span>
+          <span class="attr-value">{{ dashboardValues?.punktyZycia | number:'1.0-2' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Regeneracja</span>
+          <span class="attr-value">{{ dashboardValues?.regeneracja | number:'1.0-2' }}</span>
+        </div>
+      </div>
+    </div>
+    <!-- Defense Stats Section -->
+    <div class="attr-section">
+      <div class="attr-section-header defense-header">
+      </div>
+      <div class="attr-grid attr-grid--3col">
+        <div class="attr-item">
+          <span class="attr-label">Obrona</span>
+          <span class="attr-value">{{ dashboardValues?.obrona | number:'1.0-2' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Twardość</span>
+          <span class="attr-value">{{ dashboardValues?.twardrosc | number:'1.0-2'}}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Redukcja</span>
+          <span class="attr-value">{{ dashboardValues?.redukcja | number:'1.0-2' }}</span>
+        </div>
+      </div>
+    </div>
+    <!-- Unik & Trafienie Section -->
+    <div class="attr-section">
+      <div class="attr-section-header evasion-header">
+      </div>
+      <div class="attr-grid attr-grid--3col">
+        <div class="attr-item">
+          <span class="attr-label">Unik Biała</span>
+          <span class="attr-value">{{ dashboardValues?.unikBiala | number:'1.0-2' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Unik Palna</span>
+          <span class="attr-value">{{ dashboardValues?.unikPalna | number:'1.0-2' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Unik Dystans</span>
+          <span class="attr-value">{{ dashboardValues?.unikDystans | number:'1.0-2'}}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Trafienie Biała</span>
+          <span class="attr-value">{{ dashboardValues?.trafienieDodatkoweBiala | number:'1.0-2' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Trafienie Palna</span>
+          <span class="attr-value">{{ dashboardValues?.trafienieDodatkowePalna | number:'1.0-2' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label" pTooltip="Trafienie z legendarnego dystansu jest dodawane osobno">Trafienie Dystans</span>
+          <span class="attr-value">{{ dashboardValues?.trafienieDodatkoweDystans | number:'1.0-2'}}</span>
+        </div>
+      </div>
+    </div>
+    <!-- Combat Stats Section -->
+    <div class="attr-section">
+      <div class="attr-section-header combat-stats-header">
+      </div>
+      <div class="attr-grid attr-grid--2col">
+        <div class="attr-item">
+          <span class="attr-label">Szczescie</span>
+          <span class="attr-value">{{ dashboardValues?.szczescie | number:'1.0-2' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Inicjatywa</span>
+          <span class="attr-value">{{ dashboardValues?.inicjatywa | number:'1.0-2' }}</span>
+        </div>
+      </div>
+    </div>
+    <!-- Character Attributes Section -->
+    <div class="attr-section" *ngIf="dashboardValues?.attributes">
+      <div class="attr-section-header attributes-header">
+      </div>
+      <div class="attr-grid attr-grid--3col">
+        <div class="attr-item">
+          <span class="attr-label">Siła</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.sila | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Zwinność</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.zwinnosc | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Odporność</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.odpornosc | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Wygląd</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.wyglad | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Charyzma</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.charyzma | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Wpływy</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.wplywy | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Spostrzegawczość</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.spostrzegawczosc | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Inteligencja</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.inteligencja | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Wiedza</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.wiedza | number:'1.0-0' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- WEAPON DAMAGE -->
+  <div class="combat-section" *ngIf="dashboardValues?.obrazenia?.length">
+<div class="combat-row" *ngFor="let weapon of dashboardValues?.obrazenia; let i = index">
+      <h4 class="weapon-header">⚔ Broń {{ i + 1 }}: {{ weapon.name}}</h4>
+      <div class="combat-box">
+        <div class="damage-row">
+          <div class="damage-display">
+            <span class="sub-text damage-label">⚔ Obrażenia Broni</span>
+            <div class="damage-range">{{ weapon.minDmg }} – {{ weapon.maxDmg }}</div>
+          </div>
+          <div class="damage-display">
+            <span class="sub-text damage-label">✨ Obrażenia Krtytyczne Broni</span>
+            <div class="damage-range">{{ weapon.critDmgMin }} – {{ weapon.critDmgMax }}</div>
+          </div>
+        </div>
+        <div class="combat-values">
+          <div class="value-badge">
+            <div>{{ weapon.iloscAtakow }}</div>
+            <span class="sub-text">ataki</span>
+          </div>
+          <div class="value-badge" *ngIf="weapon.critChance !== undefined">
+            <div>{{ weapon.critChance * 100 | number:'1.1-1' }}%</div>
+            <span class="sub-text">crit chance</span>
+          </div>
+          <div class="value-badge" *ngIf="weapon.critMulti !== undefined">
+            <div>{{ weapon.critMulti * 100 | number:'1.1-1' }}%</div>
+            <span class="sub-text">crit multi</span>
+          </div>
+          <div class="value-badge " *ngIf="weapon.trafienieProcentowe !== undefined">
+            <div>{{ weapon.trafienieProcentowe | number:'1.0-2' }}</div>
+            <span class="sub-text">trafienie %</span>
+          </div>
+          <div class="value-badge " *ngIf="weapon.trafienie !== undefined">
+            <div>{{ weapon.trafienie | number:'1.0-2' }}</div>
+            <span class="sub-text">zasięg</span>
+          </div>
+          <div class="value-badge" *ngIf="weapon.ignore !== undefined">
+            <div>{{ weapon.ignore | number:'1.0-2' }}</div>
+            <span class="sub-text">Ignore</span>
+          </div>
+        </div>
+        <div class="average-dps" *ngIf="weapon.obrazeniaNaRundeAvg !== undefined">
+          <span class="modifier">⚔ Śr. obrażenia/rundę: {{ floor(weapon.obrazeniaNaRundeAvg) | number:'1.0-0' }}</span>
+          <span class="modifier" *ngIf="weapon.estimatedHitChance !== undefined">🎯 Szansa trafienia: {{ weapon.estimatedHitChance * 100 | number:'1.1-1' }}%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ZIZ AVERAGE ROUNDS -->
+  <div class="attributes-display" *ngIf="dashboardValues?.zizAverageRounds?.length">
+    <h3>ZIZ</h3>
+    <div class="ziz-chart-wrapper">
+      <p-chart type="bar" [data]="zizChartData" [options]="zizChartOptions" />
+    </div>
+    <div class="ziz-round-row ziz-round-total">
+      <span class="ziz-round-label">R1-5</span>
+      <span class="ziz-round-value">{{ zizTotal5 }}</span>
+    </div>
+    <div class="ziz-round-row ziz-round-total">
+      <span class="ziz-round-label">R10</span>
+      <span class="ziz-round-value">{{ zizTotal }}</span>
+    </div>
+  </div>
+</div>
