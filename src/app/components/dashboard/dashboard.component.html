@@ -1,53 +1,108 @@
 <div class="dashboard-panel">
-  <h2>Stats</h2>
-
-  <div class="character-info">
-    <div class="info-row">
-      <span class="label">Race:</span>
-      <span class="value">{{ character?.rasa || '—' }}</span>
-      <span class="label">Lvl:</span>
-      <span class="value">{{ character?.poziom || 0 }}</span>
-    </div>
-    <div class="info-row">
-      <span class="label">HP:</span>
-      <span class="value">{{ character?.['życie'] || 0 }}</span>
-      <span class="label">Luck:</span>
-      <span class="value">{{ character?.['szczęście'] || 0 }}</span>
-    </div>
-  </div>
 
   <div class="attributes-display">
-    <h3>Attributes</h3>
+
+    <div class="attr-grid attr-grid--2col">
+      <div class="attr-item">
+        <span class="attr-label">Inicjatywa</span>
+        <span class="attr-value">{{ dashboardValues?.punktyZycia || 0 }}</span>
+      </div>
+      <div class="attr-item">
+        <span class="attr-label">Regeneracja</span>
+        <span class="attr-value">{{ dashboardValues?.szczescie || 0 }}</span>
+      </div>
+    </div>
+
     <div class="attr-grid">
-      <div *ngFor="let attr of attrKeys" class="attr-item">
-        <span class="attr-label">{{ attr.label }}</span>
-        <span class="attr-value">{{ getAttrValue(attr.key) }}</span>
+      <div class="attr-item">
+        <span class="attr-label">Obrona</span>
+        <span class="attr-value">{{ dashboardValues?.obrona || 0 }}</span>
+      </div>
+      <div class="attr-item">
+        <span class="attr-label">Twardość</span>
+        <span class="attr-value">{{ dashboardValues?.twardrosc || 0 }}</span>
+      </div>
+      <div class="attr-item">
+        <span class="attr-label">Redukcja</span>
+        <span class="attr-value">{{ dashboardValues?.redukcja || 0 }}</span>
+      </div>
+      <div class="attr-item">
+        <span class="attr-label">Unik Biała</span>
+        <span class="attr-value">{{ dashboardValues?.unikBiala || 0 }}</span>
+      </div>
+      <div class="attr-item">
+        <span class="attr-label">Unik Palna</span>
+        <span class="attr-value">{{ dashboardValues?.unikPalna || 0 }}</span>
+      </div>
+      <div class="attr-item">
+        <span class="attr-label">Unik Dystans</span>
+        <span class="attr-value">{{ dashboardValues?.unikDystans || 0 }}</span>
+      </div>
+    </div>
+
+    <div class="attr-grid attr-grid--2col">
+      <div class="attr-item">
+        <span class="attr-label">Inicjatywa</span>
+        <span class="attr-value">{{ dashboardValues?.inicjatywa || 0 }}</span>
+      </div>
+      <div class="attr-item">
+        <span class="attr-label">Regeneracja</span>
+        <span class="attr-value">{{ dashboardValues?.regeneracja || 0 }}</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- WEAPON DAMAGE -->
+  <div class="combat-section" *ngIf="dashboardValues?.obrazenia?.length">
+    <h3>Obrażenia</h3>
+    <div class="combat-row" *ngFor="let weapon of dashboardValues?.obrazenia; let i = index">
+      <h4>Broń {{ i + 1 }}</h4>
+      <div class="combat-box">
+        <div class="damage-display">
+          <div class="damage-range">{{ weapon.minDmg }} – {{ weapon.maxDmg }}</div>
+          <span class="sub-text">Zakres obrażeń</span>
+        </div>
+        <div class="combat-values">
+          <div class="value-badge">
+            <div>{{ weapon.iloscAtakow }}</div>
+            <span class="sub-text">Ataki</span>
+          </div>
+          <div class="value-badge" *ngIf="weapon.critChance !== undefined">
+            <div>{{ weapon.critChance }}%</div>
+            <span class="sub-text">Kryt. szansa</span>
+          </div>
+          <div class="value-badge" *ngIf="weapon.critMulti !== undefined">
+            <div>×{{ weapon.critMulti }}</div>
+            <span class="sub-text">Kryt. mnożnik</span>
+          </div>
+          <div class="value-badge" *ngIf="weapon.trafienie !== undefined">
+            <div>{{ weapon.trafienie }}</div>
+            <span class="sub-text">Trafienie</span>
+          </div>
+          <div class="value-badge" *ngIf="weapon.ignore !== undefined">
+            <div>{{ weapon.ignore }}</div>
+            <span class="sub-text">Ignore</span>
+          </div>
+        </div>
+        <div *ngIf="weapon.obrazeniaNaRundeAvg !== undefined">
+          <span class="modifier">Śr. obrażenia/rundę: {{ weapon.obrazeniaNaRundeAvg | number:'1.1-1' }}</span>
+        </div>
+        <div *ngIf="weapon.critDmgMin !== undefined && weapon.critDmgMax !== undefined">
+          <span class="modifier">Obrażenia krytyczne: {{ weapon.critDmgMin }} – {{ weapon.critDmgMax }}</span>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="combat-section">
-    <h3>Combat</h3>
-
-    <div class="combat-row">
-      <h4>Attack</h4>
-      <div class="combat-values">
-        <span *ngFor="let value of dashboardValues?.atak" class="value-badge">{{ value }}</span>
-      </div>
-    </div>
-
-    <div class="combat-row">
-      <h4>Defense</h4>
-      <div class="combat-values">
-        <span *ngFor="let value of dashboardValues?.obrona" class="value-badge">{{ value }}</span>
-      </div>
-    </div>
-
-    <div class="combat-row">
-      <h4>Damage</h4>
-      <div class="damage-display">
-        <span class="damage-range">{{ dashboardValues?.['obrazenia']?.min }} - {{ dashboardValues?.['obrazenia']?.max }}</span>
+  <!-- ZIZ AVERAGE ROUNDS -->
+  <div class="attributes-display" *ngIf="dashboardValues?.zizAverageRounds?.length">
+    <h3>Śr. Rundy ZiZ</h3>
+    <div class="combat-values">
+      <div class="value-badge" *ngFor="let val of dashboardValues?.zizAverageRounds">
+        {{ val }}
       </div>
     </div>
   </div>
+
 </div>

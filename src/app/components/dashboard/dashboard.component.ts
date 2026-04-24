@@ -14,18 +14,6 @@ export class DashboardComponent implements OnInit {
   character: Character | null = null;
   dashboardValues: DashboardValues | null = null;
 
-  attrKeys = [
-    { key: 'siła', label: 'Sila' },
-    { key: 'zwinność', label: 'Zwinnosc' },
-    { key: 'odporność', label: 'Odpornosc' },
-    { key: 'wygląd', label: 'Wyglad' },
-    { key: 'charyzma', label: 'Charyzma' },
-    { key: 'wpływ', label: 'Wplyw' },
-    { key: 'spostrzegawczość', label: 'Spostrzegawczosc' },
-    { key: 'inteligencja', label: 'Inteligencja' },
-    { key: 'wiedza', label: 'Wiedza' }
-  ];
-
   constructor(private characterService: CharacterService) {}
 
   ngOnInit() {

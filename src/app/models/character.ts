@@ -1,63 +1,142 @@
 export interface Attributes {
-  siła: number;
-  zwinność: number;
-  odporność: number;
-  wygląd: number;
-  charyzma: number;
-  wpływ: number;
-  spostrzegawczość: number;
-  inteligencja: number;
-  wiedza: number;
+sila:number;
+zwinnosc: number;
+odpornosc: number;
+wyglad: number;
+charyzma: number;
+wplyw: number;
+spostrzegawczosc: number;
+inteligencja: number;
+wiedza: number;
 }
 
 export interface TalizmanLevels {
-  ambicja: number;
-  lewatism: number;
-  behemot: number;
-  kamieńZła: number;
-  kamieńDobra: number;
-  kamieńPrzestrzeni: number;
-  kamieńCzasu: number;
-  spaonNocy: number;
-  zycieIŚmierc: number;
-  otchłaniCiszy: number;
-  potęgaMocy: number;
-  furiaBestii: number;
-  auraBestii: number;
-  maskaWładzy: number;
-  maskaStachu: number;
-  cichyŁowca: number;
-  pieśnKrwi: number;
+ambicja: number;
+lewiatan: number;
+behemot: number;
+kamienZla: number;
+kamienDobra: number;
+kamienPrzestrzeni: number;
+kamienCzasu: number;
+spaonNocy: number;
+zycieISmierc: number;
+otchlaniCiszy: number;
+potegaMocy: number;
+furiaBestii: number;
+auraBestii: number;
+maskaWladzy: number;
+maskaStachu: number;
+cichyLowca: number;
+piesnKrwi: number;
+}
+
+export interface ArcaneLevels {
+maskaAdnisa: number,
+maskaKaliguli: number,
+majestat: number,
+krewZycia: number,
+kocieSciezki: number,
+zarKrwi: boolean,
+ciszaKrwi: number,
+wyssanieMocy: number,
+mocKrwi: number,
+dzikiSzal: number,
+skoraBestii: number,
+cienBestii: boolean,
+nocnyLowca: number,
+tchnienieSmierci: number,
+groza: boolean
+}
+
+export interface Evolutions {
+skrzydla: number,
+pancerz : number,
+klyPazuryKolce : number,
+gruczolyJadowe : number,
+wzmocnioneSciegna : number,
+dodatkowaKomora: number,
+krewDemona : number,
+mutacjaDna : number,
+oswiecony: number,
+szostyZmysl : number,
+absorpcja: number,
+harmonijnyRozwo: number,
+pietnoDemona: number,
+wzmocnioneMiesnie : number
+}
+
+export type ItemRarity = 'Zwykły' | 'Dobry' | 'Doskonały' | 'Legendarny' | 'Legendarny Dobry' | 'Legendarny Doskonały' | 'Epicki';
+
+export interface EquipmentItem {
+rarity: ItemRarity | null;
+prefix: string | null;
+base: string | null;
+suffix: string | null;
 }
 
 export interface EquipmentSlot {
-  head?: string;
-  chest?: string;
-  legs?: string;
-  neck?: string;
-  finger1?: string;
-  finger2?: string;
-  weapon1h?: string;
-  weapon2h?: string;
+head?: EquipmentItem;
+chest?: EquipmentItem;
+legs?: EquipmentItem;
+neck?: EquipmentItem;
+finger1?: EquipmentItem;
+finger2?: EquipmentItem;
+weapon1?: EquipmentItem;
+weapon2?: EquipmentItem;
+weaponMode?: 'dual1h' | '2h';
+}
+
+export interface BonusValues{
+silver?: string[];
+gold?: string[];
+hunt?: string[];
+daily?: string[];
+kaplica?: string[];
+oneTime?: string[];
 }
 
 export interface Character {
-  rasa: string;
-  nazwa: string;
-  poziom: number;
-  życie: number;
-  krew: number;
-  szczęście: number;
-  attributes: Attributes;
-  talizmanLevels: TalizmanLevels;
-  equipment: EquipmentSlot;
-  atak: number;
-  obrona: number;
-  obrazenia: { min: number; max: number; modifier: string };
+rasa: string;
+poziom: number;
+zycie: number;
+krew: number;
+szczescie: number;
+attributes: Attributes;
+talizmanLevels: TalizmanLevels;
+arcaneLevels: ArcaneLevels;
+bonusValues: BonusValues;
+equipment: EquipmentSlot;
+runeValues: string[];
+umagiValues: string[];
+blaszkaZaMoba: boolean;
+evolutions : Evolutions;
+}
+
+export interface WeaponDamage{
+minDmg: number;
+maxDmg: number;
+iloscAtakow: number;
+critChance?: number;
+critMulti?: number;
+trafienie?: number;
+ignore?: number;
+obrazeniaNaRundeAvg?: number;
+critDmgMin?: number;
+critDmgMax?: number;
 }
 
 export interface DashboardValues {
-  atak: number[];
-  obrona: number[];
-  obrazenia: { min: number; max: number; modifier: string };
-}
+punktyZycia?: number;
+szczescie?: number;
+obrona?: number;
+attributes?: Attributes;
+twardrosc?: number;
+redukcja?: number;
+unikBiala? :number;
+unikPalna?: number;
+unikDystans?: number;
+inicjatywa?: number;
+obrazenia?: WeaponDamage[];
+regeneracja?: number;
+zizAverageRounds?: []
+};

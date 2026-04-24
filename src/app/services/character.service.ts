@@ -1,19 +1,14 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { Character, Attributes, TalizmanLevels, DashboardValues } from '../models/character';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject}from 'rxjs';
+import {Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions} from '../models/character';
 
 @Injectable({
-  providedIn: 'root'
+providedIn: 'root'
 })
 export class CharacterService {
-  private character$ = new BehaviorSubject<Character>(this.createEmptyCharacter());
+private character$ = new BehaviorSubject<Character>(this.createEmptyCharacter());
 
-  rasaOptions = ['Głowa', 'Klatka piersiowa', 'Nogi', 'Szyja', 'Palec 1', 'Palec 2', 'Broń 1h', 'Broń 2h'];
-  itemOptions = ['Głowa', 'Klatka piersiowa', 'Nogi', 'Szyja', 'Palec 1', 'Palec 2', 'Broń 1h', 'Broń 2h'];
-  runeOptions = ['Głowa', 'Klatka piersiowa', 'Nogi', 'Szyja', 'Palec 1', 'Palec 2', 'Broń 1h', 'Broń 2h'];
-  umágiaOptions = ['Efekt 1', 'Efekt 2', 'Efekt 3', 'Efekt 4'];
-
-  constructor() {}
+constructor() {}
 
   getCharacter$ = () => this.character$.asObservable();
 
@@ -30,6 +25,14 @@ export class CharacterService {
     });
   }
 
+  updateEvolutions(evolutions: Partial<Evolutions>) {
+    const current = this.character$.value;
+    this.character$.next({
+      ...current,
+      evolutions: { ...current.evolutions, ...evolutions }
+    });
+  }
+
   updateTalizmanLevels(levels: Partial<TalizmanLevels>) {
     const current = this.character$.value;
     this.character$.next({
@@ -38,66 +41,103 @@ export class CharacterService {
     });
   }
 
-  calculateDashboard(): DashboardValues {
-    const character = this.character$.value;
-    const atakBonus = Math.floor((character.attributes.siła + character.attributes.zwinność) / 2);
-    const obronaBonus = Math.floor((character.attributes.odporność + character.attributes.zwinność) / 2);
-    const dmgMin = Math.floor(character.attributes.siła / 3);
-    const dmgMax = Math.floor((character.attributes.siła * 2) / 3);
+  updateArcaneLevels(levels: Partial<ArcaneLevels>) {
+    const current = this.character$.value;
+    this.character$.next({
+      ...current,
+      arcaneLevels: { ...current.arcaneLevels, ...levels }
+    });
+  }
 
+  calculateDashboard(): DashboardValues {
     return {
-      atak: [atakBonus, atakBonus + 5, atakBonus + 10],
-      obrona: [obronaBonus, obronaBonus + 5, obronaBonus + 10],
-      obrazenia: {
-        min: dmgMin,
-        max: dmgMax,
-        modifier: `${character.attributes.siła} / 3 - ${character.attributes.siła} / 2`
+      punktyZycia: 123,
+      obrona: 123
       }
     };
-  }
 
   private createEmptyCharacter(): Character {
     return {
       rasa: '',
-      nazwa: '',
       poziom: 0,
-      życie: 0,
+      zycie: 0,
       krew: 0,
-      szczęście: 0,
+      szczescie: 0,
+      blaszkaZaMoba: false,
       attributes: {
-        siła: 0,
-        zwinność: 0,
-        odporność: 0,
-        wygląd: 0,
+        sila: 0,
+        zwinnosc: 0,
+        odpornosc: 0,
+        wyglad: 0,
         charyzma: 0,
-        wpływ: 0,
-        spostrzegawczość: 0,
+        wplyw: 0,
+        spostrzegawczosc: 0,
         inteligencja: 0,
         wiedza: 0
       },
       talizmanLevels: {
         ambicja: 0,
-        lewatism: 0,
+        lewiatan: 0,
         behemot: 0,
-        kamieńZła: 0,
-        kamieńDobra: 0,
-        kamieńPrzestrzeni: 0,
-        kamieńCzasu: 0,
+        kamienZla: 0,
+        kamienDobra: 0,
+        kamienPrzestrzeni: 0,
+        kamienCzasu: 0,
         spaonNocy: 0,
-        zycieIŚmierc: 0,
-        otchłaniCiszy: 0,
-        potęgaMocy: 0,
+        zycieISmierc: 0,
+        otchlaniCiszy: 0,
+        potegaMocy: 0,
         furiaBestii: 0,
         auraBestii: 0,
-        maskaWładzy: 0,
+        maskaWladzy: 0,
         maskaStachu: 0,
-        cichyŁowca: 0,
-        pieśnKrwi: 0
+        cichyLowca: 0,
+        piesnKrwi: 0
       },
-      equipment: {},
-      atak: 0,
-      obrona: 0,
-      obrazenia: { min: 0, max: 0, modifier: '' }
+      arcaneLevels: {
+        maskaAdnisa: 0,
+        maskaKaliguli: 0,
+        majestat: 0,
+        krewZycia: 0,
+        kocieSciezki: 0,
+        zarKrwi: false,
+        ciszaKrwi: 0,
+        wyssanieMocy: 0,
+        mocKrwi: 0,
+        dzikiSzal: 0,
+        skoraBestii: 0,
+        cienBestii: false,
+        nocnyLowca: 0,
+        tchnienieSmierci: 0,
+        groza: false
+      },
+      evolutions: {
+        skrzydla: 0,
+        pancerz : 0,
+        klyPazuryKolce : 0,
+        gruczolyJadowe : 0,
+        wzmocnioneSciegna : 0,
+        dodatkowaKomora: 0,
+        krewDemona : 0,
+        mutacjaDna : 0,
+        oswiecony: 0,
+        szostyZmysl : 0,
+        absorpcja: 0,
+        harmonijnyRozwo: 0,
+        pietnoDemona: 0,
+        wzmocnioneMiesnie : 0
+      },
+      bonusValues:{
+      silver: [],
+      gold: [],
+      hunt: [],
+      daily: [],
+      kaplica: [],
+      oneTime: []
+      },
+      runeValues: [],
+      umagiValues: [],
+      equipment: {}
     };
   }
 }

@@ -2,108 +2,422 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CharacterService } from '../../services/character.service';
-import { Character } from '../../models/character';
+import { Character, EquipmentItem, ItemRarity } from '../../models/character';
+
+// ─── Equipment Dictionaries ───────────────────────────────────────────────────
+
+export type SlotCategory = 'head' | 'chest' | 'legs' | 'neck' | 'finger' | 'weapon1h' | 'weapon2h';
+
+export interface BaseItemDef {
+name: string;
+category: SlotCategory;
+hasPrefix: boolean;
+hasSuffix: boolean;
+}
+
+export const RARITIES: ItemRarity[] = ['Zwykły' , 'Dobry' , 'Doskonały' , 'Legendarny' , 'Legendarny Dobry' , 'Legendarny Doskonały' , 'Epicki'];
+
+export const BASE_ITEMS: BaseItemDef[] = [
+{ name: 'Czapka',            category: 'head',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Kask',              category: 'head',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Helm',              category: 'head',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Maska',             category: 'head',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Obrecz',            category: 'head',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Kominiarka',        category: 'head',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Kapelusz',          category: 'head',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Korona',            category: 'head',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Opaska',            category: 'head',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Bandana',            category: 'head',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Kurtka',            category: 'chest',    hasPrefix:true,  hasSuffix: true},
+{ name: 'Kamizelka',         category: 'chest',    hasPrefix:true,  hasSuffix: true},
+{ name: 'Kolczuga',          category: 'chest',    hasPrefix:true,  hasSuffix: true},
+{ name: 'ZbrojaWarstwowa',   category: 'chest',    hasPrefix:true,  hasSuffix: true},
+{ name: 'Koszulka',          category: 'chest',    hasPrefix:true,  hasSuffix: true},
+{ name: 'Marynarka',         category: 'chest',    hasPrefix:true,  hasSuffix: true},
+{ name: 'PelnaZbroja',       category: 'chest',    hasPrefix:true,  hasSuffix: true},
+{ name: 'Peleryna',          category: 'chest',    hasPrefix:true,  hasSuffix: true},
+{ name: 'Gorset',            category: 'chest',    hasPrefix:true,  hasSuffix: true},
+{ name: 'Smoking',            category: 'chest',    hasPrefix:true,  hasSuffix: true},
+{ name: 'Szorty',            category: 'legs',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Spodnie',           category: 'legs',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Kilt',              category: 'legs',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Spodnica',          category: 'legs',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Amulet',            category: 'neck',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Naszyjnik',         category: 'neck',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Lancuch',           category: 'neck',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Krawat',            category: 'neck',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Pierscien',           category: 'finger',   hasPrefix:true,  hasSuffix: true},
+{ name: 'Bransoleta',          category: 'finger',   hasPrefix:true,  hasSuffix: true},
+{ name: 'Sygnet',              category: 'finger',   hasPrefix:true,  hasSuffix: true},
+{ name: 'Palka',           category: 'weapon1h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Noz',            category: 'weapon1h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Sztylet',        category: 'weapon1h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Rapier',         category: 'weapon1h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Miecz',          category: 'weapon1h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Topor',          category: 'weapon1h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Kastet',         category: 'weapon1h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Kama',           category: 'weapon1h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'PiescNiebios',   category: 'weapon1h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Wakizashi',      category: 'weapon1h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Glock',          category: 'weapon1h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'Magnum',         category: 'weapon1h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'DesertEagle',    category: 'weapon1h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'Beretta',        category: 'weapon1h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'Uzi',            category: 'weapon1h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'Mp5k',           category: 'weapon1h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'Skorpion',       category: 'weapon1h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'KarabinMysliwski',        category: 'weapon2h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'Strzelba',                category: 'weapon2h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'AK47',                    category: 'weapon2h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'MiotaczPlomieni',         category: 'weapon2h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'FnFal',                   category: 'weapon2h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'PolautomatSnajperski',    category: 'weapon2h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'KarabinSnajperski',       category: 'weapon2h',  hasPrefix:false,  hasSuffix: false},
+{ name: 'Maczuga',                  category: 'weapon2h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Lom',                      category: 'weapon2h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Pika',                     category: 'weapon2h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'ToporDwureczny',           category: 'weapon2h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'MieczDwureczny',           category: 'weapon2h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Kosa',                     category: 'weapon2h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Korbacz',                  category: 'weapon2h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Halabarda',                category: 'weapon2h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'Katana',                   category: 'weapon2h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'PilaLancuchowa',           category: 'weapon2h',  hasPrefix:true,  hasSuffix: true},
+{ name: 'KrotkiLuk',               category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+{ name: 'Luk',                     category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+{ name: 'DlugiLuk',                category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+{ name: 'Oszczep',                 category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+{ name: 'Pilum',                   category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+{ name: 'NozDoRzucania',           category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+{ name: 'ToporekDoRzucania',       category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+{ name: 'Kusza',                   category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+{ name: 'Shuriken',                category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+{ name: 'CiezkaKusza',             category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+{ name: 'LukRefleksyjny',          category: 'weapon2h',  hasPrefix:false,  hasSuffix: true},
+];
+
+export const PREFIXES_BY_CATEGORY: Record<SlotCategory, string[]> = {
+head:     ['Ozdobna', 'Utwardzana', 'Elegancka', 'Pomocna', 'Kosztowny', 'Wzmocniony', 'Magnetyczna', 'Rogata', 'Bojowa', 'Zlosliwa', 'Leniwa', 'Kuloodporne', 'Szturmowy', 'Szamanska', 'Runiczne', 'Krwawy', 'Tygrysi', 'Smiercionosny', 'Rytualny'],
+chest:    ['Wzmocniony', 'Wladcza', 'Cwiekowany', 'Lekki', 'Kuloodporne', 'Luskowa', 'Gietki', 'Plytowa', 'Szamanska', 'Lowiecka', 'Elfie', 'Bojowa', 'Tygrysi', 'Smiercionosny', 'Krwawy', 'Runiczne'],
+legs:     ['Pikowany', 'Wzmocniony', 'Cwiekowany', 'Lekki', 'Krotkie', 'Aksamitne', 'Kolcze', 'Kuloodporne', 'Gietki', 'Pancerne', 'Kompozytowe', 'Elfie', 'Runiczne', 'Szamanska', 'Tygrysi', 'Krwawy', 'Smiercionosny'],
+neck:     ['Miedziany', 'Srebrny', 'Szmaragdowy', 'Zloty', 'Platynowy', 'Rubinowy', 'Dystyngowany', 'Przebiegly', 'Niedzwiedzi', 'Twardy', 'Gwiezdny', 'Elastyczny', 'Kardynalski', 'Nekromancki', 'Plastikowy', 'Tytanowy', 'Diamentowy', 'Msciwy', 'Spaczony', 'Zdradziecki', 'Archaiczny', 'Hipnotyczny', 'Tanczacy', 'Zwierzecy', 'Jastrzebi', 'Pajeczy', 'Sloneczny', 'Czarny'],
+finger:   ['Miedziany', 'Szmaragdowy', 'Srebrny', 'Rubinowy', 'Zloty', 'Platynowy', 'Dystyngowany', 'Przebiegly', 'Niedzwiedzi', 'Twardy', 'Gwiezdny', 'Elastyczny', 'Kardynalski', 'Nekromancki', 'Plastikowy', 'Tytanowy', 'Diamentowy', 'Msciwy', 'Spaczony', 'Zdradziecki', 'Archaiczny', 'Hipnotyczny', 'Tanczacy', 'Zwierzecy', 'Pajeczy', 'Sloneczny', 'Jastrzebi', 'Czarny'],
+weapon1h: ['Ostry', 'Kasajacy', 'Okrutny', 'Krysztalowy', 'Przyjacielski', 'Jadowity', 'Lekki', 'Zebaty', 'Wzmacniajacy', 'Opiekunczy', 'Mistyczny', 'Swiecacy', 'Kosciany', 'Zatruty', 'Antyczny', 'Zabojczy', 'Zwinny', 'Szybki', 'Przeklety', 'Demoniczny'],
+weapon2h: ['Ostry', 'Kasajacy', 'Kosztowny', 'Wzmacniajacy', 'Lekki', 'Okrutny', 'Jadowity', 'Swiecacy', 'Krysztalowy', 'Ciezki', 'Szeroki', 'Opiekunczy', 'Mistyczny', 'Napromieniowany', 'Antyczny', 'Zebaty', 'Zatruty', 'Zabojczy', 'Przeklety', 'Demoniczny', 'Zwinny'],
+};
+
+export const SUFFIXES_BY_CATEGORY: Record<SlotCategory, string[]> = {
+head:     ['Miss', 'Mistera', 'Podroznika', 'Przezornosci', 'Wytrzymalosci', 'Ochrony', 'Zmyslow', 'Narkomana', 'Gladiatora', 'Wieszcza', 'SmoczejLuski', 'Mocy', 'Kary', 'Pasterza', 'Krwi', 'Magii', 'Adrenaliny', 'Prekognicji'],
+chest:    ['Narkomana', 'Zlodzieja', 'Straznika', 'Silacza', 'Gwardzisty', 'Adepta', 'Adrenaliny', 'SkorupyZolwia', 'Zabojcy', 'Kobry', 'Unikow', 'Centuriona', 'Szermierza', 'Kaliguli', 'Odpornosci', 'Grabiezcy', 'Mistrza', 'Orchidei', 'SiewcySmierci', 'Szybkosci'],
+legs:     ['Narkomana', 'Silacza', 'Rzezimieszka', 'CichychRuchow', 'Skrytosci', 'Przemytnika', 'Slonca', 'LowcyCieni', 'HandlarzaBronia', 'Inkow', 'Unikow', 'Weza', 'Pasterza', 'Tropiciela', 'Nocy'],
+neck:     ['Urody', 'Wladzy', 'Wystepku', 'Mlodosci', 'Sily', 'Geniuszu', 'Madrosci', 'TwardejSkory', 'Pielgrzyma', 'Celnosci', 'Przebieglosci', 'Sztuki', 'Wilkolaka', 'Szalenca', 'Koncentracji', 'Lewitacji', 'Krwi', 'Zdolnosci', 'Szczescia'],
+finger:   ['Urody', 'Wladzy', 'Wystepku', 'Sily', 'Geniuszu', 'Madrosci', 'Lisa', 'TwardejSkory', 'Sztuki', 'Mlodosci', 'Celnosci', 'Przebieglosci', 'Wilkolaka', 'Koncentracji', 'Lewitacji', 'Nietoperza', 'Krwi', 'Szalenca', 'Szczescia'],
+weapon1h: ['Sekty', 'Zdobywcy', 'Mocy', 'Dowodcy', 'Zwinnosci', 'Trafienia', 'Kontuzji', 'Wladzy', 'Bolu', 'Odwagi', 'Precyzji', 'Krwi', 'Przodkow', 'Zarazy', 'Drakuli', 'Zemsty', 'Mestwa', 'Klanu', 'Podkowy', 'Bieglosci', 'Samobojcy', 'Imperatora'],
+weapon2h: ['Podstepu', 'Hazardzisty', 'Olowiu', 'Mocy', 'Zdrady', 'Wladzy', 'Zdobywcy', 'Bolu', 'Krwiopijcy', 'Inkwizytora', 'Krwi', 'Drakuli', 'Zarazy', 'Zemsty', 'Podkowy', 'Bazyliszka', 'Autokraty', 'Samobojcy','DalekiegoZasiegu', 'Precyzji', 'Driady', 'Zemsty', 'Szybkostrzelnosci', 'Wilka', 'Doskonalosci', 'Reakcji'],
+};
+
+const SLOT_TO_CATEGORY: Record<string, SlotCategory> = {
+head:    'head',
+chest:   'chest',
+legs:    'legs',
+neck:    'neck',
+finger1: 'finger',
+finger2: 'finger',
+weapon1: 'weapon1h',
+weapon2: 'weapon1h',
+};
 
 @Component({
-  selector: 'app-character-input',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './character-input.component.html',
-  styleUrl: './character-input.component.css'
+selector: 'app-character-input',
+standalone: true,
+imports: [CommonModule, FormsModule],
+templateUrl: './character-input.component.html',
+styleUrl: './character-input.component.css'
 })
 export class CharacterInputComponent implements OnInit {
-  character: Character | null = null;
-  showEquipmentModal = false;
-  showRunesModal = false;
-  showUmagiaModal = false;
-  selectedEquipmentSlot = '';
+character: Character | null = null;
 
-  itemOptions = ['Głowa', 'Klatka piersiowa', 'Nogi', 'Szyja', 'Palec 1', 'Palec 2', 'Broń 1h', 'Broń 2h'];
-  runeOptions = ['Efekt 1', 'Efekt 2', 'Efekt 3', 'Efekt 4'];
-  umagiaOptions = ['Umágía 1', 'Umágía 2', 'Umágía 3', 'Umágía 4'];
+// ─── Modal flags ────────────────────────────────────────────────────────────
+showEquipmentModal = false;
+showRunesModal     = false;
+showUmagiModal     = false;
 
-  attributes = [
-    { key: 'siła', label: 'Siła' },
-    { key: 'zwinność', label: 'Zwinność' },
-    { key: 'odporność', label: 'Odporność' },
-    { key: 'wygląd', label: 'Wygląd' },
-    { key: 'charyzma', label: 'Charyzma' },
-    { key: 'wpływ', label: 'Wpływ' },
-    { key: 'spostrzegawczość', label: 'Spostrzegawczość' },
-    { key: 'inteligencja', label: 'Inteligencja' },
-    { key: 'wiedza', label: 'Wiedza' }
-  ];
+// ─── Equipment modal state ──────────────────────────────────────────────────
+selectedEquipmentSlot = '';
+weaponMode: 'dual1h' | '2h' = 'dual1h';
 
-  talizmanAttributes = [
-    { key: 'ambicja', label: 'Ambicja' },
-    { key: 'lewatism', label: 'Lewatism' },
-    { key: 'behemot', label: 'Behemot' },
-    { key: 'kamieńZła', label: 'Kamień zła' },
-    { key: 'kamieńDobra', label: 'Kamień dobra' },
-    { key: 'kamieńPrzestrzeni', label: 'Kamień przestrzeni' },
-    { key: 'kamieńCzasu', label: 'Kamień czasu' },
-    { key: 'spaonNocy', label: 'Spaon nocy' },
-    { key: 'zycieIŚmierc', label: 'Zycie i śmierc' },
-    { key: 'otchłaniCiszy', label: 'Otchłani ciszy' },
-    { key: 'potęgaMocy', label: 'Potęga mocy' },
-    { key: 'furiaBestii', label: 'Furia bestii' },
-    { key: 'auraBestii', label: 'Aura bestii' },
-    { key: 'maskaWładzy', label: 'Maska władzy' },
-    { key: 'maskaStachu', label: 'Maska strachu' },
-    { key: 'cichyŁowca', label: 'Cichy łowca' },
-    { key: 'pieśnKrwi', label: 'Pieśn krwi' }
-  ];
+/** Draft being edited inside the modal */
+draftItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
+/** For 2H weapon mode the single item */
+draft2hItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
 
-  arcaneAttributes = [
-    { key: 'maskaAdonisa', label: 'Maska Adonisa', type: 'int' },
-    { key: 'maskaKaliguli', label: 'Maska Kaliguli', type: 'int' },
-    { key: 'majestat', label: 'Majestat', type: 'int' },
-    { key: 'krewŻycia', label: 'Krew Życia', type: 'int' },
-    { key: 'kocieŚcieżki', label: 'Kocie Ścieżki', type: 'int' },
-    { key: 'żarKrwi', label: 'Żar krwi', type: 'boolean' },
-    { key: 'ciszaKrwi', label: 'Cisza Krwi', type: 'int' },
-    { key: 'wyssanieMocy', label: 'Wyssanie mocy', type: 'int' },
-    { key: 'mocKrwi', label: 'Moc krwi', type: 'int' },
-    { key: 'dzikiSzał', label: 'Dziki szał', type: 'int' },
-    { key: 'skóraBestii', label: 'Skóra Bestii', type: 'int' },
-    { key: 'cieńBestii', label: 'Cień bestii', type: 'boolean' },
-    { key: 'nocnyŁowca', label: 'Nocny łowca', type: 'int' },
-    { key: 'tchnienieŚmierci', label: 'Tchnienie Śmierci', type: 'int' },
-    { key: 'groza', label: 'Groza', type: 'boolean' }
-  ];
+// ─── Equipment dictionaries ─────────────────────────────────────────────────
+rarities = RARITIES;
 
-  silverBonuses = ['Silver Bonus 1', 'Silver Bonus 2', 'Silver Bonus 3'];
-  goldBonuses = ['Gold Bonus 1', 'Gold Bonus 2', 'Gold Bonus 3'];
-  huntBonuses = ['Hunt Bonus 1', 'Hunt Bonus 2', 'Hunt Bonus 3'];
-  dailyBonuses = ['Daily Bonus 1', 'Daily Bonus 2', 'Daily Bonus 3'];
-  kaplicaBonuses = ['Kaplica Bonus 1', 'Kaplica Bonus 2', 'Kaplica Bonus 3'];
-  oneTimeBonuses = ['One Time Bonus 1', 'One Time Bonus 2', 'One Time Bonus 3'];
+// ─── Runes ──────────────────────────────────────────────────────────────────
+runeOptions     = ['obrazenia 0.01', 'obrazenia 0.02', 'obrazenia 0.03', 'obrazenia 0.05', 'kryt 0.03', 'kryt 0.05', 'kryt 0.08', 'kryt 0.12', 'ignore 0.02', 'ignore 0.04', 'ignore 0.06', 'ignore 0.10', 'Siła 1', 'Siła 2', 'Siła 3', 'Siła 4', 'Spostrzegawczość 1', 'Spostrzegawczość 2', 'Spostrzegawczość 3', 'Spostrzegawczość 4', 'Inteligencja 1', 'Inteligencja 2', 'Inteligencja 3', 'Inteligencja 4', 'Wiedza 1', 'Wiedza 2', 'Wiedza 3', 'Wiedza 4', 'Zwinność 1', 'Zwinność 2', 'Zwinność 3', 'Zwinność 4', 'obrona 1/8', 'obrona 2/8', 'obrona 3/8', 'obrona 4/8', 'Odporność 1', 'Odporność 2', 'Odporność 3', 'Odporność 4', 'twardosc 0.01', 'twardosc 0.02', 'twardosc 0.03', 'twardosc 0.04', 'zycie 50', 'zycie 100', 'zycie 150', 'zycie 250', 'Szczęście 3', 'Szczęście 4', 'Szczęście 8', 'Szczęście 12', 'multi 0.02', 'multi 0.04', 'multi 0.06', 'multi 0.1'];
+selectedRunes: string[] = [];
+runeFilter      = '';
+selectedRuneIndex: number | null = null;
 
-  expandedBonuses: { [key: string]: boolean } = {
-    silver: false,
-    gold: false,
-    hunt: false,
-    daily: false,
-    kaplica: false,
-    oneTime: false
-  };
+// ─── Umagi ──────────────────────────────────────────────────────────────────
+umagiOptions    = ['obrazenia 1/4', 'ignore 0.04', 'ignore 0.06', 'ignore 0.1', 'ignore 0.15', 'dodatkowyAtak', 'obrazenia 5', 'obrazenia 7', 'obrazenia 10', 'obrazenia 20', 'kryt 0.03', 'kryt 0.05', 'kryt 0.08', 'kryt 0.12', 'trafienie 5', 'trafienie 12', 'trafienie 18', 'trafienie 25', 'zycie 25', 'zycie 50', 'zycie 100', 'zycie 250', 'zycie 500', 'zycie 1000', 'obrona 3/4', 'obrona 6/4', 'unik 0.03', 'unik 0.05', 'unik 0.07', 'unik 0.11', 'Obrona 20', 'Obrona 30', 'Obrona 50', 'Obrona 75', 'Szczęście 2', 'Szczęście 5', 'Szczęście 7', 'Szczęście 10', 'Szczęście 15', 'Szczęście 20', 'Inicjatywa 36', 'Spostrzegawczość 2', 'Spostrzegawczość 4', 'Spostrzegawczość 8', 'Spostrzegawczość 14', 'Zwinność 2', 'Zwinność 4', 'Zwinność 8', 'Zwinność 14', 'Siła 2', 'Siła 4', 'Siła 8', 'Siła 14', 'Charyzma 2', 'Charyzma 4', 'Charyzma 8', 'Charyzma 14', 'Wpływy 2', 'Wpływy 4', 'Wpływy 8', 'Wpływy 14', 'Odporność 2', 'Odporność 4', 'Odporność 8', 'Odporność 14', 'Inteligencja 2', 'Inteligencja 4', 'Inteligencja 8', 'Inteligencja 14', 'Wiedza 2', 'Wiedza 4', 'Wiedza 8', 'Wiedza 14', 'Wygląd 2', 'Wygląd 4', 'Wygląd 8', 'Wygląd 14'];
+selectedUmagi: string[] = [];
+umagiFilter     = '';
+selectedUmagiIndex: number | null = null;
 
-  selectedBonuses: { [key: string]: string[] } = {
-    silver: [],
-    gold: [],
-    hunt: [],
-    daily: [],
-    kaplica: [],
-    oneTime: []
-  };
 
-  constructor(private characterService: CharacterService) {}
+
+
+// ─── Attributes metadata ────────────────────────────────────────────────────
+attributes = [
+{ key: 'sila',              label: 'Sila' },
+{ key: 'zwinnosc',          label: 'Zwinnosc' },
+{ key: 'odpornosc',         label: 'Odpornosc' },
+{ key: 'wyglad',            label: 'Wyglad' },
+{ key: 'charyzma',          label: 'Charyzma' },
+{ key: 'wplyw',             label: 'Wplyw' },
+{ key: 'spostrzegawczosc',  label: 'Spostrzegawczosc' },
+{ key: 'inteligencja',      label: 'Inteligencja' },
+{ key: 'wiedza',            label: 'Wiedza' },
+];
+
+evolutions = [
+{ key: 'Skrzydla',                label: 'Skrzydla' },
+{ key: 'Pancerz',                 label: 'Pancerz' },
+{ key: 'KlyPazuryKolce',          label: 'Kly/Pazury/Kolce' },
+{ key: 'GruczolyJadowe',          label: 'Gruczoly jadowe' },
+{ key: 'WzmocnioneSciegna',       label: 'Wzmocnione sciegna' },
+{ key: 'DodatkowaKomora',         label: 'Dodatkowa komora' },
+{ key: 'KrewDemona',              label: 'Krew demona' },
+{ key: 'MutacjaDna',              label: 'Mutacja DNA' },
+{ key: 'Oswiecony',               label: 'Oswiecony' },
+{ key: 'SzostyZmysl',             label: 'Szosty zmysl' },
+{ key: 'Absorpcja',               label: 'Absorpcja' },
+{ key: 'HarmonijnyRozwo',         label: 'Harmonijny rozwoj' },
+{ key: 'PietnoDemona',            label: 'Pietno demona' },
+{ key: 'WzmocnioneMiesnie',        label: 'Wzmocnione sciegna' },
+
+];
+
+talizmanAttributes = [
+{ key: 'ambicja',            label: 'Ambicja' },
+{ key: 'lewiatan',           label: 'Lewiatan' },
+{ key: 'behemot',            label: 'Behemot' },
+{ key: 'kamienZla',          label: 'Kamien zla' },
+{ key: 'kamienDobra',        label: 'Kamien dobra' },
+{ key: 'kamienPrzestrzeni',  label: 'Kamien przestrzeni' },
+{ key: 'kamienCzasu',        label: 'Kamien czasu' },
+{ key: 'spaonNocy',          label: 'Spaon nocy' },
+{ key: 'zycieISmierc',       label: 'Zycie i smierc' },
+{ key: 'otchlaniCiszy',      label: 'Otchlani ciszy' },
+{ key: 'potegaMocy',         label: 'Potega mocy' },
+{ key: 'furiaBestii',        label: 'Furia bestii' },
+{ key: 'auraBestii',         label: 'Aura bestii' },
+{ key: 'maskaWladzy',        label: 'Maska wladzy' },
+{ key: 'maskaStachu',        label: 'Maska strachu' },
+{ key: 'cichylowca',         label: 'Cichy lowca' },
+{ key: 'piesnKrwi',          label: 'Piesn krwi' },
+];
+
+arcaneAttributes = [
+{ key: 'maskaAdonisa',        label: 'Maska Adonisa',      type: 'int'     },
+{ key: 'maskaKaliguli',       label: 'Maska Kaliguli',     type: 'int'     },
+{ key: 'majestat',            label: 'Majestat',           type: 'int'     },
+{ key: 'krewZycia',           label: 'Krew Zycia',         type: 'int'     },
+{ key: 'kocieSciezki',        label: 'Kocie Sciezki',      type: 'int'     },
+{ key: 'zarKrwi',             label: 'Zar krwi',           type: 'boolean' },
+{ key: 'ciszaKrwi',           label: 'Cisza Krwi',         type: 'int'     },
+{ key: 'wyssanieMocy',        label: 'Wyssanie mocy',      type: 'int'     },
+{ key: 'mocKrwi',             label: 'Moc krwi',           type: 'int'     },
+{ key: 'dzikiSzal',           label: 'Dziki szal',         type: 'int'     },
+{ key: 'skoraBestii',         label: 'Skora Bestii',       type: 'int'     },
+{ key: 'cienBestii',          label: 'Cien bestii',        type: 'boolean' },
+{ key: 'nocnyLowca',          label: 'Nocny lowca',        type: 'int'     },
+{ key: 'tchnienieSmierci',    label: 'Tchnienie Smierci',  type: 'int'     },
+{ key: 'groza',               label: 'Groza',              type: 'boolean' },
+];
+
+silverBonuses  = ['Ninja','Mysliwy'];
+goldBonuses    = ['Strateg'];
+huntBonuses    = ['Juggernaut', 'Ronin', 'Adrenalina', 'Sokole oko', 'Rzeźnik'];
+dailyBonuses   = ['Klątwa Bogów','Noc Długich Noży','Noc Starych Bogów','Noc poszukiwaczy','Dzień poszukiwaczy','Dzień Vlada','Dzień Gwiazd Północy','Świąteczna wizja Kaina','Świąteczna Wizja Kaina (deluxe)','Potrójna wizja Kaina','Pożeracz serc','Potęga hormonów','Dzień neandertalczyka','Pisanki Kaina','May the 4th be with you','Dzień Przemiany','Dzień poszukiwaczy','Świąteczna wizja Kaina (deluxe)','Więzy krwi','Krew z krwi','Wszyscy jesteśmy Francuzami','Pierwszy gol','Pierwszy serwis','Szczęście Sprzyja Lepszym','Tylko Dla Orłów','Zwycięzca Jest Tylko Jeden'];
+kaplicaBonuses = ['1', '2', '3', '4', '5'];
+oneTimeBonuses = ['Krew wilka','Jabłko żelaznego drzewa','Płetwa rekina','Eliksir zmysłów','Święcona woda','Łza feniksa','Magiczna pieczęć','Serce nietoperza','Kwiat lotosu','Jad Wielkopchły','Serum oświecenia','Wywar z czarnego kota','Węgiel','Sierść kreta','Saletra','Sok z żuka','Esencja młodości','Paznokieć trolla','Wilcza jagoda','Oko kota','Absynt','Łuski salamandry','Woda źródlana','Kość męczennika','Napój miłosny','Jad skorpiona','Korzeń mandragory','Gwiezdny pył','Fiolka kwasu','Siarka','Czarny diament','Oko topielca','Boska łza','Ząb ghula','Wywar z koralowca','Serce proroka','Pazur bazyliszka','Łuski demona','Skrzydła chrząszcza','Maska gargulca','Sok z modliszki','Oddech smoka','Ząb wiedźmy','Grimoire','Czarna żółć','Palec kowala','Kwiat bzu','Ogień z serca ziemi'];
+
+expandedBonuses: { [key: string]: boolean } = {
+silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false
+};
+
+bonusValues: { [key: string]: string[] } = {
+silver: [], gold: [], hunt: [], daily: [], kaplica: [], oneTime: []
+};
+
+constructor(private characterService: CharacterService) {}
 
   ngOnInit() {
     this.characterService.getCharacter$().subscribe(char => {
       this.character = char;
+      if (char?.bonusValues) {
+        this.bonusValues = { ...this.bonusValues, ...char.bonusValues };
+      }
+      if (char?.runeValues) {
+        this.selectedRunes = [...char.runeValues];
+      }
+      if ((char as any)?.umagiValues) {
+        this.selectedUmagi = [...(char as any).umagiValues];
+      }
+      if (char?.equipment?.weaponMode) {
+        this.weaponMode = char.equipment.weaponMode;
+      }
     });
   }
+
+  // ─── Equipment helpers ───────────────────────────────────────────────────────
+
+  /** Derive slot category, considering current weapon mode */
+  private getSlotCategory(slot: string): SlotCategory {
+    if (slot === 'weapon1' || slot === 'weapon2') {
+      return this.weaponMode === '2h' ? 'weapon2h' : 'weapon1h';
+    }
+    return SLOT_TO_CATEGORY[slot] ?? 'head';
+  }
+
+  /** Base items available for the given slot */
+  baseItemsForSlot(slot: string): BaseItemDef[] {
+    const cat = this.getSlotCategory(slot);
+    return BASE_ITEMS.filter(b => b.category === cat);
+  }
+
+  /** Base items available for the 2H weapon slot */
+  get baseItems2h(): BaseItemDef[] {
+    return BASE_ITEMS.filter(b => b.category === 'weapon2h');
+  }
+
+  /** Prefixes available for the selected base item */
+  prefixesForDraft(draft: EquipmentItem, slot: string): string[] {
+    if (!draft.base) return [];
+    const def = BASE_ITEMS.find(b => b.name === draft.base);
+    if (!def || !def.hasPrefix) return [];
+    return PREFIXES_BY_CATEGORY[def.category] ?? [];
+  }
+
+  /** Suffixes available for the selected base item */
+  suffixesForDraft(draft: EquipmentItem, slot: string): string[] {
+    if (!draft.base) return [];
+    const def = BASE_ITEMS.find(b => b.name === draft.base);
+    if (!def || !def.hasSuffix) return [];
+    return SUFFIXES_BY_CATEGORY[def.category] ?? [];
+  }
+
+  /** Does selected base item support a prefix? */
+  draftHasPrefix(draft: EquipmentItem): boolean {
+    if (!draft.base) return false;
+    return !!BASE_ITEMS.find(b => b.name === draft.base)?.hasPrefix;
+  }
+
+  /** Does selected base item support a suffix? */
+  draftHasSuffix(draft: EquipmentItem): boolean {
+    if (!draft.base) return false;
+    return !!BASE_ITEMS.find(b => b.name === draft.base)?.hasSuffix;
+  }
+
+  /** Clear prefix/suffix when base changes */
+  onBaseChange(draft: EquipmentItem) {
+    draft.prefix = null;
+    draft.suffix = null;
+  }
+
+  /** Build display label from an EquipmentItem */
+  buildItemLabel(item: EquipmentItem | undefined | null): string {
+    if (!item || !item.base) return '';
+    const parts: string[] = [];
+    if (item.rarity)  parts.push(item.rarity);
+    if (item.prefix)  parts.push(item.prefix);
+    parts.push(item.base);
+    if (item.suffix)  parts.push(item.suffix);
+    return parts.join(' ');
+  }
+
+  /** Button label for a given slot */
+  slotButtonLabel(slot: string): string {
+    if (!this.character) return this.defaultSlotLabel(slot);
+    const item = (this.character.equipment as any)[slot] as EquipmentItem | undefined;
+    if (item && item.base) {
+
+      if(item.prefix == null){
+        item.prefix = ''
+      }
+
+      if(item.suffix == null){
+        item.suffix = ''
+      }
+
+      return item.prefix + ' ' + item.base + ' '+ item.suffix;
+    }
+    return this.defaultSlotLabel(slot);
+  }
+
+  defaultSlotLabel(slot: string): string {
+    const labels: Record<string, string> = {
+      head: 'Głowa', chest: 'Tułów', legs: 'Nogi',
+      neck: 'Szyja', finger1: 'Palec 1', finger2: 'Palec 2',
+      weapon1: '1H Lewy', weapon2: this.weaponMode === '2h' ? '2H' : '1H Prawy',
+    };
+    return labels[slot] ?? slot;
+  }
+
+  /** Is weapon2 locked (2H mode) */
+  get weapon2Locked(): boolean {
+    return this.weaponMode === '2h';
+  }
+
+  openEquipmentModal(slot: string) {
+    if (slot === 'weapon2' && this.weaponMode === '2h') return; // locked
+    this.selectedEquipmentSlot = slot;
+    const existing = this.character?.equipment
+      ? (this.character.equipment as any)[slot] as EquipmentItem | undefined
+      : undefined;
+    this.draftItem = existing
+      ? { ...existing }
+      : { rarity: null, prefix: null, base: null, suffix: null };
+    this.showEquipmentModal = true;
+  }
+
+  /** Toggle weapon mode between dual-1h and 2h */
+  toggleWeaponMode() {
+    this.weaponMode = this.weaponMode === 'dual1h' ? '2h' : 'dual1h';
+    if (!this.character) return;
+    // When switching to 2h clear weapon2; weapon1 becomes the 2h slot
+    const updated: any = {
+      ...this.character.equipment,
+      weaponMode: this.weaponMode,
+    };
+    if (this.weaponMode === '2h') {
+      updated.weapon2 = undefined;
+    }
+    this.characterService.updateCharacter({ ...this.character, equipment: updated });
+  }
+
+  saveEquipmentItem() {
+    if (!this.character) return;
+    const updated = {
+      ...this.character.equipment,
+      [this.selectedEquipmentSlot]: { ...this.draftItem },
+      weaponMode: this.weaponMode,
+    };
+    this.characterService.updateCharacter({ ...this.character, equipment: updated });
+    this.showEquipmentModal = false;
+  }
+
+  clearEquipmentSlot(slot: string) {
+    if (!this.character) return;
+    const updated: any = { ...this.character.equipment };
+    updated[slot] = undefined;
+    this.characterService.updateCharacter({ ...this.character, equipment: updated });
+  }
+
+  // ─── Attribute helpers ───────────────────────────────────────────────────────
 
   getAttrValue(key: string): number {
     if (!this.character) return 0;
@@ -112,6 +426,15 @@ export class CharacterInputComponent implements OnInit {
 
   setAttrValue(key: string, value: number) {
     this.characterService.updateAttributes({ [key]: value } as any);
+  }
+
+    getEvoValue(key: string): number {
+    if (!this.character) return 0;
+    return (this.character.evolutions as any)[key] || 0;
+  }
+
+  setEvoValue(key: string, value: number) {
+    this.characterService.updateEvolutions({ [key]: value } as any);
   }
 
   getTalizmanValue(key: string): number {
@@ -124,56 +447,24 @@ export class CharacterInputComponent implements OnInit {
   }
 
   getArcaneValue(key: string): any {
-    if (!this.character) return null;
-    return (this.character as any)[key] || null;
+    if (!this.character) return 0;
+    return (this.character.arcaneLevels as any)[key] || 0;
   }
 
   setArcaneValue(key: string, value: any) {
-    if (this.character) {
-      this.characterService.updateCharacter({
-        ...this.character,
-        [key]: value
-      });
-    }
+    this.characterService.updateArcaneLevels({ [key]: value } as any);
   }
 
   updateCharacterField(field: string, value: any) {
     if (this.character) {
-      this.characterService.updateCharacter({
-        ...this.character,
-        [field]: value
-      });
+      this.characterService.updateCharacter({ ...this.character, [field]: value });
     }
-  }
-
-  openEquipmentModal(slot: string) {
-    this.selectedEquipmentSlot = slot;
-    this.showEquipmentModal = true;
-  }
-
-  selectEquipment(item: string) {
-    if (this.character) {
-      const updatedEquipment = { ...this.character.equipment, [this.selectedEquipmentSlot]: item };
-      this.characterService.updateCharacter({
-        ...this.character,
-        equipment: updatedEquipment
-      });
-    }
-    this.showEquipmentModal = false;
-  }
-
-  openRunesModal() {
-    this.showRunesModal = true;
-  }
-
-  openUmagiaModal() {
-    this.showUmagiaModal = true;
   }
 
   closeModal() {
     this.showEquipmentModal = false;
-    this.showRunesModal = false;
-    this.showUmagiaModal = false;
+    this.showRunesModal     = false;
+    this.showUmagiModal     = false;
   }
 
   calculateDashboard() {
@@ -192,7 +483,6 @@ export class CharacterInputComponent implements OnInit {
         try {
           const imported = JSON.parse(event.target.result);
           this.characterService.updateCharacter(imported);
-          console.log('Character imported:', imported);
         } catch (error) {
           console.error('Error importing character:', error);
         }
@@ -204,12 +494,12 @@ export class CharacterInputComponent implements OnInit {
 
   exportCharacter() {
     if (!this.character) return;
-    const dataStr = JSON.stringify(this.character, null, 2);
+    const dataStr  = JSON.stringify(this.character, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `character-${Date.now()}.json`;
+    const url      = URL.createObjectURL(dataBlob);
+    const link     = document.createElement('a');
+    link.href      = url;
+    link.download  = `character-${Date.now()}.json`;
     link.click();
     URL.revokeObjectURL(url);
   }
@@ -218,22 +508,117 @@ export class CharacterInputComponent implements OnInit {
     this.expandedBonuses[bonusType] = !this.expandedBonuses[bonusType];
   }
 
-  toggleBonusSelection(bonusType: string, bonus: string, isOneTime: boolean = false) {
-    const selected = this.selectedBonuses[bonusType];
-    const index = selected.indexOf(bonus);
-
+  toggleBonusSelection(bonusType: string, bonus: string, isOneTime = false) {
+    const selected = this.bonusValues[bonusType];
+    const index    = selected.indexOf(bonus);
     if (isOneTime) {
-      this.selectedBonuses[bonusType] = index >= 0 ? [] : [bonus];
+      this.bonusValues[bonusType] = index >= 0 ? [] : [bonus];
     } else {
-      if (index >= 0) {
-        selected.splice(index, 1);
-      } else {
-        selected.push(bonus);
-      }
+      if (index >= 0) selected.splice(index, 1);
+      else selected.push(bonus);
+    }
+    if (this.character) {
+      this.characterService.updateCharacter({ ...this.character, bonusValues: { ...this.bonusValues } });
     }
   }
 
   isBonusSelected(bonusType: string, bonus: string): boolean {
-    return this.selectedBonuses[bonusType].includes(bonus);
+    return this.bonusValues[bonusType].includes(bonus);
   }
+
+  // ─── Runes ──────────────────────────────────────────────────────────────────
+
+  get filteredRuneOptions(): string[] {
+    if (!this.runeFilter.trim()) return this.runeOptions;
+    const f = this.runeFilter.toLowerCase();
+    return this.runeOptions.filter(r => r.toLowerCase().includes(f));
+  }
+
+  openRunesModal() {
+    this.selectedRunes    = this.character?.runeValues ? [...this.character.runeValues] : [];
+    this.runeFilter       = '';
+    this.selectedRuneIndex = null;
+    this.showRunesModal   = true;
+  }
+
+  addRune(rune: string) { this.selectedRunes = [...this.selectedRunes, rune]; }
+
+  removeRuneAt(index: number) {
+    this.selectedRunes = this.selectedRunes.filter((_, i) => i !== index);
+    if (this.selectedRuneIndex === index) this.selectedRuneIndex = null;
+    else if (this.selectedRuneIndex !== null && this.selectedRuneIndex > index) this.selectedRuneIndex--;
+  }
+
+  moveRuneUp(index: number) {
+    if (index === 0) return;
+    const r = [...this.selectedRunes];
+    [r[index - 1], r[index]] = [r[index], r[index - 1]];
+    this.selectedRunes = r;
+    this.selectedRuneIndex = index - 1;
+  }
+
+  moveRuneDown(index: number) {
+    if (index >= this.selectedRunes.length - 1) return;
+    const r = [...this.selectedRunes];
+    [r[index], r[index + 1]] = [r[index + 1], r[index]];
+    this.selectedRunes = r;
+    this.selectedRuneIndex = index + 1;
+  }
+
+  saveRunes() {
+    if (this.character) {
+      this.characterService.updateCharacter({ ...this.character, runeValues: [...this.selectedRunes] });
+    }
+    this.showRunesModal = false;
+  }
+
+  getRuneCount(rune: string): number { return this.selectedRunes.filter(r => r === rune).length; }
+
+  // ─── Umagi ──────────────────────────────────────────────────────────────────
+
+  get filteredUmagiOptions(): string[] {
+    if (!this.umagiFilter.trim()) return this.umagiOptions;
+    const f = this.umagiFilter.toLowerCase();
+    return this.umagiOptions.filter(u => u.toLowerCase().includes(f));
+  }
+
+  openUmagiModal() {
+    this.selectedUmagi     = (this.character as any)?.umagiValues ? [...(this.character as any).umagiValues] : [];
+    this.umagiFilter       = '';
+    this.selectedUmagiIndex = null;
+    this.showUmagiModal    = true;
+  }
+
+  addUmagi(umagi: string) { this.selectedUmagi = [...this.selectedUmagi, umagi]; }
+
+  removeUmagiAt(index: number) {
+    this.selectedUmagi = this.selectedUmagi.filter((_, i) => i !== index);
+    if (this.selectedUmagiIndex === index) this.selectedUmagiIndex = null;
+    else if (this.selectedUmagiIndex !== null && this.selectedUmagiIndex > index) this.selectedUmagiIndex--;
+  }
+
+  moveUmagiUp(index: number) {
+    if (index === 0) return;
+    const list = [...this.selectedUmagi];
+    [list[index - 1], list[index]] = [list[index], list[index - 1]];
+    this.selectedUmagi = list;
+    this.selectedUmagiIndex = index - 1;
+  }
+
+  moveUmagiDown(index: number) {
+    if (index >= this.selectedUmagi.length - 1) return;
+    const list = [...this.selectedUmagi];
+    [list[index], list[index + 1]] = [list[index + 1], list[index]];
+    this.selectedUmagi = list;
+    this.selectedUmagiIndex = index + 1;
+  }
+
+  saveUmagi() {
+    if (this.character) {
+      this.characterService.updateCharacter({ ...this.character, umagiValues: [...this.selectedUmagi] } as any);
+    }
+    this.showUmagiModal = false;
+  }
+
+  getUmagiCount(umagi: string): number { return this.selectedUmagi.filter(u => u === umagi).length; }
 }
