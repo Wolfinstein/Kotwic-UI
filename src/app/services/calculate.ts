@@ -1,0 +1,1583 @@
+import { Injectable } from '@angular/core';
+import { Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions, WeaponDamage, BreakdownSection, BreakdownStep } from '../models/character';
+import { describeWeaponDamageScaling } from '../logic/item/qualityWeaponMultiplier';
+import { ArmourDictionary } from '../logic/dictionaries/ArmourDictionary';
+import { BaseDictionary } from '../logic/dictionaries/BaseDictionary';
+import { JewelsDictionary } from '../logic/dictionaries/JewelsDictionary';
+import { SetsDictionary } from '../logic/dictionaries/SetsDictionary';
+import { WeaponDictionary } from '../logic/dictionaries/WeaponDictionary';
+import { Player, PlayerBuilder, PlayerRasa } from '../logic/interactions/Player';
+import { Evolution } from '../logic/interactions/Evolution';
+import { TalismanyAndArkany } from '../logic/interactions/TalismanyAndArkany';
+import { Affix } from '../logic/item/Affix';
+import { Base } from '../logic/item/Base';
+import { Item, ItemBuilder } from '../logic/item/Item';
+import { Prefix } from '../logic/item/Prefix';
+import { Set } from '../logic/item/Set';
+import { Stats, StatsBuilder } from '../logic/item/Stats';
+import { WeaponStats } from '../logic/item/WeaponStats';
+import { Suffix } from '../logic/item/Suffix';
+import { SuffixType, PrefixType } from '../logic/item/constants/affixType';
+import { ItemRarity } from '../logic/item/constants/itemRarity';
+import { ItemGenre } from '../logic/item/constants/itemGenre';
+import { ItemType } from '../logic/item/constants/itemType';
+import { MultiplicativeBonus, MultiplicativeBonusType } from '../logic/interactions/MultiplicativeBonus';
+import { max } from 'rxjs';
+@Injectable({
+  providedIn: 'root'
+})
+export class DashboardService {
+  /**
+   * @param extraBaseLife Additional baseLife to inject before any baseLife-dependent talismans/arcanes
+   * run (Życie i Śmierć × Tchnienie Śmierci's up-to-+400% bonus, Majestat's +7%/point bonus, and the
+   * final Wzmocniony-set punktyZycia% bonus) so it compounds with them exactly like equipment/umagi
+   * baseLife does. Used by the expedition simulator to fold Aura Bestii's team-wide HP bonus into a
+   * single player's dashboard instead of adding it as a separate flat amount afterwards.
+   */
+  calculateStuff(c: Character, extraBaseLife: number = 0): DashboardValues {
+    let player: Player = new PlayerBuilder()
+      .lvl(c.poziom)
+      .stats(new StatsBuilder()
+        .sila(c.attributes.sila)
+        .zwinnosc(c.attributes.zwinnosc)
+        .odpornosc(c.attributes.odpornosc)
+        .wyglad(c.attributes.wyglad)
+        .charyzma(c.attributes.charyzma)
+        .wplywy(c.attributes.wplywy)
+        .spostrzegawczosc(c.attributes.spostrzegawczosc)
+        .inteligencja(c.attributes.inteligencja)
+        .wiedza(c.attributes.wiedza)
+        .build())
+      .obronaPrzeciwnika(c.obronaPrzeciwnika)
+      .odpornoscPrzeciwnika(c.odpornoscPrzeciwnika)
+      .szczesciePrzeciwnika(c.szczesciePrzeciwnika)
+      .trafieniePrzeciwnikaBiala(c.trafieniePrzeciwnikaBiala)
+      .trafieniePrzeciwnikaPalna(c.trafieniePrzeciwnikaPalna)
+      .items(this.mapItems(c))
+      .build();
+    player.maxTrafieniePrzeciwnika = c.maxTrafieniePrzeciwnika;
+    player.baseLife += this.calculateBaseLife(c) + extraBaseLife;
+    this.calculateUmagi(c, player);
+    player.doMysliwy(c.mysliwy);
+    player.doNinja(c.ninja);
+    this.calculateKaplica(c, player);
+    this.calculateBudynki(c, player);
+    this.calculateBlaszki(c, player);
+    this.calculateRunyZTalkow(c, player);
+    player.resolveNonWeaponItems(c.poziom);
+    this.calculateEwolucje(c, player);
+    player.resolveSetBonuses();
+    this.calculateRasa(c, player);
+    this.calculateTalizmanyAndArkany(c, player);
+    this.calculateHuntBonuses(c, player);
+    this.calculateOneTimeBonus(c, player);
+    this.calculateEventBonus(c, player);
+    this.calculateBonusZPolowania(c, player);
+    this.calculateNocBohaterowBudynki(c, player);
+    this.calculateStrateg(c, player);
+    const dashboard: DashboardValues = this.buildDashboardValues(player);
+    this.capUnik(dashboard, c.evolutions?.mutacjaDna ?? 0);
+    return dashboard;
+  }
+  /** Unik is capped at 30%, raised to 31%/32% by Mutacja DNA level 6-9/10-15. */
+  private capUnik(dashboard: DashboardValues, mutacjaDnaLevel: number): void {
+    const cap = mutacjaDnaLevel >= 10 ? 0.32 : mutacjaDnaLevel >= 6 ? 0.31 : 0.30;
+    dashboard.unikCap = cap;
+    dashboard.unikBialaRaw = dashboard.unikBiala ?? 0;
+    dashboard.unikPalnaRaw = dashboard.unikPalna ?? 0;
+    dashboard.unikDystansRaw = dashboard.unikDystans ?? 0;
+    dashboard.unikBiala = Math.min(dashboard.unikBiala ?? 0, cap);
+    dashboard.unikPalna = Math.min(dashboard.unikPalna ?? 0, cap);
+    dashboard.unikDystans = Math.min(dashboard.unikDystans ?? 0, cap);
+  }
+  calculateBudynki(c: Character, p: Player): void {
+    p.addCharyzma(c.posredniak);
+    p.addWiedza(c.domPubliczny);
+    p.addWplywy(c.rzeznia);
+  }
+  private static readonly NOC_BOHATEROW_EVENTS = ['noc bohaterów', 'pamięci ofiar ii wojny światowej'];
+  /**
+   * Strefa 5 buildings (Posterunek Policji, Schronisko dla Bezdomnych, Agencja Ochrony,
+   * Handlarz Bronią, Dziennik Lokalny "Nocna Zmiana") are only accessible during the
+   * "Noc Bohaterów" / "Pamięci ofiar II wojny światowej" events, so their effects only
+   * apply while one of those is selected. While active, the Assasyn arena bonus
+   * (levels 1-5: +20/30/40/50/60%) boosts the PKT ŻYCIA coming from Agencja Ochrony,
+   * and an equipped Życie i Śmierć talizman boosts the buildings' flat PKT ŻYCIA
+   * (Agencja Ochrony + Handlarz Bronią) by the same Tchnienie Śmierci modifier
+   * (see TalismanyAndArkany.tchnienieModifier — 3/4/5/6% per arcane point depending
+   * on the talizman's own tier, capped at +400%) that always boosts base PKT ŻYCIA.
+   */
+  calculateNocBohaterowBudynki(c: Character, p: Player): void {
+    const event = c.eventBonus?.toLowerCase();
+    if (!event || !DashboardService.NOC_BOHATEROW_EVENTS.includes(event)) {
+      return;
+    }
+    if (c.policja >= 1) {
+      p.addSpostrzegawczosc(c.policja);
+    }
+    if (c.schronisko >= 1) {
+      let schroniskoWplywy = c.schronisko;
+      if (c.gazeta >= 1) {
+        const gazetaBonusPct = 0.25 + 0.05 * (c.gazeta - 1);
+        schroniskoWplywy = Math.floor(schroniskoWplywy * (1 + gazetaBonusPct));
+      }
+      p.addWplywy(schroniskoWplywy);
+    }
+    const finalWplywy = p.stats.wplywy;
+    let ochronaLife = 0;
+    if (c.ochrona >= 1) {
+      p.addAllDps(c.ochrona);
+      ochronaLife = finalWplywy * c.ochrona;
+    }
+    if (ochronaLife > 0 && c.assasyn >= 1) {
+      const assasynBonusPct = [0, 0.20, 0.30, 0.40, 0.50, 0.60][c.assasyn] ?? 0;
+      ochronaLife = Math.floor(ochronaLife * (1 + assasynBonusPct));
+    }
+    let budynkiLife = ochronaLife;
+    if (c.handlarz >= 1) {
+      budynkiLife += ((c.handlarz + 3) / 10) * c.ochrona * finalWplywy;
+    }
+    const zycieSmierc = c.talizmanLevels?.zycieISmierc ?? 0;
+    if (budynkiLife > 0 && zycieSmierc >= 1) {
+      const tchnienie = c.arcaneLevels?.tchnienieSmierci ?? 0;
+      const bonusPct = TalismanyAndArkany.tchnienieModifier(zycieSmierc, tchnienie);
+      budynkiLife = Math.floor(budynkiLife * (1 + bonusPct));
+    }
+    p.addLife(Math.floor(budynkiLife));
+  }
+  calculateStrateg(c: Character, p: Player): void {
+    const strateg = c.strateg;
+    switch (strateg) {
+      case 1:
+        p.addLaczneObrazeniaWszystkichBroni(0.03);
+        break;
+      case 2:
+        p.addLaczneObrazeniaWszystkichBroni(0.06);
+        break;
+      case 3:
+        p.addLaczneObrazeniaWszystkichBroni(0.09);
+        break;
+      case 4:
+        p.addLaczneObrazeniaWszystkichBroni(0.12);
+        break;
+      case 5:
+        p.addLaczneObrazeniaWszystkichBroni(0.15);
+        break;
+      default:
+        break;
+    }
+  }
+  private getPrefixTypeByName(name: string): PrefixType {
+    const normalized = name.replace(/\s+/g, '').toLowerCase();
+    const found = Object.values(PrefixType).find(v => v.replace(/\s+/g, '').toLowerCase() === normalized);
+    if (!found) {
+      throw new Error(`Prefix type not found: ${name}`);
+    }
+    return found;
+  }
+  private getSuffixTypeByName(name: string): SuffixType {
+    const normalized = name.replace(/\s+/g, '').toLowerCase();
+    const found = Object.values(SuffixType).find(v => v.replace(/\s+/g, '').toLowerCase() === normalized);
+    if (!found) {
+      throw new Error(`Suffix type not found: ${name}`);
+    }
+    return found;
+  }
+  private getGenreForItemType(itemType: ItemType): ItemGenre {
+    const legTypes = [ItemType.SZORTY, ItemType.SPODNIE, ItemType.SPODNICA, ItemType.KILT];
+    const chestTypes = [ItemType.KURTKA, ItemType.KAMIZELKA, ItemType.KOLCZUGA, ItemType.ZBROJAWARSTWOWA, ItemType.KOSZULKA, ItemType.MARYNARKA, ItemType.PELNAZBROJA, ItemType.PELERYNA, ItemType.GORSET, ItemType.SMOKING];
+    const headTypes = [ItemType.CZAPKA, ItemType.KASK, ItemType.HELM, ItemType.MASKA, ItemType.OBRECZ, ItemType.KOMINIARKA, ItemType.KAPELUSZ, ItemType.KORONA, ItemType.OPASKA, ItemType.BANDANA];
+    const ringTypes = [ItemType.PIERSCIEN, ItemType.SYGNET, ItemType.BRANSOLETA];
+    const neckTypes = [ItemType.AMULET, ItemType.LANCUCH, ItemType.NASZYJNIK, ItemType.KRAWAT, ItemType.APASZKA];
+    const melee1hTypes = [ItemType.PALKA, ItemType.NOZ, ItemType.SZTYLET, ItemType.RAPIER, ItemType.MIECZ, ItemType.TOPOR, ItemType.KASTET, ItemType.KAMA, ItemType.PIESCNIEBIOS, ItemType.WAKIZASHI];
+    const melee2hTypes = [ItemType.MACZUGA, ItemType.LOM, ItemType.PIKA, ItemType.TOPORDWURECZNY, ItemType.MIECZDWURECZNY, ItemType.KOSA, ItemType.KORBACZ, ItemType.HALABARDA, ItemType.KATANA, ItemType.PILALANCUCHOWA];
+    const gun1hTypes = [ItemType.GLOCK, ItemType.MAGNUM, ItemType.DESERT_EAGLE, ItemType.BERETTA, ItemType.UZI, ItemType.MP5K, ItemType.SKORPION];
+    const gun2hTypes = [ItemType.KARABINMYSLIWSKI, ItemType.STRZELBA, ItemType.AK47, ItemType.MIOTACZPLOMIENI, ItemType.FN_FAL, ItemType.POLAUTOMATSNAJPERSKI, ItemType.KARABINSNAJPERSKI];
+    const range1hTypes = [ItemType.KROTKILUK, ItemType.LUK, ItemType.DLUGILUK, ItemType.NOZDORZUCANIA, ItemType.TOPOREKDORZUCANIA, ItemType.SHURIKEN];
+    const range2hTypes = [ItemType.KUSZA, ItemType.CIEZKAKUSZA, ItemType.LUKREFLEKSYJNY, ItemType.OSZCZEP, ItemType.PILUM];
+    if (legTypes.includes(itemType)) return ItemGenre.LEGS;
+    if (chestTypes.includes(itemType)) return ItemGenre.CHEST;
+    if (headTypes.includes(itemType)) return ItemGenre.HEAD;
+    if (ringTypes.includes(itemType)) return ItemGenre.FINGER;
+    if (neckTypes.includes(itemType)) return ItemGenre.NECK;
+    if (melee1hTypes.includes(itemType)) return ItemGenre.WHITE_1H;
+    if (melee2hTypes.includes(itemType)) return ItemGenre.WHITE_2H;
+    if (gun1hTypes.includes(itemType)) return ItemGenre.GUN_1H;
+    if (gun2hTypes.includes(itemType)) return ItemGenre.GUN_2H;
+    if (range1hTypes.includes(itemType)) return ItemGenre.RANGE_1H;
+    if (range2hTypes.includes(itemType)) return ItemGenre.RANGE_2H;
+    throw new Error(`Unknown item type: ${itemType}`);
+  }
+  private getDictionaryForGenre(genre: ItemGenre): 'weapon' | 'armour' | 'jewel' {
+    const weaponGenres = [ItemGenre.WHITE_1H, ItemGenre.WHITE_2H, ItemGenre.GUN_1H, ItemGenre.GUN_2H, ItemGenre.RANGE_1H, ItemGenre.RANGE_2H];
+    const armourGenres = [ItemGenre.HEAD, ItemGenre.CHEST, ItemGenre.LEGS];
+    const jewelGenres = [ItemGenre.NECK, ItemGenre.FINGER];
+    if (weaponGenres.includes(genre)) return 'weapon';
+    if (armourGenres.includes(genre)) return 'armour';
+    if (jewelGenres.includes(genre)) return 'jewel';
+    throw new Error(`Unknown genre: ${genre}`);
+  }
+  private mapItems(c: Character): Item[] {
+    const items: Item[] = [];
+    for (const item of Object.values(c.equipment)) {
+      if (!item || item.rarity === null || !item.base) continue;
+      const itemType = item.base as ItemType;
+      const genre = this.getGenreForItemType(itemType);
+      const base = BaseDictionary.getBase(genre, itemType);
+      const builder = new ItemBuilder().setBase(base).setRarity(item.rarity);
+      if (item.prefix) {
+        const prefixType = this.getPrefixTypeByName(item.prefix);
+        const dictionaryType = this.getDictionaryForGenre(genre);
+        let prefix: Prefix;
+        switch (dictionaryType) {
+          case 'weapon':
+            prefix = WeaponDictionary.getWeaponPrefix(genre, prefixType);
+            break;
+          case 'armour':
+            if (genre == ItemGenre.LEGS) {
+              prefix = ArmourDictionary.getLegsPrefix(genre, item.base, prefixType);
+            } else {
+              prefix = ArmourDictionary.getArmourPrefix(genre, prefixType);
+            }
+            break;
+          case 'jewel':
+            prefix = JewelsDictionary.getJewelPrefix(genre, prefixType);
+            break;
+        }
+        builder.setPrefix(prefix);
+      }
+      if (item.suffix) {
+        const suffixType = this.getSuffixTypeByName(item.suffix);
+        const dictionaryType = this.getDictionaryForGenre(genre);
+        let suffix: Suffix;
+        switch (dictionaryType) {
+          case 'weapon':
+            suffix = WeaponDictionary.getWeaponSuffix(genre, suffixType);
+            break;
+          case 'armour':
+            suffix = ArmourDictionary.getArmourSuffix(genre, suffixType, c.poziom);
+            break;
+          case 'jewel':
+            suffix = JewelsDictionary.getJewelSuffix(genre, suffixType);
+            break;
+        }
+        builder.setSuffix(suffix);
+      }
+      items.push(builder.build());
+    }
+    return items;
+  }
+
+  calculateBlaszki(c: Character, p: Player): void {
+    if (c.blaszkaZaKronosa) {
+      p.addIgnore(0.1);
+    }
+    if (c.blaszkaZaMoba) {
+      p.addIgnore(0.1);
+    }
+    if (c.blaszkaZaHastura) {
+      p.setHastur(true);
+    }
+  }
+  calculateKaplica(c: Character, p: Player): void {
+    switch (c.kaplica) {
+      case 0:
+        break;
+      case 1:
+        p.addLife(25);
+        break;
+      case 2:
+        p.addLife(50);
+        break;
+      case 3:
+        p.addLife(75);
+        break;
+      case 4:
+        p.addLife(200);
+        break;
+      case 5:
+        p.addLife(300);
+        break;
+      case 6:
+        p.addLife(450);
+        break;
+      default:
+        break;
+    }
+  }
+  calculateBaseLife(c: Character): number {
+    if (c.poziom == 0) {
+      return 0;
+    }
+    let base = 102;
+    let term1 = 4 * (c.poziom - 1);
+    let tenDigit = Math.floor(c.poziom / 10);
+    let term2 = 5 * tenDigit * (tenDigit - 1);
+    let oneDigit = c.poziom - 10 * tenDigit;
+    let term3 = tenDigit * oneDigit;
+    let term4 = 10 * tenDigit * (tenDigit + 1) / 2;
+    return Math.floor(base + term1 + term2 + term3 + term4);
+  }
+  calculateUmagi(c: Character, p: Player): void {
+    for (const mod of c.umagiValues) {
+      const parts = mod.trim().split(/\s+/);
+      const key = parts[0].toLowerCase();
+      const value = parts[1] !== undefined ? parseFloat(parts[1]) : NaN;
+      const toDecimal = (num: number | string): number => Number(num) / 100;
+      switch (key) {
+        case 'obrazenia':
+          if (parts[1]?.includes('/')) {
+            p.addMinDmg(Math.floor((1 / 4 * c.poziom)));
+            p.addMaxDmg(Math.floor((1 / 4 * c.poziom)));
+          } else {
+            p.addMinDmg(value);
+            p.addMaxDmg(value);
+          }
+          break;
+        case 'ignore':
+          p.addIgnore(toDecimal(value));
+          break;
+        case 'dodatkowyatak':
+          p.addAllAtaki(1);
+          break;
+        case 'kryt':
+          p.addAllCrit(toDecimal(value));
+          break;
+        case 'trafienie':
+          p.addAllTrafienie(value);
+          break;
+        case 'zycie':
+          p.addBaseLife(value);
+          break;
+        case 'obrona':
+          if (parts[1]?.includes('/')) {
+            const [num, den] = parts[1].split('/').map(Number);
+            p.addObronaDodatkowa((Math.floor(c.poziom / den) * num));
+          } else {
+            p.addObronaDodatkowa(value);
+          }
+          break;
+        case 'unik':
+          p.addAllUnik(toDecimal(value));
+          break;
+        case 'szczescie':
+          p.addSzczescie(value);
+          break;
+        case 'inicjatywa':
+          p.addAdditionalIni(value);
+          break;
+        case 'spostrzegawczosc':
+          p.addSpostrzegawczosc(value);
+          break;
+        case 'zwinnosc':
+          p.addZwinnosc(value);
+          break;
+        case 'sila':
+          p.addSila(value);
+          break;
+        case 'charyzma':
+          p.addCharyzma(value);
+          break;
+        case 'wplywy':
+          p.addWplywy(value);
+          break;
+        case 'odpornosc':
+          p.addOdpornosc(value);
+          break;
+        case 'inteligencja':
+          p.addInteligencja(value);
+          break;
+        case 'wiedza':
+          p.addWiedza(value);
+          break;
+        case 'wyglad':
+          p.addWyglad(value);
+          break;
+        default:
+          break;
+      }
+    }
+  }
+  calculateEwolucje(c: Character, p: Player): void {
+    try {
+      const evolution = Evolution.builder()
+        .skrzylda(c.evolutions?.skrzydla ?? 0)
+        .pancerz(c.evolutions?.pancerz ?? 0)
+        .klyPauzryKolce(c.evolutions?.klyPazuryKolce ?? 0)
+        .gruczolyJadowe(c.evolutions?.gruczolyJadowe ?? 0)
+        .wzmocnioneSciegna(c.evolutions?.wzmocnioneSciegna ?? 0)
+        .krewDemona(c.evolutions?.krewDemona ?? 0)
+        .mutacjaDna(c.evolutions?.mutacjaDna ?? 0)
+        .oswiecony(c.evolutions?.oswiecony ?? 0)
+        .szostyZmysl(c.evolutions?.szostyZmysl ?? 0)
+        .absorpcja(c.evolutions?.absorpcja ?? 0)
+        .harmonijnyRozwoj(c.evolutions?.harmonijnyRozwoj ?? 0)
+        .pietnoDemona(c.evolutions?.pietnoDemona ?? 0)
+        .wzmocnioneMiesnie(c.evolutions?.wzmocnioneMiesnie ?? 0)
+        .build();
+      evolution.calculate(p);
+    } catch (error) {
+    }
+  }
+  calculateRasa(c: Character, p: Player): void {
+    if (!c.rasa) {
+      return;
+    }
+    p.doRasa(c.rasa);
+  }
+  private getRasaFromString(rasaStr: string): PlayerRasa | null {
+    const rasaValue = Object.values(PlayerRasa).find((r) => r === rasaStr);
+    return rasaValue ? (rasaValue as PlayerRasa) : null;
+  }
+  calculateTalizmanyAndArkany(c: Character, p: Player): void {
+    try {
+      const talizmanyArkany = TalismanyAndArkany.builder()
+        .aMajestat(c.arcaneLevels?.majestat ?? 0)
+        .aMaskaOff(c.arcaneLevels?.maskaKaliguli ?? 0)
+        .aMaskaDef(c.arcaneLevels?.maskaAdonisa ?? 0)
+        .aKrewZycia(c.arcaneLevels?.krewZycia ?? 0)
+        .aKocieSciezki(c.arcaneLevels?.kocieSciezki ?? 0)
+        .aZar(c.arcaneLevels?.zarKrwi ? 1 : 0)
+        .zarAktywny(c.zarKrwiActive ?? false)
+        .aCisza(c.arcaneLevels?.ciszaKrwi ?? 0)
+        .aWyssanie(c.arcaneLevels?.wyssanieMocy ?? 0)
+        .potegaAktywne(c.wyssanieMocyActive ?? false)
+        .aMocKrwi(c.arcaneLevels?.mocKrwi ?? 0)
+        .aSkora(c.arcaneLevels?.skoraBestii ?? 0)
+        .aDziki(c.arcaneLevels?.dzikiSzal ?? 0)
+        .aCienBestii(c.arcaneLevels?.cienBestii ? 1 : 0)
+        .aNocny(c.arcaneLevels?.nocnyLowca ?? 0)
+        .aTchnienie(c.arcaneLevels?.tchnienieSmierci ?? 0)
+        .tchnienieAktywne(c.tchnienieSmierciActive ?? false)
+        .ambicja(c.talizmanLevels?.ambicja ?? 0)
+        .behemot(c.talizmanLevels?.behemot ?? 0)
+        .ziz(c.talizmanLevels?.ziz ?? 0)
+        .kamienSpota(c.talizmanLevels?.kamienPrzestrzeni ?? 0)
+        .kamienZwinki(c.talizmanLevels?.kamienCzasu ?? 0)
+        .kamienDobra(c.talizmanLevels?.kamienDobra ?? 0)
+        .kamienZla(c.talizmanLevels?.kamienZla ?? 0)
+        .szpony(c.talizmanLevels?.szponyNocy ?? 0)
+        .zycieSmierc(c.talizmanLevels?.zycieISmierc ?? 0)
+        .otchlan(c.talizmanLevels?.otchlaniCiszy ?? 0)
+        .potega(c.talizmanLevels?.potegaMocy ?? 0)
+        .aura(c.talizmanLevels?.auraBestii ?? 0)
+        .maskaStrachu(c.talizmanLevels?.maskaStachu ?? 0)
+        .maskaWladzy(c.talizmanLevels?.maskaWladzy ?? 0)
+        .lowca(c.talizmanLevels?.cichyLowca ?? 0)
+        .piesnKrwi(c.talizmanLevels?.piesnKrwi ?? 0)
+        .build();
+      talizmanyArkany.calculateTalisman(p);
+      talizmanyArkany.calculateArakny(p);
+    } catch (error) {
+    }
+  }
+  calculateHuntBonuses(c: Character, p: Player): void {
+    if (!Array.isArray(c.huntBonuses) || c.huntBonuses.length === 0) {
+      return;
+    }
+    for (const bonus of c.huntBonuses) {
+      switch (bonus) {
+        case 'Juggernaut':
+          p.addTwardosc(1);
+          break;
+        case 'Ronin':
+          p.addIgnore(0.75);
+          break;
+        case 'Adrenalina':
+          p.lifeMultiplier *= 1.15;
+          break;
+        case 'SokoleOko':
+          p.addTrafienieProcentowePalna(0.2);
+          p.addTrafienieProcentoweBiala(0.2);
+          p.addTrafienieProcentoweDystans(0.2);
+          break;
+        case 'Rzeźnik':
+          p.addCritMultiBiala1h(0.5);
+          p.addCritMultiBiala2h(1);
+          p.addCritMultiPalna1h(0.5);
+          p.addCritMultiPalna2h(1);
+          p.addCritMultiDystans1h(0.5);
+          p.addCritMultiDystans2h(1);
+          break;
+      }
+    }
+  }
+  calculateBonusZPolowania(c: Character, p: Player): void {
+    switch (c.bonusZPolowania) {
+      case '10% obrażenia wszystkich broni':
+        p.addLaczneObrazeniaWszystkichBroni(0.10);
+        break;
+      case '20% obrażenia wszystkich broni':
+        p.addLaczneObrazeniaWszystkichBroni(0.20);
+        break;
+    }
+  }
+  calculateOneTimeBonus(c: Character, p: Player): void {
+    if (!c.oneTimeBonus) {
+      return;
+    }
+    const bonus = c.oneTimeBonus.toLowerCase();
+    switch (bonus) {
+      case 'krew wilka':
+        p.addSila(3);
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(2);
+        p.addWiedza(-2);
+        break;
+      case 'jabłko żelaznego drzewa':
+        p.addOdpornosc(3);
+        p.life += Math.floor(p.baseLife * 0.07);
+        break;
+      case 'płetwa rekina':
+        p.addMinDmg(2);
+        p.addMaxDmg(3);
+        p.addCharyzma(-2);
+        break;
+      case 'eliksir zmysłów':
+        p.addSila(-1);
+        p.addCharyzma(2);
+        p.addWyglad(-2);
+        p.addSpostrzegawczosc(4);
+        p.addZwinnosc(-2);
+        p.addOdpornosc(-2);
+        p.addInteligencja(1);
+        p.addWiedza(1);
+        break;
+      case 'święcona woda':
+        p.addOdpornosc(4);
+        p.addZwinnosc(-1);
+        break;
+      case 'łza feniksa':
+        p.addWplywy(-2);
+        p.addRegenerationFlat(15);
+        break;
+      case 'magiczna pieczęć':
+        p.addSila(2);
+        p.addCharyzma(-2);
+        p.addWplywy(-2);
+        p.addOdpornosc(2);
+        p.addSzczescie(4);
+        break;
+      case 'serce nietoperza':
+        p.addMinDmg(-2);
+        p.addMaxDmg(-2);
+        p.addObronaDodatkowa(14);
+        break;
+      case 'kwiat lotosu':
+        p.addCharyzma(-6);
+        p.addWplywy(-5);
+        p.addWyglad(6);
+        p.addSzczescie(7);
+        break;
+      case 'jad wielkopchły':
+        p.addMaxDmg(7);
+        p.addSpostrzegawczosc(-1);
+        p.addZwinnosc(-1);
+        p.addOdpornosc(-5);
+        break;
+      case 'serum oświecenia':
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(-2);
+        p.addInteligencja(4);
+        p.addWiedza(6);
+        break;
+      case 'wywar z czarnego kota':
+        p.addSzczescie(10);
+        break;
+      case 'węgiel':
+        p.addCharyzma(-2);
+        p.addWplywy(6);
+        break;
+      case 'sierść kreta':
+        p.addCharyzma(2);
+        break;
+      case 'saletra':
+        p.addSpostrzegawczosc(-1);
+        p.addZwinnosc(-1);
+        p.addAllCrit(0.04);
+        break;
+      case 'sok z żuka':
+        p.addIgnore(0.03);
+        p.addCritChancePalna(-0.10);
+        break;
+      case 'esencja młodości':
+        p.addSila(4);
+        p.addSpostrzegawczosc(-4);
+        p.addZwinnosc(2);
+        p.addWiedza(-3);
+        break;
+      case 'paznokieć trolla':
+        p.addZwinnosc(-2);
+        p.addOdpornosc(4);
+        p.addInteligencja(-1);
+        p.life += Math.floor(p.baseLife * 0.10);
+        break;
+      case 'wilcza jagoda':
+        p.addMinDmg(4);
+        p.addMaxDmg(4);
+        p.addCharyzma(-4);
+        break;
+      case 'oko kota':
+        p.addSila(-2);
+        p.addCharyzma(2);
+        p.addWyglad(-3);
+        p.addSpostrzegawczosc(6);
+        p.addZwinnosc(-3);
+        p.addOdpornosc(-4);
+        p.addInteligencja(2);
+        p.addWiedza(2);
+        break;
+      case 'absynt':
+        p.addOdpornosc(6);
+        p.addZwinnosc(-2);
+        break;
+      case 'łuski salamandry':
+        p.addWplywy(-4);
+        p.addRegenerationFlat(80);
+        break;
+      case 'woda źródlana':
+        p.addSila(2);
+        p.addCharyzma(-3);
+        p.addWplywy(-3);
+        p.addOdpornosc(2);
+        p.addSzczescie(7);
+        break;
+      case 'kość męczennika':
+        p.addMinDmg(-5);
+        p.addMaxDmg(-5);
+        p.addObronaDodatkowa(27);
+        break;
+      case 'napój miłosny':
+        p.addCharyzma(-10);
+        p.addWplywy(-8);
+        p.addWyglad(8);
+        p.addSzczescie(10);
+        break;
+      case 'jad skorpiona':
+        p.addMaxDmg(10);
+        p.addSila(-1);
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(-2);
+        p.addOdpornosc(-8);
+        break;
+      case 'korzeń mandragory':
+        p.addSpostrzegawczosc(-4);
+        p.addZwinnosc(-4);
+        p.addInteligencja(6);
+        p.addWiedza(6);
+        break;
+      case 'gwiezdny pył':
+        p.addSzczescie(15);
+        break;
+      case 'fiolka kwasu':
+        p.addCharyzma(-4);
+        p.addWplywy(8);
+        break;
+      case 'siarka':
+        p.addCharyzma(4);
+        break;
+      case 'czarny diament':
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(-2);
+        p.addAllCrit(0.07);
+        break;
+      case 'oko topielca':
+        p.addIgnore(0.06);
+        p.addCritChancePalna(-0.15);
+        break;
+      case 'boska łza':
+        p.addSila(6);
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(4);
+        break;
+      case 'ząb ghula':
+        p.addOdpornosc(8);
+        p.addZwinnosc(-3);
+        p.addInteligencja(-4);
+        p.life += Math.floor(p.baseLife * 0.14);
+        break;
+      case 'wywar z koralowca':
+        p.addMinDmg(5);
+        p.addMaxDmg(7);
+        p.addCharyzma(-8);
+        break;
+      case 'serce proroka':
+        p.addSpostrzegawczosc(10);
+        p.addCharyzma(4);
+        p.addWiedza(4);
+        p.addSila(-4);
+        p.addZwinnosc(-6);
+        p.addWyglad(-6);
+        break;
+      case 'pazur bazyliszka':
+        p.addOdpornosc(14);
+        p.addZwinnosc(-4);
+        break;
+      case 'łuski demona':
+        p.addWplywy(4);
+        p.addOdpornosc(-4);
+        p.addRegenerationFlat(140);
+        break;
+      case 'skrzydła chrząszcza':
+        p.addSila(4);
+        p.addOdpornosc(4);
+        p.addCharyzma(-5);
+        p.addWplywy(-5);
+        p.addSzczescie(10);
+        break;
+      case 'maska gargulca':
+        p.addMinDmg(-6);
+        p.addMaxDmg(-6);
+        p.addObronaDodatkowa(60);
+        break;
+      case 'sok z modliszki':
+        p.addWyglad(14);
+        p.addSzczescie(14);
+        p.addCharyzma(-10);
+        p.addWplywy(-6);
+        break;
+      case 'oddech smoka':
+        p.addMaxDmg(17);
+        p.addSila(-2);
+        p.addZwinnosc(-2);
+        p.addOdpornosc(-6);
+        p.addSpostrzegawczosc(-2);
+        break;
+      case 'ząb wiedźmy':
+        p.addInteligencja(7);
+        p.addWiedza(8);
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(-2);
+        break;
+      case 'grimoire':
+        p.addSzczescie(20);
+        break;
+      case 'czarna żółć':
+        p.addWplywy(14);
+        p.addCharyzma(-6);
+        break;
+      case 'palec kowala':
+        p.addCharyzma(10);
+        break;
+      case 'kwiat bzu':
+        p.addZwinnosc(-3);
+        p.addSpostrzegawczosc(-3);
+        p.addAllCrit(0.10);
+        break;
+      case 'ogień z serca ziemi':
+        p.addIgnore(0.10);
+        p.addCritChancePalna(-0.25);
+        break;
+    }
+  }
+  calculateEventBonus(c: Character, p: Player): void {
+    if (!c.eventBonus) {
+      return;
+    }
+    const bonus = c.eventBonus.toLowerCase();
+    switch (bonus) {
+      case 'klątwa bogów':
+        break;
+      case 'noc długich noży':
+        p.addCritMulti(1.20);
+        break;
+      case 'noc starych bogów':
+        p.addRedukcjaObrazen(0.20);
+        break;
+      case 'noc poszukiwaczy':
+        p.addSzczescie(50);
+        break;
+      case 'dzień poszukiwaczy':
+        p.addSzczescie(100);
+        break;
+      case 'urodzinowa wizja kaina':
+        p.addSzczescie(100);
+        break;
+      case 'dzień vlada':
+        break;
+      case 'dzień gwiazd północy':
+        p.addAllAtaki(2);
+        break;
+      case 'świąteczna wizja kaina':
+        p.addSzczescie(50);
+        break;
+      case 'świąteczna wizja kaina (deluxe)':
+        p.addSzczescie(50);
+        break;
+      case 'potrójna wizja kaina':
+        p.addSzczescie(50);
+        break;
+      case 'pożeracz serc':
+        const luckFromAppearance = Math.floor(p.stats.wyglad / 2);
+        p.addSzczescie(luckFromAppearance);
+        break;
+      case 'potęga hormonów':
+        p.addLaczneObrazeniaWszystkichBroni(c.poziom);
+        break;
+      case 'dzień neandertalczyka':
+        p.addLaczneObrazeniaWszystkichBroni(c.poziom);
+        break;
+      case 'pisanki kaina':
+        p.addSzczescie(50);
+        break;
+      case 'may the 4th be with you':
+        p.addCritMulti(1.0);
+        break;
+      case 'dzień przemiany':
+        p.addLife(700);
+        break;
+      case 'więzy krwi':
+        p.addSzczescie(100);
+        break;
+      case 'krew z krwi':
+        p.addSzczescie(50);
+        break;
+      case 'wszyscy jesteśmy francuzami':
+        p.addSzczescie(100);
+        break;
+      case 'pierwszy gol':
+        p.addSzczescie(20);
+        break;
+      case 'pierwszy serwis':
+        p.addSzczescie(20);
+        break;
+      case 'szczęście sprzyja lepszym':
+        p.addSzczescie(30);
+        break;
+      case 'tylko dla orłów':
+        p.addSzczescie(40);
+        break;
+      case 'zwycięzca jest tylko jeden':
+        p.addSzczescie(50);
+        break;
+      case 'noc bohaterów':
+        break;
+      case 'pamięci ofiar ii wojny światowej':
+        break;
+    }
+  }
+  calculateRunyZTalkow(c: Character, p: Player): void {
+    for (const mod of c.runeValues) {
+      const parts = mod.trim().split(/\s+/);
+      const key = parts[0].toLowerCase();
+      const value = parts[1] !== undefined ? parseFloat(parts[1]) : NaN;
+      const toDecimal = (num: number | string): number => Number(num) / 100;
+      switch (key) {
+        case 'obrazenia':
+          p.addLaczneObrazeniaWszystkichBroni(value / 100);
+          break;
+        case 'kryt':
+          p.addAllCrit(toDecimal(value));
+          break;
+        case 'ignore':
+          p.addIgnore(toDecimal(value));
+          break;
+        case 'sila':
+          if (value <= 2) {
+            p.addSila(Math.floor(c.poziom / 60));
+          } else if (value === 3) {
+            p.addSila(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addSila(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addSila(value);
+          break;
+        case 'spostrzegawczosc':
+          if (value <= 2) {
+            p.addSpostrzegawczosc(Math.floor(c.poziom / 60));
+          } else if (value === 3) {
+            p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addSpostrzegawczosc(value);
+          break;
+        case 'inteligencja':
+          if (value <= 2) {
+            p.addInteligencja(Math.floor(c.poziom / 60));
+          } else if (value === 3) {
+            p.addInteligencja(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addInteligencja(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addInteligencja(value);
+          break;
+        case 'wiedza':
+          if (value <= 2) {
+            p.addWiedza(Math.floor(c.poziom / 60));
+          } else if (value === 3) {
+            p.addWiedza(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addWiedza(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addWiedza(value);
+          break;
+        case 'zwinnosc':
+          if (value <= 2) {
+            p.addZwinnosc(Math.floor(c.poziom / 60));
+          } else if (value === 3) {
+            p.addZwinnosc(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addZwinnosc(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addZwinnosc(value);
+          break;
+        case 'obrona':
+          p.addObronaDodatkowa(Math.floor(c.poziom / 8) * value);
+          break;
+        case 'odpornosc':
+          if (value <= 4) {
+            p.addOdpornosc(Math.floor(c.poziom / 60));
+          } else if (value == 6) {
+            p.addOdpornosc(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addOdpornosc(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addOdpornosc(value);
+          break;
+        case 'twardosc':
+          p.addTwardosc(toDecimal(value));
+          break;
+        case 'zycie':
+          if (value == 50) {
+            p.addLife((Math.floor(c.poziom / 60)) * 50);
+          } else if (value == 100) {
+            p.addLife(Math.floor(c.poziom / 60) * 75);
+          } else if (value == 150) {
+            p.addLife(Math.floor(c.poziom / 60) * 100);
+          } else {
+            p.addLife(Math.floor(c.poziom / 60) * 150);
+          }
+          p.addLife(value);
+          break;
+        case 'szczescie':
+          p.addSzczescie(value);
+          break;
+        case 'multi':
+          p.addCritMulti(toDecimal(value));
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  buildDashboardValues(p: Player): DashboardValues {
+    try {
+      const weapons = p.items.filter(item =>
+        item.base && (
+          item.base.genre === ItemGenre.WHITE_1H ||
+          item.base.genre === ItemGenre.WHITE_2H ||
+          item.base.genre === ItemGenre.GUN_1H ||
+          item.base.genre === ItemGenre.GUN_2H ||
+          item.base.genre === ItemGenre.RANGE_1H ||
+          item.base.genre === ItemGenre.RANGE_2H
+        )
+      );
+
+      const obrazenia: WeaponDamage[] = [];
+
+      for (const weapon of weapons) {
+        const weaponStats = p.resolveWeaponItem(weapon, p.lvl);
+        p.stats.addAgnosticStats(weaponStats);
+      }
+
+      const pSnapshot = p.clone();
+
+      const weaponStatsList = weapons.map(weapon => ({
+        weapon,
+        stats: pSnapshot.resolveWeaponItem(weapon, p.lvl) as WeaponStats
+      }));
+
+      // critChanceGlobal (Deagle/MP5) pools across every equipped gun-1h weapon,
+      // so each one's bonus applies to every gun-1h attack, not just its own.
+      const pooledGunCritChance = weaponStatsList
+        .filter(w => w.weapon.base?.genre === ItemGenre.GUN_1H)
+        .reduce((sum, w) => sum + (w.stats.critChanceGlobal ?? 0), 0);
+
+      for (const { weapon, stats } of weaponStatsList) {
+        if (weapon.base?.genre === ItemGenre.GUN_1H) {
+          stats.critChancePalna1h += pooledGunCritChance;
+        }
+        const damage = this.calculateWeaponDamage(weapon, stats, pSnapshot);
+        if (damage) {
+          obrazenia.push(damage);
+        }
+      }
+
+      const player = p.clone();
+      this.resolveBonusesBehe(player.bonuses, player);
+
+      const attributes: Attributes = {
+        sila: player.stats.sila,
+        zwinnosc: player.stats.zwinnosc,
+        odpornosc: player.stats.odpornosc,
+        wyglad: player.stats.wyglad,
+        charyzma: player.stats.charyzma,
+        wplywy: player.stats.wplywy,
+        spostrzegawczosc: player.stats.spostrzegawczosc,
+        inteligencja: player.stats.inteligencja,
+        wiedza: player.stats.wiedza
+      };
+
+      // Regen scales off the final HP total, including lifeMultiplier bonuses (e.g. Adrenalina ×1.15).
+      const regenPoolSize = Math.floor((player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife)) * player.lifeMultiplier);
+      const regenBase = Math.floor(regenPoolSize * player.stats.regen) + player.stats.regenFlat;
+      const krewZyciaRegen = Math.floor(regenPoolSize * player.stats.krewZyciaRegenFraction);
+      const regenHalved = !!p.stats.halvedRegen;
+      let regen = regenHalved ? Math.floor(regenBase / 2) : regenBase;
+      const rawRedukcja = player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01;
+      const cappedRedukcja = Math.min(rawRedukcja, 0.30);
+      const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
+      return {
+        punktyZycia: regenPoolSize,
+        effectiveHp: effectiveHp,
+        punktyKrwi: 0,
+        szczescie: player.stats.szczescie,
+        obrona: player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc,
+        attributes: attributes,
+        twardrosc: player.stats.twardosc,
+        redukcja: cappedRedukcja,
+        redukcjaRaw: rawRedukcja,
+        unikBiala: player.stats.unikBiala,
+        unikPalna: player.stats.unikPalna,
+        unikDystans: player.stats.unikDystans,
+        enemyCritChanceReduction: Math.floor(player.stats.enemyCritChanceReductionRaw) / 100,
+        trafienieDodatkoweDystans: player.stats.trafienieDystans,
+        trafienieDodatkowePalna: player.stats.trafieniePalna,
+        trafienieDodatkoweBiala: player.stats.trafienieBiala,
+        inicjatywa: player.stats.spostrzegawczosc + player.stats.zwinnosc + player.stats.additionalIni,
+        obrazenia: obrazenia,
+        regeneracja: regen,
+        regenBase: regenBase,
+        krewZyciaRegen: krewZyciaRegen,
+        regenHalved: regenHalved,
+        zizAverageRounds: p.ziz4 ? this.simulateZiz4Rounds(obrazenia) : [],
+        roundsPerWeapon: this.simulateRoundsPerWeapon(obrazenia, 10, !!p.ziz4)
+      };
+    } catch (error) {
+      return {
+        punktyZycia: 0,
+        obrona: 0
+      };
+    }
+  }
+  private calculateHitChance(genre: ItemGenre, player: Player, trafienieLegDystans: number, hitCeiling?: number): number {
+    return this.hitChanceDetails(genre, player, trafienieLegDystans, hitCeiling).final;
+  }
+
+  private hitChanceDetails(genre: ItemGenre, player: Player, trafienieLegDystans: number, hitCeiling?: number): { y: number; z: number; p: number; r: number; rawHit: number; minHit: number; maxHit: number; final: number } {
+    let y: number;
+    let z: number;
+    let p: number;
+    let r: number;
+
+    if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
+      y = player.stats.zwinnosc;
+      z = player.stats.trafienieBiala;
+      p = Math.floor((1 + player.stats.trafienieProcentoweBiala) * 100) / 100;
+      r = player.trafieniePrzeciwnikaBiala;
+    } else if (genre === ItemGenre.GUN_1H || genre === ItemGenre.GUN_2H) {
+      y = player.stats.spostrzegawczosc;
+      z = player.stats.trafieniePalna;
+      p = Math.floor((1 + player.stats.trafienieProcentowePalna) * 100) / 100;
+      r = player.trafieniePrzeciwnikaPalna;
+    } else {
+      y = player.stats.zwinnosc + player.stats.spostrzegawczosc;
+      z = player.stats.trafienieDystans + trafienieLegDystans;
+      p = Math.floor((1 + player.stats.trafienieProcentoweDystans) * 100) / 100;
+      r = player.trafieniePrzeciwnikaBiala + player.trafieniePrzeciwnikaPalna;
+    }
+
+    const luckDiff = player.stats.szczescie - player.szczesciePrzeciwnika;
+    let luckModifier = Math.floor(luckDiff / 5);
+
+    if (luckDiff < 0) {
+      const skillDiff = y - r;
+      if (skillDiff > 0) {
+        const reduction = Math.floor(skillDiff / 10);
+        luckModifier = Math.min(luckModifier + reduction, 0);
+      }
+    }
+
+    // Some mobs (Malphas) lower the whole max-hit band so it tops out at hitCeiling instead of 99 — the base drops by the
+    // same amount (90 → hitCeiling - 9), so the luck bonus still counts and reaches the ceiling at the usual +9.
+    const maxHit = hitCeiling != null
+      ? Math.min(Math.max(hitCeiling - 9 + luckModifier, 20), hitCeiling)
+      : Math.min(Math.max(90 + luckModifier, 20), 99);
+    const minHit = Math.min(Math.max(10 + luckModifier, 1), hitCeiling != null ? Math.min(65, hitCeiling) : 65);
+    const rawHit = (70 + 2 * y + z) * p - 2 * r;
+
+    return { y, z, p, r, rawHit, minHit, maxHit, final: Math.min(Math.max(rawHit, minHit), maxHit) / 100 };
+  }
+
+  private simulateRoundsPerWeapon(damages: WeaponDamage[], rounds: number, ziz: boolean): { name: string; rounds: number[] }[] {
+    const oneHandedGenres: string[] = [ItemGenre.WHITE_1H, ItemGenre.GUN_1H];
+    return damages.map(d => {
+      let accumulatedBonus = 0;
+      const roundValues: number[] = [];
+      for (let round = 0; round < rounds; round++) {
+        const delta = d.genre && oneHandedGenres.includes(d.genre) ? 0.025 : 0.05;
+        const cappedCrit = Math.min(d.critChance ?? 0, 0.85);
+        const hitChance = d.estimatedHitChance ?? 1;
+        const effectiveMulti = (d.critMulti ?? 1) + (ziz ? accumulatedBonus : 0);
+        const avg = (d.minDmg + d.maxDmg) / 2;
+        const dmg = Math.floor(
+          hitChance * (cappedCrit * (d.iloscAtakow ?? 0) * avg * effectiveMulti
+            + (1 - cappedCrit) * (d.iloscAtakow ?? 0) * avg)
+        );
+        roundValues.push(dmg);
+        if (ziz) accumulatedBonus += cappedCrit * (d.iloscAtakow ?? 0) * delta;
+      }
+      return { name: d.name, rounds: roundValues };
+    });
+  }
+
+  private simulateZiz4Rounds(damages: WeaponDamage[]): number[] {
+    const ROUNDS = 10;
+    const oneHandedGenres: string[] = [ItemGenre.WHITE_1H, ItemGenre.GUN_1H];
+    const rounds: number[] = [];
+    let accumulatedBonus = 0;
+    for (let round = 0; round < ROUNDS; round++) {
+      let totalDmg = 0;
+      let bonusGainedThisRound = 0;
+
+      for (const d of damages) {
+        if (!d.genre) continue;
+        const delta = oneHandedGenres.includes(d.genre) ? 0.025 : 0.05;
+        const cappedCrit = Math.min(d.critChance ?? 0, 0.85);
+        const hitChance = d.estimatedHitChance ?? 1;
+        const effectiveMulti = (d.critMulti ?? 1) + accumulatedBonus;
+        const avg = (d.minDmg + d.maxDmg) / 2;
+        totalDmg += Math.floor(
+          hitChance * (cappedCrit * (d.iloscAtakow ?? 0) * avg * effectiveMulti
+            + (1 - cappedCrit) * (d.iloscAtakow ?? 0) * avg)
+        );
+        bonusGainedThisRound += hitChance * cappedCrit * (d.iloscAtakow ?? 0) * delta;
+      }
+
+      rounds.push(totalDmg);
+      accumulatedBonus += bonusGainedThisRound;
+    }
+
+    return rounds;
+  }
+
+  private resolveBonuses(bonuses: any[], player: Player, weapon: Item): { minDmg: number, maxDmg: number } {
+    let minDmg = 0;
+    let maxDmg = 0;
+    const beheBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.BEHE);
+    const otherBonuses = bonuses.filter(b => b.type !== MultiplicativeBonusType.BEHE && b.type !== MultiplicativeBonusType.AMBICJA);
+    const ambicjaBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.AMBICJA);
+    const allBonusesToProcess = [
+      ...beheBonuses,
+      ...otherBonuses,
+      ...ambicjaBonuses
+    ];
+    for (const b of allBonusesToProcess) {
+      switch (b.type) {
+        case MultiplicativeBonusType.SKRZYDLA:
+          player.addWyglad(Math.floor(player.stats.spostrzegawczosc * (b.licznik / b.mianownik * b.mnoznik)));
+          break;
+        case MultiplicativeBonusType.SCIEGNA:
+          player.addWyglad(Math.floor(player.stats.zwinnosc * (b.licznik / b.mianownik * b.mnoznik)));
+          break;
+        case MultiplicativeBonusType.MIESNIE:
+          if (weapon.getGenre() === ItemGenre.WHITE_1H || weapon.getGenre() === ItemGenre.WHITE_2H) {
+            minDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
+            maxDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
+          }
+          break;
+        case MultiplicativeBonusType.BEHE:
+          player.addZwinnosc(Math.floor(player.stats.sila * (b.licznik / b.mianownik * b.mnoznik)));
+          let suma = player.stats.wiedza + player.stats.inteligencja;
+          player.addSpostrzegawczosc(Math.floor(suma * (b.licznik / b.mianownik) * b.mnoznik));
+          break;
+        case MultiplicativeBonusType.OSWIECONY:
+          if (weapon.getGenre() === ItemGenre.GUN_1H || weapon.getGenre() === ItemGenre.GUN_2H) {
+            minDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
+            maxDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
+          }
+          break;
+        case MultiplicativeBonusType.AMBICJA:
+          minDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
+          maxDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
+          break;
+        case MultiplicativeBonusType.CZARNY:
+          if (weapon.getGenre() === ItemGenre.WHITE_2H) {
+            minDmg += Math.floor(player.stats.sila / b.mianownik);
+            maxDmg += Math.floor(player.stats.sila / b.mianownik);
+          }
+          break;
+        case MultiplicativeBonusType.TYTAN:
+          if (weapon.getGenre() === ItemGenre.WHITE_1H) {
+            minDmg += Math.floor(player.stats.sila / b.mianownik);
+            maxDmg += Math.floor(player.stats.sila / b.mianownik);
+          }
+          break;
+        case MultiplicativeBonusType.SLONECZNY:
+          if (weapon.getGenre() === ItemGenre.GUN_2H) {
+            minDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
+            maxDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
+          }
+          break;
+        case MultiplicativeBonusType.JASTRZEBI:
+          if (weapon.getGenre() === ItemGenre.GUN_1H) {
+            minDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.licznik;
+            maxDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.licznik;
+          }
+          break;
+      }
+    }
+
+    return { minDmg, maxDmg };
+  }
+
+  private resolveBonusesBehe(bonuses: any[], player: Player): void {
+    const beheBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.BEHE);
+    const wygladBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.SKRZYDLA || b.type === MultiplicativeBonusType.SCIEGNA);
+    const allBonusesToProcess = [
+      ...beheBonuses,
+      ...wygladBonuses
+    ];
+    for (const b of allBonusesToProcess) {
+      switch (b.type) {
+        case MultiplicativeBonusType.BEHE:
+          player.addZwinnosc(Math.floor(player.stats.sila * (b.licznik / b.mianownik * b.mnoznik)));
+          let suma = player.stats.wiedza + player.stats.inteligencja;
+          player.addSpostrzegawczosc(Math.floor(suma * (b.licznik / b.mianownik) * b.mnoznik));
+          break;
+        case MultiplicativeBonusType.SKRZYDLA:
+          player.addWyglad(Math.floor(player.stats.spostrzegawczosc * (b.licznik / b.mianownik * b.mnoznik)));
+          break;
+        case MultiplicativeBonusType.SCIEGNA:
+          player.addWyglad(Math.floor(player.stats.zwinnosc * (b.licznik / b.mianownik * b.mnoznik)));
+          break;
+      }
+    }
+  }
+
+  private constructWeaponName(weapon: Item): string {
+    const parts: string[] = [];
+    const rarity = weapon.getRarity();
+    if (rarity) {
+      parts.push(rarity);
+    }
+    if (weapon.prefix) {
+      const prefix = weapon.prefix as Prefix;
+      if (prefix.prefixType) {
+        parts.push(prefix.prefixType);
+      }
+    }
+    if (weapon.base?.type) {
+      parts.push(weapon.base.type);
+    }
+    if (weapon.suffix) {
+      const suffix = weapon.suffix as Suffix;
+      if (suffix.suffixType) {
+        parts.push(suffix.suffixType);
+      }
+    }
+    return parts.join(' ');
+  }
+  private calculateWeaponDamage(weapon: Item, stats: Stats, p: Player): WeaponDamage | null {
+    try {
+      let player = p.clone();
+      const genre = weapon.base?.genre;
+      let minDmg = 0;
+      let maxDmg = 0;
+      let ataki = 0;
+      let trafienie = 0;
+      let trafienieProcentowe = 0;
+      let critChance = 0;
+      let critMulti = 0;
+      player.stats.addNonAgnosticStats(stats)
+      const bonusResults = this.resolveBonuses(player.bonuses, player, weapon);
+      let trafienieLegDystans = 0;
+      minDmg += bonusResults.minDmg;
+
+      maxDmg += bonusResults.maxDmg;
+      if (genre === ItemGenre.WHITE_2H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentoweBiala) * 100) / 100;
+        minDmg += player.stats.minDpsBiala2h + player.stats.sila;
+        maxDmg += player.stats.maxDpsBiala2h + player.stats.sila;
+        ataki += player.stats.atakiBiala;
+        trafienie += (player.stats.trafienieBiala + player.stats.zwinnosc * 2) * trafienieProcentowe;
+        critChance += player.stats.critChanceBiala2h;
+        critMulti += player.stats.critMultiBiala2h + 4;
+      } else if (genre === ItemGenre.WHITE_1H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentoweBiala) * 100) / 100;
+        minDmg += player.stats.minDpsBiala1h + player.stats.sila;
+        maxDmg += player.stats.maxDpsBiala1h + player.stats.sila;
+        ataki += player.stats.atakiBiala;
+        trafienie += (player.stats.trafienieBiala + player.stats.zwinnosc * 2) * trafienieProcentowe;
+        critChance += player.stats.critChanceBiala1h;
+        critMulti += player.stats.critMultiBiala1h + 2;
+      } else if (genre === ItemGenre.GUN_1H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentowePalna) * 100) / 100;
+        minDmg += player.stats.minDpsPalna1h + Math.floor(player.stats.wiedza / 3);
+        maxDmg += player.stats.maxDpsPalna1h + Math.floor(player.stats.wiedza / 3);
+        ataki += player.stats.atakiPalna;
+        trafienie += (player.stats.trafieniePalna + player.stats.spostrzegawczosc * 2) * trafienieProcentowe;
+        critChance += player.stats.critChancePalna1h;
+        critMulti += player.stats.critMultiPalna1h + 1.5;
+      } else if (genre === ItemGenre.GUN_2H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentowePalna) * 100) / 100;
+        minDmg += player.stats.minDpsPalna2h + Math.floor(player.stats.wiedza / 3);
+        maxDmg += player.stats.maxDpsPalna2h + Math.floor(player.stats.wiedza / 3);
+        ataki += player.stats.atakiPalna;
+        trafienie += (player.stats.trafieniePalna + player.stats.spostrzegawczosc * 2) * trafienieProcentowe;
+        critChance += player.stats.critChancePalna2h;
+        critMulti += player.stats.critMultiPalna2h + 2.0;
+      } else if (genre === ItemGenre.RANGE_1H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentoweDystans) * 100) / 100;
+        minDmg += player.stats.minDpsDystans1h + Math.floor(player.stats.sila / 4);
+        maxDmg += player.stats.maxDpsDystans1h + Math.floor(player.stats.sila / 4);
+        ataki += player.stats.atakiDystans1h;
+        trafienie += (player.stats.trafienieDystans + player.stats.sila + Math.floor(player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * trafienieProcentowe;
+        critChance += player.stats.critChanceDystans;
+        critMulti += player.stats.critMultiDystans1h + 3.5;
+        trafienieLegDystans += player.stats.sila;
+      } else if (genre === ItemGenre.RANGE_2H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentoweDystans) * 100) / 100;
+        minDmg += player.stats.minDpsDystans2h + Math.floor(player.stats.sila / 2);
+        maxDmg += player.stats.maxDpsDystans2h + Math.floor(player.stats.sila / 2);
+        ataki += player.stats.atakiDystans2h;
+        trafienie += (player.stats.trafienieDystans + Math.floor(player.stats.sila / 2) + (player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * trafienieProcentowe;
+        critChance += player.stats.critChanceDystans;
+        critMulti += player.stats.critMultiDystans2h + 3.5;
+        trafienieLegDystans += player.stats.sila / 2;
+      }
+
+      const preLaczneMin = minDmg;
+      const preLaczneMax = maxDmg;
+      const toDecimal = (num: number | string): number => Number(num) / 100;
+      let finalCritChance = critChance;
+      let luckCritBonus = 0;
+
+      if ((player.stats.szczescie - player.szczesciePrzeciwnika) >= 5) {
+        luckCritBonus = Math.min(toDecimal(Math.floor((player.stats.szczescie - player.szczesciePrzeciwnika) / 5)), 0.2);
+        finalCritChance += luckCritBonus;
+      }
+
+      const uncappedCritChance = finalCritChance;
+
+      if (finalCritChance > 0.85) {
+        finalCritChance = 0.85;
+      }
+      // Silnik gry: realna szansa na trafienie krytyczne to min 1% (np. gdy Szybkości zbija ją poniżej zera).
+      if (finalCritChance < 0.01) {
+        finalCritChance = 0.01;
+      }
+
+      let laczneProcentoweDmg = (player.stats.laczneObrazeniaWszystkichBroni * 100) / 100;
+
+      if (player.stats.hastur) {
+        laczneProcentoweDmg += 0.1;
+      }
+
+      minDmg = Math.floor((1 + laczneProcentoweDmg) * Math.floor(minDmg));
+      maxDmg = Math.floor((1 + laczneProcentoweDmg) * Math.floor(maxDmg));
+      const afterLaczneMin = minDmg;
+      const afterLaczneMax = maxDmg;
+
+      if (player.stats.ignoreObrony < 1) {
+        if (genre === ItemGenre.RANGE_1H || genre === ItemGenre.RANGE_2H) {
+          minDmg = Math.trunc(minDmg - Math.floor((1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
+          maxDmg = Math.trunc(maxDmg - Math.floor((1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
+        } else if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
+          minDmg = Math.trunc(minDmg - Math.floor((1 / 2 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
+          maxDmg = Math.trunc(maxDmg - Math.floor((1 / 2 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
+        } else {
+          minDmg = Math.trunc(minDmg - Math.floor((1 / 2 * player.odpornoscPrzeciwnika) * (1 - player.stats.ignoreObrony)));
+          maxDmg = Math.trunc(maxDmg - Math.floor((1 / 2 * player.odpornoscPrzeciwnika) * (1 - player.stats.ignoreObrony)));
+        }
+      }
+
+      minDmg = Math.max(1, minDmg);
+      maxDmg = Math.max(1, maxDmg);
+
+      const critDmgMin = Math.max(1, Math.floor(minDmg * critMulti));
+      const critDmgMax = Math.max(1, Math.floor(maxDmg * critMulti));
+      const avgDmg = Math.floor((minDmg + maxDmg) / 2);
+      const avgCritDmg = Math.floor((critDmgMin + critDmgMax) / 2);
+      const estimatedHitChance = genre ? this.calculateHitChance(genre, player, trafienieLegDystans) : 1;
+      const bossHitChance = genre && player.maxTrafieniePrzeciwnika != null ? this.calculateHitChance(genre, player, trafienieLegDystans, player.maxTrafieniePrzeciwnika) : undefined;
+      const obrazeniaNaRundeAvg = Math.floor(estimatedHitChance * (finalCritChance * ataki * avgCritDmg + (1 - finalCritChance) * ataki * avgDmg));
+      const breakdown = genre ? this.buildWeaponBreakdown({
+        weapon, genre, stats, player, bonusResults, preLaczneMin, preLaczneMax, laczneProcentoweDmg,
+        afterLaczneMin, afterLaczneMax, minDmg, maxDmg, critMulti, critDmgMin, critDmgMax,
+        critChance, luckCritBonus, uncappedCritChance, finalCritChance,
+        hit: this.hitChanceDetails(genre, player, trafienieLegDystans),
+      }) : undefined;
+      return {
+        name: this.constructWeaponName(weapon),
+        genre: genre,
+        minDmg,
+        maxDmg,
+        iloscAtakow: ataki,
+        trafienie: Math.floor(trafienie / 2),
+        trafienieProcentowe: trafienieProcentowe,
+        ignore: player.stats.ignoreObrony,
+        critChance: finalCritChance,
+        rawCritChance: uncappedCritChance,
+        critMulti,
+        critDmgMin,
+        critDmgMax,
+        estimatedHitChance,
+        bossHitChance,
+        obrazeniaNaRundeAvg,
+        breakdown
+      };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  /** Builds the "Jak to policzono?" trace for one weapon from the intermediate values of calculateWeaponDamage. */
+  private buildWeaponBreakdown(v: {
+    weapon: Item; genre: ItemGenre; stats: Stats; player: Player;
+    bonusResults: { minDmg: number; maxDmg: number };
+    preLaczneMin: number; preLaczneMax: number; laczneProcentoweDmg: number;
+    afterLaczneMin: number; afterLaczneMax: number; minDmg: number; maxDmg: number;
+    critMulti: number; critDmgMin: number; critDmgMax: number;
+    critChance: number; luckCritBonus: number; uncappedCritChance: number; finalCritChance: number;
+    hit: { y: number; z: number; p: number; r: number; rawHit: number; minHit: number; maxHit: number; final: number };
+  }): BreakdownSection[] {
+    const num = (x: number): string => String(Math.round(x * 100) / 100).replace('.', ',');
+    const range = (a: number, b: number): string => a === b ? num(a) : `${num(a)} – ${num(b)}`;
+    const pct = (x: number, digits = 1): string => `${(x * 100).toFixed(digits).replace('.', ',')}%`;
+    const signed = (a: number, b: number): string => {
+      const one = (x: number): string => (x < 0 ? '−' : '+') + num(Math.abs(x));
+      return a === b ? one(a) : `${one(a)} – ${one(b)}`;
+    };
+    const rarityLabels: Record<string, string> = {
+      ZWYKLY: 'zwykła', DOBRY: 'dobra', DOSKONALY: 'doskonała', LEGENDARNY: 'legendarna',
+      LEGENDARNY_DOBRY: 'legendarna dobra', LEGENDARNY_DOSKONALY: 'legendarna doskonała',
+      EPICKI: 'epicka', STAROZYTNY: 'starożytna',
+    };
+
+    const dmgFields: Record<string, [keyof Stats, keyof Stats]> = {
+      [ItemGenre.WHITE_1H]: ['minDpsBiala1h', 'maxDpsBiala1h'],
+      [ItemGenre.WHITE_2H]: ['minDpsBiala2h', 'maxDpsBiala2h'],
+      [ItemGenre.GUN_1H]: ['minDpsPalna1h', 'maxDpsPalna1h'],
+      [ItemGenre.GUN_2H]: ['minDpsPalna2h', 'maxDpsPalna2h'],
+      [ItemGenre.RANGE_1H]: ['minDpsDystans1h', 'maxDpsDystans1h'],
+      [ItemGenre.RANGE_2H]: ['minDpsDystans2h', 'maxDpsDystans2h'],
+    };
+    const [minField, maxField] = dmgFields[v.genre];
+    const ownMin = v.stats[minField] as number;
+    const ownMax = v.stats[maxField] as number;
+    const totalMin = v.player.stats[minField] as number;
+    const totalMax = v.player.stats[maxField] as number;
+
+    const s = v.player.stats;
+    const attr: Record<string, [string, number]> = {
+      [ItemGenre.WHITE_1H]: ['Siła', s.sila],
+      [ItemGenre.WHITE_2H]: ['Siła', s.sila],
+      [ItemGenre.GUN_1H]: ['1/3 wiedzy', Math.floor(s.wiedza / 3)],
+      [ItemGenre.GUN_2H]: ['1/3 wiedzy', Math.floor(s.wiedza / 3)],
+      [ItemGenre.RANGE_1H]: ['1/4 siły', Math.floor(s.sila / 4)],
+      [ItemGenre.RANGE_2H]: ['1/2 siły', Math.floor(s.sila / 2)],
+    };
+    const [attrLabel, attrValue] = attr[v.genre];
+
+    const isWhite = v.genre === ItemGenre.WHITE_1H || v.genre === ItemGenre.WHITE_2H;
+    const isRange = v.genre === ItemGenre.RANGE_1H || v.genre === ItemGenre.RANGE_2H;
+    const defenseLabel = isRange ? '1/4 obrony' : isWhite ? '1/2 obrony' : '1/2 odporności';
+
+    // --- obrażenia ---
+    const dmg: BreakdownStep[] = [];
+    const rarity = v.weapon.getRarity();
+    const scaling = describeWeaponDamageScaling(Player.rawWeaponStats(v.weapon), rarity, v.genre, v.player.lvl, v.weapon.base?.type);
+    dmg.push({
+      label: `Broń (${rarityLabels[rarity] ?? rarity})`,
+      value: range(ownMin, ownMax),
+      detail: scaling ? `min: ${scaling.min}\nmax: ${scaling.max}` : undefined,
+    });
+    if (totalMin !== ownMin || totalMax !== ownMax) {
+      dmg.push({ label: 'Obrażenia wszystkich broni (inne przedmioty, rasa, efekty)', value: signed(totalMin - ownMin, totalMax - ownMax) });
+    }
+    if (attrValue) dmg.push({ label: attrLabel, value: signed(attrValue, attrValue) });
+    if (v.bonusResults.minDmg || v.bonusResults.maxDmg) {
+      dmg.push({ label: 'Bonusy z talizmanów / ewolucji', value: signed(v.bonusResults.minDmg, v.bonusResults.maxDmg) });
+    }
+    if (v.laczneProcentoweDmg) {
+      dmg.push({
+        label: `Łączne obrażenia broni ${v.laczneProcentoweDmg > 0 ? '+' : ''}${pct(v.laczneProcentoweDmg, 0)}`,
+        value: range(v.afterLaczneMin, v.afterLaczneMax),
+        detail: `${range(Math.floor(v.preLaczneMin), Math.floor(v.preLaczneMax))} × ${num(1 + v.laczneProcentoweDmg)}, zaokrąglone w dół`,
+      });
+    }
+    // Same reduction calculateWeaponDamage subtracts (before the 1-damage floor).
+    const ignore = s.ignoreObrony;
+    const enemyDefense = isRange ? v.player.obronaPrzeciwnika / 4 : isWhite ? v.player.obronaPrzeciwnika / 2 : v.player.odpornoscPrzeciwnika / 2;
+    const reduction = ignore >= 1 ? 0 : Math.floor(enemyDefense * (1 - ignore));
+    const hitFloor = v.afterLaczneMin - reduction < 1 || v.afterLaczneMax - reduction < 1;
+    if (reduction) {
+      dmg.push({
+        label: `Obrona przeciwnika (${defenseLabel}${ignore > 0 ? `, ignorujesz ${pct(Math.min(ignore, 1), 0)}` : ''})`,
+        value: signed(-reduction, -reduction),
+        capped: hitFloor,
+        detail: hitFloor ? 'Obrażenia nie spadają poniżej 1.' : undefined,
+      });
+    }
+    dmg.push({ label: 'Obrażenia', value: range(v.minDmg, v.maxDmg), total: true });
+    dmg.push({ label: `Krytyczne (× ${num(v.critMulti)}, zaokrąglone w dół)`, value: range(v.critDmgMin, v.critDmgMax), total: true });
+
+    // --- krytyk ---
+    const baseCritMulti: Record<string, number> = {
+      [ItemGenre.WHITE_1H]: 2, [ItemGenre.WHITE_2H]: 4, [ItemGenre.GUN_1H]: 1.5,
+      [ItemGenre.GUN_2H]: 2, [ItemGenre.RANGE_1H]: 3.5, [ItemGenre.RANGE_2H]: 3.5,
+    };
+    const baseMulti = baseCritMulti[v.genre];
+    const crit: BreakdownStep[] = [{ label: 'Z przedmiotów i efektów', value: pct(v.critChance) }];
+    if (v.luckCritBonus) {
+      const luckCapped = v.luckCritBonus >= 0.2;
+      crit.push({
+        label: `Szczęście (${s.szczescie} vs ${v.player.szczesciePrzeciwnika}) ÷ 5`,
+        value: '+' + pct(v.luckCritBonus),
+        capped: luckCapped,
+        detail: luckCapped ? 'Samo szczęście daje maksymalnie 20%.' : undefined,
+      });
+    }
+    const critLimited = v.uncappedCritChance > 0.85 || v.uncappedCritChance < 0.01;
+    crit.push({
+      label: 'Szansa na krytyka',
+      value: pct(v.finalCritChance),
+      total: true,
+      capped: critLimited,
+      detail: critLimited ? `Przed limitem: ${pct(v.uncappedCritChance)} — gra ogranicza szansę do 1–85%.` : undefined,
+    });
+    crit.push({
+      label: `Mnożnik krytyka (bazowo ${num(baseMulti)} + ${num(v.critMulti - baseMulti)} z przedmiotów)`,
+      value: `× ${num(v.critMulti)}`,
+      total: true,
+    });
+
+    // --- trafienie ---
+    const h = v.hit;
+    const hitLimited = h.rawHit > h.maxHit ? `górnym limitem ${h.maxHit}%` : h.rawHit < h.minHit ? `dolnym limitem ${h.minHit}%` : null;
+    const skillLabel = isWhite ? 'zwinność' : isRange ? 'zwinność + spostrzegawczość' : 'spostrzegawczość';
+    const hitSteps: BreakdownStep[] = [
+      { label: `Twoja ${skillLabel} × 2`, value: num(2 * h.y) },
+      { label: 'Bonusy do trafienia', value: (h.z >= 0 ? '+' : '') + num(h.z) },
+      { label: 'Trafienie procentowe', value: `× ${num(h.p)}` },
+      { label: `Przeciwnik: ${skillLabel} × 2`, value: num(-2 * h.r) },
+      {
+        label: 'Szansa trafienia',
+        value: pct(h.final),
+        total: true,
+        capped: !!hitLimited,
+        detail: `(70 + ${num(2 * h.y)} + ${num(h.z)}) × ${num(h.p)} − ${num(2 * h.r)} = ${num(h.rawHit)}%` +
+          (hitLimited ? `, ograniczone ${hitLimited} (zależy od różnicy szczęścia).` : ''),
+      },
+    ];
+
+    return [
+      { title: 'Obrażenia', steps: dmg },
+      { title: 'Krytyk', steps: crit },
+      { title: 'Trafienie', steps: hitSteps },
+    ];
+  }
+}

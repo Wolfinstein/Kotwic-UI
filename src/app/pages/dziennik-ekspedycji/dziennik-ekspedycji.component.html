@@ -1,0 +1,219 @@
+<div class="dziennik-view">
+  <div class="feature-section">
+    @if (!unlocked()) {
+      <div class="dziennik-header">
+        <p>Ta strona jest chroniona hasłem.</p>
+      </div>
+      <form class="password-form" (ngSubmit)="submitPassword()">
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="Hasło"
+          autocomplete="off"
+          class="password-input"
+        />
+        <button type="submit" class="import-btn" [disabled]="loading() || !password">
+          {{ loading() ? 'Sprawdzanie…' : 'Wejdź' }}
+        </button>
+      </form>
+      @if (passwordError(); as err) {
+        <p class="error-text">{{ err }}</p>
+      }
+    } @else {
+      <div class="dziennik-header">
+        <p>Każde uruchomienie symulacji w kalkulatorze zapisuje tu użytą drużynę — wciśnij "Importuj graczy", żeby dodać dokładnie te same postacie do swojej listy zapisanych postaci.</p>
+      </div>
+
+      @if (!logs().length) {
+        <p>Brak zapisanych symulacji.</p>
+      } @else {
+        <div class="filters-row">
+          <label class="filter-field">
+            <span>Data</span>
+            <input type="date" [(ngModel)]="filterDate" name="filterDate" (ngModelChange)="resetPage()" />
+          </label>
+          <label class="filter-field">
+            <span>Mob</span>
+            <select [(ngModel)]="filterMob" name="filterMob" (ngModelChange)="resetPage()">
+              <option value="">Wszystkie</option>
+              @for (mob of availableMobs; track mob) {
+                <option [value]="mob">{{ mob }}</option>
+              }
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>★</span>
+            <select [(ngModel)]="filterStar" name="filterStar" (ngModelChange)="resetPage()">
+              <option [ngValue]="''">Wszystkie</option>
+              @for (star of availableStars; track star) {
+                <option [ngValue]="star">{{ star }}</option>
+              }
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Wariant</span>
+            <select [(ngModel)]="filterVariant" name="filterVariant" (ngModelChange)="resetPage()">
+              <option value="">Wszystkie</option>
+              @for (variant of availableVariants; track variant) {
+                <option [value]="variant">{{ variant }}</option>
+              }
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Typ</span>
+            <select [(ngModel)]="filterAction" name="filterAction" (ngModelChange)="resetPage()">
+              <option value="">Wszystkie</option>
+              <option value="single">Pojedyncza</option>
+              <option value="bulk">Zbiorcza</option>
+            </select>
+          </label>
+          @if (hasActiveFilters) {
+            <button type="button" class="clear-filters-btn" (click)="clearFilters()">Wyczyść filtry</button>
+          }
+        </div>
+
+        @if (importError(); as err) {
+          <p class="error-text">{{ err }}</p>
+        }
+        @if (deleteError(); as err) {
+          <p class="error-text">{{ err }}</p>
+        }
+
+        @if (!filteredLogs.length) {
+          <p>Brak symulacji pasujących do filtrów.</p>
+        } @else {
+          @let groups = groupedLogs;
+          @let current = currentPage(groups);
+          @let pages = totalPages(groups);
+          <div class="table-wrap">
+            <table class="dziennik-table">
+              <thead>
+                <tr>
+                  <th class="sortable-th" (click)="toggleSort()">
+                    Data {{ sortDirection() === 'asc' ? '▲' : '▼' }}
+                  </th>
+                  <th>Ekspedycja</th>
+                  <th>Drużyna</th>
+                  <th></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (group of pageSlice(groups); track group.key) {
+                  @if (group.logs.length === 1) {
+                    <tr>
+                      <ng-container *ngTemplateOutlet="logCells; context: { $implicit: group.logs[0] }"></ng-container>
+                    </tr>
+                  } @else {
+                    <tr class="group-row" (click)="toggleGroup(group.key)">
+                      <td class="date-cell">
+                        <span class="group-toggle">{{ isExpanded(group.key) ? '▾' : '▸' }}</span>
+                        {{ group.latestAt | date:'yyyy-MM-dd' }}
+                        <span class="muted">{{ group.latestAt | date:'HH:mm' }}</span>
+                      </td>
+                      <td>
+                        <ng-container *ngTemplateOutlet="expInfo; context: {
+                          mob: group.mob, star: group.star, variant: group.variant,
+                          type: group.logs.length + '× zapisów', runs: group.totalRuns,
+                          winPct: group.winPct, lossPct: group.lossPct, drawPct: group.drawPct
+                        }"></ng-container>
+                      </td>
+                      <td class="people-cell">
+                        @for (p of group.players; track $index) { <div class="person"><span class="person-name">{{ p }}</span></div> }
+                      </td>
+                      <td>
+                        <button class="import-btn" (click)="$event.stopPropagation(); importCharacters(group.logs[0])" [disabled]="wasImported(group.logs[0].id)"
+                          title="Importuje postacie z najnowszego zapisu w tej grupie">
+                          {{ wasImported(group.logs[0].id) ? 'Zaimportowano' : 'Importuj graczy' }}
+                        </button>
+                      </td>
+                      <td></td>
+                    </tr>
+                    @if (isExpanded(group.key)) {
+                      @for (log of group.logs; track log.id) {
+                        <tr class="group-child-row">
+                          <ng-container *ngTemplateOutlet="logCells; context: { $implicit: log }"></ng-container>
+                        </tr>
+                      }
+                    }
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <button type="button" class="page-btn" (click)="goToPage(1, groups)" [disabled]="current === 1" title="Pierwsza strona">«</button>
+            <button type="button" class="page-btn" (click)="goToPage(current - 1, groups)" [disabled]="current === 1" title="Poprzednia strona">‹</button>
+            <span class="page-info">Strona {{ current }} z {{ pages }} <span class="muted">({{ groups.length }} wierszy)</span></span>
+            <button type="button" class="page-btn" (click)="goToPage(current + 1, groups)" [disabled]="current === pages" title="Następna strona">›</button>
+            <button type="button" class="page-btn" (click)="goToPage(pages, groups)" [disabled]="current === pages" title="Ostatnia strona">»</button>
+            <label class="page-size-field">
+              <span>Na stronę</span>
+              <select [(ngModel)]="pageSize" name="pageSize" (ngModelChange)="resetPage()">
+                @for (size of pageSizeOptions; track size) {
+                  <option [ngValue]="size">{{ size }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        }
+      }
+    }
+  </div>
+</div>
+
+<ng-template #logCells let-log>
+  <td class="date-cell">
+    {{ log.createdAt | date:'yyyy-MM-dd' }}
+    <span class="muted">{{ log.createdAt | date:'HH:mm' }}</span>
+  </td>
+  <td>
+    <ng-container *ngTemplateOutlet="expInfo; context: {
+      mob: log.mob, star: log.star, variant: log.variant,
+      type: log.action === 'single' ? 'Pojedyncza' : 'Zbiorcza', runs: log.runs,
+      winPct: log.winPct, lossPct: log.lossPct, drawPct: log.drawPct
+    }"></ng-container>
+  </td>
+  <td class="people-cell">
+    @for (p of log.players; track $index) { <div class="person"><span class="person-name">{{ p }}</span></div> }
+  </td>
+  <td>
+    <button class="import-btn" (click)="importCharacters(log)" [disabled]="wasImported(log.id)">
+      {{ wasImported(log.id) ? 'Zaimportowano' : 'Importuj graczy' }}
+    </button>
+  </td>
+  <td>
+    <button class="delete-btn" (click)="removeLog(log)" [disabled]="isRemoving(log.id)">
+      {{ isRemoving(log.id) ? 'Usuwanie…' : 'Usuń' }}
+    </button>
+  </td>
+</ng-template>
+
+<!-- Expedition summary in the same style as the "Ekspedycja" column on /raporty-ekspedycji. -->
+<ng-template #expInfo let-mob="mob" let-star="star" let-variant="variant" let-type="type" let-runs="runs"
+  let-winPct="winPct" let-lossPct="lossPct" let-drawPct="drawPct">
+  <dl class="exp-info">
+    <dt>Boss</dt><dd>{{ mob }}</dd>
+    <dt>Gwiazdki</dt>
+    <dd class="exp-stars" [title]="star + ' ★'">
+      @if (star <= 4) {
+        @for (s of starArray(star); track $index) { <span>★</span> } @empty { <span class="muted">—</span> }
+      } @else {
+        {{ star }}★
+      }
+    </dd>
+    <dt>Wariant</dt><dd>{{ variant }}</dd>
+    <dt>Typ</dt><dd>{{ type }}</dd>
+    @if (runs) {
+      <dt>Wynik</dt>
+      <dd class="exp-result-pcts">
+        <span class="muted">{{ runs | number }} biegów</span>
+        <span class="win">W {{ winPct | number:'1.0-1' }}%</span>
+        <span class="loss">P {{ lossPct | number:'1.0-1' }}%</span>
+        <span class="draw">R {{ drawPct | number:'1.0-1' }}%</span>
+      </dd>
+    }
+  </dl>
+</ng-template>

@@ -1,0 +1,1328 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.import-highlight {
+  border: 1px solid var(--success-color);
+  border-radius: 6px;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.35);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.import-choice-hint {
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.import-bulk-results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.import-choice-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.import-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.import-summary-chip {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.import-summary-chip.import-summary-ok {
+  border-color: var(--success-color);
+  color: var(--success-text);
+}
+
+.import-summary-chip.import-summary-err {
+  border-color: var(--error-color);
+  color: var(--error-color);
+}
+
+.import-step h3 {
+  margin-top: 0;
+}
+
+.import-step-hint {
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+.import-step-actions-top {
+  margin-bottom: 10px;
+}
+
+.import-html-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: monospace;
+  font-size: 0.8em;
+  resize: vertical;
+}
+
+.import-result {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+.import-result-ok {
+  background: var(--success-bg);
+  border: 1px solid var(--success-color);
+  color: var(--success-text);
+}
+
+.import-result-warn {
+  background: var(--warning-bg);
+  border: 1px solid var(--warning-color);
+  color: var(--warning-text);
+}
+
+.import-result-err {
+  background: var(--error-bg);
+  border: 1px solid var(--error-color);
+  color: var(--error-color);
+}
+
+.import-step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.presets-modal-layout {
+  display: flex;
+  gap: 16px;
+  min-height: 300px;
+}
+
+.presets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 460px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.preset-add-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preset-name-input,
+.preset-tag-input {
+  width: 100%;
+}
+
+.preset-add-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.preset-add-buttons > * {
+  flex: 1;
+}
+
+.preset-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+}
+
+.presets-chart-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 700px;
+}
+
+.preset-chart-wrapper {
+  position: relative;
+  height: 660px;
+  min-height: 660px;
+}
+
+.preset-chart-wrapper canvas {
+  height: 660px !important;
+  min-height: 660px !important;
+}
+
+.preset-chart-placeholder {
+  text-align: center;
+  opacity: 0.45;
+  font-size: 0.9em;
+  margin: auto;
+}
+
+.preset-item {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.preset-item--inactive {
+  opacity: 0.4;
+}
+
+.preset-color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.preset-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.preset-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.05);
+}
+
+.preset-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.preset-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.preset-lv {
+  font-size: 0.8em;
+  font-weight: normal;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.preset-sep {
+  opacity: 0.35;
+}
+
+.preset-name {
+  font-weight: bold;
+  font-size: 1.05em;
+  color: var(--color-accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preset-desc {
+  font-size: 0.8em;
+  opacity: 0.65;
+}
+
+.preset-tag-badge {
+  font-size: 0.7em;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.preset-editable {
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+}
+
+.preset-editable:hover {
+  border-bottom-color: currentColor;
+}
+
+.preset-inline-input {
+  width: 90px;
+  min-width: 0;
+  background: var(--bg-deep);
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85em;
+  padding: 1px 5px;
+}
+
+.preset-empty {
+  text-align: center;
+  opacity: 0.5;
+  padding: 16px 0;
+}
+
+.arcane-cost-total {
+  text-align: right;
+  padding-top: 6px;
+}
+
+/* ─── Panel Layout ─────────────────────────────────────── */
+.input-panel {
+  padding: 8px;
+  background-color: var(--bg-main);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+  overflow: hidden;
+  height: 100%;
+  color: var(--color-text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Action bar: Import/Export/Wyczyść + Presety/Uzupełnij z gry, pinned above the tabs */
+.action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.action-bar .action-buttons {
+  flex: 1;
+  min-width: 220px;
+}
+
+@media (min-width: 1281px) {
+  .input-panel { padding: 20px; }
+}
+
+.panel-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: scroll;
+  margin-right: -6px;
+  padding-right: 6px;
+}
+
+/* ─── Big tabs (import vs. manual) ────────────────────── */
+.big-tab {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-muted);
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.big-tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--accent-low);
+  border: none;
+  cursor: pointer;
+  color: var(--section-title-color);
+  font-family: inherit;
+}
+
+.big-tab-header:hover { background: var(--bg-hover); }
+
+.big-tab-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.big-tab-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  align-items: start;
+  gap: 12px;
+  padding: 12px;
+}
+
+.big-tab-body .section-equipment { height: 100%; }
+
+/* Spans the full width of the tab body, forcing it onto its own row. */
+.section-wide { grid-column: 1 / -1; }
+
+/* Explicit row inside the import tab (Różne | Trening | Ekwipunek, etc.) —
+   spans the whole tab body and stretches its sections to fill it evenly. */
+.tab-row {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.tab-row > .section {
+  flex: 1 1 0;
+  min-width: 180px;
+}
+
+/* Manual tab: two explicit columns (Przeciwnik/Jednoraz/Blaszka | Arkany/Ewolucje). */
+.tab-col-group {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  gap: 12px;
+}
+
+.tab-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1 1 260px;
+  min-width: 260px;
+}
+
+@media (max-width: 480px) {
+  .big-tab-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tab-row > .section {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+
+  .tab-col {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+}
+
+/* ─── Section ──────────────────────────────────────────── */
+.section {
+  position: relative;
+  padding: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  flex-shrink: 0;
+  /* Grids inside (compact-grid, talizman-grid) react to this section's own
+     rendered width, not the viewport — the section can be squeezed much
+     narrower than the window by the auto-fit tab grid or the results/form
+     split, and a viewport media query has no idea that happened. */
+  container-type: inline-size;
+}
+
+@media (max-width: 768px) {
+  .section { padding: 14px; }
+}
+
+/* Marks a section that already holds data, so an empty tab is visually
+   distinct from a filled one at a glance. */
+.section-filled {
+  border-color: var(--external-accent);
+  box-shadow: 0 0 5px var(--external-accent-hi);
+}
+
+.section h3, h3 {
+  margin: 0 0 8px 0;
+  font-size: var(--fs-base);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--color-accent);
+}
+
+.horizontal-h3 {
+  font-size: var(--fs-base);
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 0;
+}
+
+label {
+  display: block;
+  margin: 0 0 3px 0;
+  font-size: var(--fs-xs);
+  color: var(--label-color);
+  font-weight: 500;
+}
+
+/* ─── Compact Grid ─────────────────────────────────────── */
+.compact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@container (min-width: 420px) {
+  .compact-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+}
+
+/* Różne / Trening: always a single column, regardless of section width. */
+.compact-grid-1col,
+.compact-grid-1col.compact-grid {
+  grid-template-columns: 1fr;
+}
+
+.compact-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 3px;
+  padding: 2px 4px;
+  /* Without this, a grid/flex item's automatic min-width is its content's
+     min-content size — and a nowrap label's min-content IS its full text
+     width, which silently overrides the label's own overflow:hidden and
+     pushes this item (and the input beside it) past the grid track. */
+  min-width: 0;
+}
+
+.compact-item:nth-child(odd) {
+  background: var(--accent-low);
+}
+
+:host ::ng-deep .p-inputtext.input-active {
+  border-color: var(--input-active-border) !important;
+  background: var(--input-active-bg) !important;
+  color: var(--color-text) !important;
+  font-weight: 700;
+}
+
+.compact-item label {
+  margin: 0;
+  flex: 1;
+  font-size: var(--fs-md);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  color: var(--label-color);
+}
+
+.label-hint {
+  cursor: help;
+  border-bottom: 1px dashed var(--color-accent);
+}
+
+/* ─── Talizmany: two 9-column rows ─────────────────────── */
+.talizman-grid {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(55px, 1fr));
+  gap: 6px 4px;
+}
+
+@container (max-width: 900px) {
+  .talizman-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@container (max-width: 480px) {
+  .talizman-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.compact-item-stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+}
+
+.compact-item-stacked label {
+  white-space: normal;
+  min-width: 0;
+  text-align: center;
+  font-size: var(--fs-xs);
+  line-height: 1.2;
+}
+
+.compact-item-stacked p-inputnumber {
+  width: 100%;
+}
+
+/* ─── Przeciwnik reference lookup ─────────────────────── */
+.ref-lookup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ref-lookup-title {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--section-title-color);
+  margin-bottom: 2px;
+}
+
+.ref-lookup-hint {
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--label-color);
+}
+
+.ref-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.ref-stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: var(--accent-hi);
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  font-size: var(--fs-xs);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.ref-stat-label {
+  color: var(--section-icon);
+  font-weight: 700;
+}
+
+/* ─── Equipment ────────────────────────────────────────── */
+.section-equipment {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.equipment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.equipment-header h3 { margin: 0; color: var(--section-title-color); }
+
+.equipment-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+@media (max-width: 768px) {
+  .equipment-grid { gap: 8px; }
+}
+
+.eq-slot-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border-muted);
+  background: var(--bg-deep);
+  color: var(--color-accent);
+  cursor: pointer;
+  font-size: var(--fs-base);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  text-align: left;
+  overflow: hidden;
+  min-height: 24px;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .eq-slot-btn { min-height: 40px; padding: 8px 12px; font-size: var(--fs-sm); }
+  .eq-slot-icon { font-size: var(--fs-xl); }
+}
+
+.eq-slot-btn:hover:not([disabled]) {
+  background: var(--bg-hover);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.eq-slot-btn.eq-slot-filled {
+  border-color: var(--color-accent);
+  background: var(--bg-panel);
+  color: var(--color-text);
+}
+
+.eq-slot-btn.eq-slot-locked { opacity: 0.4; cursor: not-allowed; }
+
+.eq-slot-icon { font-size: var(--fs-base); flex-shrink: 0; }
+
+.eq-slot-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.eq-slot-rarity {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Rarity colours */
+[data-rarity="ZWYKLY"], [data-rarity="DOBRY"], [data-rarity="DOSKONALY"] { background: #444; color: #ccc; }
+[data-rarity="LEGENDARNY"], [data-rarity="LEGENDARNY_DOBRY"], [data-rarity="LEGENDARNY_DOSKONALY"] { background: #1c2e33; color: #62929e; }
+[data-rarity="EPICKI"] { background: #4a2d10; color: #cc9a4d; }
+[data-rarity="STAROZYTNY"] { background: #3a1a4a; color: #a888c4; }
+
+.column-bottom-section { flex-shrink: 0; }
+
+/* ─── Bonus sections ───────────────────────────────────── */
+.bonuses-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.bonus-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.bonus-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-base);
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 3px;
+  transition: background 0.15s;
+}
+
+.bonus-item:hover { background: rgba(255, 255, 255, 0.06); }
+
+.bonus-item label {
+  margin: 0;
+  cursor: pointer;
+  font-size: var(--fs-base);
+  color: var(--label-color);
+  font-weight: 400;
+}
+
+/* ─── Action buttons area ──────────────────────────────── */
+.action-buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  :host .action-buttons p-button {
+    flex: 1 1 calc(50% - 4px);
+  }
+}
+
+/* ─── Rune/Umagi summary chips ─────────────────────────── */
+.rune-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+  max-height: 60px;
+  overflow-y: auto;
+}
+
+.rune-chip {
+  display: inline-block;
+  padding: 2px 6px;
+  background: var(--accent-hi);
+  border: 1px solid var(--border-muted);
+  border-radius: 10px;
+  font-size: var(--fs-xs);
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.rune-empty {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--color-accent);
+  font-style: italic;
+  margin-bottom: 6px;
+}
+
+/* ─── Issues ───────────────────────────────────────────── */
+.issues-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-color: var(--danger-color) !important;
+}
+
+.issues-list {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-muted);
+  border-top: none;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  overflow: hidden;
+  max-height: 175px;
+  overflow-y: auto;
+}
+
+.issue-item {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-accent);
+  color: var(--color-text);
+  font-size: var(--fs-xs);
+  line-height: 1.4;
+}
+
+.issue-item:last-child { border-bottom: none; }
+.issue-item:hover { background: var(--bg-hover); }
+
+/* ═══════════════════════════════════════════════════
+   EQUIPMENT MODAL (inside p-dialog)
+═══════════════════════════════════════════════════ */
+.eq-preview {
+  padding: 8px 12px;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-muted);
+  border-radius: 4px;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.eq-preview-name { font-size: var(--fs-base); font-weight: 700; letter-spacing: 0.4px; }
+.eq-preview-name[data-rarity="ZWYKLY"], .eq-preview-name[data-rarity="DOBRY"], .eq-preview-name[data-rarity="DOSKONALY"] { color: #ddd0d2; }
+.eq-preview-name[data-rarity="LEGENDARNY"], .eq-preview-name[data-rarity="LEGENDARNY_DOBRY"], .eq-preview-name[data-rarity="LEGENDARNY_DOSKONALY"] { color: #62929e; }
+.eq-preview-name[data-rarity="EPICKI"] { color: #cc9a4d; }
+.eq-preview-name[data-rarity="STAROZYTNY"] { color: #a888c4; }
+.eq-preview-placeholder { font-size: var(--fs-xs); color: var(--color-accent); font-style: italic; }
+
+.eq-section { flex-shrink: 0; margin-bottom: 12px; }
+
+.eq-section-label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--section-title-color);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+}
+
+.eq-optional { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--color-accent); opacity: 0.7; }
+
+.eq-rarity-row { display: flex; gap: 5px; flex-wrap: wrap; }
+
+.eq-rarity-btn {
+  padding: 5px 10px;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: var(--bg-deep);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.eq-rarity-btn[data-rarity="ZWYKLY"], .eq-rarity-btn[data-rarity="DOBRY"], .eq-rarity-btn[data-rarity="DOSKONALY"] { border-color: #555; color: #aaa; }
+.eq-rarity-btn[data-rarity="LEGENDARNY"], .eq-rarity-btn[data-rarity="LEGENDARNY_DOBRY"], .eq-rarity-btn[data-rarity="LEGENDARNY_DOSKONALY"] { border-color: #3f6a74; color: #62929e; }
+.eq-rarity-btn[data-rarity="EPICKI"] { border-color: #8a5000; color: #cc9a4d; }
+.eq-rarity-btn[data-rarity="STAROZYTNY"] { border-color: #6b3090; color: #a888c4; }
+
+.eq-rarity-btn.eq-rarity-selected[data-rarity="ZWYKLY"],
+.eq-rarity-btn.eq-rarity-selected[data-rarity="DOBRY"],
+.eq-rarity-btn.eq-rarity-selected[data-rarity="DOSKONALY"] { background: #444; color: #e8e8e8; border-color: rgba(76, 175, 80, 0.5); }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY"],
+.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOBRY"],
+.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOSKONALY"] { background: #1c2e33; color: #62929e; border-color: #d8d8d8; }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="EPICKI"] { background: #4a2d10; color: #cc9a4d; border-color: #d8d8d8; }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="STAROZYTNY"] { background: #3a1a4a; color: #a888c4; border-color: #d8d8d8; }
+.eq-rarity-btn:hover:not(.eq-rarity-selected) { background: var(--bg-hover); }
+
+.eq-base-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.eq-base-btn {
+  padding: 5px 10px;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  border: 1px solid var(--border-muted);
+  background: var(--bg-deep);
+  color: #aabdd1;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.eq-base-btn:hover:not(.eq-base-selected) { background: var(--bg-hover); color: var(--color-text); }
+.eq-base-btn.eq-base-selected { background: var(--bg-hover); border-color: var(--color-text); color: var(--color-text); }
+.eq-no-affix-badge { font-size: var(--fs-xs); color: var(--color-accent); font-weight: 400; }
+
+.eq-affix-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.eq-affix-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.eq-affix-btn {
+  padding: 4px 9px;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  border: 1px solid var(--border-muted);
+  background: var(--bg-deep);
+  color: #aabdd1;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.eq-affix-btn:hover:not(.eq-affix-selected) { background: var(--bg-hover); color: var(--color-text); }
+.eq-affix-btn.eq-affix-selected { background: var(--bg-main); border-color: var(--color-accent); color: var(--color-text); }
+
+.eq-modal-footer { display: flex; gap: 8px; margin-top: 4px; }
+
+/* ═══════════════════════════════════════════════════
+   RUNE / UMAGI MODAL (inside p-dialog)
+═══════════════════════════════════════════════════ */
+.rune-dual-panel {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  height: 50vh;
+  overflow: hidden;
+}
+
+@media (min-width: 769px) {
+  .rune-dual-panel { grid-template-columns: 1fr auto 1fr; }
+}
+
+.rune-panel { display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+
+.rune-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px 6px 2px;
+  flex-shrink: 0;
+}
+
+.rune-panel-title { font-size: var(--fs-xs); font-weight: 700; color: var(--section-title-color); text-transform: uppercase; letter-spacing: 0.8px; }
+.rune-panel-count { background: var(--color-accent); border-radius: 8px; padding: 1px 7px; font-size: var(--fs-xs); color: var(--color-text); }
+
+.rune-search {
+  width: 100%;
+  padding: 5px 8px;
+  margin-bottom: 6px;
+  border: 1px solid var(--border-muted) !important;
+  background: var(--bg-deep) !important;
+  color: var(--color-text) !important;
+  border-radius: 4px;
+  font-size: var(--fs-xs);
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.rune-search:focus { outline: none; border-color: var(--color-accent); background: var(--bg-main) !important; }
+.rune-search::placeholder { color: var(--color-accent); }
+
+.rune-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 0;
+  max-height: 44vh;
+  padding-right: 2px;
+}
+
+.rune-list-selected {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-muted);
+  border-radius: 4px;
+  padding: 4px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.rune-list-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 7px;
+  border-radius: 4px;
+  font-size: var(--fs-xs);
+  transition: background 0.15s ease;
+  border: 1px solid var(--border-muted);
+}
+
+.available-rune { cursor: pointer; }
+.available-rune:hover { background: var(--bg-main); border-color: var(--color-accent); }
+.available-rune:hover .rune-plus { opacity: 1; color: var(--color-accent); }
+.selected-rune { cursor: pointer; background: var(--bg-deep); border-color: var(--bg-hover); }
+.selected-rune:hover { background: var(--bg-main); }
+.rune-highlighted { background: var(--bg-hover) !important; border-color: var(--bg-main) !important; }
+.rune-name { flex: 1; color: #DDD0D2FF; }
+
+.rune-add-indicator { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.rune-existing-count { font-size: var(--fs-xs); color: var(--color-accent); font-weight: 700; }
+.rune-plus { font-size: var(--fs-base); color: var(--color-accent); font-weight: 700; transition: all 0.15s ease; line-height: 1; }
+.rune-slot-num { font-size: var(--fs-xs); color: var(--color-accent); font-weight: 700; min-width: 14px; text-align: center; flex-shrink: 0; }
+.rune-actions { display: flex; gap: 2px; flex-shrink: 0; }
+
+.rune-empty-state { padding: 20px 10px; text-align: center; font-size: var(--fs-xs); color: var(--color-accent); font-style: italic; }
+
+.rune-divider { display: none; }
+
+@media (min-width: 769px) {
+  .rune-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+}
+
+.rune-divider-line { flex: 1; width: 1px; background: var(--color-accent); }
+.rune-divider-icon { font-size: var(--fs-base); color: var(--color-accent); flex-shrink: 0; }
+
+.rune-modal-footer { display: flex; gap: 8px; margin-top: 14px; flex-shrink: 0; }
+
+/* ─── Scrollbar ─────────────────────────────────── */
+::-webkit-scrollbar { width: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
+
+/* ═══════════════════════════════════════════════════
+   PRIMENG OVERRIDES (dark theme)
+═══════════════════════════════════════════════════ */
+
+/* Collapsible toggle buttons */
+:host ::ng-deep .bonus-toggle-btn.p-button {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 4px 2px;
+  color: var(--section-title-color);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+:host ::ng-deep .bonus-toggle-btn.p-button:hover { color: var(--color-text); }
+
+/* Action buttons */
+:host ::ng-deep .action-btn-primeng.p-button {
+  width: 100%;
+  margin-top: 4px;
+}
+
+:host .action-buttons p-button {
+  flex: 1;
+}
+
+:host ::ng-deep .action-io-btn.p-button {
+  width: 100%;
+  justify-content: center;
+  background: var(--bg-hover) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 10px 14px !important;
+  font-size: var(--fs-base) !important;
+}
+
+:host ::ng-deep .action-io-btn.p-button:hover {
+  background: var(--color-accent) !important;
+  color: var(--bg-deep) !important;
+}
+
+:host ::ng-deep .action-io-btn-accent.p-button {
+  border-width: 2px !important;
+  border-color: var(--tool-orange-bg) !important;
+}
+
+:host ::ng-deep .action-io-btn-accent.p-button:hover {
+  background: var(--tool-orange-bg) !important;
+  color: var(--bg-deep) !important;
+}
+
+/* InputNumber */
+:host ::ng-deep p-inputnumber .p-inputtext {
+  width: 60px;
+  min-height: 24px;
+  padding: 3px 6px;
+  font-size: var(--fs-base);
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  border-radius: 0;
+  text-align: center;
+}
+
+:host ::ng-deep p-inputnumber .p-inputtext:focus {
+  border-color: var(--color-text);
+  background: var(--bg-panel);
+  box-shadow: none;
+}
+
+/* Narrow 9-column talizman layout: let the number field shrink to fit. */
+:host ::ng-deep .talizman-grid p-inputnumber .p-inputtext {
+  width: 100%;
+  min-width: 0;
+  padding: 3px 2px;
+}
+
+/* Once the talizman columns themselves get tight (3- or 2-col fallback),
+   shrink the spinner buttons too so the field inside still has room. */
+@container (max-width: 480px) {
+  :host ::ng-deep .talizman-grid p-inputnumber .p-inputnumber-button {
+    width: 18px;
+    min-height: 20px;
+  }
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button {
+  width: 24px;
+  min-height: 24px;
+  background: var(--accent-hi);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  padding: 0;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button:hover {
+  background: var(--color-accent) !important;
+  color: var(--bg-deep) !important;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button .pi {
+  font-size: var(--fs-xs);
+}
+
+/* Shrink the number field + spinner buttons as their section gets narrower,
+   so the input has room next to the label instead of relying on the label
+   alone to give up space (see .compact-item's min-width: 0 above). */
+@container (max-width: 340px) {
+  :host ::ng-deep .compact-item p-inputnumber .p-inputtext {
+    width: 44px;
+    padding: 3px 3px;
+  }
+
+  :host ::ng-deep .compact-item p-inputnumber .p-inputnumber-button {
+    width: 20px;
+    min-height: 20px;
+  }
+
+  .compact-item { gap: 4px; }
+}
+
+@container (max-width: 240px) {
+  :host ::ng-deep .compact-item p-inputnumber .p-inputtext {
+    width: 34px;
+    padding: 3px 1px;
+  }
+
+  :host ::ng-deep .compact-item p-inputnumber .p-inputnumber-button {
+    width: 17px;
+    min-height: 18px;
+  }
+}
+
+/* Tag filter select (Postacie modal) — no hover highlight */
+:host ::ng-deep .tag-filter-select.p-select:not(.p-disabled):hover {
+  border-color: var(--color-accent) !important;
+  background: var(--bg-deep) !important;
+}
+
+/* Select (Rasa dropdown) */
+:host ::ng-deep p-select .p-select {
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  font-size: var(--fs-xs);
+  min-height: 24px;
+}
+
+:host ::ng-deep p-select .p-select-label { font-size: var(--fs-base); color: var(--value-color); padding: 3px 6px; }
+:host ::ng-deep p-select .p-select-dropdown { color: var(--color-accent); }
+:host ::ng-deep .p-select-overlay { background: var(--bg-deep); border-color: var(--color-accent); }
+:host ::ng-deep .p-select-option { color: var(--value-color); font-size: var(--fs-base); }
+:host ::ng-deep .p-select-option:hover, :host ::ng-deep .p-select-option.p-select-option-selected { background: var(--bg-hover); color: var(--value-color); }
+
+/* SelectButton (weapon mode) */
+:host ::ng-deep p-selectbutton .p-selectbutton {
+  background: var(--bg-deep) !important;
+  border: 1px solid var(--border-muted) !important;
+  border-radius: 4px !important;
+  overflow: hidden;
+  gap: 0;
+}
+
+:host ::ng-deep p-selectbutton .p-togglebutton,
+:host ::ng-deep p-selectbutton .p-togglebutton *:not(.p-togglebutton-checked) {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--color-accent) !important;
+  padding: 2px 7px;
+  background: var(--bg-deep) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep p-selectbutton .p-togglebutton:hover {
+  background: var(--bg-hover) !important;
+  color: var(--value-color) !important;
+}
+
+:host ::ng-deep p-selectbutton .p-togglebutton.p-togglebutton-checked,
+:host ::ng-deep p-selectbutton .p-togglebutton.p-togglebutton-checked * {
+  background: var(--color-accent) !important;
+  color: var(--bg-deep) !important;
+  border: none !important;
+}
+
+/* Checkbox */
+:host ::ng-deep p-checkbox .p-checkbox-box {
+  width: 14px;
+  height: 14px;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  border-radius: 3px;
+}
+
+:host ::ng-deep p-checkbox .p-checkbox-box.p-checked {
+  background: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+
+/* RadioButton */
+:host ::ng-deep p-radiobutton .p-radiobutton-box {
+  width: 14px;
+  height: 14px;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+}
+
+:host ::ng-deep p-radiobutton .p-radiobutton-box.p-checked { border-color: var(--danger-color); }
+:host ::ng-deep p-radiobutton .p-radiobutton-box.p-checked .p-radiobutton-icon { background: var(--danger-color); }
+
+/* p-button defaults */
+:host ::ng-deep .p-button:not(.p-button-text):not(.p-button-outlined) {
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  padding: 6px 10px;
+}
+
+:host ::ng-deep .p-button:not(.p-button-text):not(.p-button-outlined):hover {
+  background: var(--bg-hover);
+  border-color: var(--color-accent);
+}
+
+:host ::ng-deep .p-button-secondary:not(.p-button-text) {
+  border-color: var(--color-accent);
+  background: var(--bg-deep);
+  color: var(--color-text);
+}
+
+:host ::ng-deep .p-button-danger.p-button-text { color: var(--danger-color); }
+
+/* p-dialog */
+:host ::ng-deep .p-dialog { background: var(--bg-panel); border: 1px solid var(--border-muted); border-radius: 8px; color: var(--color-text); }
+:host ::ng-deep .p-dialog-header { background: var(--bg-panel); color: var(--color-text); border-bottom: 1px solid var(--color-accent); padding: 12px 16px; }
+:host ::ng-deep .p-dialog-title { font-size: var(--fs-base); text-transform: uppercase; letter-spacing: 1px; color: var(--color-text); }
+:host ::ng-deep .p-dialog-header-action { color: var(--color-accent); }
+:host ::ng-deep .p-dialog-header-action:hover { color: var(--color-text); background: transparent; }
+:host ::ng-deep .p-dialog-content { background: var(--bg-panel); color: var(--color-text); padding: 16px; }
+:host ::ng-deep .p-dialog-footer { background: var(--bg-panel); border-top: 1px solid var(--color-accent); padding: 10px 16px; }
+
+/* pInputText override for rune search */
+:host ::ng-deep input.p-inputtext {
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  font-size: var(--fs-xs);
+}
+
+:host ::ng-deep input.p-inputtext:focus {
+  border-color: var(--color-text);
+  background: var(--bg-panel);
+  box-shadow: none;
+}

@@ -1,0 +1,326 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.dziennik-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+.feature-section {
+  padding: 18px 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-muted);
+  border-radius: 8px;
+}
+
+.dziennik-header h1 {
+  margin: 0 0 4px;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--section-title-color);
+}
+
+.dziennik-header p {
+  margin: 0 0 18px;
+  font-size: var(--fs-base);
+  color: var(--label-color);
+  line-height: 1.5;
+}
+
+.error-text {
+  color: #e05c5c;
+  font-size: var(--fs-base);
+}
+
+.password-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.password-input {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--value-color);
+  padding: 8px 10px;
+  font-size: var(--fs-base);
+  min-width: 220px;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--fs-sm, 0.9rem);
+  color: var(--label-color);
+}
+
+.filter-field input,
+.filter-field select {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--value-color);
+  padding: 6px 8px;
+  font-size: var(--fs-sm, 0.9rem);
+}
+
+.clear-filters-btn {
+  background: none;
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--label-color);
+  padding: 6px 12px;
+  font-size: var(--fs-sm, 0.9rem);
+  cursor: pointer;
+  height: fit-content;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.dziennik-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-base);
+}
+
+.dziennik-table th,
+.dziennik-table td {
+  padding: 7px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-muted);
+  color: var(--value-color);
+  white-space: nowrap;
+}
+
+.dziennik-table th {
+  color: var(--label-color);
+  font-weight: 600;
+  font-size: var(--fs-md);
+}
+
+.dziennik-table tbody tr:hover td {
+  background: var(--bg-deep);
+}
+
+.date-cell .muted {
+  margin-left: 4px;
+}
+
+/* Team list — one player per line, as on /raporty-ekspedycji. */
+.people-cell {
+  white-space: normal !important;
+  min-width: 160px;
+}
+
+.person {
+  padding: 2px 0;
+  font-size: var(--fs-base);
+}
+
+.person-name {
+  font-weight: 600;
+  color: var(--section-icon);
+}
+
+.import-btn {
+  background: var(--color-accent);
+  color: var(--bg-deep);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: var(--fs-sm, 0.9rem);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.import-btn:disabled {
+  background: var(--border-muted);
+  color: var(--label-color);
+  cursor: default;
+}
+
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-th:hover {
+  color: var(--value-color);
+}
+
+.delete-btn {
+  background: none;
+  border: 1px solid #e05c5c;
+  color: #e05c5c;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: var(--fs-sm, 0.9rem);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delete-btn:disabled {
+  border-color: var(--border-muted);
+  color: var(--label-color);
+  cursor: default;
+}
+
+.group-row {
+  cursor: pointer;
+}
+
+.group-row:hover td {
+  background: var(--bg-deep);
+}
+
+.group-toggle {
+  display: inline-block;
+  width: 1em;
+  color: var(--label-color);
+}
+
+.group-count {
+  border: 1px solid var(--border-muted);
+  border-radius: 999px;
+  padding: 1px 8px;
+  color: var(--label-color);
+  font-weight: 600;
+}
+
+.group-child-row td {
+  background: var(--bg-deep);
+}
+
+.group-child-row td:first-child {
+  padding-left: 28px;
+}
+
+.muted {
+  color: var(--label-color);
+}
+
+/* Expedition summary in the in-game report style — same as on /raporty-ekspedycji. */
+.exp-info {
+  display: grid;
+  grid-template-columns: max-content auto;
+  gap: 3px 10px;
+  margin: 0;
+  white-space: normal;
+}
+
+.exp-info dt {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-accent);
+  align-self: center;
+}
+
+.exp-info dd {
+  margin: 0;
+  color: var(--value-color);
+}
+
+.exp-info dd.exp-stars {
+  color: var(--warning-text);
+  letter-spacing: 1px;
+}
+
+.exp-result-pcts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  font-weight: 600;
+}
+
+.exp-result-pcts .muted {
+  font-weight: 400;
+}
+
+.exp-result-pcts .win {
+  color: var(--success-text);
+}
+
+.exp-result-pcts .loss {
+  color: var(--danger-color);
+}
+
+.exp-result-pcts .draw {
+  color: var(--warning-text);
+}
+
+.dziennik-table td {
+  vertical-align: top;
+}
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: var(--fs-sm, 0.9rem);
+  color: var(--label-color);
+}
+
+.page-btn {
+  background: none;
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--value-color);
+  min-width: 32px;
+  padding: 4px 8px;
+  font-size: var(--fs-base);
+  cursor: pointer;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.page-info {
+  padding: 0 4px;
+}
+
+.page-size-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.page-size-field select {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--value-color);
+  padding: 4px 6px;
+}

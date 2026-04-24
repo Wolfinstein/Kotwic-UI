@@ -1,0 +1,730 @@
+import { Player } from './Player';
+import { MultiplicativeBonus, MultiplicativeBonusType } from './MultiplicativeBonus';
+export class TalismanyAndArkany {
+  aMajestat: number = 0;
+  aMaskaOff: number = 0;
+  aMaskaDef: number = 0;
+  aKrewZycia: number = 0;
+  aKocieSciezki: number = 0;
+  aZar: number = 0;
+  zarAktywny: boolean = false;
+  aCisza: number = 0;
+  aWyssanie: number = 0;
+  potegaAktywne: boolean = false;
+  aMocKrwi: number = 0;
+  aSkora: number = 0;
+  aDziki: number = 0;
+  aCienBestii: number = 0;
+  aNocny: number = 0;
+  aTchnienie: number = 0;
+  tchnienieAktywne: boolean = false;
+  ambicja: number = 0;
+  behemot: number = 0;
+  ziz: number = 0;
+  kamienSpota: number = 0;
+  kamienZwinki: number = 0;
+  kamienDobra: number = 0;
+  kamienZla: number = 0;
+  szpony: number = 0;
+  zycieSmierc: number = 0;
+  otchlan: number = 0;
+  potega: number = 0;
+  aura: number = 0;
+  maskaStrachu: number = 0;
+  maskaWladzy: number = 0;
+  lowca: number = 0;
+  piesnKrwi: number = 0;
+  cichyLowca: number = 0;
+  static builder() {
+    return new TalismanyAndArkanyBuilder();
+  }
+  calculateTalisman(player: Player): Player {
+    const p1 = this.doAmbicja(player);
+    this.doBehe(p1);
+    this.doZiz(p1);
+    this.doKamykSpota(p1);
+    this.doKamykZwinki(p1);
+    this.doKamienDobra(p1);
+    this.doKamienZla(p1);
+    this.doSzpony(p1);
+    // Aura adds baseLife, so it must run before the baseLife-scaling Życie i Śmierć / Potęga Mocy.
+    this.doAura(p1);
+    this.doZycieiSmierc(p1);
+    this.doOtchlan(p1);
+    this.doPotega(p1);
+    this.doCichyLowca(p1);
+    this.doMaskaOffa(p1);
+    this.doLowca(p1);
+    this.doPiesnKrwi(p1);
+    this.doMaskaDef(p1);
+    return p1;
+  }
+  calculateArakny(player: Player): Player {
+    const p1 = this.doMajestat(player);
+    this.doKocieSciezki(p1);
+    this.doZar(p1);
+    this.doMocKrwi(p1);
+    this.doSkora(p1);
+    this.doDziki(p1);
+    this.doCienBestii(p1);
+    this.doaNocny(p1);
+    this.doaTchnienie(p1);
+    this.doKrewZycia(p1);
+    this.doKaligula(p1);
+    this.doWladzy(p1);
+    return p1;
+  }
+  private doAmbicja(player: Player): Player {
+    switch (this.ambicja) {
+      case 1:
+        player.addBonus(MultiplicativeBonus.builder()
+          .licznik(1)
+          .mianownik(10)
+          .type(MultiplicativeBonusType.AMBICJA)
+          .mnoznik(1)
+          .build());
+        break;
+      case 2:
+        player.addBonus(MultiplicativeBonus.builder()
+          .licznik(1)
+          .mianownik(6)
+          .type(MultiplicativeBonusType.AMBICJA)
+          .mnoznik(1)
+          .build());
+        break;
+      case 3:
+        player.addBonus(MultiplicativeBonus.builder()
+          .licznik(1)
+          .mianownik(4)
+          .type(MultiplicativeBonusType.AMBICJA)
+          .mnoznik(1)
+          .build());
+        break;
+      case 4:
+        player.addBonus(MultiplicativeBonus.builder()
+          .licznik(1)
+          .mianownik(3)
+          .type(MultiplicativeBonusType.AMBICJA)
+          .mnoznik(1)
+          .build());
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doBehe(player: Player): Player {
+    switch (this.behemot) {
+      case 1:
+        player.addBonus(MultiplicativeBonus.builder()
+          .licznik(75)
+          .mianownik(1000)
+          .type(MultiplicativeBonusType.BEHE)
+          .mnoznik(1)
+          .build());
+        break;
+      case 2:
+        player.addBonus(MultiplicativeBonus.builder()
+          .licznik(15)
+          .mianownik(100)
+          .type(MultiplicativeBonusType.BEHE)
+          .mnoznik(1)
+          .build());
+        break;
+      case 3:
+        player.addBonus(MultiplicativeBonus.builder()
+          .licznik(25)
+          .mianownik(100)
+          .type(MultiplicativeBonusType.BEHE)
+          .mnoznik(1)
+          .build());
+        break;
+      case 4:
+        player.addBonus(MultiplicativeBonus.builder()
+          .licznik(4)
+          .mianownik(10)
+          .type(MultiplicativeBonusType.BEHE)
+          .mnoznik(1)
+          .build());
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doZiz(player: Player): Player {
+    switch (this.ziz) {
+      case 1:
+        player.addAllCrit(-0.05);
+        player.addCritMulti(0.15);
+        break;
+      case 2:
+        player.addAllCrit(-0.10);
+        player.addCritMulti(0.30);
+        break;
+      case 3:
+        player.addAllCrit(-0.15);
+        player.addCritMulti(0.45);
+        break;
+      case 4:
+        player.addAllCrit(-0.25);
+        player.addCritMulti(0.45);
+        player.setZiz4(true);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doCichyLowca(player: Player): Player {
+    switch (this.cichyLowca) {
+      case 1:
+        player.addCritMulti(0.2);
+        break;
+      case 2:
+        player.addCritMulti(0.40);
+        break;
+      case 3:
+        player.addCritMulti(0.6);
+        break;
+      case 4:
+        player.addCritMulti(0.6);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doKamykSpota(player: Player): Player {
+    switch (this.kamienSpota) {
+      case 1:
+        player.addSpostrzegawczosc(7);
+        break;
+      case 2:
+        player.addSpostrzegawczosc(15);
+        break;
+      case 3:
+        player.addSpostrzegawczosc(25);
+        break;
+      case 4:
+        player.addSpostrzegawczosc(40);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doKamykZwinki(player: Player): Player {
+    switch (this.kamienZwinki) {
+      case 1:
+        player.addZwinnosc(10);
+        break;
+      case 2:
+        player.addZwinnosc(20);
+        break;
+      case 3:
+        player.addZwinnosc(35);
+        break;
+      case 4:
+        player.addZwinnosc(50);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doKamienDobra(player: Player): Player {
+    switch (this.kamienDobra) {
+      case 1:
+        player.addCharyzma(20);
+        break;
+      case 2:
+        player.addCharyzma(40);
+        break;
+      case 3:
+        player.addCharyzma(60);
+        break;
+      case 4:
+        player.addCharyzma(80);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doKamienZla(player: Player): Player {
+    switch (this.kamienZla) {
+      case 1:
+        player.addWplywy(20);
+        break;
+      case 2:
+        player.addWplywy(40);
+        break;
+      case 3:
+        player.addWplywy(60);
+        break;
+      case 4:
+        player.addWplywy(80);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doSzpony(player: Player): Player {
+    switch (this.szpony) {
+      case 1:
+        player.addAllDps(Math.floor(2 * this.aNocny / 3));
+        break;
+      case 2:
+        player.addAllDps(Math.floor(4 * this.aNocny / 3));
+        break;
+      case 3:
+        player.addAllDps(Math.floor(6 * this.aNocny / 3));
+        break;
+      case 4:
+        player.addAllDps(Math.floor(9 * this.aNocny / 3));
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  /** Per Tchnienie Śmierci arcane point, PKT Życia bazowe increases by this tier's %, capped at +400% total. */
+  private static readonly ZYCIE_SMIERC_PCT_PER_TCHNIENIE: Record<number, number> = { 1: 0.03, 2: 0.04, 3: 0.05, 4: 0.06 };
+  static tchnienieModifier(zycieSmierc: number, aTchnienie: number): number {
+    const pctPerPoint = TalismanyAndArkany.ZYCIE_SMIERC_PCT_PER_TCHNIENIE[zycieSmierc] ?? 0;
+    return Math.min(pctPerPoint * aTchnienie, 4.00);
+  }
+  private doZycieiSmierc(player: Player): Player {
+    const modifier = TalismanyAndArkany.tchnienieModifier(this.zycieSmierc, this.aTchnienie);
+    if (modifier > 0) {
+      player.addLife(Math.floor(modifier * player.baseLife));
+    }
+    return player;
+  }
+  private doOtchlan(player: Player): Player {
+    const multi = 0.5 * this.otchlan;
+    switch (this.otchlan) {
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+        player.addAllTrafienie(Math.floor(this.aCisza * multi));
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private static readonly POTEGA_RATE_PER_LEVEL: Record<number, number> = { 1: 0.005, 2: 0.0075, 3: 0.01, 4: 0.015 };
+  private doPotega(player: Player): Player {
+    const rate = TalismanyAndArkany.POTEGA_RATE_PER_LEVEL[this.potega];
+    if (rate) {
+      player.setLife(Math.floor(player.life + (player.baseLife * (this.aWyssanie * rate))));
+      // Real activation only kicks in once the mob's crit multi has actually been absorbed (see
+      // expeditionCombat.ts's potegaStealPotential) — the calculator has no mob to steal from, so
+      // potegaAktywne is a manual "assume absorbed" toggle instead.
+      if (this.potegaAktywne) {
+        player.addCritMulti(this.aWyssanie * rate);
+      }
+    }
+    return player;
+  }
+  private doAura(player: Player): Player {
+    switch (this.aura) {
+      case 1:
+        player.addBaseLife(this.aSkora * 5);
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0015 * this.aSkora, 0.05));
+        break;
+      case 2:
+        player.addBaseLife(this.aSkora * 10);
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.002 * this.aSkora, 0.07));
+        break;
+      case 3:
+        player.addBaseLife(this.aSkora * 20);
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0025 * this.aSkora, 0.10));
+        break;
+      case 4:
+        player.addBaseLife(this.aSkora * 30);
+        player.addBaseLife(this.aSkora * 10);
+        // The +10/point team-wide HP + crit-received-reduction aura (Aura Bestii talizman description)
+        // is a cross-player, top-4-contributors mechanic the deterministic calculator can't express —
+        // it's implemented in full in expeditionCombat.ts instead (computeAuraBestiiTeamBonus).
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0035 * this.aSkora, 0.15));
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doMaskaOffa(player: Player): Player {
+    switch (this.maskaStrachu) {
+      case 1:
+        player.setAllDps1h(Math.floor(this.aMaskaOff / 2 * 1));
+        player.setAllDps2h(Math.floor(this.aMaskaOff / 2 * 2));
+        break;
+      case 2:
+        player.setAllDps1h(Math.floor(this.aMaskaOff / 2 * 2));
+        player.setAllDps2h(Math.floor(this.aMaskaOff / 2 * 3));
+        break;
+      case 3:
+        player.setAllDps1h(Math.floor(this.aMaskaOff / 2 * 3));
+        player.setAllDps2h(Math.floor(this.aMaskaOff / 2 * 4));
+        break;
+      case 4:
+        player.setAllDps1h(Math.floor(this.aMaskaOff / 2 * 4));
+        player.setAllDps2h(Math.floor(this.aMaskaOff / 2 * 6));
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doMaskaDef(player: Player): Player {
+    switch (this.maskaWladzy) {
+      case 1:
+        player.addBaseLife(this.aMaskaDef * 5);
+        break;
+      case 2:
+        player.addBaseLife(this.aMaskaDef * 10);
+        break;
+      case 3:
+        player.addBaseLife(this.aMaskaDef * 20);
+        break;
+      case 4:
+        player.addBaseLife(this.aMaskaDef * 30);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doLowca(player: Player): Player {
+    switch (this.lowca) {
+      case 1:
+        player.addCritMulti(0.2);
+        break;
+      case 2:
+        player.addCritMulti(0.4);
+        break;
+      case 3:
+      case 4:
+        player.addCritMulti(0.6);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doPiesnKrwi(player: Player): Player {
+    switch (this.piesnKrwi) {
+      case 1:
+        player.addAllCritMulti1h(0.005 * this.aKrewZycia);
+        player.addAllCritMulti2h(0.01 * this.aKrewZycia);
+        break;
+      case 2:
+        player.addAllCritMulti1h(0.01 * this.aKrewZycia);
+        player.addAllCritMulti2h(0.02 * this.aKrewZycia);
+        break;
+      case 3:
+        player.addAllCritMulti1h(0.015 * this.aKrewZycia);
+        player.addAllCritMulti2h(0.025 * this.aKrewZycia);
+        break;
+      case 4:
+        player.addAllCritMulti1h(0.02 * this.aKrewZycia);
+        player.addAllCritMulti2h(0.03 * this.aKrewZycia);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doMajestat(player: Player): Player {
+    player.addAllDps(this.aMajestat);
+    player.setLife(Math.floor(player.life + player.baseLife * (this.aMajestat * 0.07)));
+    if (this.aMajestat > 0) {
+      player.setHalvedRegen(true);
+    }
+    return player;
+  }
+  private doKocieSciezki(player: Player): Player {
+    player.addZwinnosc(this.aKocieSciezki);
+    return player;
+  }
+  private doZar(player: Player): Player {
+    if (this.aZar === 1) {
+      player.setLife(Math.floor(player.life + player.baseLife * 0.4));
+      if (this.zarAktywny) {
+        player.addLaczneObrazeniaWszystkichBroni(0.35);
+        player.setHasZar(true);
+      }
+    }
+    return player;
+  }
+  private doMocKrwi(player: Player): Player {
+    player.addSzczescie(this.aMocKrwi * 2);
+    player.addAllCrit(0.0075 * this.aMocKrwi);
+    return player;
+  }
+  private doSkora(player: Player): Player {
+    player.addOdpornosc(this.aSkora);
+    player.addEnemyCritChanceReduction(this.aSkora * 1.25);
+    return player;
+  }
+  private doDziki(player: Player): Player {
+    player.addSila(this.aDziki);
+    return player;
+  }
+  private doKaligula(player: Player): Player {
+    player.addWplywy(this.aMaskaOff);
+    return player;
+  }
+  private doWladzy(player: Player): Player {
+    player.addCharyzma(this.aMaskaDef);
+    return player;
+  }
+  private doCienBestii(player: Player): Player {
+    if (this.aCienBestii === 1) {
+      player.setLife(Math.floor(player.life + player.baseLife * 0.3));
+      const ataki = Math.floor(player.lvl / 150) + 1;
+      player.addAtakiBiala(ataki);
+    }
+    return player;
+  }
+  private doaNocny(player: Player): Player {
+    player.addSpostrzegawczosc(this.aNocny);
+    return player;
+  }
+  private doaTchnienie(player: Player): Player {
+    // Real activation is HP-threshold-gated (see expeditionCombat.ts) — the calculator has no
+    // live HP to check, so tchnienieAktywne is a manual "assume active" toggle instead.
+    if (this.tchnienieAktywne) {
+      player.addUnikBiala(0.02 * this.aTchnienie);
+      player.addUnikDystans(0.02 * this.aTchnienie);
+      player.addUnikPalna(0.02 * this.aTchnienie);
+      player.addAllTrafienie(-1 * this.aTchnienie);
+      player.addAllDps(5 * this.aTchnienie);
+    }
+    if (this.aTchnienie > 0) {
+      player.setHalvedRegen(true);
+    }
+    return player;
+  }
+  private doKrewZycia(player: Player): Player {
+    const fraction = this.aKrewZycia * 0.005;
+    player.addRegen(fraction);
+    player.stats.krewZyciaRegenFraction += fraction;
+    return player;
+  }
+}
+class TalismanyAndArkanyBuilder {
+  private _aMajestat: number = 0;
+  private _aMaskaOff: number = 0;
+  private _aMaskaDef: number = 0;
+  private _aKrewZycia: number = 0;
+  private _aKocieSciezki: number = 0;
+  private _aZar: number = 0;
+  private _zarAktywny: boolean = false;
+  private _aCisza: number = 0;
+  private _aWyssanie: number = 0;
+  private _potegaAktywne: boolean = false;
+  private _aMocKrwi: number = 0;
+  private _aSkora: number = 0;
+  private _aDziki: number = 0;
+  private _aCienBestii: number = 0;
+  private _aNocny: number = 0;
+  private _aTchnienie: number = 0;
+  private _tchnienieAktywne: boolean = false;
+  private _ambicja: number = 0;
+  private _behemot: number = 0;
+  private _ziz: number = 0;
+  private _kamienSpota: number = 0;
+  private _kamienZwinki: number = 0;
+  private _kamienDobra: number = 0;
+  private _kamienZla: number = 0;
+  private _szpony: number = 0;
+  private _zycieSmierc: number = 0;
+  private _otchlan: number = 0;
+  private _potega: number = 0;
+  private _aura: number = 0;
+  private _maskaStrachu: number = 0;
+  private _maskaWladzy: number = 0;
+  private _lowca: number = 0;
+  private _piesnKrwi: number = 0;
+  private _cichyLowca: number = 0;
+  aMajestat(aMajestat: number): TalismanyAndArkanyBuilder {
+    this._aMajestat = aMajestat;
+    return this;
+  }
+  aMaskaOff(aMaskaOff: number): TalismanyAndArkanyBuilder {
+    this._aMaskaOff = aMaskaOff;
+    return this;
+  }
+  aMaskaDef(aMaskaDef: number): TalismanyAndArkanyBuilder {
+    this._aMaskaDef = aMaskaDef;
+    return this;
+  }
+  aKrewZycia(aKrewZycia: number): TalismanyAndArkanyBuilder {
+    this._aKrewZycia = aKrewZycia;
+    return this;
+  }
+  aKocieSciezki(aKocieSciezki: number): TalismanyAndArkanyBuilder {
+    this._aKocieSciezki = aKocieSciezki;
+    return this;
+  }
+  aZar(aZar: number): TalismanyAndArkanyBuilder {
+    this._aZar = aZar;
+    return this;
+  }
+  zarAktywny(zarAktywny: boolean): TalismanyAndArkanyBuilder {
+    this._zarAktywny = zarAktywny;
+    return this;
+  }
+  aCisza(aCisza: number): TalismanyAndArkanyBuilder {
+    this._aCisza = aCisza;
+    return this;
+  }
+  aWyssanie(aWyssanie: number): TalismanyAndArkanyBuilder {
+    this._aWyssanie = aWyssanie;
+    return this;
+  }
+  potegaAktywne(potegaAktywne: boolean): TalismanyAndArkanyBuilder {
+    this._potegaAktywne = potegaAktywne;
+    return this;
+  }
+  aMocKrwi(aMocKrwi: number): TalismanyAndArkanyBuilder {
+    this._aMocKrwi = aMocKrwi;
+    return this;
+  }
+  aSkora(aSkora: number): TalismanyAndArkanyBuilder {
+    this._aSkora = aSkora;
+    return this;
+  }
+  aDziki(aDziki: number): TalismanyAndArkanyBuilder {
+    this._aDziki = aDziki;
+    return this;
+  }
+  aCienBestii(aCienBestii: number): TalismanyAndArkanyBuilder {
+    this._aCienBestii = aCienBestii;
+    return this;
+  }
+  aNocny(aNocny: number): TalismanyAndArkanyBuilder {
+    this._aNocny = aNocny;
+    return this;
+  }
+  aTchnienie(aTchnienie: number): TalismanyAndArkanyBuilder {
+    this._aTchnienie = aTchnienie;
+    return this;
+  }
+  tchnienieAktywne(tchnienieAktywne: boolean): TalismanyAndArkanyBuilder {
+    this._tchnienieAktywne = tchnienieAktywne;
+    return this;
+  }
+  ambicja(ambicja: number): TalismanyAndArkanyBuilder {
+    this._ambicja = ambicja;
+    return this;
+  }
+  behemot(behemot: number): TalismanyAndArkanyBuilder {
+    this._behemot = behemot;
+    return this;
+  }
+  ziz(ziz: number): TalismanyAndArkanyBuilder {
+    this._ziz = ziz;
+    return this;
+  }
+  kamienSpota(kamienSpota: number): TalismanyAndArkanyBuilder {
+    this._kamienSpota = kamienSpota;
+    return this;
+  }
+  kamienZwinki(kamienZwinki: number): TalismanyAndArkanyBuilder {
+    this._kamienZwinki = kamienZwinki;
+    return this;
+  }
+  kamienDobra(kamienDobra: number): TalismanyAndArkanyBuilder {
+    this._kamienDobra = kamienDobra;
+    return this;
+  }
+  kamienZla(kamienZla: number): TalismanyAndArkanyBuilder {
+    this._kamienZla = kamienZla;
+    return this;
+  }
+  szpony(szpony: number): TalismanyAndArkanyBuilder {
+    this._szpony = szpony;
+    return this;
+  }
+  zycieSmierc(zycieSmierc: number): TalismanyAndArkanyBuilder {
+    this._zycieSmierc = zycieSmierc;
+    return this;
+  }
+  otchlan(otchlan: number): TalismanyAndArkanyBuilder {
+    this._otchlan = otchlan;
+    return this;
+  }
+  potega(potega: number): TalismanyAndArkanyBuilder {
+    this._potega = potega;
+    return this;
+  }
+  aura(aura: number): TalismanyAndArkanyBuilder {
+    this._aura = aura;
+    return this;
+  }
+  maskaStrachu(maskaStrachu: number): TalismanyAndArkanyBuilder {
+    this._maskaStrachu = maskaStrachu;
+    return this;
+  }
+  maskaWladzy(maskaWladzy: number): TalismanyAndArkanyBuilder {
+    this._maskaWladzy = maskaWladzy;
+    return this;
+  }
+  lowca(lowca: number): TalismanyAndArkanyBuilder {
+    this._lowca = lowca;
+    return this;
+  }
+  piesnKrwi(piesnKrwi: number): TalismanyAndArkanyBuilder {
+    this._piesnKrwi = piesnKrwi;
+    return this;
+  }
+  cichyLowca(cichyLowca: number): TalismanyAndArkanyBuilder {
+    this._cichyLowca = cichyLowca;
+    return this;
+  }
+  build(): TalismanyAndArkany {
+    const t = new TalismanyAndArkany();
+    t.aMajestat = this._aMajestat;
+    t.aMaskaOff = this._aMaskaOff;
+    t.aMaskaDef = this._aMaskaDef;
+    t.aKrewZycia = this._aKrewZycia;
+    t.aKocieSciezki = this._aKocieSciezki;
+    t.aZar = this._aZar;
+    t.zarAktywny = this._zarAktywny;
+    t.aCisza = this._aCisza;
+    t.aWyssanie = this._aWyssanie;
+    t.potegaAktywne = this._potegaAktywne;
+    t.aMocKrwi = this._aMocKrwi;
+    t.aSkora = this._aSkora;
+    t.aDziki = this._aDziki;
+    t.aCienBestii = this._aCienBestii;
+    t.aNocny = this._aNocny;
+    t.aTchnienie = this._aTchnienie;
+    t.tchnienieAktywne = this._tchnienieAktywne;
+    t.ambicja = this._ambicja;
+    t.behemot = this._behemot;
+    t.ziz = this._ziz;
+    t.kamienSpota = this._kamienSpota;
+    t.kamienZwinki = this._kamienZwinki;
+    t.kamienDobra = this._kamienDobra;
+    t.kamienZla = this._kamienZla;
+    t.szpony = this._szpony;
+    t.zycieSmierc = this._zycieSmierc;
+    t.otchlan = this._otchlan;
+    t.potega = this._potega;
+    t.aura = this._aura;
+    t.maskaStrachu = this._maskaStrachu;
+    t.maskaWladzy = this._maskaWladzy;
+    t.lowca = this._lowca;
+    t.piesnKrwi = this._piesnKrwi;
+    t.cichyLowca = this._cichyLowca;
+    return t;
+  }
+}

@@ -1,0 +1,338 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.raporty-view {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+.feature-section {
+  padding: 18px 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-muted);
+  border-radius: 8px;
+}
+
+.raporty-header h1 {
+  margin: 0 0 4px;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--section-title-color);
+}
+
+.raporty-header p {
+  margin: 0 0 18px;
+  font-size: var(--fs-base);
+  color: var(--label-color);
+  line-height: 1.5;
+}
+
+.contribute-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 6px 0 18px;
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  border-left: 4px solid var(--color-accent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  font-size: var(--fs-base);
+  line-height: 1.5;
+  color: var(--value-color);
+}
+
+.contribute-note .pi {
+  margin-top: 3px;
+  font-size: 1.15em;
+  color: var(--color-accent);
+}
+
+.contribute-note strong {
+  color: var(--color-accent);
+  margin-right: 4px;
+}
+
+.contribute-note a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.muted {
+  color: var(--label-color);
+}
+
+.error-text {
+  color: var(--danger-color);
+  font-size: var(--fs-base);
+}
+
+/* Both filter rows share the same column template, so their fields line up vertically. */
+.filters-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px 16px;
+  align-items: end;
+  margin-bottom: 14px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  font-size: var(--fs-sm, 0.9rem);
+  color: var(--label-color);
+}
+
+.filter-field input,
+.filter-field select {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  background: var(--bg-deep);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--value-color);
+  padding: 6px 8px;
+  font-size: var(--fs-sm, 0.9rem);
+}
+
+.filter-search {
+  grid-column: span 2;
+}
+
+.filter-field input:focus,
+.filter-field select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.clear-filters-btn {
+  background: none;
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--label-color);
+  padding: 6px 12px;
+  font-size: var(--fs-sm, 0.9rem);
+  cursor: pointer;
+  height: fit-content;
+  margin-left: auto;
+}
+
+.summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-size: var(--fs-base);
+  color: var(--label-color);
+}
+
+.summary-row strong {
+  color: var(--value-color);
+}
+
+.summary-row strong.win {
+  color: var(--success-text);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.raporty-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-base);
+}
+
+.raporty-table th,
+.raporty-table td {
+  padding: 7px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-muted);
+  color: var(--value-color);
+  white-space: nowrap;
+}
+
+.raporty-table th {
+  color: var(--label-color);
+  font-weight: 600;
+  font-size: var(--fs-md);
+}
+
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-th:hover {
+  color: var(--value-color);
+}
+
+.raporty-table td {
+  vertical-align: top;
+}
+
+.th-hint {
+  margin-left: 6px;
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  color: var(--label-color);
+  opacity: 0.8;
+}
+
+.report-row:hover td {
+  background: var(--bg-deep);
+}
+
+.date-cell .muted {
+  margin-left: 4px;
+}
+
+.season-tag {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--fs-xs);
+  color: var(--label-color);
+}
+
+/* Expedition summary in the in-game report style: small gold labels, values beside them. */
+.exp-info {
+  display: grid;
+  grid-template-columns: max-content auto;
+  gap: 3px 10px;
+  margin: 0;
+  white-space: normal;
+}
+
+.exp-info dt {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-accent);
+  align-self: center;
+}
+
+.exp-info dd {
+  margin: 0;
+  color: var(--value-color);
+}
+
+.exp-info dd.exp-stars {
+  color: var(--warning-text);
+  letter-spacing: 1px;
+}
+
+.exp-result {
+  font-size: 1.15em;
+  font-weight: 700;
+}
+
+.exp-result.win {
+  color: var(--success-text);
+}
+
+.exp-result.loss {
+  color: var(--danger-color);
+}
+
+.people-cell {
+  white-space: normal !important;
+  min-width: 160px;
+}
+
+.person {
+  padding: 2px 0;
+  font-size: var(--fs-base);
+}
+
+.person .muted {
+  margin-left: 4px;
+}
+
+.person-name {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: help;
+  font-weight: 600;
+}
+
+.person-name:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}
+
+.person-name.player {
+  color: var(--section-icon);
+}
+
+.person-name.enemy {
+  color: var(--error-color);
+  font-weight: 400;
+}
+
+.person-name.enemy.boss {
+  font-weight: 700;
+}
+
+.report-link {
+  color: var(--color-accent);
+}
+
+.pager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.pager-btn {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--value-color);
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.pager-btn:disabled {
+  color: var(--label-color);
+  opacity: 0.5;
+  cursor: default;
+}
+
+.pager-info {
+  padding: 0 8px;
+  color: var(--label-color);
+  font-size: var(--fs-sm);
+}
+
+@media (max-width: 900px) {
+  .filters-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .raporty-view {
+    padding: 16px 12px 32px;
+  }
+
+  .feature-section {
+    padding: 14px 12px;
+  }
+
+  .filters-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

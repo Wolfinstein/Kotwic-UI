@@ -1,0 +1,245 @@
+<div class="raporty-view">
+  <div class="feature-section">
+    <div class="raporty-header">
+      <div class="contribute-note">
+        <i class="pi pi-megaphone"></i>
+        <div>
+          <strong>Chcesz pomóc rozbudować bazę?</strong>
+          Podziel się swoimi raportami z ekspedycji — napisz
+          <a href="https://r20.bloodwars.pl/showmsg.php?a=profile&uid=8779" target="_blank" rel="noopener noreferrer">w grze</a>
+          lub na discordzie.
+        </div>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <p class="muted"><i class="pi pi-spin pi-spinner"></i> Wczytywanie raportów…</p>
+    } @else if (loadError(); as err) {
+      <p class="error-text">{{ err }}</p>
+    } @else {
+      <div class="filters-row">
+        <label class="filter-field">
+          <span>Lokalizacja</span>
+          <select [ngModel]="location()" (ngModelChange)="setLocation($event)">
+            <option value="">Wszystkie</option>
+            @for (group of locationGroups(); track group.label) {
+              <optgroup [label]="group.label">
+                @for (loc of group.locations; track loc.name) {
+                  <option [value]="loc.name">{{ loc.name }} ({{ loc.count }})</option>
+                }
+              </optgroup>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Boss</span>
+          <select [ngModel]="boss()" (ngModelChange)="setBoss($event)">
+            <option value="">Wszyscy</option>
+            @for (b of bosses(); track b.value) {
+              <option [value]="b.value">{{ b.value }} ({{ b.count }})</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>★</span>
+          <select [ngModel]="stars()" (ngModelChange)="setFilter(stars, $event)">
+            <option [ngValue]="''">Wszystkie</option>
+            @for (s of starOptions(); track s.value) {
+              <option [ngValue]="s.value">{{ s.value }} ({{ s.count }})</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Trudność</span>
+          <select [ngModel]="difficulty()" (ngModelChange)="setFilter(difficulty, $event)">
+            <option value="">Wszystkie</option>
+            @for (d of difficulties(); track d.value) {
+              <option [value]="d.value">{{ d.value }} ({{ d.count }})</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Liczba graczy</span>
+          <select [ngModel]="playerCount()" (ngModelChange)="setFilter(playerCount, $event)">
+            <option [ngValue]="''">Wszystkie</option>
+            @for (pc of playerCounts(); track pc.value) {
+              <option [ngValue]="pc.value">{{ pc.value }} ({{ pc.count }})</option>
+            }
+          </select>
+        </label>
+      </div>
+      <div class="filters-row">
+        <label class="filter-field">
+          <span>Sezon</span>
+          <select [ngModel]="season()" (ngModelChange)="setFilter(season, $event)">
+            <option [ngValue]="''">Wszystkie</option>
+            @for (s of seasons(); track s.value) {
+              <option [ngValue]="s.value">{{ s.value ? 'Sezon ' + s.value : 'Przed sezonem 1' }} ({{ s.count }})</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Wydarzenie</span>
+          <select [ngModel]="event()" (ngModelChange)="setFilter(event, $event)">
+            <option value="">Wszystkie</option>
+            @if (events().none; as none) {
+              <option [value]="noEvent">Bez wydarzenia ({{ none.count }})</option>
+            }
+            @for (e of events().list; track e.value) {
+              <option [value]="e.value">{{ e.value }} ({{ e.count }})</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Wynik</span>
+          <select [ngModel]="result()" (ngModelChange)="setFilter(result, $event)">
+            <option value="">Wszystkie</option>
+            <option value="W">Wygrana ({{ results().W }})</option>
+            <option value="L">Przegrana ({{ results().L }})</option>
+          </select>
+        </label>
+        <label class="filter-field filter-search">
+          <span>Gracz lub broń</span>
+          <input type="search" placeholder="np. Mati, Skorpion" [ngModel]="search()" (ngModelChange)="setFilter(search, $event)" />
+        </label>
+      </div>
+
+      <div class="summary-row">
+        <span><strong>{{ summary().total | number }}</strong> raportów</span>
+        @if (summary().total) {
+          <span class="summary-sep">·</span>
+          <span>wygrane <strong class="win">{{ summary().winPct }}%</strong> ({{ summary().wins | number }})</span>
+        }
+        @if (hasActiveFilters()) {
+          <button type="button" class="clear-filters-btn" (click)="clearFilters()">Wyczyść filtry</button>
+        }
+      </div>
+
+      @if (!pageItems().length) {
+        <p class="muted">Brak raportów dla wybranych filtrów.</p>
+      } @else {
+        <div class="table-wrap">
+          <table class="raporty-table">
+            <thead>
+              <tr>
+                <th class="sortable-th" (click)="toggleSort()">Data {{ sortDesc() ? '▼' : '▲' }}</th>
+                <th>Ekspedycja</th>
+                <th>Drużyna <span class="th-hint">najedź, aby zobaczyć szczegóły</span></th>
+                <th>Przeciwnicy</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of pageItems(); track r.id) {
+                <tr class="report-row">
+                  <td class="date-cell">
+                    {{ r.date.slice(0, 10) }}
+                    <span class="muted">{{ r.date.slice(11, 16) }}</span>
+                    <span class="season-tag">Sezon {{ r.season }}</span>
+                  </td>
+                  <td>
+                    <dl class="exp-info">
+                      <dt>Lokacja</dt><dd>{{ r.location }}</dd>
+                      <dt>Boss</dt><dd>{{ r.boss }}</dd>
+                      <dt>Gwiazdki</dt>
+                      <dd class="exp-stars" [title]="r.stars + ' ★'">
+                        @if (r.stars <= 4) {
+                          @for (s of starArray(r.stars); track $index) { <span>★</span> }
+                        } @else {
+                          {{ r.stars }}★
+                        }
+                      </dd>
+                      <dt>Trudność</dt><dd>{{ r.difficulty }}</dd>
+                      <dt>Wynik</dt>
+                      <dd>
+                        @if (r.won) {
+                          <span class="exp-result win" title="Wygrana">✓</span>
+                        } @else {
+                          <span class="exp-result loss" title="Przegrana">✗</span>
+                        }
+                      </dd>
+                    </dl>
+                  </td>
+                  <td class="people-cell">
+                    @for (p of r.players; track $index) {
+                      <div class="person">
+                        <span class="person-name player" tabindex="0" [pTooltip]="playerTip" tooltipStyleClass="report-tip" tooltipPosition="top" tooltipEvent="both">{{ p.name }}</span>
+                        @if (p.experience !== null) {
+                          <span class="muted" title="Zdobyte doświadczenie">(+{{ p.experience | number }} PD)</span>
+                        }
+                        <ng-template #playerTip>
+                          <div class="rt-head">
+                            <span class="rt-name player">{{ p.name }}</span>
+                            <span class="rt-sub">poz. {{ p.level }} · {{ raceLabel(p.race) }}</span>
+                          </div>
+                          <table class="rt-table">
+                            <tr><th>PŻ</th><td>{{ p.hpMax | number }}</td></tr>
+                            <tr><th>Inicjatywa</th><td>{{ p.initiative | number }}</td></tr>
+                            @if (p.weapons.length) {
+                              <tr><th>Broń</th><td class="rt-text">{{ p.weapons.join(', ') }}</td></tr>
+                            }
+                            <tr class="rt-sep"><td colspan="2"></td></tr>
+                            @for (k of statOrder; track k) {
+                              <tr><th>{{ statLabels[k] }}</th><td>{{ p[k] | number }}</td></tr>
+                            }
+                            @if (bonusRows(p).length) {
+                              <tr class="rt-sep"><td colspan="2"></td></tr>
+                              @for (b of bonusRows(p); track b.label) {
+                                <tr><th>{{ b.label }}</th><td class="rt-text">{{ b.value }}</td></tr>
+                              }
+                            }
+                          </table>
+                        </ng-template>
+                      </div>
+                    }
+                  </td>
+                  <td class="people-cell">
+                    @for (g of enemyGroups(r); track $index) {
+                      <div class="person">
+                        <span class="person-name enemy" [class.boss]="g.isBoss" tabindex="0" [pTooltip]="enemyTip" tooltipStyleClass="report-tip" tooltipPosition="top" tooltipEvent="both">{{ g.name }}</span>
+                        <ng-template #enemyTip>
+                          <div class="rt-head">
+                            <span class="rt-name enemy">{{ g.name }}</span>
+                            <span class="rt-sub">{{ g.isBoss ? 'Boss' : g.count > 1 ? '×' + g.count : '' }}</span>
+                          </div>
+                          <table class="rt-table">
+                            <tr><th>PŻ</th><td>{{ g.enemy.hpMax | number }}</td></tr>
+                            <tr><th>Inicjatywa</th><td>{{ g.enemy.initiative | number }}</td></tr>
+                            <tr class="rt-sep"><td colspan="2"></td></tr>
+                            @for (k of statOrder; track k) {
+                              <tr><th>{{ statLabels[k] }}</th><td>{{ g.enemy[k] | number }}</td></tr>
+                            }
+                          </table>
+                        </ng-template>
+                        @if (g.count > 1) {
+                          <span class="muted">×{{ g.count }}</span>
+                        }
+                      </div>
+                    }
+                  </td>
+                  <td>
+                    @if (r.url) {
+                      <a class="report-link" [href]="r.url" target="_blank" rel="noopener noreferrer" title="Otwórz raport w grze">
+                        <i class="pi pi-external-link"></i>
+                      </a>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (pageCount() > 1) {
+          <div class="pager">
+            <button type="button" class="pager-btn" [disabled]="page() === 0" (click)="goToPage(0)">«</button>
+            <button type="button" class="pager-btn" [disabled]="page() === 0" (click)="goToPage(page() - 1)">‹</button>
+            <span class="pager-info">Strona {{ page() + 1 }} z {{ pageCount() }}</span>
+            <button type="button" class="pager-btn" [disabled]="page() >= pageCount() - 1" (click)="goToPage(page() + 1)">›</button>
+            <button type="button" class="pager-btn" [disabled]="page() >= pageCount() - 1" (click)="goToPage(pageCount() - 1)">»</button>
+          </div>
+        }
+      }
+    }
+  </div>
+</div>
