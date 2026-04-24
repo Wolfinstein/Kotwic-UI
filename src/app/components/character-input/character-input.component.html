@@ -1,0 +1,228 @@
+<div class="input-panel">
+  <div class="panel-grid">
+    <!-- Column 1: Race, Attributes, Talismans -->
+    <div class="column">
+      <div class="section">
+        <h3>Race</h3>
+        <select [(ngModel)]="character!.rasa" (change)="updateCharacterField('rasa', character!.rasa)">
+          <option value="">Select</option>
+          <option value="Human">Human</option>
+          <option value="Elf">Elf</option>
+          <option value="Dwarf">Dwarf</option>
+          <option value="Orc">Orc</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <h3>Attributes</h3>
+        <div class="compact-grid">
+          <div *ngFor="let attr of attributes" class="compact-item">
+            <label>{{ attr.label }}</label>
+            <input type="number"
+                   [ngModel]="getAttrValue(attr.key)"
+                   (ngModelChange)="setAttrValue(attr.key, $event)" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Talismans</h3>
+        <div class="compact-grid">
+          <div *ngFor="let tal of talizmanAttributes" class="compact-item">
+            <label>{{ tal.label }}</label>
+            <input type="number" min="0" max="4"
+                   [ngModel]="getTalizmanValue(tal.key)"
+                   (ngModelChange)="setTalizmanValue(tal.key, $event)" />
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Arcanes</h3>
+        <div class="compact-grid">
+          <div *ngFor="let arcane of arcaneAttributes" class="compact-item">
+            <label>{{ arcane.label }}</label>
+            <ng-container [ngSwitch]="arcane.type">
+              <input *ngSwitchCase="'int'" type="number"
+                     [ngModel]="getArcaneValue(arcane.key)"
+                     (ngModelChange)="setArcaneValue(arcane.key, $event)" />
+              <input *ngSwitchCase="'boolean'" type="checkbox"
+                     [ngModel]="getArcaneValue(arcane.key)"
+                     (ngModelChange)="setArcaneValue(arcane.key, $event)"
+                     class="arcane-checkbox" />
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Column 2: Equipment + Runes -->
+    <div class="column column-equipment">
+      <div class="section section-equipment">
+        <h3>Equipment</h3>
+        <div class="equipment-grid">
+          <button (click)="openEquipmentModal('head')">Head</button>
+          <button (click)="openEquipmentModal('chest')">Chest</button>
+          <button (click)="openEquipmentModal('legs')">Legs</button>
+          <button (click)="openEquipmentModal('neck')">Neck</button>
+          <button (click)="openEquipmentModal('finger1')">R1</button>
+          <button (click)="openEquipmentModal('finger2')">R2</button>
+          <button (click)="openEquipmentModal('weapon1h')">1H</button>
+          <button (click)="openEquipmentModal('weapon2h')">2H</button>
+        </div>
+      </div>
+
+      <div class="section column-bottom-section">
+        <h3>Runes</h3>
+        <button (click)="openRunesModal()" class="full-btn">Add Rune 1</button>
+        <button (click)="openRunesModal()" class="full-btn">Add Rune 2</button>
+        <button (click)="openRunesModal()" class="full-btn">Add Rune 3</button>
+      </div>
+
+      <div class="section column-bottom-section">
+        <h3>Magic</h3>
+        <button (click)="openUmagiaModal()" class="full-btn">Add Magic 1</button>
+        <button (click)="openUmagiaModal()" class="full-btn">Add Magic 2</button>
+        <button (click)="openUmagiaModal()" class="full-btn">Add Magic 3</button>
+      </div>
+    </div>
+
+    <!-- Column 3: Bonuses -->
+    <div class="column">
+      <div class="bonuses-container">
+        <div class="section column-bonus">
+          <button class="bonus-toggle" (click)="toggleBonusExpand('silver')">
+            <h3>Silver Bonuses {{ expandedBonuses['silver'] ? '▼' : '▶' }}</h3>
+          </button>
+          <div *ngIf="expandedBonuses['silver']" class="bonus-list">
+            <label *ngFor="let bonus of silverBonuses" class="bonus-item">
+              <input type="checkbox"
+                     [checked]="isBonusSelected('silver', bonus)"
+                     (change)="toggleBonusSelection('silver', bonus)" />
+              {{ bonus }}
+            </label>
+          </div>
+        </div>
+
+        <div class="section column-bonus">
+          <button class="bonus-toggle" (click)="toggleBonusExpand('gold')">
+            <h3>Gold Bonuses {{ expandedBonuses['gold'] ? '▼' : '▶' }}</h3>
+          </button>
+          <div *ngIf="expandedBonuses['gold']" class="bonus-list">
+            <label *ngFor="let bonus of goldBonuses" class="bonus-item">
+              <input type="checkbox"
+                     [checked]="isBonusSelected('gold', bonus)"
+                     (change)="toggleBonusSelection('gold', bonus)" />
+              {{ bonus }}
+            </label>
+          </div>
+        </div>
+
+        <div class="section column-bonus">
+          <button class="bonus-toggle" (click)="toggleBonusExpand('hunt')">
+            <h3>Hunt Bonuses {{ expandedBonuses['hunt'] ? '▼' : '▶' }}</h3>
+          </button>
+          <div *ngIf="expandedBonuses['hunt']" class="bonus-list">
+            <label *ngFor="let bonus of huntBonuses" class="bonus-item">
+              <input type="checkbox"
+                     [checked]="isBonusSelected('hunt', bonus)"
+                     (change)="toggleBonusSelection('hunt', bonus)" />
+              {{ bonus }}
+            </label>
+          </div>
+        </div>
+
+        <div class="section column-bonus">
+          <button class="bonus-toggle" (click)="toggleBonusExpand('daily')">
+            <h3>Daily bonuses {{ expandedBonuses['daily'] ? '▼' : '▶' }}</h3>
+          </button>
+          <div *ngIf="expandedBonuses['daily']" class="bonus-list bonus-single">
+            <label *ngFor="let bonus of dailyBonuses" class="bonus-item">
+              <input type="radio"
+                     name="dailyBonus"
+                     [checked]="isBonusSelected('daily', bonus)"
+                     (change)="toggleBonusSelection('daily', bonus, true)" />
+              {{ bonus }}
+            </label>
+          </div>
+        </div>
+
+        <div class="section column-bonus">
+          <button class="bonus-toggle" (click)="toggleBonusExpand('kaplica')">
+            <h3>Kaplica bonus {{ expandedBonuses['kaplica'] ? '▼' : '▶' }}</h3>
+          </button>
+          <div *ngIf="expandedBonuses['kaplica']" class="bonus-list bonus-single">
+            <label *ngFor="let bonus of kaplicaBonuses" class="bonus-item">
+              <input type="radio"
+                     name="kaplicaBonus"
+                     [checked]="isBonusSelected('kaplica', bonus)"
+                     (change)="toggleBonusSelection('kaplica', bonus, true)" />
+              {{ bonus }}
+            </label>
+          </div>
+        </div>
+
+        <div class="section column-bonus">
+          <button class="bonus-toggle" (click)="toggleBonusExpand('oneTime')">
+            <h3>one time bonuses {{ expandedBonuses['oneTime'] ? '▼' : '▶' }}</h3>
+          </button>
+          <div *ngIf="expandedBonuses['oneTime']" class="bonus-list bonus-single">
+            <label *ngFor="let bonus of oneTimeBonuses" class="bonus-item">
+              <input type="radio"
+                     name="oneTimeBonus"
+                     [checked]="isBonusSelected('oneTime', bonus)"
+                     (change)="toggleBonusSelection('oneTime', bonus, true)" />
+              {{ bonus }}
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section action-buttons">
+        <button class="calculate-btn" (click)="calculateDashboard()">Calculate</button>
+        <button class="action-btn" (click)="importCharacter()">Import</button>
+        <button class="action-btn" (click)="exportCharacter()">Export</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Equipment Modal -->
+<div *ngIf="showEquipmentModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>{{ selectedEquipmentSlot | titlecase }}</h3>
+    <div class="modal-items">
+      <button *ngFor="let item of itemOptions" (click)="selectEquipment(item)">
+        {{ item }}
+      </button>
+    </div>
+    <button (click)="closeModal()" class="close-btn">Close</button>
+  </div>
+</div>
+
+<!-- Runes Modal -->
+<div *ngIf="showRunesModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Runes</h3>
+    <div class="modal-items">
+      <button *ngFor="let rune of runeOptions" (click)="closeModal()">
+        {{ rune }}
+      </button>
+    </div>
+    <button (click)="closeModal()" class="close-btn">Close</button>
+  </div>
+</div>
+
+<!-- Umagia Modal -->
+<div *ngIf="showUmagiaModal" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Magic</h3>
+    <div class="modal-items">
+      <button *ngFor="let effect of umagiaOptions" (click)="closeModal()">
+        {{ effect }}
+      </button>
+    </div>
+    <button (click)="closeModal()" class="close-btn">Close</button>
+  </div>
+</div>

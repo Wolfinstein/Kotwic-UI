@@ -1,0 +1,53 @@
+<div class="dashboard-panel">
+  <h2>Stats</h2>
+
+  <div class="character-info">
+    <div class="info-row">
+      <span class="label">Race:</span>
+      <span class="value">{{ character?.rasa || '—' }}</span>
+      <span class="label">Lvl:</span>
+      <span class="value">{{ character?.poziom || 0 }}</span>
+    </div>
+    <div class="info-row">
+      <span class="label">HP:</span>
+      <span class="value">{{ character?.['życie'] || 0 }}</span>
+      <span class="label">Luck:</span>
+      <span class="value">{{ character?.['szczęście'] || 0 }}</span>
+    </div>
+  </div>
+
+  <div class="attributes-display">
+    <h3>Attributes</h3>
+    <div class="attr-grid">
+      <div *ngFor="let attr of attrKeys" class="attr-item">
+        <span class="attr-label">{{ attr.label }}</span>
+        <span class="attr-value">{{ getAttrValue(attr.key) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="combat-section">
+    <h3>Combat</h3>
+
+    <div class="combat-row">
+      <h4>Attack</h4>
+      <div class="combat-values">
+        <span *ngFor="let value of dashboardValues?.atak" class="value-badge">{{ value }}</span>
+      </div>
+    </div>
+
+    <div class="combat-row">
+      <h4>Defense</h4>
+      <div class="combat-values">
+        <span *ngFor="let value of dashboardValues?.obrona" class="value-badge">{{ value }}</span>
+      </div>
+    </div>
+
+    <div class="combat-row">
+      <h4>Damage</h4>
+      <div class="damage-display">
+        <span class="damage-range">{{ dashboardValues?.['obrazenia']?.min }} - {{ dashboardValues?.['obrazenia']?.max }}</span>
+      </div>
+    </div>
+  </div>
+</div>
