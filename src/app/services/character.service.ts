@@ -64,6 +64,8 @@ constructor() {}
       krew: 0,
       szczescie: 0,
       blaszkaZaMoba: false,
+      blaszkaZaKronosa: false,
+      blaszkaZaHastura: false,
       attributes: {
         sila: 0,
         zwinnosc: 0,

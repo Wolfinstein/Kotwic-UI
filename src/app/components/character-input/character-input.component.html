@@ -288,6 +288,18 @@
                    (change)="updateCharacterField('blaszkaZaMoba', $event.target.checked)"/>
             Blaszka za Moba
           </label>
+          <label class="bonus-item">
+            <input type="checkbox"
+                   [checked]="character?.blaszkaZaKronosa"
+                   (change)="updateCharacterField('blaszkaZaKronosa', $event.target.checked)"/>
+            Blaszka za Kronosa
+          </label>
+          <label class="bonus-item">
+            <input type="checkbox"
+                   [checked]="character?.blaszkaZaHastura"
+                   (change)="updateCharacterField('blaszkaZaHastura', $event.target.checked)"/>
+            Blaszka za Hastura
+          </label>
         </div>
 
       </div>

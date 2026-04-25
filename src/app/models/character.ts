@@ -109,6 +109,8 @@ equipment: EquipmentSlot;
 runeValues: string[];
 umagiValues: string[];
 blaszkaZaMoba: boolean;
+blaszkaZaKronosa: boolean;
+blaszkaZaHastura: boolean;
 evolutions : Evolutions;
 }
 
