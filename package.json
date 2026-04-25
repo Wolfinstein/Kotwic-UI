@@ -10,7 +10,7 @@
     "lint": "ng lint",
     "format": "prettier --write .",
     "github-build": "ng build --configuration production --base-href 'https://Wolfinstein.github.io/Kotwic-UI/'",
-    "github-deploy": "npx angular-cli-ghpages --dir=dist/KotwicUI/browser --no-silent"
+    "github-deploy": "npx angular-cli-ghpages --dir=dist/kotwic-ui/browser --no-silent"
   },
   "private": true,
   "packageManager": "npm@11.12.1",

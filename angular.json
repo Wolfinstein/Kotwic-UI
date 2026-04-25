@@ -6,7 +6,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "KotwicUI": {
+    "kotwic-ui": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -30,7 +30,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/KotwicUI/",
+              "baseHref": "/Kotwic-UI/",
               "budgets": [
                 {
                   "type": "initial",
@@ -57,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "KotwicUI:build:production"
+              "buildTarget": "kotwic-ui:build:production"
             },
             "development": {
-              "buildTarget": "KotwicUI:build:development"
+              "buildTarget": "kotwic-ui:build:development"
             }
           },
           "defaultConfiguration": "development"
