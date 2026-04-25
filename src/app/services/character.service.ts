@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject}from 'rxjs';
 import {Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions} from '../models/character';
+import {DashboardService} from './calculate'
 
 @Injectable({
 providedIn: 'root'
@@ -8,7 +9,7 @@ providedIn: 'root'
 export class CharacterService {
 private character$ = new BehaviorSubject<Character>(this.createEmptyCharacter());
 
-constructor() {}
+constructor(private dashboardService: DashboardService) {}
 
   getCharacter$ = () => this.character$.asObservable();
 
@@ -49,19 +50,11 @@ constructor() {}
     });
   }
 
-  calculateDashboard(): DashboardValues {
-    return {
-      punktyZycia: 123,
-      obrona: 123
-      }
-    };
-
   private createEmptyCharacter(): Character {
     return {
       rasa: '',
       poziom: 0,
       zycie: 0,
-      krew: 0,
       szczescie: 0,
       blaszkaZaMoba: false,
       blaszkaZaKronosa: false,
@@ -72,7 +65,7 @@ constructor() {}
         odpornosc: 0,
         wyglad: 0,
         charyzma: 0,
-        wplyw: 0,
+        wplywy: 0,
         spostrzegawczosc: 0,
         inteligencja: 0,
         wiedza: 0
@@ -129,12 +122,13 @@ constructor() {}
         pietnoDemona: 0,
         wzmocnioneMiesnie : 0
       },
+      mysliwy : 0,
+      ninja : 0,
+      strateg : 0,
+      kaplica : 0,
       bonusValues:{
-      silver: [],
-      gold: [],
       hunt: [],
       daily: [],
-      kaplica: [],
       oneTime: []
       },
       runeValues: [],
@@ -142,4 +136,10 @@ constructor() {}
       equipment: {}
     };
   }
+
+  calculateDashboard(): DashboardValues {
+    const char = this.character$.value
+    return this.dashboardService.calculateStuff(char)
+    };
+
 }

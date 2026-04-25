@@ -15,7 +15,7 @@ hasPrefix: boolean;
 hasSuffix: boolean;
 }
 
-export const RARITIES: ItemRarity[] = ['Zwykły' , 'Dobry' , 'Doskonały' , 'Legendarny' , 'Legendarny Dobry' , 'Legendarny Doskonały' , 'Epicki'];
+export const RARITIES: ItemRarity[] = ['ZWYKLY' , 'DOBRY' , 'DOSKONALY' , 'LEGENDARNY' , 'LEGENDARNY_DOBRY' , 'LEGENDARNY_DOSKONALY' , 'EPICKI'];
 
 export const BASE_ITEMS: BaseItemDef[] = [
 { name: 'Czapka',            category: 'head',     hasPrefix:true,  hasSuffix: true},
@@ -156,13 +156,13 @@ draft2hItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: n
 rarities = RARITIES;
 
 // ─── Runes ──────────────────────────────────────────────────────────────────
-runeOptions     = ['obrazenia 0.01', 'obrazenia 0.02', 'obrazenia 0.03', 'obrazenia 0.05', 'kryt 0.03', 'kryt 0.05', 'kryt 0.08', 'kryt 0.12', 'ignore 0.02', 'ignore 0.04', 'ignore 0.06', 'ignore 0.10', 'Siła 1', 'Siła 2', 'Siła 3', 'Siła 4', 'Spostrzegawczość 1', 'Spostrzegawczość 2', 'Spostrzegawczość 3', 'Spostrzegawczość 4', 'Inteligencja 1', 'Inteligencja 2', 'Inteligencja 3', 'Inteligencja 4', 'Wiedza 1', 'Wiedza 2', 'Wiedza 3', 'Wiedza 4', 'Zwinność 1', 'Zwinność 2', 'Zwinność 3', 'Zwinność 4', 'obrona 1/8', 'obrona 2/8', 'obrona 3/8', 'obrona 4/8', 'Odporność 1', 'Odporność 2', 'Odporność 3', 'Odporność 4', 'twardosc 0.01', 'twardosc 0.02', 'twardosc 0.03', 'twardosc 0.04', 'zycie 50', 'zycie 100', 'zycie 150', 'zycie 250', 'Szczęście 3', 'Szczęście 4', 'Szczęście 8', 'Szczęście 12', 'multi 0.02', 'multi 0.04', 'multi 0.06', 'multi 0.1'];
+runeOptions     = ['obrazenia 0.01', 'obrazenia 0.02', 'obrazenia 0.03', 'obrazenia 0.05', 'kryt 0.03', 'kryt 0.05', 'kryt 0.08', 'kryt 0.12', 'ignore 0.02', 'ignore 0.04', 'ignore 0.06', 'ignore 0.10', 'sila 1', 'sila 2', 'sila 3', 'sila 4', 'spostrzegawczosc 1', 'spostrzegawczosc 2', 'spostrzegawczosc 3', 'spostrzegawczosc 4', 'inteligencja 1', 'inteligencja 2', 'inteligencja 3', 'inteligencja 4', 'wiedza 1', 'wiedza 2', 'wiedza 3', 'wiedza 4', 'zwinnosc 1', 'zwinnosc 2', 'zwinnosc 3', 'zwinnosc 4', 'obrona 1', 'obrona 2', 'obrona 3', 'obrona 4', 'odpornosc 1', 'odpornosc 2', 'odpornosc 3', 'odpornosc 4', 'twardosc 0.01', 'twardosc 0.02', 'twardosc 0.03', 'twardosc 0.04', 'zycie 50', 'zycie 100', 'zycie 150', 'zycie 250', 'szczescie 3', 'szczescie 4', 'szczescie 8', 'szczescie 12', 'multi 0.02', 'multi 0.04', 'multi 0.06', 'multi 0.1'];
 selectedRunes: string[] = [];
 runeFilter      = '';
 selectedRuneIndex: number | null = null;
 
 // ─── Umagi ──────────────────────────────────────────────────────────────────
-umagiOptions    = ['obrazenia 1/4', 'ignore 0.04', 'ignore 0.06', 'ignore 0.1', 'ignore 0.15', 'dodatkowyAtak', 'obrazenia 5', 'obrazenia 7', 'obrazenia 10', 'obrazenia 20', 'kryt 0.03', 'kryt 0.05', 'kryt 0.08', 'kryt 0.12', 'trafienie 5', 'trafienie 12', 'trafienie 18', 'trafienie 25', 'zycie 25', 'zycie 50', 'zycie 100', 'zycie 250', 'zycie 500', 'zycie 1000', 'obrona 3/4', 'obrona 6/4', 'unik 0.03', 'unik 0.05', 'unik 0.07', 'unik 0.11', 'Obrona 20', 'Obrona 30', 'Obrona 50', 'Obrona 75', 'Szczęście 2', 'Szczęście 5', 'Szczęście 7', 'Szczęście 10', 'Szczęście 15', 'Szczęście 20', 'Inicjatywa 36', 'Spostrzegawczość 2', 'Spostrzegawczość 4', 'Spostrzegawczość 8', 'Spostrzegawczość 14', 'Zwinność 2', 'Zwinność 4', 'Zwinność 8', 'Zwinność 14', 'Siła 2', 'Siła 4', 'Siła 8', 'Siła 14', 'Charyzma 2', 'Charyzma 4', 'Charyzma 8', 'Charyzma 14', 'Wpływy 2', 'Wpływy 4', 'Wpływy 8', 'Wpływy 14', 'Odporność 2', 'Odporność 4', 'Odporność 8', 'Odporność 14', 'Inteligencja 2', 'Inteligencja 4', 'Inteligencja 8', 'Inteligencja 14', 'Wiedza 2', 'Wiedza 4', 'Wiedza 8', 'Wiedza 14', 'Wygląd 2', 'Wygląd 4', 'Wygląd 8', 'Wygląd 14'];
+umagiOptions    = ['obrazenia 1/4', 'ignore 0.04', 'ignore 0.06', 'ignore 0.1', 'ignore 0.15', 'dodatkowyAtak', 'obrazenia 5', 'obrazenia 7', 'obrazenia 10', 'obrazenia 20', 'kryt 0.03', 'kryt 0.05', 'kryt 0.08', 'kryt 0.12', 'trafienie 5', 'trafienie 12', 'trafienie 18', 'trafienie 25', 'zycie 25', 'zycie 50', 'zycie 100', 'zycie 250', 'zycie 500', 'zycie 1000', 'obrona 3/4', 'obrona 6/4', 'unik 0.03', 'unik 0.05', 'unik 0.07', 'unik 0.11', 'obrona 20', 'obrona 30', 'obrona 50', 'obrona 75', 'szczescie 2', 'szczescie 5', 'szczescie 7', 'szczescie 10', 'szczescie 15', 'szczescie 20', 'inicjatywa 36', 'spostrzegawczosc 2', 'spostrzegawczosc 4', 'spostrzegawczosc 8', 'spostrzegawczosc 14', 'zwinnosc 2', 'zwinnosc 4', 'zwinnosc 8', 'zwinnosc 14', 'sila 2', 'sila 4', 'sila 8', 'sila 14', 'charyzma 2', 'charyzma 4', 'charyzma 8', 'charyzma 14', 'wplywy 2', 'wplywy 4', 'wplywy 8', 'wplywy 14', 'odpornosc 2', 'odpornosc 4', 'odpornosc 8', 'odpornosc 14', 'inteligencja 2', 'inteligencja 4', 'inteligencja 8', 'inteligencja 14', 'wiedza 2', 'wiedza 4', 'wiedza 8', 'wiedza 14', 'wyglad 2', 'wyglad 4', 'wyglad 8', 'wyglad 14'];
 selectedUmagi: string[] = [];
 umagiFilter     = '';
 selectedUmagiIndex: number | null = null;
@@ -176,11 +176,11 @@ attributes = [
 { key: 'zwinnosc',          label: 'Zwinnosc' },
 { key: 'odpornosc',         label: 'Odpornosc' },
 { key: 'wyglad',            label: 'Wyglad' },
-{ key: 'charyzma',          label: 'Charyzma' },
+{ key: 'charyzma',          label: 'charyzma' },
 { key: 'wplyw',             label: 'Wplyw' },
 { key: 'spostrzegawczosc',  label: 'Spostrzegawczosc' },
-{ key: 'inteligencja',      label: 'Inteligencja' },
-{ key: 'wiedza',            label: 'Wiedza' },
+{ key: 'inteligencja',      label: 'inteligencja' },
+{ key: 'wiedza',            label: 'wiedza' },
 ];
 
 evolutions = [
@@ -239,11 +239,8 @@ arcaneAttributes = [
 { key: 'groza',               label: 'Groza',              type: 'boolean' },
 ];
 
-silverBonuses  = ['Ninja','Mysliwy'];
-goldBonuses    = ['Strateg'];
 huntBonuses    = ['Juggernaut', 'Ronin', 'Adrenalina', 'Sokole oko', 'Rzeźnik'];
-dailyBonuses   = ['Klątwa Bogów','Noc Długich Noży','Noc Starych Bogów','Noc poszukiwaczy','Dzień poszukiwaczy','Dzień Vlada','Dzień Gwiazd Północy','Świąteczna wizja Kaina','Świąteczna Wizja Kaina (deluxe)','Potrójna wizja Kaina','Pożeracz serc','Potęga hormonów','Dzień neandertalczyka','Pisanki Kaina','May the 4th be with you','Dzień Przemiany','Dzień poszukiwaczy','Świąteczna wizja Kaina (deluxe)','Więzy krwi','Krew z krwi','Wszyscy jesteśmy Francuzami','Pierwszy gol','Pierwszy serwis','Szczęście Sprzyja Lepszym','Tylko Dla Orłów','Zwycięzca Jest Tylko Jeden'];
-kaplicaBonuses = ['1', '2', '3', '4', '5'];
+dailyBonuses   = ['Klątwa Bogów','Noc Długich Noży','Noc Starych Bogów','Noc poszukiwaczy','Dzień poszukiwaczy','Dzień Vlada','Dzień Gwiazd Północy','Świąteczna wizja Kaina','Świąteczna Wizja Kaina (deluxe)','Potrójna wizja Kaina','Pożeracz serc','Potęga hormonów','Dzień neandertalczyka','Pisanki Kaina','May the 4th be with you','Dzień Przemiany','Dzień poszukiwaczy','Świąteczna wizja Kaina (deluxe)','Więzy krwi','Krew z krwi','Wszyscy jesteśmy Francuzami','Pierwszy gol','Pierwszy serwis','szczescie Sprzyja Lepszym','Tylko Dla Orłów','Zwycięzca Jest Tylko Jeden'];
 oneTimeBonuses = ['Krew wilka','Jabłko żelaznego drzewa','Płetwa rekina','Eliksir zmysłów','Święcona woda','Łza feniksa','Magiczna pieczęć','Serce nietoperza','Kwiat lotosu','Jad Wielkopchły','Serum oświecenia','Wywar z czarnego kota','Węgiel','Sierść kreta','Saletra','Sok z żuka','Esencja młodości','Paznokieć trolla','Wilcza jagoda','Oko kota','Absynt','Łuski salamandry','Woda źródlana','Kość męczennika','Napój miłosny','Jad skorpiona','Korzeń mandragory','Gwiezdny pył','Fiolka kwasu','Siarka','Czarny diament','Oko topielca','Boska łza','Ząb ghula','Wywar z koralowca','Serce proroka','Pazur bazyliszka','Łuski demona','Skrzydła chrząszcza','Maska gargulca','Sok z modliszki','Oddech smoka','Ząb wiedźmy','Grimoire','Czarna żółć','Palec kowala','Kwiat bzu','Ogień z serca ziemi'];
 
 expandedBonuses: { [key: string]: boolean } = {
@@ -251,7 +248,7 @@ silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: 
 };
 
 bonusValues: { [key: string]: string[] } = {
-silver: [], gold: [], hunt: [], daily: [], kaplica: [], oneTime: []
+hunt: [], daily: [], oneTime: []
 };
 
 constructor(private characterService: CharacterService) {}
@@ -466,11 +463,6 @@ constructor(private characterService: CharacterService) {}
     this.showEquipmentModal = false;
     this.showRunesModal     = false;
     this.showUmagiModal     = false;
-  }
-
-  calculateDashboard() {
-    const dashboard = this.characterService.calculateDashboard();
-    console.log('Dashboard calculated:', dashboard);
   }
 
   importCharacter() {

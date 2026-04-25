@@ -4,7 +4,7 @@ zwinnosc: number;
 odpornosc: number;
 wyglad: number;
 charyzma: number;
-wplyw: number;
+wplywy: number;
 spostrzegawczosc: number;
 inteligencja: number;
 wiedza: number;
@@ -65,7 +65,7 @@ pietnoDemona: number,
 wzmocnioneMiesnie : number
 }
 
-export type ItemRarity = 'Zwykły' | 'Dobry' | 'Doskonały' | 'Legendarny' | 'Legendarny Dobry' | 'Legendarny Doskonały' | 'Epicki';
+export type ItemRarity = 'ZWYKLY' | 'DOBRY' | 'DOSKONALY' | 'LEGENDARNY' | 'LEGENDARNY_DOBRY' | 'LEGENDARNY_DOSKONALY' | 'EPICKI';
 
 export interface EquipmentItem {
 rarity: ItemRarity | null;
@@ -87,11 +87,8 @@ weaponMode?: 'dual1h' | '2h';
 }
 
 export interface BonusValues{
-silver?: string[];
-gold?: string[];
 hunt?: string[];
 daily?: string[];
-kaplica?: string[];
 oneTime?: string[];
 }
 
@@ -99,7 +96,6 @@ export interface Character {
 rasa: string;
 poziom: number;
 zycie: number;
-krew: number;
 szczescie: number;
 attributes: Attributes;
 talizmanLevels: TalizmanLevels;
@@ -112,6 +108,10 @@ blaszkaZaMoba: boolean;
 blaszkaZaKronosa: boolean;
 blaszkaZaHastura: boolean;
 evolutions : Evolutions;
+mysliwy: number;
+ninja: number;
+strateg: number;
+kaplica: number;
 }
 
 export interface WeaponDamage{

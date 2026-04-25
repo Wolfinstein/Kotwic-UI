@@ -192,34 +192,60 @@
 
     <!-- Column 3: Bonuses -->
     <div class="column">
+
       <div class="bonuses-container">
-        <div class="section column-bonus">
-          <button class="bonus-toggle" (click)="toggleBonusExpand('silver')">
-            <h3>Srebrniki {{ expandedBonuses['silver'] ? '▼' : '▶' }}</h3>
-          </button>
-          <div *ngIf="expandedBonuses['silver']" class="bonus-list">
-            <label *ngFor="let bonus of silverBonuses" class="bonus-item">
-              <input type="checkbox"
-                     [checked]="isBonusSelected('silver', bonus)"
-                     (change)="toggleBonusSelection('silver', bonus)"/>
-              {{ bonus }}
-            </label>
-          </div>
-        </div>
 
         <div class="section column-bonus">
-          <button class="bonus-toggle" (click)="toggleBonusExpand('gold')">
-            <h3>Złote monety {{ expandedBonuses['gold'] ? '▼' : '▶' }}</h3>
-          </button>
-          <div *ngIf="expandedBonuses['gold']" class="bonus-list">
-            <label *ngFor="let bonus of goldBonuses" class="bonus-item">
-              <input type="checkbox"
-                     [checked]="isBonusSelected('gold', bonus)"
-                     (change)="toggleBonusSelection('gold', bonus)"/>
-              {{ bonus }}
-            </label>
+          <div class="section">
+            <div class="compact-grid">
+              <div class="compact-item">
+                <label><div class="horizontal-h3">Ninja</div></label>
+                <input type="number"
+                       min="0" max="5"
+                       [ngModel]="character!.ninja"
+                       (ngModelChange)="updateCharacterField('ninja', $event)"/>
+              </div>
+            </div>
           </div>
+          <div class="section">
+            <div class="compact-grid">
+              <div class="compact-item">
+                <label><div class="horizontal-h3">Mysliwy</div></label>
+                <input type="number"
+                       min="0" max="5"
+                       [ngModel]="character!.mysliwy"
+                       (ngModelChange)="updateCharacterField('mysliwy', $event)"/>
+              </div>
+            </div>
+          </div>
+
+            <div class="section">
+              <div class="compact-grid">
+                <div class="compact-item">
+                  <label><div class="horizontal-h3">Strateg</div></label>
+                  <input type="number"
+                         min="0" max="5"
+                         [ngModel]="character!.strateg"
+                         (ngModelChange)="updateCharacterField('strateg', $event)"/>
+                </div>
+              </div>
+            </div>
+
+          <div class="section">
+            <div class="compact-grid">
+              <div class="compact-item">
+                <label><div class="horizontal-h3">Kaplica</div></label>
+                <input type="number"
+                       min="0" max="6"
+                       [ngModel]="character!.kaplica"
+                       (ngModelChange)="updateCharacterField('kaplica', $event)"/>
+              </div>
+            </div>
+          </div>
+
         </div>
+
+
 
         <div class="section column-bonus">
           <button class="bonus-toggle" (click)="toggleBonusExpand('hunt')">
@@ -245,21 +271,6 @@
                      name="dailyBonus"
                      [checked]="isBonusSelected('daily', bonus)"
                      (change)="toggleBonusSelection('daily', bonus, true)"/>
-              {{ bonus }}
-            </label>
-          </div>
-        </div>
-
-        <div class="section column-bonus">
-          <button class="bonus-toggle" (click)="toggleBonusExpand('kaplica')">
-            <h3>Kaplica {{ expandedBonuses['kaplica'] ? '▼' : '▶' }}</h3>
-          </button>
-          <div *ngIf="expandedBonuses['kaplica']" class="bonus-list bonus-single">
-            <label *ngFor="let bonus of kaplicaBonuses" class="bonus-item">
-              <input type="radio"
-                     name="kaplicaBonus"
-                     [checked]="isBonusSelected('kaplica', bonus)"
-                     (change)="toggleBonusSelection('kaplica', bonus, true)"/>
               {{ bonus }}
             </label>
           </div>
@@ -318,7 +329,6 @@
       </div>
 
       <div class="section action-buttons">
-        <button class="action-btn" (click)="calculateDashboard()">Policz</button>
         <button class="action-btn" (click)="importCharacter()">Import</button>
         <button class="action-btn" (click)="exportCharacter()">Export</button>
       </div>

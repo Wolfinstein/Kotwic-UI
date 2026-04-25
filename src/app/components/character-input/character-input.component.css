@@ -148,13 +148,13 @@
 }
 
 /* Rarity colour coding */
-[data-rarity="Zwykły"]     { background: #444;    color: #ccc; }
-[data-rarity="Dobry"]  { background: #444;    color: #ccc; }
-[data-rarity="Doskonały"]     { background: #444;    color: #ccc; }
-[data-rarity="Legendarny"]     { background: #3a1a4a; color: #c97ef5; }
-[data-rarity="Legendarny Dobry"] { background: #3a1a4a; color: #c97ef5; }
-[data-rarity="Legendarny Doskonały"] { background: #3a1a4a; color: #c97ef5; }
-[data-rarity="Epicki"] { background: #4a2d10; color: #f5a623; }
+[data-rarity="ZWYKLY"]     { background: #444;    color: #ccc; }
+[data-rarity="DOBRY"]  { background: #444;    color: #ccc; }
+[data-rarity="DOSKONALY"]     { background: #444;    color: #ccc; }
+[data-rarity="LEGENDARNY"]     { background: #3a1a4a; color: #c97ef5; }
+[data-rarity="LEGENDARNY_DOBRY"] { background: #3a1a4a; color: #c97ef5; }
+[data-rarity="LEGENDARNY_DOSKONALY"] { background: #3a1a4a; color: #c97ef5; }
+[data-rarity="EPICKI"] { background: #4a2d10; color: #f5a623; }
 
 .column-bottom-section {
   flex-shrink: 0;
@@ -533,13 +533,13 @@ button {
 }
 
 /* Preview name coloured by rarity */
-.eq-preview-name[data-rarity="Zwykły"]     { color: #ddd0d2; }
-.eq-preview-name[data-rarity="Dobry"]  { color: #ddd0d2; }
-.eq-preview-name[data-rarity="Doskonały"]     { color: #ddd0d2; }
-.eq-preview-name[data-rarity="Legendarny"]     { color: #c97ef5; }
-.eq-preview-name[data-rarity="Legendarny Dobry"] { color: #c97ef5; }
-.eq-preview-name[data-rarity="Legendarny Doskonały"] { color: #c97ef5; }
-.eq-preview-name[data-rarity="Epicki"] { color: #f5a623; }
+.eq-preview-name[data-rarity="ZWYKLY"]     { color: #ddd0d2; }
+.eq-preview-name[data-rarity="DOBRY"]  { color: #ddd0d2; }
+.eq-preview-name[data-rarity="DOSKONALY"]     { color: #ddd0d2; }
+.eq-preview-name[data-rarity="LEGENDARNY"]     { color: #c97ef5; }
+.eq-preview-name[data-rarity="LEGENDARNY_DOBRY"] { color: #c97ef5; }
+.eq-preview-name[data-rarity="LEGENDARNY_DOSKONALY"] { color: #c97ef5; }
+.eq-preview-name[data-rarity="EPICKI"] { color: #f5a623; }
 
 .eq-preview-placeholder {
   font-size: 10px;
@@ -591,22 +591,22 @@ button {
 }
 
 
-.eq-rarity-btn[data-rarity="Zwykły"]     { border-color: #555;    color: #aaa; }
-.eq-rarity-btn[data-rarity="Dobry"]  { border-color: #555;    color: #aaa; }
-.eq-rarity-btn[data-rarity="Doskonały"]     { border-color: #555;    color: #aaa; }
-.eq-rarity-btn[data-rarity="Legendarny"] { border-color: #6b3090; color: #c97ef5; }
-.eq-rarity-btn[data-rarity="Legendarny Dobry"] { border-color: #6b3090; color: #c97ef5; }
-.eq-rarity-btn[data-rarity="Legendarny Doskonały"] { border-color: #6b3090; color: #c97ef5; }
-.eq-rarity-btn[data-rarity="Epicki"] { border-color: #8a5000; color: #f5a623; }
+.eq-rarity-btn[data-rarity="ZWYKLY"]     { border-color: #555;    color: #aaa; }
+.eq-rarity-btn[data-rarity="DOBRY"]  { border-color: #555;    color: #aaa; }
+.eq-rarity-btn[data-rarity="DOSKONALY"]     { border-color: #555;    color: #aaa; }
+.eq-rarity-btn[data-rarity="LEGENDARNY"] { border-color: #6b3090; color: #c97ef5; }
+.eq-rarity-btn[data-rarity="LEGENDARNY_DOBRY"] { border-color: #6b3090; color: #c97ef5; }
+.eq-rarity-btn[data-rarity="LEGENDARNY_DOSKONALY"] { border-color: #6b3090; color: #c97ef5; }
+.eq-rarity-btn[data-rarity="EPICKI"] { border-color: #8a5000; color: #f5a623; }
 
 
-.eq-rarity-btn.eq-rarity-selected[data-rarity="Zwykły"]     { background: #444;    color: #fff; border-color: #5BF48B66 }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="Dobry"]  { background: #444;    color: #fff; border-color: #5BF48B66; }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="Doskonały"]     { background: #444;    color: #fff; border-color: #5BF48B66; }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="Legendarny"]     { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="Legendarny Dobry"]  { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="Legendarny Doskonały"]  { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="Epicki"] { background: #4a2d10; color: #f5a623; border-color: #fff; }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="ZWYKLY"]     { background: #444;    color: #fff; border-color: #5BF48B66 }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="DOBRY"]  { background: #444;    color: #fff; border-color: #5BF48B66; }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="DOSKONALY"]     { background: #444;    color: #fff; border-color: #5BF48B66; }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY"]     { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOBRY"]  { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOSKONALY"]  { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="EPICKI"] { background: #4a2d10; color: #f5a623; border-color: #fff; }
 
 .eq-rarity-btn:hover:not(.eq-rarity-selected) {
   background: #0f3d63;
