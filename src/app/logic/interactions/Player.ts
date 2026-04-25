@@ -1,0 +1,482 @@
+import { Item, Stats } from '../item';
+import { MultiplicativeBonus, MultiplicativeBonusType } from './MultiplicativeBonus';
+import { ItemGenre } from '../item/constants/itemGenre';
+
+export enum PlayerRasa {
+  LM = 'LM',
+  SSAK = 'SSAK',
+  WZ = 'WZ',
+  POTEP = 'POTEP',
+  KULTEK = 'KULTEK',
+}
+
+export class Player {
+  lvl: number;
+  life: number;
+  baseLife: number;
+  items: Item[] = [];
+  bonuses: MultiplicativeBonus[] = [];
+  stats: Stats;
+  ziz4: boolean = false;
+  hasZar: boolean = false;
+
+constructor(
+    lvl: number = 1,
+    life: number = 0,
+    baseLife: number = 0,
+    stats?: Stats,
+    items?: Item[],
+    bonuses?: MultiplicativeBonus[],
+    ziz4?: boolean,
+    hasZar?: boolean
+  ) {
+    this.lvl = lvl;
+    this.life = life;
+    this.baseLife = baseLife;
+    this.stats = stats || new Stats();
+    this.items = items || [];
+    this.bonuses = bonuses || [];
+    this.ziz4 = ziz4 || false;
+    this.hasZar = hasZar || false;
+  }
+
+  static builder() {
+    return new PlayerBuilder();
+  }
+
+  doMysliwy(mysliwy: number): void {
+    const baseStat = (Math.floor(this.lvl / 10) * 10);
+    let divisor: number;
+
+    switch (mysliwy) {
+      case 1:
+        divisor = 20;
+        break;
+      case 2:
+        divisor = 16;
+        break;
+      case 3:
+        divisor = 14;
+        break;
+      case 4:
+        divisor = 12;
+        break;
+      case 5:
+        divisor = 10;
+        break;
+      default:
+        return;
+    }
+
+    const statIncrease = baseStat / divisor;
+    const lifeIncrease = statIncrease * 50;
+
+    this.stats.sila += statIncrease;
+    this.stats.zwinnosc += statIncrease;
+    this.stats.odpornosc += statIncrease;
+    this.stats.wyglad += statIncrease;
+    this.stats.charyzma += statIncrease;
+    this.stats.wplywy += statIncrease;
+    this.stats.spostrzegawczosc += statIncrease;
+    this.stats.inteligencja += statIncrease;
+    this.stats.wiedza += statIncrease;
+    this.life += lifeIncrease;
+  }
+
+  doNinja(ninja: number): void {
+    switch (ninja) {
+      case 1:
+        this.stats.additionalIni += 15;
+        break;
+      case 2:
+        this.stats.additionalIni += 30;
+        break;
+      case 3:
+        this.stats.additionalIni += 45;
+        break;
+      case 4:
+        this.stats.additionalIni += 60;
+        break;
+      case 5:
+        this.stats.additionalIni += 75;
+        break;
+    }
+  }
+
+  doRasa(rasa: PlayerRasa): void {
+    switch (rasa) {
+      case PlayerRasa.LM:
+        this.stats.setAllUnik(0.10);
+        this.stats.szczescie += 10;
+        break;
+      case PlayerRasa.SSAK:
+        this.life += this.baseLife * 0.1;
+        this.stats.setAllDps(5);
+        break;
+      case PlayerRasa.WZ:
+        this.life += this.baseLife * 0.2;
+        this.stats.ignoreObrony += 0.10;
+        this.stats.trafienieBiala += 20;
+        break;
+      case PlayerRasa.POTEP:
+        this.stats.setAllTrafienie(30);
+        break;
+      case PlayerRasa.KULTEK:
+        this.stats.szczescie += 5;
+        this.stats.setAllCritChance(0.05);
+        break;
+    }
+  }
+
+  addBonus(bonus: MultiplicativeBonus): void {
+    this.bonuses.push(bonus);
+  }
+
+  addItem(item: Item): void {
+    this.items.push(item);
+  }
+
+  addSpostrzegawczosc(value: number): void {
+    this.stats.spostrzegawczosc += value;
+  }
+
+  addWiedza(value: number): void {
+    this.stats.wiedza += value;
+  }
+
+  addInteligencja(value: number): void {
+    this.stats.inteligencja += value;
+  }
+
+  addWplywy(value: number): void {
+    this.stats.wplywy += value;
+  }
+
+  addCharyzma(value: number): void {
+    this.stats.charyzma += value;
+  }
+
+  addOdpornosc(value: number): void {
+    this.stats.odpornosc += value;
+  }
+
+  addSila(value: number): void {
+    this.stats.sila += value;
+  }
+
+  addZwinnosc(value: number): void {
+    this.stats.zwinnosc += value;
+  }
+
+  addWyglad(value: number): void {
+    this.stats.wyglad += value;
+  }
+
+  addUnikBiala(value: number): void {
+    this.stats.unikBiala += value;
+  }
+
+  addUnikDystans(value: number): void {
+    this.stats.unikDystans += value;
+  }
+
+  addUnikPalna(value: number): void {
+    this.stats.unikPalna += value;
+  }
+
+  addAllUnik(value: number) :void {
+      this.addUnikPalna(value)
+      this.addUnikDystans(value)
+      this.addUnikBiala(value)
+  }
+
+  addRedukcjaObrazen(value: number): void {
+    this.stats.redukcjaObrazen += value;
+  }
+
+  addObronaDodatkowa(value: number): void {
+    this.stats.obronaDodatkowa += value;
+  }
+
+  addBaseLife(value: number): void {
+    this.baseLife += value;
+  }
+
+  addLife(value: number): void {
+    this.life += value;
+  }
+
+  addIgnore(value: number): void {
+    this.stats.ignoreObrony += value;
+  }
+
+  addCritMulti(value: number): void {
+    this.stats.setAllCritMulti(value);
+  }
+
+  resolveNonWeaponItems(): void {
+    const nonWeapon = this.items.filter(
+      (a) =>
+        a.base &&
+        a.base.genre !== ItemGenre.GUN_1H &&
+        a.base.genre !== ItemGenre.GUN_2H &&
+        a.base.genre !== ItemGenre.RANGE_1H &&
+        a.base.genre !== ItemGenre.RANGE_2H &&
+        a.base.genre !== ItemGenre.WHITE_1H &&
+        a.base.genre !== ItemGenre.WHITE_2H
+    );
+
+    if (!nonWeapon || nonWeapon.length === 0) {
+      console.log('Nie ma itemów');
+      return;
+    }
+
+    let itemStats = this.stats;
+
+    for (const a of nonWeapon) {
+      const temp = new Stats();
+      if (a.base) temp.addStats(a.base.stats);
+      if (a.prefix) temp.addStats(a.prefix.stats);
+      if (a.suffix) temp.addStats(a.suffix.stats);
+      itemStats.addStats(temp);
+    }
+
+    if (this.stats.isObronaZero) {
+      itemStats.obronaPrzedmiotow = 0;
+    }
+
+    this.stats = itemStats;
+  }
+
+  addAllCrit(value: number): void {
+    this.stats.setAllCritChance(value);
+  }
+
+  addAllTrafienie(value: number): void {
+    this.stats.setAllTrafienie(value);
+  }
+
+  addAllAtaki(value: number): void {
+    this.stats.setAllAtaki(value);
+  }
+
+  addAllDps(value: number): void {
+    this.stats.setAllDps(value);
+  }
+
+  addSzczescie(value: number): void {
+    this.stats.szczescie += value;
+  }
+
+  addCritMultiBiala1h(value: number): void {
+    this.stats.critMultiBiala1h += value;
+  }
+
+  addCritMultiBiala2h(value: number): void {
+    this.stats.critMultiBiala2h += value;
+  }
+
+  addCritMultiDystans1h(value: number): void {
+    this.stats.critMultiDystans1h += value;
+  }
+
+  addCritMultiDystans2h(value: number): void {
+    this.stats.critMultiDystans2h += value;
+  }
+
+  addCritMultiPalna2h(value: number): void {
+    this.stats.critMultiPalna2h += value;
+  }
+
+  addCritMultiPalna1h(value: number): void {
+    this.stats.critMultiPalna1h += value;
+  }
+
+  addMinDpsBiala1h(value: number): void {
+    this.stats.minDpsBiala1h += value;
+  }
+
+  addMinDpsBiala2h(value: number): void {
+    this.stats.minDpsBiala2h += value;
+  }
+
+  addMaxDpsBiala1h(value: number): void {
+    this.stats.maxDpsBiala1h += value;
+  }
+
+  addMaxDpsBiala2h(value: number): void {
+    this.stats.maxDpsBiala2h += value;
+  }
+
+  addMinDpsPalna1h(value: number): void {
+    this.stats.minDpsPalna1h += value;
+  }
+
+  addMinDpsPalna2h(value: number): void {
+    this.stats.minDpsPalna2h += value;
+  }
+
+  addMaxDpsPalna1h(value: number): void {
+    this.stats.maxDpsPalna1h += value;
+  }
+
+  addMaxDpsPalna2h(value: number): void {
+    this.stats.maxDpsPalna2h += value;
+  }
+
+  addMinDpsDystans1h(value: number): void {
+    this.stats.minDpsDystans1h += value;
+  }
+
+  addMinDpsDystans2h(value: number): void {
+    this.stats.minDpsDystans2h += value;
+  }
+
+  addMaxDpsDystans1h(value: number): void {
+    this.stats.maxDpsDystans1h += value;
+  }
+
+  addMaxDpsDystans2h(value: number): void {
+    this.stats.maxDpsDystans2h += value;
+  }
+
+  addRegen(value: number): void {
+    this.stats.regen += value;
+  }
+
+  addAtakiBiala(value: number): void {
+    this.stats.atakiBiala += value;
+  }
+
+  addAtakiDystans1h(value: number): void {
+    this.stats.atakiDystans1h += value;
+  }
+
+  addAtakiDystans2h(value: number): void {
+    this.stats.atakiDystans2h += value;
+  }
+
+  addAllCritMulti1h(value: number): void {
+    this.stats.setAllCritMulti1h(value);
+  }
+
+  addAllCritMulti2h(value: number): void {
+    this.stats.setAllCritMulti2h(value);
+  }
+
+  setAllDps1h(dps: number): void {
+    this.stats.setAllDps1h(dps);
+  }
+
+  setAllDps2h(dps: number): void {
+    this.stats.setAllDps2h(dps);
+  }
+
+  addTwardosc(t: number): void {
+    this.stats.twardosc += t;
+  }
+
+  addAdditionalIni(value: number): void {
+    this.stats.additionalIni = value;
+  }
+
+  addTrafienieProcentowePalna(value: number): void {
+    this.stats.trafienieProcentowePalna = value;
+  }
+
+  addTrafienieProcentoweBiala(value: number): void {
+    this.stats.trafienieProcentoweBiala = value;
+  }
+
+  addTrafienieProcentoweDystans(value: number): void {
+    this.stats.trafienieProcentoweDystans = value;
+  }
+
+  addLaczneObrazeniaWszystkichBroni(value: number): void {
+    this.stats.laczneObrazeniaWszystkichBroni = value;
+  }
+
+  addMinDmg(value: number): void {
+    this.stats.setAllMinDps(value);
+  }
+
+  addMaxDmg(value: number): void {
+    this.stats.setAllMaxDps(value);
+  }
+
+  setLife(life: number): void {
+    this.life = life;
+  }
+
+  setHasZar(hasZar: boolean): void {
+    this.hasZar = hasZar;
+  }
+
+  setZiz4(ziz4: boolean): void {
+    this.ziz4 = ziz4;
+  }
+}
+
+export  class PlayerBuilder {
+  private _lvl: number = 1;
+  private _life: number = 0;
+  private _baseLife: number = 0;
+  private _items?: Item[];
+  private _bonuses?: MultiplicativeBonus[];
+  private _stats?: Stats;
+  private _ziz4: boolean = false;
+  private _hasZar: boolean = false;
+
+  lvl(lvl: number): PlayerBuilder {
+    this._lvl = lvl;
+    return this;
+  }
+
+  life(life: number): PlayerBuilder {
+    this._life = life;
+    return this;
+  }
+
+  baseLife(baseLife: number): PlayerBuilder {
+    this._baseLife = baseLife;
+    return this;
+  }
+
+  items(items: Item[]): PlayerBuilder {
+    this._items = items;
+    return this;
+  }
+
+  bonuses(bonuses: MultiplicativeBonus[]): PlayerBuilder {
+    this._bonuses = bonuses;
+    return this;
+  }
+
+  stats(stats: Stats): PlayerBuilder {
+    this._stats = stats;
+    return this;
+  }
+
+  ziz4(ziz4: boolean): PlayerBuilder {
+    this._ziz4 = ziz4;
+    return this;
+  }
+
+  hasZar(hasZar: boolean): PlayerBuilder {
+    this._hasZar = hasZar;
+    return this;
+  }
+
+  build(): Player {
+    return new Player(
+      this._lvl,
+      this._life,
+      this._baseLife,
+      this._stats,
+      this._items,
+      this._bonuses,
+      this._ziz4,
+      this._hasZar
+    );
+  }
+}
