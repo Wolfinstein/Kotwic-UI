@@ -43,6 +43,7 @@ export const BASE_ITEMS: BaseItemDef[] = [
 { name: 'Kilt',              category: 'legs',     hasPrefix:true,  hasSuffix: true},
 { name: 'Spodnica',          category: 'legs',     hasPrefix:true,  hasSuffix: true},
 { name: 'Amulet',            category: 'neck',     hasPrefix:true,  hasSuffix: true},
+{ name: 'Apaszka',            category: 'neck',     hasPrefix:true,  hasSuffix: true},
 { name: 'Naszyjnik',         category: 'neck',     hasPrefix:true,  hasSuffix: true},
 { name: 'Lancuch',           category: 'neck',     hasPrefix:true,  hasSuffix: true},
 { name: 'Krawat',            category: 'neck',     hasPrefix:true,  hasSuffix: true},
