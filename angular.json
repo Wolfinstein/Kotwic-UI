@@ -30,7 +30,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/Kotwic-UI/",
+              "baseHref": "/",
               "budgets": [
                 {
                   "type": "initial",
