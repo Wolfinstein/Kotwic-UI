@@ -444,6 +444,31 @@ export class StatsBuilder {
     return this;
   }
 
+  atakiPalna(value: number): this {
+    this.stats.atakiPalna = value;
+    return this;
+  }
+
+  mnoznikObrony(value: number): this {
+    this.stats.mnoznikObrony = value;
+    return this;
+  }
+
+  trafienieProcentoweBiala(value: number): this {
+    this.stats.trafienieProcentoweBiala = value;
+    return this;
+  }
+
+  trafienieProcentoweDystans(value: number): this {
+    this.stats.trafienieProcentoweDystans = value;
+    return this;
+  }
+
+  trafienieProcentowePalna(value: number): this {
+    this.stats.trafienieProcentowePalna = value;
+    return this;
+  }
+
   trafienieDystans(value: number): this {
     this.stats.trafienieDystans = value;
     return this;

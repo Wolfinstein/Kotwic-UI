@@ -227,7 +227,7 @@ constructor(
     );
 
     if (!nonWeapon || nonWeapon.length === 0) {
-      console.log('Nie ma itemów');
+    //  console.log('Nie ma itemów');
       return;
     }
 

@@ -197,6 +197,38 @@ export class BaseDictionary {
     bases.push(new Base(ItemRarity.LEGENDARNY_DOSKONALY, Stats.builder().obronaPrzedmiotow(27).build(), ItemGenre.CHEST, ItemType.KAMIZELKA));
     bases.push(new Base(ItemRarity.EPICKI, Stats.builder().obronaPrzedmiotow(34).build(), ItemGenre.CHEST, ItemType.KAMIZELKA));
 
+    bases.push(new Base(ItemRarity.ZWYKLY, Stats.builder().obronaPrzedmiotow(2).zwinnosc(2).build(), ItemGenre.LEGS, ItemType.SZORTY));
+    bases.push(new Base(ItemRarity.DOBRY, Stats.builder().obronaPrzedmiotow(3).zwinnosc(3).build(), ItemGenre.LEGS, ItemType.SZORTY));
+    bases.push(new Base(ItemRarity.DOSKONALY, Stats.builder().obronaPrzedmiotow(4).zwinnosc(4).build(), ItemGenre.LEGS, ItemType.SZORTY));
+    bases.push(new Base(ItemRarity.LEGENDARNY, Stats.builder().obronaPrzedmiotow(3).zwinnosc(3).build(), ItemGenre.LEGS, ItemType.SZORTY));
+    bases.push(new Base(ItemRarity.LEGENDARNY_DOBRY, Stats.builder().obronaPrzedmiotow(5).zwinnosc(5).build(), ItemGenre.LEGS, ItemType.SZORTY));
+    bases.push(new Base(ItemRarity.LEGENDARNY_DOSKONALY, Stats.builder().obronaPrzedmiotow(6).zwinnosc(6).build(), ItemGenre.LEGS, ItemType.SZORTY));
+    bases.push(new Base(ItemRarity.EPICKI, Stats.builder().obronaPrzedmiotow(7).zwinnosc(7).build(), ItemGenre.LEGS, ItemType.SZORTY));
+
+    bases.push(new Base(ItemRarity.ZWYKLY, Stats.builder().obronaPrzedmiotow(5).twardosc(0.01).build(), ItemGenre.LEGS, ItemType.SPODNIE));
+    bases.push(new Base(ItemRarity.DOBRY, Stats.builder().obronaPrzedmiotow(8).twardosc(0.02).build(), ItemGenre.LEGS, ItemType.SPODNIE));
+    bases.push(new Base(ItemRarity.DOSKONALY, Stats.builder().obronaPrzedmiotow(10).twardosc(0.02).build(), ItemGenre.LEGS, ItemType.SPODNIE));
+    bases.push(new Base(ItemRarity.LEGENDARNY, Stats.builder().obronaPrzedmiotow(7).twardosc(0.02).build(), ItemGenre.LEGS, ItemType.SPODNIE));
+    bases.push(new Base(ItemRarity.LEGENDARNY_DOBRY, Stats.builder().obronaPrzedmiotow(11).twardosc(0.03).build(), ItemGenre.LEGS, ItemType.SPODNIE));
+    bases.push(new Base(ItemRarity.LEGENDARNY_DOSKONALY, Stats.builder().obronaPrzedmiotow(14).twardosc(0.03).build(), ItemGenre.LEGS, ItemType.SPODNIE));
+    bases.push(new Base(ItemRarity.EPICKI, Stats.builder().obronaPrzedmiotow(18).twardosc(0.05).build(), ItemGenre.LEGS, ItemType.SPODNIE));
+
+    bases.push(new Base(ItemRarity.ZWYKLY, Stats.builder().obronaPrzedmiotow(1).zwinnosc(-1).wplywy(1).wyglad(2).szczescie(1).build(), ItemGenre.LEGS, ItemType.KILT));
+    bases.push(new Base(ItemRarity.DOBRY, Stats.builder().obronaPrzedmiotow(2).zwinnosc(-1).wplywy(2).wyglad(3).szczescie(2).build(), ItemGenre.LEGS, ItemType.KILT));
+    bases.push(new Base(ItemRarity.DOSKONALY, Stats.builder().obronaPrzedmiotow(2).zwinnosc(-1).wplywy(2).wyglad(4).szczescie(2).build(), ItemGenre.LEGS, ItemType.KILT));
+    bases.push(new Base(ItemRarity.LEGENDARNY, Stats.builder().obronaPrzedmiotow(2).zwinnosc(-1).wplywy(2).wyglad(3).szczescie(2).build(), ItemGenre.LEGS, ItemType.KILT));
+    bases.push(new Base(ItemRarity.LEGENDARNY_DOBRY, Stats.builder().obronaPrzedmiotow(3).zwinnosc(-1).wplywy(3).wyglad(5).szczescie(3).build(), ItemGenre.LEGS, ItemType.KILT));
+    bases.push(new Base(ItemRarity.LEGENDARNY_DOSKONALY, Stats.builder().obronaPrzedmiotow(3).zwinnosc(-1).wplywy(3).wyglad(6).szczescie(3).build(), ItemGenre.LEGS, ItemType.KILT));
+    bases.push(new Base(ItemRarity.EPICKI, Stats.builder().obronaPrzedmiotow(5).zwinnosc(-1).wplywy(5).wyglad(7).szczescie(5).build(), ItemGenre.LEGS, ItemType.KILT));
+
+    bases.push(new Base(ItemRarity.ZWYKLY, Stats.builder().obronaPrzedmiotow(4).zwinnosc(-2).wyglad(3).szczescie(2).build(), ItemGenre.LEGS, ItemType.SPODNICA));
+    bases.push(new Base(ItemRarity.DOBRY, Stats.builder().obronaPrzedmiotow(6).zwinnosc(-2).wyglad(5).szczescie(3).build(), ItemGenre.LEGS, ItemType.SPODNICA));
+    bases.push(new Base(ItemRarity.DOSKONALY, Stats.builder().obronaPrzedmiotow(8).zwinnosc(-2).wyglad(6).szczescie(4).build(), ItemGenre.LEGS, ItemType.SPODNICA));
+    bases.push(new Base(ItemRarity.LEGENDARNY, Stats.builder().obronaPrzedmiotow(6).zwinnosc(-2).wyglad(5).szczescie(3).build(), ItemGenre.LEGS, ItemType.SPODNICA));
+    bases.push(new Base(ItemRarity.LEGENDARNY_DOBRY, Stats.builder().obronaPrzedmiotow(9).zwinnosc(-2).wyglad(7).szczescie(5).build(), ItemGenre.LEGS, ItemType.SPODNICA));
+    bases.push(new Base(ItemRarity.LEGENDARNY_DOSKONALY, Stats.builder().obronaPrzedmiotow(11).zwinnosc(-2).wyglad(9).szczescie(6).build(), ItemGenre.LEGS, ItemType.SPODNICA));
+    bases.push(new Base(ItemRarity.EPICKI, Stats.builder().obronaPrzedmiotow(14).zwinnosc(-2).wyglad(11).szczescie(7).build(), ItemGenre.LEGS, ItemType.SPODNICA));
+
     // CHEST - Gorset
     bases.push(new Base(ItemRarity.ZWYKLY, Stats.builder().obronaPrzedmiotow(3).wplywy(2).wyglad(4).build(), ItemGenre.CHEST, ItemType.GORSET));
     bases.push(new Base(ItemRarity.DOBRY, Stats.builder().obronaPrzedmiotow(5).wplywy(3).wyglad(6).build(), ItemGenre.CHEST, ItemType.GORSET));

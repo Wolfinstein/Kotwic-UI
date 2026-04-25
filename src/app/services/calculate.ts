@@ -27,8 +27,9 @@ providedIn: 'root'
 })
 export class DashboardService {
 
-  calculateStuff(c: Character): DashboardValues {
-      console.log(c)
+
+calculateStuff(c: Character): DashboardValues {
+//      console.log(c)
 
       let player : Player = new PlayerBuilder()
                                 .lvl(c.poziom)
@@ -43,7 +44,7 @@ export class DashboardService {
                                     .inteligencja(c.attributes.inteligencja)
                                     .wiedza(c.attributes.wiedza)
                                     .build())
-//                                .items(this.mapItems(c))
+                                .items(this.mapItems(c))
                                 .build();
 
       this.calculateUmagi(c, player);
@@ -55,33 +56,129 @@ export class DashboardService {
       this.calculateRunyZTalkow(c, player);
       player.resolveNonWeaponItems();
 
+
+      console.log(player);
+
       return {
         punktyZycia: 321123,
         obrona: 321
       };
     }
 
+  private getPrefixTypeByName(name: string): PrefixType {
+    const prefixValues = Object.values(PrefixType);
+    const found = prefixValues.find(v => v === name);
+    if (!found) {
+      throw new Error(`Prefix type not found: ${name}`);
+    }
+    return name as PrefixType;
+  }
 
-//  mapItems(c: Character) : Item[] {
-//    let items : Item[] = []
-//      for (const item of Object.values(c.equipment)) {
-//        let rarity = item.rarity;
-//        let prefix = item.prefix;
-//        let base = item.base;
-//        let suffix = item.suffix;
-//
-//        items.push(
-//          new ItemBuilder()
-//            .setBase(BaseDictionary.getBase(item.base as ItemGenre, item.type as ItemType, item.rarity as ItemRarity, c.poziom))
-//            .setPrefix()
-//            .setSuffix(SuffixDictionary.)
-//            .build()
-//        );
-//      }
-//
-//
-//    return items;
-//  }
+  private getSuffixTypeByName(name: string): SuffixType {
+    const suffixValues = Object.values(SuffixType);
+    const found = suffixValues.find(v => v === name);
+    if (!found) {
+      throw new Error(`Suffix type not found: ${name}`);
+    }
+    return name as SuffixType;
+  }
+
+  private getGenreForItemType(itemType: ItemType): ItemGenre {
+    const legTypes = [ItemType.SZORTY, ItemType.SPODNIE, ItemType.SPODNICA, ItemType.KILT];
+    const chestTypes = [ItemType.KURTKA, ItemType.KAMIZELKA, ItemType.KOLCZUGA, ItemType.ZBROJA_WARSTWOWA, ItemType.KOSZULKA, ItemType.MARYNARKA, ItemType.PELNA_ZBROJA, ItemType.PELERYNA, ItemType.GORSET, ItemType.SMOKING];
+    const headTypes = [ItemType.CZAPKA, ItemType.KASK, ItemType.HELM, ItemType.MASKA, ItemType.OBRECZ, ItemType.KOMINIARKA, ItemType.KAPELUSZ, ItemType.KORONA, ItemType.OPASKA, ItemType.BANDANA];
+    const ringTypes = [ItemType.PIERSCIEN, ItemType.SYGNET, ItemType.BRANSOLETA];
+    const neckTypes = [ItemType.AMULET, ItemType.LANCUCH, ItemType.NASZYJNIK, ItemType.KRAWAT, ItemType.APASZKA];
+    const melee1hTypes = [ItemType.PALKA, ItemType.NOZ, ItemType.SZTYLET, ItemType.RAPIER, ItemType.MIECZ, ItemType.TOPOR, ItemType.KASTET, ItemType.KAMA, ItemType.PIESC_NIEBIOS, ItemType.WAKIZASHI];
+    const melee2hTypes = [ItemType.MACZUGA, ItemType.LOM, ItemType.PIKA, ItemType.TOPOR_DWUREZNY, ItemType.MIECZ_DWUREZNY, ItemType.KOSA, ItemType.KORBACZ, ItemType.HALABARDA, ItemType.KATANA, ItemType.PILA_LANCUCHOWA];
+    const gun1hTypes = [ItemType.GLOCK, ItemType.MAGNUM, ItemType.DESERT_EAGLE, ItemType.BERETTA, ItemType.UZI, ItemType.MP5K, ItemType.SKORPION];
+    const gun2hTypes = [ItemType.KARABIN_MYSLIWSKI, ItemType.STRZELBA, ItemType.AK47, ItemType.MIOTACZ_PLOMIENI, ItemType.FN_FAL, ItemType.POLAUTOMATSNAJPERSKI, ItemType.KARABIN_SNAJPERSKI];
+    const range1hTypes = [ItemType.KROTKI_LUK, ItemType.LUK, ItemType.DLOUGI_LUK, ItemType.OSZCZEP, ItemType.PILUM, ItemType.NOZ_DO_RZUCANIA, ItemType.TOPOREK_DO_RZUCANIA];
+    const range2hTypes = [ItemType.KUSZA, ItemType.SHURIKEN, ItemType.CIEZKA_KUSZA, ItemType.LUK_REFLEKSYJNY];
+
+    if (legTypes.includes(itemType)) return ItemGenre.LEGS;
+    if (chestTypes.includes(itemType)) return ItemGenre.CHEST;
+    if (headTypes.includes(itemType)) return ItemGenre.HEAD;
+    if (ringTypes.includes(itemType)) return ItemGenre.FINGER;
+    if (neckTypes.includes(itemType)) return ItemGenre.NECK;
+    if (melee1hTypes.includes(itemType)) return ItemGenre.WHITE_1H;
+    if (melee2hTypes.includes(itemType)) return ItemGenre.WHITE_2H;
+    if (gun1hTypes.includes(itemType)) return ItemGenre.GUN_1H;
+    if (gun2hTypes.includes(itemType)) return ItemGenre.GUN_2H;
+    if (range1hTypes.includes(itemType)) return ItemGenre.RANGE_1H;
+    if (range2hTypes.includes(itemType)) return ItemGenre.RANGE_2H;
+
+    throw new Error(`Unknown item type: ${itemType}`);
+  }
+
+  private getDictionaryForGenre(genre: ItemGenre): 'weapon' | 'armour' | 'jewel' {
+    const weaponGenres = [ItemGenre.WHITE_1H, ItemGenre.WHITE_2H, ItemGenre.GUN_1H, ItemGenre.GUN_2H, ItemGenre.RANGE_1H, ItemGenre.RANGE_2H];
+    const armourGenres = [ItemGenre.HEAD, ItemGenre.CHEST, ItemGenre.LEGS];
+    const jewelGenres = [ItemGenre.NECK, ItemGenre.FINGER];
+
+    if (weaponGenres.includes(genre)) return 'weapon';
+    if (armourGenres.includes(genre)) return 'armour';
+    if (jewelGenres.includes(genre)) return 'jewel';
+
+    throw new Error(`Unknown genre: ${genre}`);
+  }
+
+  private mapItems(c: Character): Item[] {
+    const items: Item[] = [];
+
+    for (const item of Object.values(c.equipment)) {
+      if (!item || item.rarity === null || !item.base) continue;
+
+      const itemType = item.base as ItemType;
+      const genre = this.getGenreForItemType(itemType);
+      const base = BaseDictionary.getBase(genre, itemType, item.rarity, c.poziom);
+
+      const builder = new ItemBuilder().setBase(base);
+
+      if (item.prefix) {
+        const prefixType = this.getPrefixTypeByName(item.prefix);
+        const dictionaryType = this.getDictionaryForGenre(genre);
+
+        let prefix: Prefix;
+        switch (dictionaryType) {
+          case 'weapon':
+            prefix = WeaponDictionary.getWeaponPrefix(genre, prefixType, item.rarity, c.poziom);
+            break;
+          case 'armour':
+            prefix = ArmourDictionary.getArmourPrefix(genre, prefixType, item.rarity);
+            break;
+          case 'jewel':
+            prefix = JewelsDictionary.getJewelPrefix(genre, prefixType, item.rarity);
+            break;
+        }
+        builder.setPrefix(prefix);
+      }
+
+      if (item.suffix) {
+        const suffixType = this.getSuffixTypeByName(item.suffix);
+        const dictionaryType = this.getDictionaryForGenre(genre);
+
+        let suffix: Suffix;
+        switch (dictionaryType) {
+          case 'weapon':
+            suffix = WeaponDictionary.getWeaponSuffix(genre, suffixType, item.rarity, c.poziom);
+            break;
+          case 'armour':
+            suffix = ArmourDictionary.getArmourSuffix(genre, suffixType, item.rarity, c.poziom);
+            break;
+          case 'jewel':
+            suffix = JewelsDictionary.getJewelSuffix(genre, suffixType, item.rarity);
+            break;
+        }
+        builder.setSuffix(suffix);
+      }
+
+      items.push(builder.build());
+    }
+
+    return items;
+  }
+
 
 
   calculateBlaszki(c: Character, p : Player) : void {
