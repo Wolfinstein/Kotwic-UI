@@ -9,7 +9,8 @@
     "test": "ng test",
     "lint": "ng lint",
     "format": "prettier --write .",
-    "github-build": "ng build --configuration production --base-href 'https://wolfinstein.github.io/KotwicUI/'"
+    "github-build": "ng build --configuration production --base-href 'https://Wolfinstein.github.io/Kotwic-UI/'",
+    "github-deploy": "npx angular-cli-ghpages --dir=dist/KotwicUI/browser --no-silent"
   },
   "private": true,
   "packageManager": "npm@11.12.1",
