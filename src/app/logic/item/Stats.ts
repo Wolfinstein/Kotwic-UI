@@ -331,7 +331,7 @@ export class Stats {
     this.trafienieProcentoweDystans += newStats.trafienieProcentoweDystans;
 
     this.laczneObrazeniaWszystkichBroni += newStats.laczneObrazeniaWszystkichBroni;
-    this.obronaDodatkowa += this.obronaDodatkowa;
+    this.obronaDodatkowa += newStats.obronaDodatkowa;
 
     // Handle armor multiplier if present
     if (newStats.mnoznikObrony !== null && newStats.mnoznikObrony !== undefined) {
