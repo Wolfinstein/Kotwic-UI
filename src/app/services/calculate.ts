@@ -32,7 +32,6 @@ export class DashboardService {
 
 calculateStuff(c: Character): DashboardValues {
       console.log(JSON.parse(JSON.stringify(c))); // ✅ deep snapshot
-
       let player : Player = new PlayerBuilder()
                                 .lvl(c.poziom)
                                 .stats(new StatsBuilder()
@@ -49,13 +48,15 @@ calculateStuff(c: Character): DashboardValues {
                                 .items(this.mapItems(c))
                                 .build();
 
-      this.calculateUmagi(c, player);
       player.baseLife += this.calculateBaseLife(c);
+      this.calculateUmagi(c, player);
       player.doMysliwy(c.mysliwy);
       player.doNinja(c.ninja);
       this.calculateKaplica(c, player);
       this.calculateBlaszki(c, player);
+      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
       this.calculateRunyZTalkow(c, player);
+      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
       player.resolveNonWeaponItems();
       player.resolveSetBonuses();
       this.calculateEwolucje(c, player);
@@ -64,11 +65,38 @@ calculateStuff(c: Character): DashboardValues {
       this.calculateHuntBonuses(c, player);
       this.calculateOneTimeBonus(c, player);
       this.calculateEventBonus(c, player);
+      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
+      this.calculateStrateg(c, player);
+      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
 
       let dashboard : DashboardValues = this.buildDashboardValues(player);
 
       return dashboard;
     }
+
+  calculateStrateg(c : Character, p : Player) : void {
+    const strateg = c.strateg;
+
+    switch (strateg) {
+      case 1:
+        p.addLaczneObrazeniaWszystkichBroni(0.03);
+        break;
+      case 2:
+        p.addLaczneObrazeniaWszystkichBroni(0.06);
+        break;
+      case 3:
+        p.addLaczneObrazeniaWszystkichBroni(0.09);
+        break;
+      case 4:
+        p.addLaczneObrazeniaWszystkichBroni(0.12);
+        break;
+      case 5:
+        p.addLaczneObrazeniaWszystkichBroni(0.15);
+        break;
+      default:
+        console.log("Unknown status");
+    }
+  }
 
   private getPrefixTypeByName(name: string): PrefixType {
     const prefixValues = Object.values(PrefixType);
@@ -230,7 +258,7 @@ calculateStuff(c: Character): DashboardValues {
   calculateBaseLife(c: Character) : number {
         let base = 102;
         let term1 = 4 * (c.poziom - 1);
-        let tenDigit = c.poziom / 10;
+        let tenDigit = Math.floor(c.poziom / 10);
         let term2 = 5 * tenDigit * (tenDigit - 1);
         let oneDigit = c.poziom - 10 * tenDigit;
         let term3 = tenDigit * oneDigit;
@@ -245,6 +273,8 @@ calculateStuff(c: Character): DashboardValues {
     const key = parts[0].toLowerCase();
     const value = parts[1] !== undefined ? parseFloat(parts[1]) : NaN;
 
+    const toDecimal = (num: number | string): number => Number(num) / 100;
+
     switch (key) {
       case 'obrazenia':
         if (parts[1]?.includes('/')) {
@@ -257,7 +287,7 @@ calculateStuff(c: Character): DashboardValues {
         break;
 
       case 'ignore':
-        p.addIgnore(value);
+        p.addIgnore(toDecimal(value));
         break;
 
       case 'dodatkowyatak':
@@ -265,7 +295,7 @@ calculateStuff(c: Character): DashboardValues {
         break;
 
       case 'kryt':
-        p.addAllCrit(value);
+        p.addAllCrit(toDecimal(value));
         break;
 
       case 'trafienie':
@@ -286,7 +316,7 @@ calculateStuff(c: Character): DashboardValues {
         break;
 
       case 'unik':
-        p.addAllUnik(value);
+        p.addAllUnik(toDecimal(value));
         break;
 
       case 'szczescie':
@@ -858,123 +888,124 @@ calculateStuff(c: Character): DashboardValues {
   }
 
     calculateRunyZTalkow(c : Character, p : Player) : void {
-    for (const mod of c.runeValues) {
-    const parts = mod.trim().split(/\s+/);
-    const key = parts[0].toLowerCase();
-    const value = parts[1] !== undefined ? parseFloat(parts[1]) : NaN;
+      for (const mod of c.runeValues) {
+        const parts = mod.trim().split(/\s+/);
+        const key = parts[0].toLowerCase();
+        const value = parts[1] !== undefined ? parseFloat(parts[1]) : NaN;
 
-    switch (key) {
-      case 'obrazenia':
-          p.addLaczneObrazeniaWszystkichBroni(value);
-        break;
+        const toDecimal = (num: number | string): number => Number(num) / 100;
+        switch (key) {
+          case 'obrazenia':
+              p.addLaczneObrazeniaWszystkichBroni(toDecimal(value));
+            break;
 
-      case 'kryt':
-        p.addAllCrit(value);
-        break;
+          case 'kryt':
+            p.addAllCrit(toDecimal(value));
+            break;
 
-      case 'ignore':
-        p.addIgnore(value);
-        break;
+          case 'ignore':
+            p.addIgnore(toDecimal(value));
+            break;
 
-      case 'sila':
-        if(value <= 2){
-          p.addSila(Math.floor(c.poziom / 60));
-        } else if (value == 3){
-          p.addSila(Math.floor(c.poziom / 60) * 2);
-        } else {
-          p.addSila(Math.floor(c.poziom / 60) * 3);
+          case 'sila':
+            if(value <= 2){
+              p.addSila(Math.floor(c.poziom / 60));
+            } else if (value == 3){
+              p.addSila(Math.floor(c.poziom / 60) * 2);
+            } else {
+              p.addSila(Math.floor(c.poziom / 60) * 3);
+            }
+            p.addSila(value);
+            break;
+
+          case 'spostrzegawczosc':
+            if(value <= 2){
+              p.addSpostrzegawczosc(Math.floor(c.poziom / 60));
+            } else if (value == 3){
+              p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 2);
+            } else {
+              p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 3);
+            }
+            p.addSpostrzegawczosc(value);
+            break;
+
+          case 'inteligencja':
+            if(value <= 2){
+              p.addInteligencja(Math.floor(c.poziom / 60));
+            } else if (value == 3){
+              p.addInteligencja(Math.floor(c.poziom / 60) * 2);
+            } else {
+              p.addInteligencja(Math.floor(c.poziom / 60) * 3);
+            }
+            p.addInteligencja(value);
+            break;
+
+          case 'wiedza':
+            if(value <= 2){
+              p.addWiedza(Math.floor(c.poziom / 60));
+            } else if (value == 3){
+              p.addWiedza(Math.floor(c.poziom / 60) * 2);
+            } else {
+              p.addWiedza(Math.floor(c.poziom / 60) * 3);
+            }
+            p.addWiedza(value);
+            break;
+
+          case 'zwinnosc':
+            if(value <= 2){
+              p.addZwinnosc(Math.floor(c.poziom / 60));
+            } else if (value == 3){
+              p.addZwinnosc(Math.floor(c.poziom / 60) * 2);
+            } else {
+              p.addZwinnosc(Math.floor(c.poziom / 60) * 3);
+            }
+            p.addZwinnosc(value);
+            break;
+
+          case 'obrona':
+            p.addObronaDodatkowa(Math.floor(c.poziom / 8) * value);
+            break;
+
+          case 'odpornosc':
+            if(value <= 2){
+              p.addOdpornosc(Math.floor(c.poziom / 60));
+            } else if (value == 3){
+              p.addOdpornosc(Math.floor(c.poziom / 60) * 2);
+            } else {
+              p.addOdpornosc(Math.floor(c.poziom / 60) * 3);
+            }
+            p.addOdpornosc(value);
+            break;
+
+          case 'twardosc':
+            p.addTwardosc(toDecimal(value));
+            break;
+
+          case 'zycie':
+            if(value == 50){
+              p.addLife((Math.floor(c.poziom / 60)) * 50);
+            } else if (value == 100){
+              p.addLife(Math.floor(c.poziom / 60)  * 75);
+            } else if (value == 150) {
+              p.addLife(Math.floor(c.poziom / 60)  * 100);
+            } else {
+              p.addLife(Math.floor(c.poziom / 60)  * 150);
+            }
+            p.addLife(value);
+            break;
+
+          case 'szczescie':
+            p.addSzczescie(value);
+            break;
+
+          case 'multi':
+            p.addCritMulti(toDecimal(value));
+            break;
+
+          default:
+            break;
         }
-        p.addSila(value);
-        break;
-
-      case 'spostrzegawczosc':
-        if(value <= 2){
-          p.addSpostrzegawczosc(Math.floor(c.poziom / 60));
-        } else if (value == 3){
-          p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 2);
-        } else {
-          p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 3);
-        }
-        p.addSpostrzegawczosc(value);
-        break;
-
-      case 'inteligencja':
-        if(value <= 2){
-          p.addInteligencja(Math.floor(c.poziom / 60));
-        } else if (value == 3){
-          p.addInteligencja(Math.floor(c.poziom / 60) * 2);
-        } else {
-          p.addInteligencja(Math.floor(c.poziom / 60) * 3);
-        }
-        p.addInteligencja(value);
-        break;
-
-      case 'wiedza':
-        if(value <= 2){
-          p.addWiedza(Math.floor(c.poziom / 60));
-        } else if (value == 3){
-          p.addWiedza(Math.floor(c.poziom / 60) * 2);
-        } else {
-          p.addWiedza(Math.floor(c.poziom / 60) * 3);
-        }
-        p.addWiedza(value);
-        break;
-
-      case 'zwinnosc':
-        if(value <= 2){
-          p.addZwinnosc(Math.floor(c.poziom / 60));
-        } else if (value == 3){
-          p.addZwinnosc(Math.floor(c.poziom / 60) * 2);
-        } else {
-          p.addZwinnosc(Math.floor(c.poziom / 60) * 3);
-        }
-        p.addZwinnosc(value);
-        break;
-
-      case 'obrona':
-        p.addObronaDodatkowa(Math.floor(c.poziom / 8) * value);
-        break;
-
-      case 'odpornosc':
-        if(value <= 2){
-          p.addOdpornosc(Math.floor(c.poziom / 60));
-        } else if (value == 3){
-          p.addOdpornosc(Math.floor(c.poziom / 60) * 2);
-        } else {
-          p.addOdpornosc(Math.floor(c.poziom / 60) * 3);
-        }
-        p.addOdpornosc(value);
-        break;
-
-      case 'twardosc':
-        p.addTwardosc(value);
-        break;
-
-      case 'zycie':
-        if(value == 50){
-          p.addLife((Math.floor(c.poziom / 60)) * 50);
-        } else if (value == 100){
-          p.addLife(Math.floor(c.poziom / 60)  * 75);
-        } else if (value == 150) {
-          p.addLife(Math.floor(c.poziom / 60)  * 100);
-        } else {
-          p.addLife(Math.floor(c.poziom / 60)  * 150);
-        }
-        p.addLife(value);
-        break;
-
-      case 'szczescie':
-        p.addSzczescie(value);
-        break;
-
-      case 'multi':
-        p.addCritMulti(value);
-        break;
-
-      default:
-        break;
-    }
-    }
+      }
   }
 
   buildDashboardValues(player: Player): DashboardValues {
