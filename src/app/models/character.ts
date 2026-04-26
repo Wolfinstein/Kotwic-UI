@@ -95,8 +95,6 @@ oneTime?: string[];
 export interface Character {
 rasa: string;
 poziom: number;
-zycie: number;
-szczescie: number;
 attributes: Attributes;
 talizmanLevels: TalizmanLevels;
 arcaneLevels: ArcaneLevels;

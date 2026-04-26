@@ -15,7 +15,17 @@ constructor(private dashboardService: DashboardService) {}
 
   updateCharacter(character: Partial<Character>) {
     const current = this.character$.value;
-    this.character$.next({ ...current, ...character });
+    const updated: Character = {
+      ...current,
+      ...character,
+      attributes: { ...current.attributes, ...(character.attributes || {}) },
+      talizmanLevels: { ...current.talizmanLevels, ...(character.talizmanLevels || {}) },
+      arcaneLevels: { ...current.arcaneLevels, ...(character.arcaneLevels || {}) },
+      evolutions: { ...current.evolutions, ...(character.evolutions || {}) },
+      bonusValues: { ...current.bonusValues, ...(character.bonusValues || {}) },
+      equipment: { ...current.equipment, ...(character.equipment || {}) }
+    };
+    this.character$.next(updated);
   }
 
   updateAttributes(attributes: Partial<Attributes>) {
@@ -54,8 +64,6 @@ constructor(private dashboardService: DashboardService) {}
     return {
       rasa: '',
       poziom: 0,
-      zycie: 0,
-      szczescie: 0,
       blaszkaZaMoba: false,
       blaszkaZaKronosa: false,
       blaszkaZaHastura: false,

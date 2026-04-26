@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CharacterService } from '../../services/character.service';
@@ -251,7 +251,7 @@ bonusValues: { [key: string]: string[] } = {
 hunt: [], daily: [], oneTime: []
 };
 
-constructor(private characterService: CharacterService) {}
+constructor(private characterService: CharacterService, private ngZone: NgZone, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.characterService.getCharacter$().subscribe(char => {
@@ -475,7 +475,30 @@ constructor(private characterService: CharacterService) {}
       reader.onload = (event: any) => {
         try {
           const imported = JSON.parse(event.target.result);
-          this.characterService.updateCharacter(imported);
+          console.log('Imported character:', imported);
+
+          this.ngZone.run(() => {
+            // Update service which will emit new value
+            this.characterService.updateCharacter(imported);
+
+            // Sync component properties from imported character
+            if (imported?.bonusValues) {
+              this.bonusValues = imported.bonusValues;
+            }
+            if (imported?.runeValues) {
+              this.selectedRunes = imported.runeValues;
+            }
+            if (imported?.umagiValues) {
+              this.selectedUmagi = imported.umagiValues;
+            }
+            if (imported?.equipment?.weaponMode) {
+              this.weaponMode = imported.equipment.weaponMode;
+            }
+
+            // Force change detection immediately
+            this.cdr.detectChanges();
+            console.log('Character after import:', this.character);
+          });
         } catch (error) {
           console.error('Error importing character:', error);
         }
