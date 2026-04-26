@@ -22,7 +22,6 @@ constructor(private dashboardService: DashboardService) {}
       talizmanLevels: { ...current.talizmanLevels, ...(character.talizmanLevels || {}) },
       arcaneLevels: { ...current.arcaneLevels, ...(character.arcaneLevels || {}) },
       evolutions: { ...current.evolutions, ...(character.evolutions || {}) },
-      bonusValues: { ...current.bonusValues, ...(character.bonusValues || {}) },
       equipment: { ...current.equipment, ...(character.equipment || {}) }
     };
     this.character$.next(updated);
@@ -134,11 +133,9 @@ constructor(private dashboardService: DashboardService) {}
       ninja : 0,
       strateg : 0,
       kaplica : 0,
-      bonusValues:{
-      hunt: [],
-      daily: [],
-      oneTime: []
-      },
+      huntBonuses: [],
+      eventBonus: '',
+      oneTimeBonus: '',
       runeValues: [],
       umagiValues: [],
       equipment: {}

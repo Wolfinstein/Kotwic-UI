@@ -247,17 +247,19 @@ expandedBonuses: { [key: string]: boolean } = {
 silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false
 };
 
-bonusValues: { [key: string]: string[] } = {
-hunt: [], daily: [], oneTime: []
-};
+selectedHuntBonuses: string[] = [];
+selectedEventBonus: string | null = null;
+selectedOneTimeBonus: string | null = null;
 
 constructor(private characterService: CharacterService, private ngZone: NgZone, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.characterService.getCharacter$().subscribe(char => {
       this.character = char;
-      if (char?.bonusValues) {
-        this.bonusValues = { ...this.bonusValues, ...char.bonusValues };
+      if (char) {
+        this.selectedHuntBonuses = [...(char.huntBonuses || [])];
+        this.selectedEventBonus = char.eventBonus || null;
+        this.selectedOneTimeBonus = char.oneTimeBonus || null;
       }
       if (char?.runeValues) {
         this.selectedRunes = [...char.runeValues];
@@ -477,12 +479,22 @@ constructor(private characterService: CharacterService, private ngZone: NgZone, 
           const imported = JSON.parse(event.target.result);
 
           this.ngZone.run(() => {
+            // Migrate old bonusValues format to new properties if needed
+            if (imported?.bonusValues && !imported?.huntBonuses) {
+              imported.huntBonuses = imported.bonusValues.hunt || [];
+              imported.eventBonus = imported.bonusValues.daily || null;
+              imported.oneTimeBonus = imported.bonusValues.oneTime || null;
+              delete imported.bonusValues;
+            }
+
             // Update service which will emit new value
             this.characterService.updateCharacter(imported);
 
             // Sync component properties from imported character
-            if (imported?.bonusValues) {
-              this.bonusValues = imported.bonusValues;
+            if (imported) {
+              this.selectedHuntBonuses = imported.huntBonuses || [];
+              this.selectedEventBonus = imported.eventBonus || null;
+              this.selectedOneTimeBonus = imported.oneTimeBonus || null;
             }
             if (imported?.runeValues) {
               this.selectedRunes = imported.runeValues;
@@ -522,22 +534,36 @@ constructor(private characterService: CharacterService, private ngZone: NgZone, 
     this.expandedBonuses[bonusType] = !this.expandedBonuses[bonusType];
   }
 
-  toggleBonusSelection(bonusType: string, bonus: string, isOneTime = false) {
-    const selected = this.bonusValues[bonusType];
-    const index    = selected.indexOf(bonus);
-    if (isOneTime) {
-      this.bonusValues[bonusType] = index >= 0 ? [] : [bonus];
-    } else {
-      if (index >= 0) selected.splice(index, 1);
-      else selected.push(bonus);
+  toggleBonusSelection(bonusType: string, bonus: string, isSingleSelect = false) {
+    if (bonusType === 'hunt') {
+      const index = this.selectedHuntBonuses.indexOf(bonus);
+      if (index >= 0) this.selectedHuntBonuses.splice(index, 1);
+      else this.selectedHuntBonuses.push(bonus);
+    } else if (bonusType === 'daily') {
+      this.selectedEventBonus = this.selectedEventBonus === bonus ? null : bonus;
+    } else if (bonusType === 'oneTime') {
+      this.selectedOneTimeBonus = this.selectedOneTimeBonus === bonus ? null : bonus;
     }
+
     if (this.character) {
-      this.characterService.updateCharacter({ ...this.character, bonusValues: { ...this.bonusValues } });
+      this.characterService.updateCharacter({
+        ...this.character,
+        huntBonuses: this.selectedHuntBonuses,
+        eventBonus: this.selectedEventBonus,
+        oneTimeBonus: this.selectedOneTimeBonus
+      });
     }
   }
 
   isBonusSelected(bonusType: string, bonus: string): boolean {
-    return this.bonusValues[bonusType].includes(bonus);
+    if (bonusType === 'hunt') {
+      return this.selectedHuntBonuses.includes(bonus);
+    } else if (bonusType === 'daily') {
+      return this.selectedEventBonus === bonus;
+    } else if (bonusType === 'oneTime') {
+      return this.selectedOneTimeBonus === bonus;
+    }
+    return false;
   }
 
   // ─── Runes ──────────────────────────────────────────────────────────────────

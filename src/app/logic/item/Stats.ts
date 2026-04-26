@@ -120,6 +120,11 @@ export class Stats {
     this.maxDpsBiala1h += dps;
   }
 
+    setRegeneration(regen: number): void {
+    this.regen += regen;
+  }
+
+
   /**
    * Set DPS for all two-handed weapons
    */
@@ -167,6 +172,12 @@ export class Stats {
     this.critChancePalna2h += crit;
     this.critChanceBiala1h += crit;
     this.critChanceBiala2h += crit;
+  }
+
+
+  setCritChancePalna(crit: number): void {
+    this.critChancePalna1h += crit;
+    this.critChancePalna2h += crit;
   }
 
   /**
@@ -232,6 +243,10 @@ export class Stats {
    */
   setAdditionalIni(value: number): void {
     this.additionalIni += value;
+  }
+
+  setPunktyKrwi(value: number): void {
+    this.punktyKrwi += value;
   }
 
   /**

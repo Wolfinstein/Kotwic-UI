@@ -62,6 +62,8 @@ calculateStuff(c: Character): DashboardValues {
       this.calculateRasa(c, player);
       this.calculateTalizmanyAndArkany(c, player);
       this.calculateHuntBonuses(c, player);
+      this.calculateOneTimeBonus(c, player);
+      this.calculateEventBonus(c, player);
 
       let dashboard : DashboardValues = this.buildDashboardValues(player);
 
@@ -412,11 +414,11 @@ calculateStuff(c: Character): DashboardValues {
   }
 
   calculateHuntBonuses(c: Character, p: Player): void {
-    if (!c.bonusValues?.hunt || c.bonusValues.hunt.length === 0) {
+    if (!Array.isArray(c.huntBonuses) || c.huntBonuses.length === 0) {
       return;
     }
 
-    for (const bonus of c.bonusValues.hunt) {
+    for (const bonus of c.huntBonuses) {
       switch (bonus.toLowerCase()) {
         case 'Juggernaut':
           p.addTwardosc(1);
@@ -437,6 +439,421 @@ calculateStuff(c: Character): DashboardValues {
           p.addCritMultiBiala2h(1);
           break;
       }
+    }
+  }
+
+  calculateOneTimeBonus(c: Character, p: Player): void {
+    if (!c.oneTimeBonus) {
+      return;
+    }
+
+    const bonus = c.oneTimeBonus.toLowerCase();
+
+    switch (bonus) {
+      case 'krew wilka':
+        p.addSila(3);
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(2);
+        p.addWiedza(-2);
+        break;
+
+      case 'jabłko żelaznego drzewa':
+        p.addOdpornosc(3);
+        p.life += Math.floor(p.baseLife * 1.07);
+        break;
+
+      case 'płetwa rekina':
+        p.addMinDmg(2);
+        p.addMaxDmg(3);
+        p.addCharyzma(-2);
+        break;
+
+      case 'eliksir zmysłów':
+        p.addSila(-1);
+        p.addCharyzma(2);
+        p.addWyglad(-2);
+        p.addSpostrzegawczosc(4);
+        p.addZwinnosc(-2);
+        p.addOdpornosc(-2);
+        p.addInteligencja(1);
+        p.addWiedza(1);
+        break;
+
+      case 'święcona woda':
+        p.addOdpornosc(4);
+        p.addZwinnosc(-1);
+        break;
+
+      case 'łza feniksa':
+        p.addWplywy(-2);
+        p.addRegeneration(15);
+        break;
+
+      case 'magiczna pieczęć':
+        p.addSila(2);
+        p.addCharyzma(-2);
+        p.addWplywy(-2);
+        p.addOdpornosc(2);
+        p.addSzczescie(4);
+        break;
+
+      case 'serce nietoperza':
+        p.addMinDmg(-2);
+        p.addMaxDmg(-2);
+        p.addObronaDodatkowa(14);
+        break;
+
+      case 'kwiat lotosu':
+        p.addCharyzma(-6);
+        p.addWplywy(-5);
+        p.addWyglad(6);
+        p.addSzczescie(7);
+        break;
+
+      case 'jad wielkopchły':
+        p.addMaxDmg(7);
+        p.addSpostrzegawczosc(-1);
+        p.addZwinnosc(-1);
+        p.addOdpornosc(-5);
+        break;
+
+      case 'serum oświecenia':
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(-2);
+        p.addInteligencja(4);
+        p.addWiedza(6);
+        break;
+
+      case 'wywar z czarnego kota':
+        p.addSzczescie(10);
+        break;
+
+      case 'węgiel':
+        p.addCharyzma(-2);
+        p.addWplywy(6);
+        break;
+
+      case 'sierść kreta':
+        p.addCharyzma(2);
+        break;
+
+      case 'saletra':
+        p.addSpostrzegawczosc(-1);
+        p.addZwinnosc(-1);
+        p.addAllCrit(0.04);
+        break;
+
+      case 'sok z żuka':
+        p.addIgnore(0.03);
+        p.addCritChancePalna(-0.10);
+        break;
+
+      case 'esencja młodości':
+        p.addSila(4);
+        p.addSpostrzegawczosc(-4);
+        p.addZwinnosc(2);
+        p.addWiedza(-3);
+        break;
+
+      case 'paznokieć trolla':
+        p.addZwinnosc(-2);
+        p.addOdpornosc(4);
+        p.addInteligencja(-1);
+        p.life += Math.floor(p.baseLife * 1.10);
+        break;
+
+      case 'wilcza jagoda':
+        p.addMinDmg(4);
+        p.addMaxDmg(4);
+        p.addCharyzma(-4);
+        break;
+
+      case 'oko kota':
+        p.addSila(-2);
+        p.addCharyzma(2);
+        p.addWyglad(-3);
+        p.addSpostrzegawczosc(6);
+        p.addZwinnosc(-3);
+        p.addOdpornosc(-4);
+        p.addInteligencja(2);
+        p.addWiedza(2);
+        break;
+
+      case 'absynt':
+        p.addOdpornosc(6);
+        p.addZwinnosc(-2);
+        break;
+
+      case 'łuski salamandry':
+        p.addWplywy(-4);
+        p.addRegeneration(80);
+        break;
+
+      case 'woda źródlana':
+        p.addSila(2);
+        p.addCharyzma(-3);
+        p.addWplywy(-3);
+        p.addOdpornosc(2);
+        p.addSzczescie(7);
+        break;
+
+      case 'kość męczennika':
+        p.addMinDmg(-5);
+        p.addMaxDmg(-5);
+        p.addObronaDodatkowa(27);
+        break;
+
+      case 'napój miłosny':
+        p.addCharyzma(-10);
+        p.addWplywy(-8);
+        p.addWyglad(8);
+        p.addSzczescie(10);
+        break;
+
+      case 'jad skorpiona':
+        p.addMaxDmg(10);
+        p.addSila(-1);
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(-2);
+        p.addOdpornosc(-8);
+        break;
+
+      case 'korzeń mandragory':
+        p.addSpostrzegawczosc(-4);
+        p.addZwinnosc(-4);
+        p.addInteligencja(6);
+        p.addWiedza(6);
+        break;
+
+      case 'gwiezdny pył':
+        p.addSzczescie(15);
+        break;
+
+      case 'fiolka kwasu':
+        p.addCharyzma(-4);
+        p.addWplywy(8);
+        break;
+
+      case 'siarka':
+        p.addCharyzma(4);
+        break;
+
+      case 'czarny diament':
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(-2);
+        p.addAllCrit(0.07);
+        break;
+
+      case 'oko topielca':
+        p.addIgnore(0.06);
+        p.addCritChancePalna(-0.15);
+        break;
+
+      case 'boska łza':
+        p.addSila(6);
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(4);
+        break;
+
+      case 'ząb ghula':
+        p.addOdpornosc(8);
+        p.addZwinnosc(-3);
+        p.addInteligencja(-4);
+        p.life += Math.floor(p.baseLife * 0.14);
+        break;
+
+      case 'wywar z koralowca':
+        p.addMinDmg(5);
+        p.addMaxDmg(7);
+        p.addCharyzma(-8);
+        break;
+
+      case 'serce proroka':
+        p.addSpostrzegawczosc(10);
+        p.addCharyzma(4);
+        p.addWiedza(4);
+        p.addSila(-4);
+        p.addZwinnosc(-6);
+        p.addWyglad(-6);
+        break;
+
+      case 'pazur bazyliszka':
+        p.addOdpornosc(14);
+        p.addZwinnosc(-4);
+        break;
+
+      case 'łuski demona':
+        p.addWplywy(4);
+        p.addOdpornosc(-4);
+        p.addRegeneration(140);
+        break;
+
+      case 'skrzydła chrząszcza':
+        p.addSila(4);
+        p.addOdpornosc(4);
+        p.addCharyzma(-5);
+        p.addWplywy(-5);
+        p.addSzczescie(10);
+        break;
+
+      case 'maska gargulca':
+        p.addMinDmg(-6);
+        p.addMaxDmg(-6);
+        p.addObronaDodatkowa(60);
+        break;
+
+      case 'sok z modliszki':
+        p.addWyglad(14);
+        p.addSzczescie(14);
+        p.addCharyzma(-10);
+        p.addWplywy(-6);
+        break;
+
+      case 'oddech smoka':
+        p.addMaxDmg(17);
+        p.addSila(-2);
+        p.addZwinnosc(-2);
+        p.addOdpornosc(-6);
+        p.addSpostrzegawczosc(-2);
+        break;
+
+      case 'ząb wiedźmy':
+        p.addInteligencja(7);
+        p.addWiedza(8);
+        p.addSpostrzegawczosc(-2);
+        p.addZwinnosc(-2);
+        break;
+
+      case 'grimoire':
+        p.addSzczescie(20);
+        break;
+
+      case 'czarna żółć':
+        p.addWplywy(14);
+        p.addCharyzma(-6);
+        break;
+
+      case 'palec kowala':
+        p.addCharyzma(10);
+        break;
+
+      case 'kwiat bzu':
+        p.addZwinnosc(-3);
+        p.addSpostrzegawczosc(-3);
+        p.addAllCrit(0.10);
+        break;
+
+      case 'ogień z serca ziemi':
+        p.addIgnore(0.10);
+        p.addCritChancePalna(-0.25);
+        break;
+    }
+  }
+
+  calculateEventBonus(c: Character, p: Player): void {
+    if (!c.eventBonus) {
+      return;
+    }
+
+    const bonus = c.eventBonus.toLowerCase();
+
+    switch (bonus) {
+      case 'klątwa bogów':
+      //  p.addMinDmg(); /// TODO fill
+        break;
+
+      case 'noc długich noży':
+        p.addCritMulti(1.20);
+        break;
+
+      case 'noc starych bogów':
+        p.addRedukcjaObrazen(0.20);
+        break;
+
+      case 'noc poszukiwaczy':
+        p.addSzczescie(50);
+        break;
+
+      case 'dzień poszukiwaczy':
+        p.addSzczescie(100);
+        break;
+
+      case 'dzień vlada':
+      //  p.addPunktyKrwi(1); /// TODO fill
+        break;
+
+      case 'dzień gwiazd północy':
+        p.addAllAtaki(2);
+        break;
+
+      case 'świąteczna wizja kaina':
+        p.addSzczescie(50);
+        break;
+
+      case 'świąteczna wizja kaina (deluxe)':
+        p.addSzczescie(50);
+        break;
+
+      case 'potrójna wizja kaina':
+        p.addSzczescie(50);
+        break;
+
+      case 'pożeracz serc':
+        const luckFromAppearance = Math.floor(p.stats.wyglad / 2);
+        p.addSzczescie(luckFromAppearance);
+        break;
+
+      case 'potęga hormonów':
+        p.addLaczneObrazeniaWszystkichBroni(c.poziom);
+        break;
+
+      case 'dzień neandertalczyka':
+        p.addLaczneObrazeniaWszystkichBroni(c.poziom);
+        break;
+
+      case 'pisanki kaina':
+        p.addSzczescie(50);
+        break;
+
+      case 'may the 4th be with you':
+        p.addCritMulti(1.0);
+        break;
+
+      case 'dzień przemiany':
+        p.addLife(700);
+        break;
+
+      case 'więzy krwi':
+        p.addSzczescie(100);
+        break;
+
+      case 'krew z krwi':
+        p.addSzczescie(50);
+        break;
+
+      case 'wszyscy jesteśmy francuzami':
+        p.addSzczescie(100);
+        break;
+
+      case 'pierwszy gol':
+        p.addSzczescie(20);
+        break;
+
+      case 'pierwszy serwis':
+        p.addSzczescie(20);
+        break;
+
+      case 'szczęście sprzyja lepszym':
+        p.addSzczescie(30);
+        break;
+
+      case 'tylko dla orłów':
+        p.addSzczescie(40);
+        break;
+
+      case 'zwycięzca jest tylko jeden':
+        p.addSzczescie(50);
+        break;
     }
   }
 

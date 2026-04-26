@@ -373,6 +373,14 @@ constructor(
     this.stats.setAllCritChance(value);
   }
 
+  addCritChancePalna(value: number): void {
+    this.stats.setCritChancePalna(value);
+  }
+
+  addPunktyKrwi(value: number): void {
+    this.stats.setPunktyKrwi(value);
+  }
+
   addAllTrafienie(value: number): void {
     this.stats.setAllTrafienie(value);
   }
@@ -523,6 +531,10 @@ constructor(
 
   addMaxDmg(value: number): void {
     this.stats.setAllMaxDps(value);
+  }
+
+  addRegeneration(value: number): void {
+    this.stats.setRegeneration(value);
   }
 
   setLife(life: number): void {

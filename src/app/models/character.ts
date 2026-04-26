@@ -86,19 +86,15 @@ weapon2?: EquipmentItem;
 weaponMode?: 'dual1h' | '2h';
 }
 
-export interface BonusValues{
-hunt?: string[];
-daily?: string[];
-oneTime?: string[];
-}
-
 export interface Character {
 rasa: string;
 poziom: number;
 attributes: Attributes;
 talizmanLevels: TalizmanLevels;
 arcaneLevels: ArcaneLevels;
-bonusValues: BonusValues;
+huntBonuses: string[];
+eventBonus: string | null;
+oneTimeBonus: string | null;
 equipment: EquipmentSlot;
 runeValues: string[];
 umagiValues: string[];

@@ -269,7 +269,7 @@
             <label *ngFor="let bonus of dailyBonuses" class="bonus-item">
               <input type="radio"
                      name="dailyBonus"
-                     [checked]="isBonusSelected('daily', bonus)"
+                     [checked]="selectedEventBonus === bonus"
                      (change)="toggleBonusSelection('daily', bonus, true)"/>
               {{ bonus }}
             </label>
@@ -284,7 +284,7 @@
             <label *ngFor="let bonus of oneTimeBonuses" class="bonus-item">
               <input type="radio"
                      name="oneTimeBonus"
-                     [checked]="isBonusSelected('oneTime', bonus)"
+                     [checked]="selectedOneTimeBonus === bonus"
                      (change)="toggleBonusSelection('oneTime', bonus, true)"/>
               {{ bonus }}
             </label>
