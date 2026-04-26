@@ -48,14 +48,17 @@ calculateStuff(c: Character): DashboardValues {
                                 .build();
 
       this.calculateUmagi(c, player);
-      player.baseLife = this.calculateBaseLife(c);
+      player.baseLife += this.calculateBaseLife(c);
       player.doMysliwy(c.mysliwy);
       player.doNinja(c.ninja);
       this.calculateKaplica(c, player);
       this.calculateBlaszki(c, player);
       this.calculateRunyZTalkow(c, player);
+      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
       player.resolveNonWeaponItems();
+      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
       player.resolveSetBonuses();
+      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
       this.calculateEwolucje(c, player);
       this.calculateRasa(c, player);
       this.calculateTalizmanyAndArkany(c, player);
@@ -273,7 +276,7 @@ calculateStuff(c: Character): DashboardValues {
       case 'obrona':
         if (parts[1]?.includes('/')) {
           const [num, den] = parts[1].split('/').map(Number);
-          p.addObronaDodatkowa(Math.floor(num / den * c.poziom));
+          p.addObronaDodatkowa((Math.floor(num / den) * c.poziom));
         } else {
           p.addObronaDodatkowa(value);
         }
@@ -460,71 +463,71 @@ calculateStuff(c: Character): DashboardValues {
         break;
 
       case 'sila':
-        if(value <=2){
+        if(value <= 2){
           p.addSila(Math.floor(c.poziom / 60));
         } else if (value == 3){
-          p.addSila(Math.floor((c.poziom / 60) * 2));
+          p.addSila(Math.floor(c.poziom / 60) * 2);
         } else {
-          p.addSila(Math.floor((c.poziom / 60) * 3));
+          p.addSila(Math.floor(c.poziom / 60) * 3);
         }
         p.addSila(value);
         break;
 
       case 'spostrzegawczosc':
-        if(value <=2){
+        if(value <= 2){
           p.addSpostrzegawczosc(Math.floor(c.poziom / 60));
         } else if (value == 3){
-          p.addSpostrzegawczosc(Math.floor((c.poziom / 60) * 2));
+          p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 2);
         } else {
-          p.addSpostrzegawczosc(Math.floor((c.poziom / 60) * 3));
+          p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 3);
         }
         p.addSpostrzegawczosc(value);
         break;
 
       case 'inteligencja':
-        if(value <=2){
+        if(value <= 2){
           p.addInteligencja(Math.floor(c.poziom / 60));
         } else if (value == 3){
-          p.addInteligencja(Math.floor((c.poziom / 60) * 2));
+          p.addInteligencja(Math.floor(c.poziom / 60) * 2);
         } else {
-          p.addInteligencja(Math.floor((c.poziom / 60) * 3));
+          p.addInteligencja(Math.floor(c.poziom / 60) * 3);
         }
         p.addInteligencja(value);
         break;
 
       case 'wiedza':
-        if(value <=2){
+        if(value <= 2){
           p.addWiedza(Math.floor(c.poziom / 60));
         } else if (value == 3){
-          p.addWiedza(Math.floor((c.poziom / 60) * 2));
+          p.addWiedza(Math.floor(c.poziom / 60) * 2);
         } else {
-          p.addWiedza(Math.floor((c.poziom / 60) * 3));
+          p.addWiedza(Math.floor(c.poziom / 60) * 3);
         }
         p.addWiedza(value);
         break;
 
       case 'zwinnosc':
-        if(value <=2){
+        if(value <= 2){
           p.addZwinnosc(Math.floor(c.poziom / 60));
         } else if (value == 3){
-          p.addZwinnosc(Math.floor((c.poziom / 60) * 2));
+          p.addZwinnosc(Math.floor(c.poziom / 60) * 2);
         } else {
-          p.addZwinnosc(Math.floor((c.poziom / 60) * 3));
+          p.addZwinnosc(Math.floor(c.poziom / 60) * 3);
         }
         p.addZwinnosc(value);
         break;
 
       case 'obrona':
-        p.addObronaDodatkowa(Math.floor((c.poziom / 8) * value));
+        p.addObronaDodatkowa(Math.floor(c.poziom / 8) * value);
         break;
 
       case 'odpornosc':
-        if(value <=2){
+        if(value <= 2){
           p.addOdpornosc(Math.floor(c.poziom / 60));
         } else if (value == 3){
-          p.addOdpornosc(Math.floor((c.poziom / 60) * 2));
+          p.addOdpornosc(Math.floor(c.poziom / 60) * 2);
         } else {
-          p.addOdpornosc(Math.floor((c.poziom / 60) * 3));
+          p.addOdpornosc(Math.floor(c.poziom / 60) * 3);
         }
         p.addOdpornosc(value);
         break;
@@ -534,14 +537,14 @@ calculateStuff(c: Character): DashboardValues {
         break;
 
       case 'zycie':
-        if(value == 1){
-          p.addLife(Math.floor(c.poziom / 60) * 50);
-        } else if (value == 2){
-          p.addLife(Math.floor((c.poziom / 60) * 2) * 75);
-        } else if (value == 3) {
-          p.addLife(Math.floor((c.poziom / 60) * 3) * 100);
+        if(value == 50){
+          p.addLife((Math.floor(c.poziom / 60)) * 50);
+        } else if (value == 100){
+          p.addLife(Math.floor(c.poziom / 60)  * 75);
+        } else if (value == 150) {
+          p.addLife(Math.floor(c.poziom / 60)  * 100);
         } else {
-          p.addLife(Math.floor((c.poziom / 60) * 3) * 150);
+          p.addLife(Math.floor(c.poziom / 60)  * 150);
         }
         p.addLife(value);
         break;

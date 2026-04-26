@@ -277,9 +277,9 @@ static getArmourSet(type: SetType, rarity: ItemRarity, playerLvl: number): Set {
     sets.push(new Set(SetType.SPACZONY, ItemRarity.ZWYKLY, Stats.builder().charyzma(10).wplywy(10).zwinnosc(10).trafienieBiala(-30).build()));
     sets.push(new Set(SetType.SPACZONY, ItemRarity.DOBRY, Stats.builder().charyzma(12).wplywy(12).zwinnosc(12).trafienieBiala(-30).build()));
     sets.push(new Set(SetType.SPACZONY, ItemRarity.DOSKONALY, Stats.builder().charyzma(14).wplywy(14).zwinnosc(14).trafienieBiala(-30).build()));
-    sets.push(new Set(SetType.SPACZONY, ItemRarity.LEGENDARNY, Stats.builder().charyzma(10).wplywy(12).zwinnosc(10).trafienieBiala(-30).critMultiDystans2h(0.30).critMultiDystans1h(0.30).build()));
-    sets.push(new Set(SetType.SPACZONY, ItemRarity.LEGENDARNY_DOBRY, Stats.builder().charyzma(12).wplywy(15).zwinnosc(12).trafienieBiala(-30).spostrzegawczosc(5).critMultiDystans2h(0.60).critMultiDystans1h(0.60).build()));
-    sets.push(new Set(SetType.SPACZONY, ItemRarity.LEGENDARNY_DOSKONALY, Stats.builder().charyzma(14).wplywy(18).zwinnosc(14).trafienieBiala(-30).spostrzegawczosc(8).critMultiDystans2h(1.20).critMultiDystans1h(1.20).build()));
+    sets.push(new Set(SetType.SPACZONY, ItemRarity.LEGENDARNY, Stats.builder().charyzma(10).wplywy(12).zwinnosc(10).spostrzegawczosc(5).trafienieBiala(-30).critMultiDystans2h(0.30).critMultiDystans1h(0.30).build()));
+    sets.push(new Set(SetType.SPACZONY, ItemRarity.LEGENDARNY_DOBRY, Stats.builder().charyzma(12).wplywy(15).zwinnosc(12).trafienieBiala(-30).spostrzegawczosc(8).critMultiDystans2h(0.60).critMultiDystans1h(0.60).build()));
+    sets.push(new Set(SetType.SPACZONY, ItemRarity.LEGENDARNY_DOSKONALY, Stats.builder().charyzma(14).wplywy(18).zwinnosc(14).trafienieBiala(-30).spostrzegawczosc(10).critMultiDystans2h(1.20).critMultiDystans1h(1.20).build()));
     sets.push(new Set(SetType.SPACZONY, ItemRarity.EPICKI, Stats.builder().charyzma(20).wplywy(25).zwinnosc(20).trafienieBiala(-30).spostrzegawczosc(15).critMultiDystans2h(1.50).critMultiDystans1h(1.50).critChanceDystans(0.30).critChancePalna2h(0.30).critChancePalna1h(0.30).critChanceBiala2h(0.30).critChanceBiala1h(0.30).build()));
 
     // Zdradziecki

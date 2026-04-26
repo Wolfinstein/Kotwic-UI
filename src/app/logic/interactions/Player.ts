@@ -235,7 +235,6 @@ constructor(
     }
 
     let itemStats = this.stats;
-
     for (const a of nonWeapon) {
       const temp = new Stats();
       if (a.base) temp.addStats(a.base.stats);
