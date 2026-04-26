@@ -618,6 +618,34 @@ calculateStuff(c: Character): DashboardValues {
     }
   }
 
+  private constructWeaponName(weapon: Item): string {
+    const parts: string[] = [];
+
+    if (weapon.base?.rarity) {
+      parts.push(weapon.base.rarity);
+    }
+
+    if (weapon.prefix) {
+      const prefix = weapon.prefix as Prefix;
+      if (prefix.prefixType) {
+        parts.push(prefix.prefixType);
+      }
+    }
+
+    if (weapon.base?.type) {
+      parts.push(weapon.base.type);
+    }
+
+    if (weapon.suffix) {
+      const suffix = weapon.suffix as Suffix;
+      if (suffix.suffixType) {
+        parts.push(suffix.suffixType);
+      }
+    }
+
+    return parts.join(' ');
+  }
+
   private calculateWeaponDamage(weapon: Item, player: Player): WeaponDamage | null {
     try {
       const genre = weapon.base?.genre;
@@ -706,7 +734,7 @@ calculateStuff(c: Character): DashboardValues {
       const obrazeniaNaRundeAvg = Math.floor(critChance * ataki * avgCritDmg + (1 - critChance) * ataki * avgDmg);
 
       return {
-        name: '123',
+        name: this.constructWeaponName(weapon),
         minDmg: Math.floor(minDps),
         maxDmg: Math.floor(maxDps),
         iloscAtakow: ataki,
