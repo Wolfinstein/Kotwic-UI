@@ -239,7 +239,7 @@ arcaneAttributes = [
 { key: 'groza',               label: 'Groza',              type: 'boolean' },
 ];
 
-huntBonuses    = ['Juggernaut', 'Ronin', 'Adrenalina', 'Sokole oko', 'Rzeźnik'];
+huntBonuses    = ['Juggernaut', 'Ronin', 'Adrenalina', 'SokoleOko', 'Rzenik'];
 dailyBonuses   = ['Klątwa Bogów','Noc Długich Noży','Noc Starych Bogów','Noc poszukiwaczy','Dzień poszukiwaczy','Dzień Vlada','Dzień Gwiazd Północy','Świąteczna wizja Kaina','Świąteczna Wizja Kaina (deluxe)','Potrójna wizja Kaina','Pożeracz serc','Potęga hormonów','Dzień neandertalczyka','Pisanki Kaina','May the 4th be with you','Dzień Przemiany','Dzień poszukiwaczy','Świąteczna wizja Kaina (deluxe)','Więzy krwi','Krew z krwi','Wszyscy jesteśmy Francuzami','Pierwszy gol','Pierwszy serwis','szczescie Sprzyja Lepszym','Tylko Dla Orłów','Zwycięzca Jest Tylko Jeden'];
 oneTimeBonuses = ['Krew wilka','Jabłko żelaznego drzewa','Płetwa rekina','Eliksir zmysłów','Święcona woda','Łza feniksa','Magiczna pieczęć','Serce nietoperza','Kwiat lotosu','Jad Wielkopchły','Serum oświecenia','Wywar z czarnego kota','Węgiel','Sierść kreta','Saletra','Sok z żuka','Esencja młodości','Paznokieć trolla','Wilcza jagoda','Oko kota','Absynt','Łuski salamandry','Woda źródlana','Kość męczennika','Napój miłosny','Jad skorpiona','Korzeń mandragory','Gwiezdny pył','Fiolka kwasu','Siarka','Czarny diament','Oko topielca','Boska łza','Ząb ghula','Wywar z koralowca','Serce proroka','Pazur bazyliszka','Łuski demona','Skrzydła chrząszcza','Maska gargulca','Sok z modliszki','Oddech smoka','Ząb wiedźmy','Grimoire','Czarna żółć','Palec kowala','Kwiat bzu','Ogień z serca ziemi'];
 

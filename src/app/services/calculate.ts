@@ -7,7 +7,9 @@ import {JewelsDictionary} from '../logic/dictionaries/JewelsDictionary';
 import {SetsDictionary} from '../logic/dictionaries/SetsDictionary';
 import {WeaponDictionary} from '../logic/dictionaries/WeaponDictionary';
 
-import {Player, PlayerBuilder } from '../logic/interactions/Player';
+import {Player, PlayerBuilder, PlayerRasa} from '../logic/interactions/Player';
+import {Evolution} from '../logic/interactions/Evolution';
+import {TalismanyAndArkany} from '../logic/interactions/TalismanyAndArkany';
 
 import {Affix} from '../logic/item/Affix';
 import {Base} from '../logic/item/Base';
@@ -56,6 +58,10 @@ calculateStuff(c: Character): DashboardValues {
       this.calculateRunyZTalkow(c, player);
       player.resolveNonWeaponItems();
       player.resolveSetBonuses();
+      this.calculateEwolucje(c, player);
+      this.calculateRasa(c, player);
+      this.calculateTalizmanyAndArkany(c, player);
+      this.calculateHuntBonuses(c, player);
 
       console.log(player);
 
@@ -332,6 +338,113 @@ calculateStuff(c: Character): DashboardValues {
         break;
     }
   }
+  }
+
+  calculateEwolucje(c: Character, p: Player): void {
+    try {
+      const evolution = Evolution.builder()
+        .skrzylda(c.evolutions?.skrzydla ?? 0)
+        .pancerz(c.evolutions?.pancerz ?? 0)
+        .klyPauzryKolce(c.evolutions?.klyPazuryKolce ?? 0)
+        .gruczolyJadowe(c.evolutions?.gruczolyJadowe ?? 0)
+        .wzmocnioneSciegna(c.evolutions?.wzmocnioneSciegna ?? 0)
+        .krewDemona(c.evolutions?.krewDemona ?? 0)
+        .mutacjaDna(c.evolutions?.mutacjaDna ?? 0)
+        .oswiecony(c.evolutions?.oswiecony ?? 0)
+        .szostyZmysl(c.evolutions?.szostyZmysl ?? 0)
+        .absorpcja(c.evolutions?.absorpcja ?? 0)
+        .harmonijnyRozwoj(c.evolutions?.harmonijnyRozwo ?? 0)
+        .pietnoDemona(c.evolutions?.pietnoDemona ?? 0)
+        .wzmocnioneMiesnie(c.evolutions?.wzmocnioneMiesnie ?? 0)
+        .build();
+
+      evolution.calculate(p);
+    } catch (error) {
+    }
+  }
+
+  calculateRasa(c: Character, p: Player): void {
+    if (!c.rasa) {
+      return;
+    }
+
+    const rasa = this.getRasaFromString(c.rasa);
+    if (rasa) {
+      p.doRasa(rasa);
+    }
+  }
+
+  private getRasaFromString(rasaStr: string): PlayerRasa | null {
+    const rasaValue = Object.values(PlayerRasa).find((r) => r === rasaStr);
+    return rasaValue ? (rasaValue as PlayerRasa) : null;
+  }
+
+  calculateTalizmanyAndArkany(c: Character, p: Player): void {
+    try {
+      const talizmanyArkany = TalismanyAndArkany.builder()
+        .aMajestat(c.arcaneLevels?.majestat ?? 0)
+        .aMaskaOff(c.arcaneLevels?.maskaAdnisa ?? 0)
+        .aMaskaDef(c.arcaneLevels?.maskaKaliguli ?? 0)
+        .aKrewZycia(c.arcaneLevels?.krewZycia ?? 0)
+        .aKocieSciezki(c.arcaneLevels?.kocieSciezki ?? 0)
+        .aZar(c.arcaneLevels?.zarKrwi ? 1 : 0)
+        .aCisza(c.arcaneLevels?.ciszaKrwi ?? 0)
+        .aWyssanie(c.arcaneLevels?.wyssanieMocy ?? 0)
+        .aMocKrwi(c.arcaneLevels?.mocKrwi ?? 0)
+        .aSkora(c.arcaneLevels?.skoraBestii ?? 0)
+        .aDziki(c.arcaneLevels?.dzikiSzal ?? 0)
+        .aCienBestii(c.arcaneLevels?.cienBestii ? 1 : 0)
+        .aNocny(c.arcaneLevels?.nocnyLowca ?? 0)
+        .aTchnienie(c.arcaneLevels?.tchnienieSmierci ?? 0)
+        .ambicja(c.talizmanLevels?.ambicja ?? 0)
+        .behemot(c.talizmanLevels?.behemot ?? 0)
+        .ziz(p.ziz4 ? 1 : 0)
+        .kamienSpota(c.talizmanLevels?.kamienDobra ?? 0)
+        .kamienZwinki(c.talizmanLevels?.kamienZla ?? 0)
+        .szpony(c.talizmanLevels?.spaonNocy ?? 0)
+        .zycieSmierc(c.talizmanLevels?.zycieISmierc ?? 0)
+        .otchlan(c.talizmanLevels?.otchlaniCiszy ?? 0)
+        .potega(c.talizmanLevels?.potegaMocy ?? 0)
+        .aura(c.talizmanLevels?.auraBestii ?? 0)
+        .maskaStrachu(c.talizmanLevels?.maskaStachu ?? 0)
+        .maskaWladzy(c.talizmanLevels?.maskaWladzy ?? 0)
+        .lowca(c.talizmanLevels?.cichyLowca ?? 0)
+        .piesnKrwi(c.talizmanLevels?.piesnKrwi ?? 0)
+        .build();
+
+      talizmanyArkany.calculateTalisman(p);
+      talizmanyArkany.calculateArakny(p);
+    } catch (error) {
+    }
+  }
+
+  calculateHuntBonuses(c: Character, p: Player): void {
+    if (!c.bonusValues?.hunt || c.bonusValues.hunt.length === 0) {
+      return;
+    }
+
+    for (const bonus of c.bonusValues.hunt) {
+      switch (bonus.toLowerCase()) {
+        case 'Juggernaut':
+          p.addTwardosc(1);
+          break;
+        case 'Ronin':
+          p.addIgnore(0.75);
+          break;
+        case 'Adrenalina':
+          p.baseLife = p.baseLife * 1.25;
+          break;
+        case 'SokoleOko':
+          p.addTrafienieProcentowePalna(0.2);
+          p.addTrafienieProcentoweBiala(0.2);
+          p.addTrafienieProcentoweDystans(0.2);
+          break;
+        case 'Rzeznik':
+          p.addCritMultiBiala1h(0.5);
+          p.addCritMultiBiala2h(1);
+          break;
+      }
+    }
   }
 
     calculateRunyZTalkow(c : Character, p : Player) : void {
