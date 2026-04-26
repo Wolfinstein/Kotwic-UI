@@ -176,8 +176,8 @@ attributes = [
 { key: 'zwinnosc',          label: 'Zwinnosc' },
 { key: 'odpornosc',         label: 'Odpornosc' },
 { key: 'wyglad',            label: 'Wyglad' },
-{ key: 'charyzma',          label: 'charyzma' },
-{ key: 'wplyw',             label: 'Wplyw' },
+{ key: 'charyzma',          label: 'Charyzma' },
+{ key: 'wplywy',             label: 'Wplywy' },
 { key: 'spostrzegawczosc',  label: 'Spostrzegawczosc' },
 { key: 'inteligencja',      label: 'inteligencja' },
 { key: 'wiedza',            label: 'wiedza' },
@@ -475,7 +475,6 @@ constructor(private characterService: CharacterService, private ngZone: NgZone, 
       reader.onload = (event: any) => {
         try {
           const imported = JSON.parse(event.target.result);
-          console.log('Imported character:', imported);
 
           this.ngZone.run(() => {
             // Update service which will emit new value
@@ -497,7 +496,6 @@ constructor(private characterService: CharacterService, private ngZone: NgZone, 
 
             // Force change detection immediately
             this.cdr.detectChanges();
-            console.log('Character after import:', this.character);
           });
         } catch (error) {
           console.error('Error importing character:', error);

@@ -63,7 +63,6 @@ calculateStuff(c: Character): DashboardValues {
 
       this.buildDashboardValues(player);
 
-      console.log(player);
       return this.buildDashboardValues(player);
     }
 
@@ -233,7 +232,7 @@ calculateStuff(c: Character): DashboardValues {
         let term3 = tenDigit * oneDigit;
         let term4 = 10 * tenDigit * (tenDigit + 1) / 2;
 
-        return base + term1 + term2 + term3 + term4;
+        return Math.floor(base + term1 + term2 + term3 + term4);
   }
 
   calculateUmagi(c : Character, p : Player) : void {
