@@ -13,10 +13,10 @@ export enum ItemType {
   KURTKA = 'Kurtka',
   KAMIZELKA = 'Kamizelka',
   KOLCZUGA = 'Kolczuga',
-  ZBROJA_WARSTWOWA = 'ZbrojaWarstwowa',
+  ZBROJAWARSTWOWA = 'ZbrojaWarstwowa',
   KOSZULKA = 'Koszulka',
   MARYNARKA = 'Marynarka',
-  PELNA_ZBROJA = 'PelnaZbroja',
+  PELNAZBROJA = 'PelnaZbroja',
   PELERYNA = 'Peleryna',
   GORSET = 'Gorset',
   SMOKING = 'Smoking',
@@ -54,20 +54,20 @@ export enum ItemType {
   TOPOR = 'Topor',
   KASTET = 'Kastet',
   KAMA = 'Kama',
-  PIESC_NIEBIOS = 'PiescNiebios',
+  PIESCNIEBIOS = 'PiescNiebios',
   WAKIZASHI = 'Wakizashi',
 
   // 2-hand melee
   MACZUGA = 'Maczuga',
   LOM = 'Lom',
   PIKA = 'Pika',
-  TOPOR_DWUREZNY = 'ToporDwureczny',
-  MIECZ_DWUREZNY = 'MieczDwureczny',
+  TOPORDWURECZNY = 'ToporDwureczny',
+  MIECZDWURECZNY = 'MieczDwureczny',
   KOSA = 'Kosa',
   KORBACZ = 'Korbacz',
   HALABARDA = 'Halabarda',
   KATANA = 'Katana',
-  PILA_LANCUCHOWA = 'PilaLancuchowa',
+  PILALANCUCHOWA = 'PilaLancuchowa',
 
   // 1-hand guns
   GLOCK = 'Glock',
@@ -79,26 +79,26 @@ export enum ItemType {
   SKORPION = 'Skorpion',
 
   // 2-hand guns
-  KARABIN_MYSLIWSKI = 'KarabinMysliwski',
+  KARABINMYSLIWSKI = 'KarabinMysliwski',
   STRZELBA = 'Strzelba',
   AK47 = 'AK47',
-  MIOTACZ_PLOMIENI = 'MiotaczPlomieni',
+  MIOTACZPLOMIENI = 'MiotaczPlomieni',
   FN_FAL = 'FnFal',
   POLAUTOMATSNAJPERSKI = 'PolautomatSnajperski',
-  KARABIN_SNAJPERSKI = 'KarabinSnajperski',
+  KARABINSNAJPERSKI = 'KarabinSnajperski',
 
   // Ranged 1-hand
-  KROTKI_LUK = 'KrotkiLuk',
+  KROTKILUK = 'KrotkiLuk',
   LUK = 'Luk',
-  DLOUGI_LUK = 'DlugiLuk',
+  DLUGILUK = 'DlugiLuk',
   OSZCZEP = 'Oszczep',
   PILUM = 'Pilum',
-  NOZ_DO_RZUCANIA = 'NozDoRzucania',
-  TOPOREK_DO_RZUCANIA = 'ToporekDoRzucania',
+  NOZDORZUCANIA = 'NozDoRzucania',
+  TOPOREKDORZUCANIA = 'ToporekDoRzucania',
 
   // Ranged 2-hand
   KUSZA = 'Kusza',
   SHURIKEN = 'Shuriken',
-  CIEZKA_KUSZA = 'CiezkaKusza',
-  LUK_REFLEKSYJNY = 'LukRefleksyjny'
+  CIEZKAKUSZA = 'CiezkaKusza',
+  LUKREFLEKSYJNY = 'LukRefleksyjny'
 }

@@ -55,7 +55,7 @@ calculateStuff(c: Character): DashboardValues {
       this.calculateBlaszki(c, player);
       this.calculateRunyZTalkow(c, player);
       player.resolveNonWeaponItems();
-
+      player.resolveSetBonuses();
 
       console.log(player);
 
@@ -85,16 +85,16 @@ calculateStuff(c: Character): DashboardValues {
 
   private getGenreForItemType(itemType: ItemType): ItemGenre {
     const legTypes = [ItemType.SZORTY, ItemType.SPODNIE, ItemType.SPODNICA, ItemType.KILT];
-    const chestTypes = [ItemType.KURTKA, ItemType.KAMIZELKA, ItemType.KOLCZUGA, ItemType.ZBROJA_WARSTWOWA, ItemType.KOSZULKA, ItemType.MARYNARKA, ItemType.PELNA_ZBROJA, ItemType.PELERYNA, ItemType.GORSET, ItemType.SMOKING];
+    const chestTypes = [ItemType.KURTKA, ItemType.KAMIZELKA, ItemType.KOLCZUGA, ItemType.ZBROJAWARSTWOWA, ItemType.KOSZULKA, ItemType.MARYNARKA, ItemType.PELNAZBROJA, ItemType.PELERYNA, ItemType.GORSET, ItemType.SMOKING];
     const headTypes = [ItemType.CZAPKA, ItemType.KASK, ItemType.HELM, ItemType.MASKA, ItemType.OBRECZ, ItemType.KOMINIARKA, ItemType.KAPELUSZ, ItemType.KORONA, ItemType.OPASKA, ItemType.BANDANA];
     const ringTypes = [ItemType.PIERSCIEN, ItemType.SYGNET, ItemType.BRANSOLETA];
     const neckTypes = [ItemType.AMULET, ItemType.LANCUCH, ItemType.NASZYJNIK, ItemType.KRAWAT, ItemType.APASZKA];
-    const melee1hTypes = [ItemType.PALKA, ItemType.NOZ, ItemType.SZTYLET, ItemType.RAPIER, ItemType.MIECZ, ItemType.TOPOR, ItemType.KASTET, ItemType.KAMA, ItemType.PIESC_NIEBIOS, ItemType.WAKIZASHI];
-    const melee2hTypes = [ItemType.MACZUGA, ItemType.LOM, ItemType.PIKA, ItemType.TOPOR_DWUREZNY, ItemType.MIECZ_DWUREZNY, ItemType.KOSA, ItemType.KORBACZ, ItemType.HALABARDA, ItemType.KATANA, ItemType.PILA_LANCUCHOWA];
+    const melee1hTypes = [ItemType.PALKA, ItemType.NOZ, ItemType.SZTYLET, ItemType.RAPIER, ItemType.MIECZ, ItemType.TOPOR, ItemType.KASTET, ItemType.KAMA, ItemType.PIESCNIEBIOS, ItemType.WAKIZASHI];
+    const melee2hTypes = [ItemType.MACZUGA, ItemType.LOM, ItemType.PIKA, ItemType.TOPORDWURECZNY, ItemType.MIECZDWURECZNY, ItemType.KOSA, ItemType.KORBACZ, ItemType.HALABARDA, ItemType.KATANA, ItemType.PILALANCUCHOWA];
     const gun1hTypes = [ItemType.GLOCK, ItemType.MAGNUM, ItemType.DESERT_EAGLE, ItemType.BERETTA, ItemType.UZI, ItemType.MP5K, ItemType.SKORPION];
-    const gun2hTypes = [ItemType.KARABIN_MYSLIWSKI, ItemType.STRZELBA, ItemType.AK47, ItemType.MIOTACZ_PLOMIENI, ItemType.FN_FAL, ItemType.POLAUTOMATSNAJPERSKI, ItemType.KARABIN_SNAJPERSKI];
-    const range1hTypes = [ItemType.KROTKI_LUK, ItemType.LUK, ItemType.DLOUGI_LUK, ItemType.OSZCZEP, ItemType.PILUM, ItemType.NOZ_DO_RZUCANIA, ItemType.TOPOREK_DO_RZUCANIA];
-    const range2hTypes = [ItemType.KUSZA, ItemType.SHURIKEN, ItemType.CIEZKA_KUSZA, ItemType.LUK_REFLEKSYJNY];
+    const gun2hTypes = [ItemType.KARABINMYSLIWSKI, ItemType.STRZELBA, ItemType.AK47, ItemType.MIOTACZPLOMIENI, ItemType.FN_FAL, ItemType.POLAUTOMATSNAJPERSKI, ItemType.KARABINSNAJPERSKI];
+    const range1hTypes = [ItemType.KROTKILUK, ItemType.LUK, ItemType.DLUGILUK, ItemType.OSZCZEP, ItemType.PILUM, ItemType.NOZDORZUCANIA, ItemType.TOPOREKDORZUCANIA];
+    const range2hTypes = [ItemType.KUSZA, ItemType.SHURIKEN, ItemType.CIEZKAKUSZA, ItemType.LUKREFLEKSYJNY];
 
     if (legTypes.includes(itemType)) return ItemGenre.LEGS;
     if (chestTypes.includes(itemType)) return ItemGenre.CHEST;
@@ -145,8 +145,12 @@ calculateStuff(c: Character): DashboardValues {
             prefix = WeaponDictionary.getWeaponPrefix(genre, prefixType, item.rarity, c.poziom);
             break;
           case 'armour':
-            prefix = ArmourDictionary.getArmourPrefix(genre, prefixType, item.rarity);
-            break;
+            if(genre == 'legs'){
+              prefix = ArmourDictionary.getLegsPrefix(genre, item.base, prefixType, item.rarity);
+            } else {
+              prefix = ArmourDictionary.getArmourPrefix(genre, prefixType, item.rarity);
+              }
+          break;
           case 'jewel':
             prefix = JewelsDictionary.getJewelPrefix(genre, prefixType, item.rarity);
             break;

@@ -1,6 +1,9 @@
-import { Item, Stats } from '../item';
+import { Item, Stats, SetType } from '../item';
 import { MultiplicativeBonus, MultiplicativeBonusType } from './MultiplicativeBonus';
 import { ItemGenre } from '../item/constants/itemGenre';
+import { SetsDictionary } from '../dictionaries/SetsDictionary';
+import { PrefixType } from '../item/constants/affixType';
+import { Prefix } from '../item/Prefix';
 
 export enum PlayerRasa {
   LM = 'LM',
@@ -246,6 +249,109 @@ constructor(
     }
 
     this.stats = itemStats;
+  }
+
+  resolveSetBonuses(): void {
+    const itemsWithPrefix = this.items.filter((item) => item.prefix);
+
+    if (!itemsWithPrefix || itemsWithPrefix.length < 3) {
+      return;
+    }
+
+    const armorGenres = [ItemGenre.HEAD, ItemGenre.CHEST, ItemGenre.LEGS];
+    const jewelryGenres = [ItemGenre.NECK, ItemGenre.FINGER];
+
+    this.applySetBonusForGroup(
+      itemsWithPrefix.filter((item) => armorGenres.includes(item.prefix!.genre)),
+      (type, rarity) => SetsDictionary.getArmourSet(type, rarity, this.lvl)
+    );
+
+    this.applySetBonusForGroup(
+      itemsWithPrefix.filter((item) => jewelryGenres.includes(item.prefix!.genre)),
+      (type, rarity) => SetsDictionary.getJewelerSet(type, rarity, this.lvl)
+    );
+  }
+
+  private applySetBonusForGroup(
+    groupItems: Item[],
+    getSetFn: (type: SetType, rarity: any) => any
+  ): void {
+    if (groupItems.length < 3) {
+      return;
+    }
+
+    const prefixTypeMap = new Map<string, Item[]>();
+
+    for (const item of groupItems) {
+      if (!(item.prefix instanceof Prefix)) continue;
+      const prefixType = (item.prefix as Prefix).prefixType;
+      if (!prefixType) continue;
+
+      const key = prefixType;
+      if (!prefixTypeMap.has(key)) {
+        prefixTypeMap.set(key, []);
+      }
+      prefixTypeMap.get(key)!.push(item);
+    }
+
+    const rarityHierarchy = [
+      'ZWYKLY',
+      'DOBRY',
+      'DOSKONALY',
+      'LEGENDARNY',
+      'LEGENDARNY_DOBRY',
+      'LEGENDARNY_DOSKONALY',
+      'EPICKI'
+    ];
+
+    for (const [prefixType, items] of prefixTypeMap.entries()) {
+      if (items.length < 3) {
+        continue;
+      }
+
+      const setType = this.getSetTypeFromPrefixType(prefixType as PrefixType);
+      if (!setType) {
+        continue;
+      }
+
+      let minRarity = items[0].base?.rarity;
+      for (const item of items) {
+        const itemRarity = item.base?.rarity;
+        if (!itemRarity || !minRarity) continue;
+
+        const minIndex = rarityHierarchy.indexOf(minRarity as string);
+        const itemIndex = rarityHierarchy.indexOf(itemRarity as string);
+
+        if (itemIndex < minIndex) {
+          minRarity = itemRarity;
+        }
+      }
+
+      try {
+        const set = getSetFn(setType, minRarity);
+        if (set) {
+          this.stats.addStats(set.stats);
+
+          if (set.bonusList && set.bonusList.length > 0) {
+            for (const bonus of set.bonusList) {
+              this.addBonus(bonus as MultiplicativeBonus);
+            }
+          }
+        }
+      } catch (error) {
+      }
+    }
+  }
+
+  private getSetTypeFromPrefixType(prefixType: PrefixType): SetType | null {
+    const setTypeEntries = Object.entries(SetType);
+    const prefixTypeStr = prefixType as string;
+    for (const [, setTypeValue] of setTypeEntries) {
+      if ((setTypeValue as string) === prefixTypeStr) {
+        return setTypeValue as SetType;
+      }
+    }
+    return null;
   }
 
   addAllCrit(value: number): void {
