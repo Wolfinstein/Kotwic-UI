@@ -57,7 +57,7 @@
   <div class="combat-section" *ngIf="dashboardValues?.obrazenia?.length">
     <h3>Obrażenia</h3>
     <div class="combat-row" *ngFor="let weapon of dashboardValues?.obrazenia; let i = index">
-      <h4>Broń {{ i + 1 }}</h4>
+      <h4>Broń {{ i + 1 }}: {{ weapon.name}}</h4>
       <div class="combat-box">
         <div class="damage-display">
           <div class="damage-range">{{ weapon.minDmg }} – {{ weapon.maxDmg }}</div>

@@ -106,25 +106,25 @@ constructor(
     }
   }
 
-  doRasa(rasa: PlayerRasa): void {
+  doRasa(rasa: string): void {
     switch (rasa) {
-      case PlayerRasa.LM:
+      case 'LapaczMysli':
         this.stats.setAllUnik(0.10);
         this.stats.szczescie += 10;
         break;
-      case PlayerRasa.SSAK:
+      case 'Ssak':
         this.life += this.baseLife * 0.1;
         this.stats.setAllDps(5);
         break;
-      case PlayerRasa.WZ:
+      case 'WladcaZwierzat':
         this.life += this.baseLife * 0.2;
         this.stats.ignoreObrony += 0.10;
         this.stats.trafienieBiala += 20;
         break;
-      case PlayerRasa.POTEP:
+      case 'Potepiony':
         this.stats.setAllTrafienie(30);
         break;
-      case PlayerRasa.KULTEK:
+      case 'Kultysta':
         this.stats.szczescie += 5;
         this.stats.setAllCritChance(0.05);
         break;
@@ -242,6 +242,22 @@ constructor(
       if (a.suffix) temp.addStats(a.suffix.stats);
       itemStats.addStats(temp);
     }
+
+    if (this.stats.isObronaZero) {
+      itemStats.obronaPrzedmiotow = 0;
+    }
+
+    this.stats = itemStats;
+  }
+
+    resolveWeaponItem(a : Item): void {
+
+    let itemStats = this.stats;
+      const temp = new Stats();
+      if (a.base) temp.addStats(a.base.stats);
+      if (a.prefix) temp.addStats(a.prefix.stats);
+      if (a.suffix) temp.addStats(a.suffix.stats);
+      itemStats.addStats(temp);
 
     if (this.stats.isObronaZero) {
       itemStats.obronaPrzedmiotow = 0;

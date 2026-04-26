@@ -127,7 +127,7 @@ export class Evolution {
       const redukcja = this.pancerz === 15 ? 0.03 : this.pancerz === 10 ? 0.02 : 0.01;
       player.addRedukcjaObrazen(redukcja);
       const lifePct = this.pancerzLifePct(this.pancerz);
-      player.life += lifePct * player.baseLife;
+      player.life += Math.floor(lifePct * player.baseLife);
     }
   }
 

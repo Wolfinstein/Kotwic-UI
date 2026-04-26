@@ -54,17 +54,17 @@ calculateStuff(c: Character): DashboardValues {
       this.calculateKaplica(c, player);
       this.calculateBlaszki(c, player);
       this.calculateRunyZTalkow(c, player);
-      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
       player.resolveNonWeaponItems();
-      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
       player.resolveSetBonuses();
-      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
       this.calculateEwolucje(c, player);
       this.calculateRasa(c, player);
       this.calculateTalizmanyAndArkany(c, player);
       this.calculateHuntBonuses(c, player);
 
-      return this.buildDashboardValues(player);
+      let dashboard : DashboardValues = this.buildDashboardValues(player);
+      console.log(JSON.parse(JSON.stringify(dashboard))); // ✅ deep snapshot
+
+      return dashboard;
     }
 
   private getPrefixTypeByName(name: string): PrefixType {
@@ -363,11 +363,7 @@ calculateStuff(c: Character): DashboardValues {
     if (!c.rasa) {
       return;
     }
-
-    const rasa = this.getRasaFromString(c.rasa);
-    if (rasa) {
-      p.doRasa(rasa);
-    }
+      p.doRasa(c.rasa);
   }
 
   private getRasaFromString(rasaStr: string): PlayerRasa | null {
@@ -625,29 +621,20 @@ calculateStuff(c: Character): DashboardValues {
   private calculateWeaponDamage(weapon: Item, player: Player): WeaponDamage | null {
     try {
       const genre = weapon.base?.genre;
-      if (!genre) return null;
 
-      let minDps = weapon.base!.stats.minDpsBiala1h || 0;
-      let maxDps = weapon.base!.stats.maxDpsBiala1h || 0;
+      let minDps = 0;
+      let maxDps = 0;
       let ataki = 0;
       let trafienie = 0;
       let critChance = 0;
       let critMulti = 1;
 
-      // Add weapon affixes stats
-      if (weapon.prefix) {
-        minDps += weapon.prefix.stats?.minDpsBiala1h || 0;
-        maxDps += weapon.prefix.stats?.maxDpsBiala1h || 0;
-      }
-      if (weapon.suffix) {
-        minDps += weapon.suffix.stats?.minDpsBiala1h || 0;
-        maxDps += weapon.suffix.stats?.maxDpsBiala1h || 0;
-      }
+      player.resolveWeaponItem(weapon);
 
       // Calculate based on weapon genre
       if (genre === ItemGenre.WHITE_2H) {
-        minDps = weapon.base!.stats.minDpsBiala2h + (weapon.prefix?.stats?.minDpsBiala2h || 0) + (weapon.suffix?.stats?.maxDpsBiala2h || 0);
-        maxDps = weapon.base!.stats.maxDpsBiala2h + (weapon.prefix?.stats?.maxDpsBiala2h || 0) + (weapon.suffix?.stats?.maxDpsBiala2h || 0);
+        minDps = player.stats.minDpsBiala2h;
+        maxDps = player.stats.maxDpsBiala2h;
         minDps += player.stats.sila;
         maxDps += player.stats.sila;
         ataki = player.stats.atakiBiala;
@@ -656,8 +643,8 @@ calculateStuff(c: Character): DashboardValues {
         critChance = player.stats.critChanceBiala2h;
         critMulti = player.stats.critMultiBiala2h + 4;
       } else if (genre === ItemGenre.WHITE_1H) {
-        minDps = weapon.base!.stats.minDpsBiala1h + (weapon.prefix?.stats?.minDpsBiala1h || 0) + (weapon.suffix?.stats?.minDpsBiala1h || 0);
-        maxDps = weapon.base!.stats.maxDpsBiala1h + (weapon.prefix?.stats?.maxDpsBiala1h || 0) + (weapon.suffix?.stats?.maxDpsBiala1h || 0);
+        minDps = player.stats.minDpsBiala1h;
+        maxDps = player.stats.maxDpsBiala1h;
         minDps += player.stats.sila;
         maxDps += player.stats.sila;
         ataki = player.stats.atakiBiala;
@@ -666,8 +653,8 @@ calculateStuff(c: Character): DashboardValues {
         critChance = player.stats.critChanceBiala1h;
         critMulti = player.stats.critMultiBiala1h + 2;
       } else if (genre === ItemGenre.GUN_1H) {
-        minDps = weapon.base!.stats.minDpsPalna1h + (weapon.prefix?.stats?.minDpsPalna1h || 0) + (weapon.suffix?.stats?.minDpsPalna1h || 0);
-        maxDps = weapon.base!.stats.maxDpsPalna1h + (weapon.prefix?.stats?.maxDpsPalna1h || 0) + (weapon.suffix?.stats?.maxDpsPalna1h || 0);
+        minDps = player.stats.minDpsPalna1h;
+        maxDps = player.stats.maxDpsPalna1h;
         minDps += Math.floor(player.stats.wiedza / 3);
         maxDps += Math.floor(player.stats.wiedza / 3);
         ataki = player.stats.atakiPalna;
@@ -676,8 +663,8 @@ calculateStuff(c: Character): DashboardValues {
         critChance = player.stats.critChancePalna1h;
         critMulti = player.stats.critMultiPalna1h + 1.5;
       } else if (genre === ItemGenre.GUN_2H) {
-        minDps = weapon.base!.stats.minDpsPalna2h + (weapon.prefix?.stats?.minDpsPalna2h || 0) + (weapon.suffix?.stats?.minDpsPalna2h || 0);
-        maxDps = weapon.base!.stats.maxDpsPalna2h + (weapon.prefix?.stats?.maxDpsPalna2h || 0) + (weapon.suffix?.stats?.maxDpsPalna2h || 0);
+        minDps = player.stats.minDpsPalna2h;
+        maxDps = player.stats.maxDpsPalna2h;
         minDps += Math.floor(player.stats.wiedza / 3);
         maxDps += Math.floor(player.stats.wiedza / 3);
         ataki = player.stats.atakiPalna;
@@ -686,8 +673,8 @@ calculateStuff(c: Character): DashboardValues {
         critChance = player.stats.critChancePalna2h;
         critMulti = player.stats.critMultiPalna2h + 2.0;
       } else if (genre === ItemGenre.RANGE_1H) {
-        minDps = weapon.base!.stats.minDpsDystans1h + (weapon.suffix?.stats?.minDpsDystans1h || 0);
-        maxDps = weapon.base!.stats.maxDpsDystans1h + (weapon.suffix?.stats?.maxDpsDystans1h || 0);
+        minDps = player.stats.minDpsDystans1h;
+        maxDps = player.stats.maxDpsDystans1h;
         minDps += Math.floor(player.stats.sila / 4);
         maxDps += Math.floor(player.stats.sila / 4);
         ataki = player.stats.atakiDystans1h;
@@ -696,8 +683,8 @@ calculateStuff(c: Character): DashboardValues {
         critChance = player.stats.critChanceDystans;
         critMulti = player.stats.critMultiDystans1h + 3.5;
       } else if (genre === ItemGenre.RANGE_2H) {
-        minDps = weapon.base!.stats.minDpsDystans2h + (weapon.suffix?.stats?.minDpsDystans2h || 0);
-        maxDps = weapon.base!.stats.maxDpsDystans2h + (weapon.suffix?.stats?.maxDpsDystans2h || 0);
+        minDps = player.stats.minDpsDystans2h;
+        maxDps = player.stats.maxDpsDystans2h;
         minDps += Math.floor(player.stats.sila / 2);
         maxDps += Math.floor(player.stats.sila / 2);
         ataki = player.stats.atakiDystans2h;
@@ -719,6 +706,7 @@ calculateStuff(c: Character): DashboardValues {
       const obrazeniaNaRundeAvg = Math.floor(critChance * ataki * avgCritDmg + (1 - critChance) * ataki * avgDmg);
 
       return {
+        name: '123',
         minDmg: Math.floor(minDps),
         maxDmg: Math.floor(maxDps),
         iloscAtakow: ataki,

@@ -113,6 +113,7 @@ kaplica: number;
 }
 
 export interface WeaponDamage{
+name : string;
 minDmg: number;
 maxDmg: number;
 iloscAtakow: number;

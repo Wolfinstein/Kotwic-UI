@@ -197,7 +197,7 @@ evolutions = [
 { key: 'absorpcja',               label: 'Absorpcja' },
 { key: 'harmonijnyRozwo',         label: 'Harmonijny rozwoj' },
 { key: 'pietnoDemona',            label: 'Pietno demona' },
-{ key: 'wzmocnioneMiesnie',        label: 'Wzmocnione sciegna' },
+{ key: 'wzmocnioneMiesnie',        label: 'Wzmocnione miesnie' },
 
 ];
 
