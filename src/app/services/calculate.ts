@@ -61,8 +61,6 @@ calculateStuff(c: Character): DashboardValues {
       this.calculateTalizmanyAndArkany(c, player);
       this.calculateHuntBonuses(c, player);
 
-      this.buildDashboardValues(player);
-
       return this.buildDashboardValues(player);
     }
 

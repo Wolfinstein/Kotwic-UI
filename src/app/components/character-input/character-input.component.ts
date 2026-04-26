@@ -184,20 +184,20 @@ attributes = [
 ];
 
 evolutions = [
-{ key: 'Skrzydla',                label: 'Skrzydla' },
-{ key: 'Pancerz',                 label: 'Pancerz' },
-{ key: 'KlyPazuryKolce',          label: 'Kly/Pazury/Kolce' },
-{ key: 'GruczolyJadowe',          label: 'Gruczoly jadowe' },
-{ key: 'WzmocnioneSciegna',       label: 'Wzmocnione sciegna' },
-{ key: 'DodatkowaKomora',         label: 'Dodatkowa komora' },
-{ key: 'KrewDemona',              label: 'Krew demona' },
-{ key: 'MutacjaDna',              label: 'Mutacja DNA' },
-{ key: 'Oswiecony',               label: 'Oswiecony' },
-{ key: 'SzostyZmysl',             label: 'Szosty zmysl' },
-{ key: 'Absorpcja',               label: 'Absorpcja' },
-{ key: 'HarmonijnyRozwo',         label: 'Harmonijny rozwoj' },
-{ key: 'PietnoDemona',            label: 'Pietno demona' },
-{ key: 'WzmocnioneMiesnie',        label: 'Wzmocnione sciegna' },
+{ key: 'skrzydla',                label: 'Skrzydla' },
+{ key: 'pancerz',                 label: 'Pancerz' },
+{ key: 'klyPazuryKolce',          label: 'Kly/Pazury/Kolce' },
+{ key: 'gruczolyJadowe',          label: 'Gruczoly jadowe' },
+{ key: 'wzmocnioneSciegna',       label: 'Wzmocnione sciegna' },
+{ key: 'dodatkowaKomora',         label: 'Dodatkowa komora' },
+{ key: 'krewDemona',              label: 'Krew demona' },
+{ key: 'mutacjaDna',              label: 'Mutacja DNA' },
+{ key: 'oswiecony',               label: 'Oswiecony' },
+{ key: 'szostyZmysl',             label: 'Szosty zmysl' },
+{ key: 'absorpcja',               label: 'Absorpcja' },
+{ key: 'harmonijnyRozwo',         label: 'Harmonijny rozwoj' },
+{ key: 'pietnoDemona',            label: 'Pietno demona' },
+{ key: 'wzmocnioneMiesnie',        label: 'Wzmocnione sciegna' },
 
 ];
 
