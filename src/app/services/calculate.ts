@@ -31,6 +31,8 @@ export class DashboardService {
 
 
 calculateStuff(c: Character): DashboardValues {
+      console.log(JSON.parse(JSON.stringify(c))); // ✅ deep snapshot
+
       let player : Player = new PlayerBuilder()
                                 .lvl(c.poziom)
                                 .stats(new StatsBuilder()
@@ -62,7 +64,6 @@ calculateStuff(c: Character): DashboardValues {
       this.calculateHuntBonuses(c, player);
 
       let dashboard : DashboardValues = this.buildDashboardValues(player);
-      console.log(JSON.parse(JSON.stringify(dashboard))); // ✅ deep snapshot
 
       return dashboard;
     }
@@ -596,12 +597,13 @@ calculateStuff(c: Character): DashboardValues {
       const regen = Math.floor(player.life * player.stats.regen);
 
       return {
-        punktyZycia: player.life,
+        punktyZycia: player.life + player.baseLife,
+        punktyKrwi : 0,
         szczescie: player.stats.szczescie,
-        obrona: player.stats.obronaDodatkowa,
+        obrona: player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc,
         attributes: attributes,
-        twardrosc: Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow) / 75),
-        redukcja: player.stats.redukcjaObrazen,
+        twardrosc: player.stats.twardosc,
+        redukcja: player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01,
         unikBiala: player.stats.unikBiala,
         unikPalna: player.stats.unikPalna,
         unikDystans: player.stats.unikDystans,

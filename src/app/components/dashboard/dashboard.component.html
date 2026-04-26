@@ -8,12 +8,12 @@
         <span class="attr-value">{{ dashboardValues?.punktyZycia || 0 }}</span>
       </div>
       <div class="attr-item">
-        <span class="attr-label">Szczescie</span>
-        <span class="attr-value">{{ dashboardValues?.szczescie || 0 }}</span>
+        <span class="attr-label">Punkty krwi</span>
+        <span class="attr-value">{{ dashboardValues?.punktyKrwi || 0 }}</span>
       </div>
     </div>
 
-    <div class="attr-grid">
+    <div class="attr-grid attr-grid--3col">
       <div class="attr-item">
         <span class="attr-label">Obrona</span>
         <span class="attr-value">{{ dashboardValues?.obrona || 0 }}</span>
@@ -26,6 +26,8 @@
         <span class="attr-label">Redukcja</span>
         <span class="attr-value">{{ dashboardValues?.redukcja || 0 }}</span>
       </div>
+    </div>
+    <div class="attr-grid attr-grid--3col">
       <div class="attr-item">
         <span class="attr-label">Unik Biała</span>
         <span class="attr-value">{{ dashboardValues?.unikBiala || 0 }}</span>
@@ -40,7 +42,11 @@
       </div>
     </div>
 
-    <div class="attr-grid attr-grid--2col">
+    <div class="attr-grid attr-grid--3col">
+      <div class="attr-item">
+        <span class="attr-label">Szczescie</span>
+        <span class="attr-value">{{ dashboardValues?.szczescie || 0 }}</span>
+      </div>
       <div class="attr-item">
         <span class="attr-label">Inicjatywa</span>
         <span class="attr-value">{{ dashboardValues?.inicjatywa || 0 }}</span>
@@ -60,8 +66,12 @@
       <h4>Broń {{ i + 1 }}: {{ weapon.name}}</h4>
       <div class="combat-box">
         <div class="damage-display">
+          <span class="sub-text">Obrażenia Broni</span>
           <div class="damage-range">{{ weapon.minDmg }} – {{ weapon.maxDmg }}</div>
-          <span class="sub-text">Zakres obrażeń</span>
+        </div>
+        <div class="damage-display">
+          <span class="sub-text">Obrażenia Krtytyczne Broni</span>
+          <div class="damage-range">{{ weapon.critDmgMin }} – {{ weapon.critDmgMax }}</div>
         </div>
         <div class="combat-values">
           <div class="value-badge">
@@ -69,7 +79,7 @@
             <span class="sub-text">Ataki</span>
           </div>
           <div class="value-badge" *ngIf="weapon.critChance !== undefined">
-            <div>{{ weapon.critChance }}%</div>
+            <div>{{ weapon.critChance }}</div>
             <span class="sub-text">Kryt. szansa</span>
           </div>
           <div class="value-badge" *ngIf="weapon.critMulti !== undefined">
@@ -81,15 +91,12 @@
             <span class="sub-text">Trafienie</span>
           </div>
           <div class="value-badge" *ngIf="weapon.ignore !== undefined">
-            <div>{{ weapon.ignore }}</div>
+            <div>{{ weapon.ignore | number:'1.0-2' }}</div>
             <span class="sub-text">Ignore</span>
           </div>
         </div>
         <div *ngIf="weapon.obrazeniaNaRundeAvg !== undefined">
           <span class="modifier">Śr. obrażenia/rundę: {{ weapon.obrazeniaNaRundeAvg | number:'1.1-1' }}</span>
-        </div>
-        <div *ngIf="weapon.critDmgMin !== undefined && weapon.critDmgMax !== undefined">
-          <span class="modifier">Obrażenia krytyczne: {{ weapon.critDmgMin }} – {{ weapon.critDmgMax }}</span>
         </div>
       </div>
     </div>
