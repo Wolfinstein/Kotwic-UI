@@ -249,9 +249,8 @@ silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: 
 
 // ─── Issues/Fixes ───────────────────────────────────────────────────────────
 issues = [
-'opiekun i podkowa razem',
-'punkty krwi liczenie',
-'policzyc zar',
+'opiekun i podkowa razem nie sumuje poprawnie zycka',
+'brak liczenia punktow krwi punkty krwi, troche useless',
 'minimalne roznice na krawatach i innych gownach',
 'jak jest tchnienie to zrob dwie wersje',
 'wez pod uwage w dps effective trafienie vs przeciwnik',
