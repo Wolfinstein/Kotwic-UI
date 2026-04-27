@@ -59,9 +59,7 @@ calculateStuff(c: Character): DashboardValues {
       this.calculateRunyZTalkow(c, player);
       player.resolveNonWeaponItems();
       player.resolveSetBonuses();
-      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
       this.calculateEwolucje(c, player);
-      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
       this.calculateRasa(c, player);
       this.calculateTalizmanyAndArkany(c, player);
       this.calculateHuntBonuses(c, player);
@@ -902,7 +900,7 @@ calculateStuff(c: Character): DashboardValues {
         const toDecimal = (num: number | string): number => Number(num) / 100;
         switch (key) {
           case 'obrazenia':
-              p.addLaczneObrazeniaWszystkichBroni(toDecimal(value));
+              p.addObrazeniaProcentoweRuny(value);
             break;
 
           case 'kryt':
@@ -1166,13 +1164,13 @@ calculateStuff(c: Character): DashboardValues {
         critChance = 0.85;
       }
 
-      console.log('flat: ' + minDmg + ' ' + maxDmg)
-
       // Apply global damage multiplier
       minDmg = Math.floor((1 + player.stats.laczneObrazeniaWszystkichBroni) * Math.floor(minDmg));
       maxDmg = Math.floor((1 + player.stats.laczneObrazeniaWszystkichBroni) * Math.floor(maxDmg));
 
-      console.log('with %: ' +minDmg + ' ' + maxDmg)
+      minDmg = Math.floor(minDmg + ( 2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
+      maxDmg = Math.floor(maxDmg + ( 2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
+
 
       // Apply defense reduction
       if (player.stats.ignoreObrony < 1) {
@@ -1188,8 +1186,6 @@ calculateStuff(c: Character): DashboardValues {
           maxDmg = Math.trunc(maxDmg - (1 / 2 * player.odpornoscPrzeciwnika) * (1 - player.stats.ignoreObrony));
         }
       }
-
-      console.log('after def reduction: ' +minDmg + ' ' + maxDmg)
 
       const toDecimal = (num: number | string): number => Number(num) / 100;
 

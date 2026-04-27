@@ -531,6 +531,10 @@ constructor(
     this.stats.laczneObrazeniaWszystkichBroni += value;
   }
 
+  addObrazeniaProcentoweRuny(value: number): void {
+    this.stats.obrazeniaProcentoweRuny += value;
+  }
+
   addMinDmg(value: number): void {
     this.stats.setAllMinDps(value);
   }

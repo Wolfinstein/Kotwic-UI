@@ -88,6 +88,9 @@ export class Stats {
   // Damage multipliers and totals
   laczneObrazeniaWszystkichBroni: number = 0;
 
+  // Damage multipliers and totals
+  obrazeniaProcentoweRuny: number = 0;
+
   // Regeneration and initiative
   regen: number = 0;
   additionalIni: number = 0;
@@ -278,6 +281,13 @@ export class Stats {
   }
 
   /**
+   * Set total damage multiplier for all weapons
+   */
+  setObrazeniaProcentoweRuny(value: number): void {
+    this.obrazeniaProcentoweRuny += value;
+  }
+
+  /**
    * Aggregate (add) another Stats object to this one
    * Combines all stats from the provided stats object into this object
    */
@@ -346,6 +356,7 @@ export class Stats {
     this.trafienieProcentoweDystans += newStats.trafienieProcentoweDystans;
 
     this.laczneObrazeniaWszystkichBroni += newStats.laczneObrazeniaWszystkichBroni;
+    this.obrazeniaProcentoweRuny += newStats.obrazeniaProcentoweRuny;
     this.obronaDodatkowa += newStats.obronaDodatkowa;
 
     // Handle armor multiplier if present
