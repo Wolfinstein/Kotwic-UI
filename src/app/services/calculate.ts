@@ -123,8 +123,8 @@ calculateStuff(c: Character): DashboardValues {
     const melee2hTypes = [ItemType.MACZUGA, ItemType.LOM, ItemType.PIKA, ItemType.TOPORDWURECZNY, ItemType.MIECZDWURECZNY, ItemType.KOSA, ItemType.KORBACZ, ItemType.HALABARDA, ItemType.KATANA, ItemType.PILALANCUCHOWA];
     const gun1hTypes = [ItemType.GLOCK, ItemType.MAGNUM, ItemType.DESERT_EAGLE, ItemType.BERETTA, ItemType.UZI, ItemType.MP5K, ItemType.SKORPION];
     const gun2hTypes = [ItemType.KARABINMYSLIWSKI, ItemType.STRZELBA, ItemType.AK47, ItemType.MIOTACZPLOMIENI, ItemType.FN_FAL, ItemType.POLAUTOMATSNAJPERSKI, ItemType.KARABINSNAJPERSKI];
-    const range1hTypes = [ItemType.KROTKILUK, ItemType.LUK, ItemType.DLUGILUK, ItemType.OSZCZEP, ItemType.PILUM, ItemType.NOZDORZUCANIA, ItemType.TOPOREKDORZUCANIA];
-    const range2hTypes = [ItemType.KUSZA, ItemType.SHURIKEN, ItemType.CIEZKAKUSZA, ItemType.LUKREFLEKSYJNY];
+    const range1hTypes = [ItemType.KROTKILUK, ItemType.LUK, ItemType.DLUGILUK,  ItemType.NOZDORZUCANIA, ItemType.TOPOREKDORZUCANIA,ItemType.SHURIKEN];
+    const range2hTypes = [ItemType.KUSZA, ItemType.CIEZKAKUSZA, ItemType.LUKREFLEKSYJNY, ItemType.OSZCZEP, ItemType.PILUM];
 
     if (legTypes.includes(itemType)) return ItemGenre.LEGS;
     if (chestTypes.includes(itemType)) return ItemGenre.CHEST;
@@ -1183,6 +1183,9 @@ calculateStuff(c: Character): DashboardValues {
         }
       }
 
+      const toDecimal = (num: number | string): number => Number(num) / 100;
+
+      critChance = critChance + toDecimal(Math.floor(player.stats.szczescie / 5 ));
       const critDmgMin = Math.floor(minDmg * critMulti);
       const critDmgMax = Math.floor(maxDmg * critMulti);
       const avgDmg = Math.floor((minDmg + maxDmg) / 2);

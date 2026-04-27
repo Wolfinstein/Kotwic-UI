@@ -83,7 +83,7 @@
             <span class="sub-text">Ataki</span>
           </div>
           <div class="value-badge" *ngIf="weapon.critChance !== undefined">
-            <div>{{ weapon.critChance }}</div>
+            <div>{{  weapon.critChance | number:'1.1-2' }}</div>
             <span class="sub-text">Kryt. szansa</span>
           </div>
           <div class="value-badge" *ngIf="weapon.critMulti !== undefined">
