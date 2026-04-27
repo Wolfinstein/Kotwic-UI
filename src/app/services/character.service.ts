@@ -138,6 +138,8 @@ constructor(private dashboardService: DashboardService) {}
       huntBonuses: [],
       eventBonus: '',
       oneTimeBonus: '',
+      szczesciePrzeciwnika : 0,
+      trafieniePrzeciwnika : 0,
       runeValues: [],
       umagiValues: [],
       equipment: {}

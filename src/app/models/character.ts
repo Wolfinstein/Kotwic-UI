@@ -104,6 +104,8 @@ blaszkaZaHastura: boolean;
 evolutions : Evolutions;
 obronaPrzeciwnika : number;
 odpornoscPrzeciwnika : number;
+szczesciePrzeciwnika : number;
+trafieniePrzeciwnika : number;
 mysliwy: number;
 ninja: number;
 strateg: number;

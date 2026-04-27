@@ -251,9 +251,7 @@ silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: 
 issues = [
 'opiekun i podkowa razem nie sumuje poprawnie zycka',
 'brak liczenia punktow krwi punkty krwi, troche useless',
-'minimalne roznice na krawatach i innych gownach',
-'jak jest tchnienie to zrob dwie wersje',
-'wez pod uwage w dps effective trafienie vs przeciwnik',
+'Spaczony Krawat vs Spaczony Amulet brak ciaglosci w statach',
 'lekki rozjazd inicjatywa i trafienie',
 ];
 

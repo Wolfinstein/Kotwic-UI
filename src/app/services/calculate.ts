@@ -47,6 +47,8 @@ calculateStuff(c: Character): DashboardValues {
                                     .build())
                                 .obronaPrzeciwnika(c.obronaPrzeciwnika)
                                 .odpornoscPrzeciwnika(c.odpornoscPrzeciwnika)
+                                .szczesciePrzeciwnika(c.szczesciePrzeciwnika)
+                                .trafieniePrzeciwnika(c.trafieniePrzeciwnika)
                                 .items(this.mapItems(c))
                                 .build();
 

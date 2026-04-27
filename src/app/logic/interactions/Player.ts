@@ -24,7 +24,8 @@ export class Player {
   hasZar: boolean = false;
   obronaPrzeciwnika : number;
   odpornoscPrzeciwnika : number;
-
+  szczesciePrzeciwnika : number;
+  trafieniePrzeciwnika : number;
 constructor(
     lvl: number = 1,
     life: number = 0,
@@ -35,7 +36,9 @@ constructor(
     ziz4?: boolean,
     hasZar?: boolean,
     obronaPrzeciwnika : number = 0,
-    odpornoscPrzeciwnika : number = 0
+    odpornoscPrzeciwnika : number = 0,
+    szczesciePrzeciwnika : number = 0,
+    trafieniePrzeciwnika : number = 0
   ) {
     this.lvl = lvl;
     this.life = life;
@@ -47,6 +50,8 @@ constructor(
     this.hasZar = hasZar || false;
     this.obronaPrzeciwnika = obronaPrzeciwnika;
     this.odpornoscPrzeciwnika = odpornoscPrzeciwnika;
+    this.szczesciePrzeciwnika = szczesciePrzeciwnika;
+    this.trafieniePrzeciwnika = trafieniePrzeciwnika;
   }
 
   static builder() {
@@ -559,6 +564,14 @@ constructor(
     this.odpornoscPrzeciwnika = odpornoscPrzeciwnika;
   }
 
+  setSzczesciePrzeciwnika(szczesciePrzeciwnika: number): void {
+    this.szczesciePrzeciwnika = szczesciePrzeciwnika;
+  }
+
+  setTrafieniePrzeciwnika(trafieniePrzeciwnika: number): void {
+    this.trafieniePrzeciwnika = trafieniePrzeciwnika;
+  }
+
   setHasZar(hasZar: boolean): void {
     this.hasZar = hasZar;
   }
@@ -579,6 +592,8 @@ export  class PlayerBuilder {
   private _hasZar: boolean = false;
   private _obronaPrzeciwnika : number = 0;
   private _odpornoscPrzeciwnika : number = 0;
+  private _szczesciePrzeciwnika : number = 0;
+  private _trafieniePrzeciwnika : number = 0;
 
   lvl(lvl: number): PlayerBuilder {
     this._lvl = lvl;
@@ -597,6 +612,16 @@ export  class PlayerBuilder {
 
   odpornoscPrzeciwnika(odpornoscPrzeciwnika: number): PlayerBuilder {
     this._odpornoscPrzeciwnika = odpornoscPrzeciwnika;
+    return this;
+  }
+
+  szczesciePrzeciwnika(szczesciePrzeciwnika: number): PlayerBuilder {
+    this._szczesciePrzeciwnika = szczesciePrzeciwnika;
+    return this;
+  }
+
+  trafieniePrzeciwnika(trafieniePrzeciwnika: number): PlayerBuilder {
+    this._trafieniePrzeciwnika = trafieniePrzeciwnika;
     return this;
   }
 

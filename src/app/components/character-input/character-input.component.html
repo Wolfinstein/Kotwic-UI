@@ -74,6 +74,30 @@
         </div>
       </div>
 
+      <div class="section">
+        <div class="compact-grid">
+          <div class="compact-item">
+            <label><div class="horizontal-h3">Trafienie Przeciwnika</div></label>
+            <input type="number"
+                   min="0"
+                   [ngModel]="character!.trafieniePrzeciwnika"
+                   (ngModelChange)="updateCharacterField('trafieniePrzeciwnika', $event)"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="compact-grid">
+          <div class="compact-item">
+            <label><div class="horizontal-h3">Szczescie Przeciwnika</div></label>
+            <input type="number"
+                   min="0"
+                   [ngModel]="character!.szczesciePrzeciwnika"
+                   (ngModelChange)="updateCharacterField('szczesciePrzeciwnika', $event)"/>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Column 2: Equipment + Runes -->
