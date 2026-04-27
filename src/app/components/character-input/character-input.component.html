@@ -50,6 +50,30 @@
         </div>
       </div>
 
+      <div class="section">
+        <div class="compact-grid">
+          <div class="compact-item">
+            <label><div class="horizontal-h3">Obrona Przeciwnika</div></label>
+            <input type="number"
+                   min="0"
+                   [ngModel]="character!.obronaPrzeciwnika"
+                   (ngModelChange)="updateCharacterField('obronaPrzeciwnika', $event)"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="compact-grid">
+          <div class="compact-item">
+            <label><div class="horizontal-h3">Odpornosc Przeciwnika</div></label>
+            <input type="number"
+                   min="0"
+                   [ngModel]="character!.odpornoscPrzeciwnika"
+                   (ngModelChange)="updateCharacterField('odpornoscPrzeciwnika', $event)"/>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Column 2: Equipment + Runes -->

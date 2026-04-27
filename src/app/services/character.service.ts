@@ -133,6 +133,8 @@ constructor(private dashboardService: DashboardService) {}
       ninja : 0,
       strateg : 0,
       kaplica : 0,
+      obronaPrzeciwnika : 0,
+      odpornoscPrzeciwnika : 0,
       huntBonuses: [],
       eventBonus: '',
       oneTimeBonus: '',

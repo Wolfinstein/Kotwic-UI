@@ -22,6 +22,8 @@ export class Player {
   stats: Stats;
   ziz4: boolean = false;
   hasZar: boolean = false;
+  obronaPrzeciwnika : number;
+  odpornoscPrzeciwnika : number;
 
 constructor(
     lvl: number = 1,
@@ -31,7 +33,9 @@ constructor(
     items?: Item[],
     bonuses?: MultiplicativeBonus[],
     ziz4?: boolean,
-    hasZar?: boolean
+    hasZar?: boolean,
+    obronaPrzeciwnika : number = 0,
+    odpornoscPrzeciwnika : number = 0
   ) {
     this.lvl = lvl;
     this.life = life;
@@ -41,6 +45,8 @@ constructor(
     this.bonuses = bonuses || [];
     this.ziz4 = ziz4 || false;
     this.hasZar = hasZar || false;
+    this.obronaPrzeciwnika = obronaPrzeciwnika;
+    this.odpornoscPrzeciwnika = odpornoscPrzeciwnika;
   }
 
   static builder() {
@@ -506,23 +512,23 @@ constructor(
   }
 
   addAdditionalIni(value: number): void {
-    this.stats.additionalIni = value;
+    this.stats.additionalIni += value;
   }
 
   addTrafienieProcentowePalna(value: number): void {
-    this.stats.trafienieProcentowePalna = value;
+    this.stats.trafienieProcentowePalna += value;
   }
 
   addTrafienieProcentoweBiala(value: number): void {
-    this.stats.trafienieProcentoweBiala = value;
+    this.stats.trafienieProcentoweBiala += value;
   }
 
   addTrafienieProcentoweDystans(value: number): void {
-    this.stats.trafienieProcentoweDystans = value;
+    this.stats.trafienieProcentoweDystans += value;
   }
 
   addLaczneObrazeniaWszystkichBroni(value: number): void {
-    this.stats.laczneObrazeniaWszystkichBroni = value;
+    this.stats.laczneObrazeniaWszystkichBroni += value;
   }
 
   addMinDmg(value: number): void {
@@ -539,6 +545,14 @@ constructor(
 
   setLife(life: number): void {
     this.life = life;
+  }
+
+  setObronaPrzeciwnika(obronaPrzeciwnika: number): void {
+    this.obronaPrzeciwnika = obronaPrzeciwnika;
+  }
+
+  setOdpornoscPrzeciwnika(odpornoscPrzeciwnika: number): void {
+    this.odpornoscPrzeciwnika = odpornoscPrzeciwnika;
   }
 
   setHasZar(hasZar: boolean): void {
@@ -559,6 +573,8 @@ export  class PlayerBuilder {
   private _stats?: Stats;
   private _ziz4: boolean = false;
   private _hasZar: boolean = false;
+  private _obronaPrzeciwnika : number = 0;
+  private _odpornoscPrzeciwnika : number = 0;
 
   lvl(lvl: number): PlayerBuilder {
     this._lvl = lvl;
@@ -567,6 +583,16 @@ export  class PlayerBuilder {
 
   life(life: number): PlayerBuilder {
     this._life = life;
+    return this;
+  }
+
+  obronaPrzeciwnika(obronaPrzeciwnika: number): PlayerBuilder {
+    this._obronaPrzeciwnika = obronaPrzeciwnika;
+    return this;
+  }
+
+  odpornoscPrzeciwnika(odpornoscPrzeciwnika: number): PlayerBuilder {
+    this._odpornoscPrzeciwnika = odpornoscPrzeciwnika;
     return this;
   }
 
@@ -609,7 +635,9 @@ export  class PlayerBuilder {
       this._items,
       this._bonuses,
       this._ziz4,
-      this._hasZar
+      this._hasZar,
+      this._obronaPrzeciwnika,
+      this._odpornoscPrzeciwnika
     );
   }
 }

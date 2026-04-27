@@ -102,6 +102,8 @@ blaszkaZaMoba: boolean;
 blaszkaZaKronosa: boolean;
 blaszkaZaHastura: boolean;
 evolutions : Evolutions;
+obronaPrzeciwnika : number;
+odpornoscPrzeciwnika : number;
 mysliwy: number;
 ninja: number;
 strateg: number;
