@@ -1170,7 +1170,6 @@ calculateStuff(c: Character): DashboardValues {
       // Apply defense reduction
       if (player.stats.ignoreObrony < 1) {
         if (genre === ItemGenre.RANGE_1H || genre === ItemGenre.RANGE_2H) {
-          console.log((1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony));
           minDmg = Math.trunc(minDmg - Math.floor((1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
           maxDmg = Math.trunc(maxDmg - Math.floor((1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
         } else if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
@@ -1187,7 +1186,6 @@ calculateStuff(c: Character): DashboardValues {
 
       const toDecimal = (num: number | string): number => Number(num) / 100;
 
-      critChance = critChance + toDecimal(Math.floor(player.stats.szczescie / 5 ));
       const critDmgMin = Math.floor(minDmg * critMulti);
       const critDmgMax = Math.floor(maxDmg * critMulti);
       const avgDmg = Math.floor((minDmg + maxDmg) / 2);
@@ -1201,7 +1199,7 @@ calculateStuff(c: Character): DashboardValues {
         iloscAtakow: ataki,
         trafienie: Math.floor(trafienie / 2),
         ignore: player.stats.ignoreObrony,
-        critChance,
+        critChance: critChance + toDecimal(Math.floor(player.stats.szczescie / 5 )),
         critMulti,
         critDmgMin,
         critDmgMax,
