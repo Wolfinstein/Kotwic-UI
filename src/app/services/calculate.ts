@@ -1164,28 +1164,26 @@ calculateStuff(c: Character): DashboardValues {
         critChance = 0.85;
       }
 
-      // Apply global damage multiplier
       minDmg = Math.floor((1 + player.stats.laczneObrazeniaWszystkichBroni) * Math.floor(minDmg));
       maxDmg = Math.floor((1 + player.stats.laczneObrazeniaWszystkichBroni) * Math.floor(maxDmg));
-
-      minDmg = Math.floor(minDmg + ( 2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
-      maxDmg = Math.floor(maxDmg + ( 2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
-
 
       // Apply defense reduction
       if (player.stats.ignoreObrony < 1) {
         if (genre === ItemGenre.RANGE_1H || genre === ItemGenre.RANGE_2H) {
-          console.log(minDmg + ' ' + player.obronaPrzeciwnika + ' ' + player.stats.ignoreObrony);
-          minDmg = Math.trunc(minDmg - (1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony));
-          maxDmg = Math.trunc(maxDmg - (1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony));
+          console.log((1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony));
+          minDmg = Math.trunc(minDmg - Math.floor((1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
+          maxDmg = Math.trunc(maxDmg - Math.floor((1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
         } else if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
-          minDmg = Math.trunc(minDmg - (1 / 2 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony));
-          maxDmg = Math.trunc(maxDmg - (1 / 2 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony));
+          minDmg = Math.trunc(minDmg - Math.floor((1 / 2 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
+          maxDmg = Math.trunc(maxDmg - Math.floor((1 / 2 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
         } else {
-          minDmg = Math.trunc(minDmg - (1 / 2 * player.odpornoscPrzeciwnika) * (1 - player.stats.ignoreObrony));
-          maxDmg = Math.trunc(maxDmg - (1 / 2 * player.odpornoscPrzeciwnika) * (1 - player.stats.ignoreObrony));
+          minDmg = Math.trunc(minDmg - Math.floor((1 / 2 * player.odpornoscPrzeciwnika) * (1 - player.stats.ignoreObrony)));
+          maxDmg = Math.trunc(maxDmg - Math.floor((1 / 2 * player.odpornoscPrzeciwnika) * (1 - player.stats.ignoreObrony)));
         }
       }
+
+      minDmg = Math.floor(minDmg + ( 2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
+      maxDmg = Math.floor(maxDmg + ( 2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
 
       const toDecimal = (num: number | string): number => Number(num) / 100;
 
