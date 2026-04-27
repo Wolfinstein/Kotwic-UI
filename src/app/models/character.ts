@@ -127,6 +127,7 @@ critDmgMax?: number;
 export interface DashboardValues {
 punktyKrwi?: number;
 punktyZycia?: number;
+effectiveHp?: number;
 szczescie?: number;
 obrona?: number;
 attributes?: Attributes;

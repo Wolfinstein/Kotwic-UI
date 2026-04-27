@@ -1040,9 +1040,12 @@ calculateStuff(c: Character): DashboardValues {
       };
 
       const regen = Math.floor(player.life * player.stats.regen);
+      const cappedRedukcja = Math.min(player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01, 0.30);
+      const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
 
       return {
         punktyZycia: player.life + player.baseLife,
+        effectiveHp : effectiveHp,
         punktyKrwi : 0,
         szczescie: player.stats.szczescie,
         obrona: player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc,
