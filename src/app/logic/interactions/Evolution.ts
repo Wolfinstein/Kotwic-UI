@@ -176,20 +176,35 @@ export class Evolution {
     return 120;
   }
 
-  private doGruczoly(player: Player): void {
-    if (this.gruczolyJadowe < 1) return;
-    player.addAllCrit(this.gruczolyJadowe * 0.05);
-    player.addObronaDodatkowa(this.gruczolyObrona(this.gruczolyJadowe));
-    if (this.gruczolyJadowe >= 6) {
-      const scale = this.gruczolyCritMultiScale(this.gruczolyJadowe);
-      player.addCritMultiBiala1h(scale * 0.2);
-      player.addCritMultiBiala2h(scale * 0.6);
-      player.addCritMultiPalna1h(scale * 0.2);
-      player.addCritMultiPalna2h(scale * 0.4);
-      player.addCritMultiDystans1h(scale * 0.2);
-      player.addCritMultiDystans2h(scale * 0.6);
-    }
+private doGruczoly(player: Player): void {
+  if (this.gruczolyJadowe == 0) return;
+
+  player.addAllCrit(this.gruczolyJadowe * 0.05);
+  player.addObronaDodatkowa(this.gruczolyObrona(this.gruczolyJadowe));
+
+  if (this.gruczolyJadowe >= 15) {
+    player.addCritMultiBiala1h(0.6);
+    player.addCritMultiBiala2h(1.8);
+    player.addCritMultiPalna1h(0.6);
+    player.addCritMultiPalna2h(1.2);
+    player.addCritMultiDystans1h(0.6);
+    player.addCritMultiDystans2h(1.8);
+  } else if (this.gruczolyJadowe >= 10) {
+    player.addCritMultiBiala1h(0.4);
+    player.addCritMultiBiala2h(1.2);
+    player.addCritMultiPalna1h(0.4);
+    player.addCritMultiPalna2h(0.8);
+    player.addCritMultiDystans1h(0.4);
+    player.addCritMultiDystans2h(1.2);
+  } else if (this.gruczolyJadowe >= 5) {
+    player.addCritMultiBiala1h(0.2);
+    player.addCritMultiBiala2h(0.6);
+    player.addCritMultiPalna1h(0.2);
+    player.addCritMultiPalna2h(0.4);
+    player.addCritMultiDystans1h(0.2);
+    player.addCritMultiDystans2h(0.6);
   }
+}
 
   private gruczolyObrona(level: number): number {
     if (level <= 4) return 40;
@@ -197,12 +212,6 @@ export class Evolution {
     if (level <= 9) return 135;
     if (level === 10) return 170;
     return 255;
-  }
-
-  private gruczolyCritMultiScale(level: number): number {
-    if (level === 10) return 2;
-    if (level === 15) return 3;
-    return 1;
   }
 
   private doKrew(player: Player): void {
