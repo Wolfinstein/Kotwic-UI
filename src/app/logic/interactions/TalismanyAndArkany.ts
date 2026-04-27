@@ -483,6 +483,7 @@ export class TalismanyAndArkany {
   private doZar(player: Player): Player {
     if (this.aZar === 1) {
       player.setLife(Math.floor(player.life + player.baseLife * 0.4));
+      player.addLaczneObrazeniaWszystkichBroni(0.35);
       player.setHasZar(true);
     }
     return player;

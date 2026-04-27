@@ -1047,3 +1047,76 @@ select { background-color: #00192d; color: #f6e8ea; }
 select:focus { background-color: #00192d; outline: none; border-color: #0f3d63; }
 option { background-color: #00192d; color: #f6e8ea; }
 option:hover, option:checked { background-color: #0f3d63; color: #f6e8ea; }
+
+/* ─── Issues Dropdown ─────────────────────────────── */
+.issues-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.issues-toggle {
+  border: 2px solid #D4AF37;
+  background: #1a2d3d;
+  color: #f6e8ea;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.issues-toggle:hover {
+  background: #2a3d4d;
+  border-color: #E8C547;
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.3);
+}
+
+.issues-toggle:active {
+  background: #0a1d2d;
+  border-color: #D4AF37;
+}
+
+.toggle-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+  font-size: 8px;
+}
+
+.toggle-arrow.open {
+  transform: rotate(180deg);
+}
+
+.issues-list {
+  display: flex;
+  flex-direction: column;
+  background: #072944;
+  border: 1px solid #6A87AB;
+  border-top: none;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  overflow: hidden;
+  max-height: 175px;
+  overflow-y: auto;
+}
+
+.issue-item {
+  padding: 8px 10px;
+  border-bottom: 1px solid #6A87AB;
+  color: #f6e8ea;
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.issue-item:last-child {
+  border-bottom: none;
+}
+
+.issue-item:hover {
+  background: #0f3d63;
+}

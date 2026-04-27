@@ -356,6 +356,16 @@
         <button class="action-btn" (click)="importCharacter()">Import</button>
         <button class="action-btn" (click)="exportCharacter()">Export</button>
       </div>
+
+      <div class="section issues-section">
+        <button class="issues-toggle" (click)="showIssuesDropdown = !showIssuesDropdown">
+          <span>Problemy</span>
+          <span class="toggle-arrow" [class.open]="showIssuesDropdown">▼</span>
+        </button>
+        <div *ngIf="showIssuesDropdown" class="issues-list">
+          <div *ngFor="let issue of issues" class="issue-item">{{ issue }}</div>
+        </div>
+      </div>
     </div>
   </div>
 

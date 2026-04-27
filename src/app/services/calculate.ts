@@ -222,6 +222,9 @@ calculateStuff(c: Character): DashboardValues {
     if(c.blaszkaZaMoba){
       p.addIgnore(0.1);
     }
+    if(c.blaszkaZaHastura){
+      p.addLaczneObrazeniaWszystkichBroni(0.1);
+    }
   }
 
 
@@ -253,6 +256,10 @@ calculateStuff(c: Character): DashboardValues {
   }
 
   calculateBaseLife(c: Character) : number {
+        if(c.poziom == 0){
+          return 0;
+        }
+
         let base = 102;
         let term1 = 4 * (c.poziom - 1);
         let tenDigit = Math.floor(c.poziom / 10);

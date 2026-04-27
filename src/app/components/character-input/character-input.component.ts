@@ -247,6 +247,19 @@ expandedBonuses: { [key: string]: boolean } = {
 silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false
 };
 
+// ─── Issues/Fixes ───────────────────────────────────────────────────────────
+issues = [
+'opiekun i podkowa razem',
+'punkty krwi liczenie',
+'policzyc zar',
+'minimalne roznice na krawatach i innych gownach',
+'jak jest tchnienie to zrob dwie wersje',
+'wez pod uwage w dps effective trafienie vs przeciwnik',
+'lekki rozjazd inicjatywa i trafienie',
+];
+
+showIssuesDropdown = false;
+
 selectedHuntBonuses: string[] = [];
 selectedEventBonus: string | null = null;
 selectedOneTimeBonus: string | null = null;
