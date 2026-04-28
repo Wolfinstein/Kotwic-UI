@@ -2,62 +2,91 @@
 
   <div class="attributes-display">
 
-    <div class="attr-grid attr-grid--3col">
-      <div class="attr-item">
-        <span class="attr-label">Punkty Zycia</span>
-        <span class="attr-value">{{ dashboardValues?.punktyZycia || 0 }}</span>
+    <!-- Health Stats Section -->
+    <div class="attr-section">
+      <div class="attr-section-header health-header">
+        <span class="section-icon">❤</span>
+        <h3>Health Stats</h3>
       </div>
-      <div class="attr-item">
-        <span class="attr-label">Effective Pool</span>
-        <span class="attr-value">{{ dashboardValues?.effectiveHp || 0 }}</span>
-      </div>
-      <div class="attr-item">
-        <span class="attr-label">Punkty krwi</span>
-        <span class="attr-value">{{ dashboardValues?.punktyKrwi || 0 }}</span>
-      </div>
-    </div>
-
-    <div class="attr-grid attr-grid--3col">
-      <div class="attr-item">
-        <span class="attr-label">Obrona</span>
-        <span class="attr-value">{{ dashboardValues?.obrona || 0 }}</span>
-      </div>
-      <div class="attr-item">
-        <span class="attr-label">Twardość</span>
-        <span class="attr-value">{{ dashboardValues?.twardrosc || 0 }}</span>
-      </div>
-      <div class="attr-item">
-        <span class="attr-label">Redukcja</span>
-        <span class="attr-value">{{ dashboardValues?.redukcja || 0 }}</span>
-      </div>
-    </div>
-    <div class="attr-grid attr-grid--3col">
-      <div class="attr-item">
-        <span class="attr-label">Unik Biała</span>
-        <span class="attr-value">{{ dashboardValues?.unikBiala || 0 }}</span>
-      </div>
-      <div class="attr-item">
-        <span class="attr-label">Unik Palna</span>
-        <span class="attr-value">{{ dashboardValues?.unikPalna || 0 }}</span>
-      </div>
-      <div class="attr-item">
-        <span class="attr-label">Unik Dystans</span>
-        <span class="attr-value">{{ dashboardValues?.unikDystans || 0 }}</span>
+      <div class="attr-grid attr-grid--3col">
+        <div class="attr-item stat-critical">
+          <span class="attr-label">Punkty Zycia</span>
+          <span class="attr-value">{{ dashboardValues?.punktyZycia || 0 }}</span>
+        </div>
+        <div class="attr-item stat-critical">
+          <span class="attr-label">Effective Pool</span>
+          <span class="attr-value">{{ dashboardValues?.effectiveHp || 0 }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Punkty krwi</span>
+          <span class="attr-value">{{ dashboardValues?.punktyKrwi || 0 }}</span>
+        </div>
       </div>
     </div>
 
-    <div class="attr-grid attr-grid--3col">
-      <div class="attr-item">
-        <span class="attr-label">Szczescie</span>
-        <span class="attr-value">{{ dashboardValues?.szczescie || 0 }}</span>
+    <!-- Defense Stats Section -->
+    <div class="attr-section">
+      <div class="attr-section-header defense-header">
+        <span class="section-icon">🛡</span>
+        <h3>Defense Stats</h3>
       </div>
-      <div class="attr-item">
-        <span class="attr-label">Inicjatywa</span>
-        <span class="attr-value">{{ dashboardValues?.inicjatywa || 0 }}</span>
+      <div class="attr-grid attr-grid--3col">
+        <div class="attr-item stat-critical">
+          <span class="attr-label">Obrona</span>
+          <span class="attr-value">{{ dashboardValues?.obrona || 0 }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Twardość</span>
+          <span class="attr-value">{{ dashboardValues?.twardrosc || 0 }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Redukcja</span>
+          <span class="attr-value">{{ dashboardValues?.redukcja || 0 }}</span>
+        </div>
       </div>
-      <div class="attr-item">
-        <span class="attr-label">Regeneracja</span>
-        <span class="attr-value">{{ dashboardValues?.regeneracja || 0 }}</span>
+    </div>
+
+    <!-- Evasion Stats Section -->
+    <div class="attr-section">
+      <div class="attr-section-header evasion-header">
+        <span class="section-icon">↔</span>
+        <h3>Evasion Stats</h3>
+      </div>
+      <div class="attr-grid attr-grid--3col">
+        <div class="attr-item stat-important">
+          <span class="attr-label">Unik Biała</span>
+          <span class="attr-value">{{ dashboardValues?.unikBiala || 0 }}</span>
+        </div>
+        <div class="attr-item stat-important">
+          <span class="attr-label">Unik Palna</span>
+          <span class="attr-value">{{ dashboardValues?.unikPalna || 0 }}</span>
+        </div>
+        <div class="attr-item stat-important">
+          <span class="attr-label">Unik Dystans</span>
+          <span class="attr-value">{{ dashboardValues?.unikDystans || 0 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Combat Stats Section -->
+    <div class="attr-section">
+      <div class="attr-section-header combat-stats-header">
+        <span class="section-icon">⚔</span>
+        <h3>Combat Stats</h3>
+      </div>
+      <div class="attr-grid attr-grid--3col">
+        <div class="attr-item stat-combat">
+          <span class="attr-label">Szczescie</span>
+          <span class="attr-value">{{ dashboardValues?.szczescie || 0 }}</span>
+        </div>
+        <div class="attr-item stat-combat">
+          <span class="attr-label">Inicjatywa</span>
+          <span class="attr-value">{{ dashboardValues?.inicjatywa || 0 }}</span>
+        </div>
+        <div class="attr-item stat-combat">
+          <span class="attr-label">Regeneracja</span>
+          <span class="attr-value">{{ dashboardValues?.regeneracja || 0 }}</span>
+        </div>
       </div>
     </div>
 
@@ -67,40 +96,40 @@
   <div class="combat-section" *ngIf="dashboardValues?.obrazenia?.length">
     <h3>Obrażenia</h3>
     <div class="combat-row" *ngFor="let weapon of dashboardValues?.obrazenia; let i = index">
-      <h4>Broń {{ i + 1 }}: {{ weapon.name}}</h4>
+      <h4 class="weapon-header">⚔ Broń {{ i + 1 }}: {{ weapon.name}}</h4>
       <div class="combat-box">
         <div class="damage-display">
-          <span class="sub-text">Obrażenia Broni</span>
+          <span class="sub-text damage-label">⚔ Obrażenia Broni</span>
           <div class="damage-range">{{ weapon.minDmg }} – {{ weapon.maxDmg }}</div>
         </div>
         <div class="damage-display">
-          <span class="sub-text">Obrażenia Krtytyczne Broni</span>
+          <span class="sub-text damage-label">✨ Obrażenia Krtytyczne Broni</span>
           <div class="damage-range">{{ weapon.critDmgMin }} – {{ weapon.critDmgMax }}</div>
         </div>
         <div class="combat-values">
-          <div class="value-badge">
+          <div class="value-badge combat-badge-attacks">
             <div>{{ weapon.iloscAtakow }}</div>
             <span class="sub-text">Ataki</span>
           </div>
-          <div class="value-badge" *ngIf="weapon.critChance !== undefined">
+          <div class="value-badge combat-badge-critical" *ngIf="weapon.critChance !== undefined">
             <div>{{  weapon.critChance | number:'1.1-2' }}</div>
             <span class="sub-text">Kryt. szansa</span>
           </div>
-          <div class="value-badge" *ngIf="weapon.critMulti !== undefined">
+          <div class="value-badge combat-badge-multi" *ngIf="weapon.critMulti !== undefined">
             <div>×{{ weapon.critMulti }}</div>
             <span class="sub-text">Kryt. mnożnik</span>
           </div>
-          <div class="value-badge" *ngIf="weapon.trafienie !== undefined">
+          <div class="value-badge combat-badge-hit" *ngIf="weapon.trafienie !== undefined">
             <div>{{ weapon.trafienie }}</div>
             <span class="sub-text">Trafienie</span>
           </div>
-          <div class="value-badge" *ngIf="weapon.ignore !== undefined">
+          <div class="value-badge combat-badge-ignore" *ngIf="weapon.ignore !== undefined">
             <div>{{ weapon.ignore | number:'1.0-2' }}</div>
             <span class="sub-text">Ignore</span>
           </div>
         </div>
-        <div *ngIf="weapon.obrazeniaNaRundeAvg !== undefined">
-          <span class="modifier">Śr. obrażenia/rundę: {{ weapon.obrazeniaNaRundeAvg | number:'1.1-1' }}</span>
+        <div class="average-dps" *ngIf="weapon.obrazeniaNaRundeAvg !== undefined">
+          <span class="modifier">⚔ Śr. obrażenia/rundę: {{ weapon.obrazeniaNaRundeAvg | number:'1.1-1' }}</span>
         </div>
       </div>
     </div>
