@@ -7,7 +7,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #6A87AB;
+  border-right: 3px solid #6A87AB;
 }
 
 .panel-grid {

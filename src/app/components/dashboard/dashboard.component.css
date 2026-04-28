@@ -230,6 +230,11 @@ h4 {
   color: #9bdfc5;
 }
 
+.hit-header {
+  border-color: #7b56f6;
+  color: #7b56f6;
+}
+
 .combat-stats-header {
   border-color: #eabb77;
   color: #eabb77;

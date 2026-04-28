@@ -65,6 +65,27 @@
       </div>
     </div>
 
+    <!-- Evasion Stats Section -->
+    <div class="attr-section">
+      <div class="attr-section-header hit-header">
+        <span class="section-icon">↔</span>
+      </div>
+      <div class="attr-grid attr-grid--4col">
+        <div class="attr-item">
+          <span class="attr-label">Trafienie Biała</span>
+          <span class="attr-value">{{ dashboardValues?.trafienieDodatkoweBiala | number:'1.0-2' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Trafienie Palna</span>
+          <span class="attr-value">{{ dashboardValues?.trafienieDodatkowePalna | number:'1.0-2' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Trafienie Dystans</span>
+          <span class="attr-value">{{ dashboardValues?.trafienieDodatkoweDystans | number:'1.0-2'}}</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Combat Stats Section -->
     <div class="attr-section">
       <div class="attr-section-header combat-stats-header">
@@ -82,6 +103,51 @@
         <div class="attr-item stat-combat">
           <span class="attr-label">Regeneracja</span>
           <span class="attr-value">{{ dashboardValues?.regeneracja | number:'1.0-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Character Attributes Section -->
+    <div class="attr-section" *ngIf="dashboardValues?.attributes">
+      <div class="attr-section-header attributes-header">
+        <span class="section-icon">✨</span>
+      </div>
+      <div class="attr-grid attr-grid--3col">
+        <div class="attr-item">
+          <span class="attr-label">Siła</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.sila | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Zwinność</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.zwinnosc | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Odporność</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.odpornosc | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Wygląd</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.wyglad | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Charyzma</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.charyzma | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Wpływy</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.wplywy | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Spostrzegawczość</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.spostrzegawczosc | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Inteligencja</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.inteligencja | number:'1.0-0' }}</span>
+        </div>
+        <div class="attr-item">
+          <span class="attr-label">Wiedza</span>
+          <span class="attr-value">{{ dashboardValues?.attributes?.wiedza | number:'1.0-0' }}</span>
         </div>
       </div>
     </div>
@@ -115,9 +181,13 @@
             <div>×{{ weapon.critMulti }}</div>
             <span class="sub-text">Kryt. mnożnik</span>
           </div>
+          <div class="value-badge " *ngIf="weapon.trafienieProcentowe !== undefined">
+            <div>{{ weapon.trafienieProcentowe }}</div>
+            <span class="sub-text">Mnoznik %</span>
+          </div>
           <div class="value-badge " *ngIf="weapon.trafienie !== undefined">
             <div>{{ weapon.trafienie }}</div>
-            <span class="sub-text">Trafienie</span>
+            <span class="sub-text">Sumaryczny zasięg</span>
           </div>
           <div class="value-badge" *ngIf="weapon.ignore !== undefined">
             <div>{{ weapon.ignore | number:'1.0-2' }}</div>

@@ -888,7 +888,7 @@ private static initializeLegsPrefix(): { szorty: Prefix[], inne: Prefix[] } {
       suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(4).zwinnosc(4).build()));
       suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(3).zwinnosc(3).build()));
       suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(5).zwinnosc(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(6).zwinnosc(6).build()));
+      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(6).zwinnosc(5).build()));
       suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(7).zwinnosc(7).build()));
       suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.SKRYTOSCI, Stats.builder().wplywy(3).zwinnosc(4).build()));
       suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.SKRYTOSCI, Stats.builder().wplywy(5).zwinnosc(6).build()));

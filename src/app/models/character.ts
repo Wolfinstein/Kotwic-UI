@@ -122,6 +122,7 @@ critMulti?: number;
 trafienie?: number;
 ignore?: number;
 obrazeniaNaRundeAvg?: number;
+trafienieProcentowe? : number;
 critDmgMin?: number;
 critDmgMax?: number;
 }
@@ -139,6 +140,9 @@ unikBiala? :number;
 unikPalna?: number;
 unikDystans?: number;
 inicjatywa?: number;
+trafienieDodatkoweDystans? : number;
+trafienieDodatkowePalna? : number;
+trafienieDodatkoweBiala? : number;
 obrazenia?: WeaponDamage[];
 regeneracja?: number;
 zizAverageRounds?: []
