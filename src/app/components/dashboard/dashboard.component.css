@@ -221,18 +221,18 @@ h4 {
 }
 
 .defense-header {
-  border-color: #6A87AB;
-  color: #6A87AB;
+  border-color: #abd2ff;
+  color: #abd2ff;
 }
 
 .evasion-header {
-  border-color: #00bcd4;
-  color: #4dd0e1;
+  border-color: #9bdfc5;
+  color: #9bdfc5;
 }
 
 .combat-stats-header {
-  border-color: #ff9800;
-  color: #ffb74d;
+  border-color: #eabb77;
+  color: #eabb77;
 }
 
 /* Stat Category Color-Coding (Phase 2) */

@@ -6,20 +6,19 @@
     <div class="attr-section">
       <div class="attr-section-header health-header">
         <span class="section-icon">❤</span>
-        <h3>Health Stats</h3>
       </div>
       <div class="attr-grid attr-grid--3col">
         <div class="attr-item stat-critical">
           <span class="attr-label">Punkty Zycia</span>
-          <span class="attr-value">{{ dashboardValues?.punktyZycia || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.punktyZycia | number:'1.0-2' }}</span>
         </div>
         <div class="attr-item stat-critical">
           <span class="attr-label">Effective Pool</span>
-          <span class="attr-value">{{ dashboardValues?.effectiveHp || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.effectiveHp | number:'1.0-2' }}</span>
         </div>
-        <div class="attr-item">
+        <div class="attr-item stat-critical">
           <span class="attr-label">Punkty krwi</span>
-          <span class="attr-value">{{ dashboardValues?.punktyKrwi || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.punktyKrwi | number:'1.0-2' }}</span>
         </div>
       </div>
     </div>
@@ -28,20 +27,19 @@
     <div class="attr-section">
       <div class="attr-section-header defense-header">
         <span class="section-icon">🛡</span>
-        <h3>Defense Stats</h3>
       </div>
       <div class="attr-grid attr-grid--3col">
-        <div class="attr-item stat-critical">
+        <div class="attr-item">
           <span class="attr-label">Obrona</span>
-          <span class="attr-value">{{ dashboardValues?.obrona || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.obrona | number:'1.0-2' }}</span>
         </div>
         <div class="attr-item">
           <span class="attr-label">Twardość</span>
-          <span class="attr-value">{{ dashboardValues?.twardrosc || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.twardrosc | number:'1.0-2'}}</span>
         </div>
         <div class="attr-item">
           <span class="attr-label">Redukcja</span>
-          <span class="attr-value">{{ dashboardValues?.redukcja || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.redukcja | number:'1.0-2' }}</span>
         </div>
       </div>
     </div>
@@ -50,20 +48,19 @@
     <div class="attr-section">
       <div class="attr-section-header evasion-header">
         <span class="section-icon">↔</span>
-        <h3>Evasion Stats</h3>
       </div>
       <div class="attr-grid attr-grid--3col">
         <div class="attr-item stat-important">
           <span class="attr-label">Unik Biała</span>
-          <span class="attr-value">{{ dashboardValues?.unikBiala || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.unikBiala | number:'1.0-2' }}</span>
         </div>
         <div class="attr-item stat-important">
           <span class="attr-label">Unik Palna</span>
-          <span class="attr-value">{{ dashboardValues?.unikPalna || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.unikPalna | number:'1.0-2' }}</span>
         </div>
         <div class="attr-item stat-important">
           <span class="attr-label">Unik Dystans</span>
-          <span class="attr-value">{{ dashboardValues?.unikDystans || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.unikDystans | number:'1.0-2'}}</span>
         </div>
       </div>
     </div>
@@ -72,20 +69,19 @@
     <div class="attr-section">
       <div class="attr-section-header combat-stats-header">
         <span class="section-icon">⚔</span>
-        <h3>Combat Stats</h3>
       </div>
       <div class="attr-grid attr-grid--3col">
         <div class="attr-item stat-combat">
           <span class="attr-label">Szczescie</span>
-          <span class="attr-value">{{ dashboardValues?.szczescie || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.szczescie | number:'1.0-2' }}</span>
         </div>
         <div class="attr-item stat-combat">
           <span class="attr-label">Inicjatywa</span>
-          <span class="attr-value">{{ dashboardValues?.inicjatywa || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.inicjatywa | number:'1.0-2' }}</span>
         </div>
         <div class="attr-item stat-combat">
           <span class="attr-label">Regeneracja</span>
-          <span class="attr-value">{{ dashboardValues?.regeneracja || 0 }}</span>
+          <span class="attr-value">{{ dashboardValues?.regeneracja | number:'1.0-2' }}</span>
         </div>
       </div>
     </div>
@@ -107,23 +103,23 @@
           <div class="damage-range">{{ weapon.critDmgMin }} – {{ weapon.critDmgMax }}</div>
         </div>
         <div class="combat-values">
-          <div class="value-badge combat-badge-attacks">
+          <div class="value-badge">
             <div>{{ weapon.iloscAtakow }}</div>
             <span class="sub-text">Ataki</span>
           </div>
-          <div class="value-badge combat-badge-critical" *ngIf="weapon.critChance !== undefined">
+          <div class="value-badge" *ngIf="weapon.critChance !== undefined">
             <div>{{  weapon.critChance | number:'1.1-2' }}</div>
             <span class="sub-text">Kryt. szansa</span>
           </div>
-          <div class="value-badge combat-badge-multi" *ngIf="weapon.critMulti !== undefined">
+          <div class="value-badge" *ngIf="weapon.critMulti !== undefined">
             <div>×{{ weapon.critMulti }}</div>
             <span class="sub-text">Kryt. mnożnik</span>
           </div>
-          <div class="value-badge combat-badge-hit" *ngIf="weapon.trafienie !== undefined">
+          <div class="value-badge " *ngIf="weapon.trafienie !== undefined">
             <div>{{ weapon.trafienie }}</div>
             <span class="sub-text">Trafienie</span>
           </div>
-          <div class="value-badge combat-badge-ignore" *ngIf="weapon.ignore !== undefined">
+          <div class="value-badge" *ngIf="weapon.ignore !== undefined">
             <div>{{ weapon.ignore | number:'1.0-2' }}</div>
             <span class="sub-text">Ignore</span>
           </div>
