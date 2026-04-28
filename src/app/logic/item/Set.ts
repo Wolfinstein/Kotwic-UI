@@ -5,6 +5,9 @@
 
 import { ItemRarity } from './constants';
 import { Stats } from './Stats';
+import { MultiplicativeBonus as InteractionBonus } from '../interactions/MultiplicativeBonus';
+
+export type MultiplicativeBonus = InteractionBonus | { [key: string]: number };
 
 export enum SetType {
   WZMOCNIONY = 'Wzmocniony',
@@ -42,10 +45,6 @@ export enum SetType {
   PAJECZY = 'Pajeczy',
   SLONECZNY = 'Sloneczny',
   CZARNY = 'Czarny'
-}
-
-export interface MultiplicativeBonus {
-  [key: string]: number;
 }
 
 export class Set {

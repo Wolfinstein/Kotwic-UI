@@ -1077,6 +1077,78 @@ calculateStuff(c: Character): DashboardValues {
     }
   }
 
+private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: ItemGenre | undefined): { minDmg: number, maxDmg: number } {
+  let minDmg = 0;
+  let maxDmg = 0;
+
+  const beheBonuses = bonuses.filter(b => b.type === 'BEHE');
+  const otherBonuses = bonuses.filter(b => b.type !== 'BEHE' && b.type !== 'AMBICJA');
+  const ambitjaBonuses = bonuses.filter(b => b.type === 'AMBICJA');
+
+  const allBonusesToProcess = [
+    ...beheBonuses,
+    ...otherBonuses,
+    ...ambitjaBonuses
+  ];
+
+  for (const b of allBonusesToProcess) {
+    switch (b.type) {
+      case 'SKRZYDLA':
+        player.addWyglad(Math.floor(player.stats.spostrzegawczosc * (b.licznik / b.mianownik * b.mnoznik)));
+        break;
+      case 'SCIEGNA':
+        player.addWyglad(Math.floor(player.stats.zwinnosc * (b.licznik / b.mianownik * b.mnoznik)));
+        break;
+      case 'MIESNIE':
+        if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
+            minDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
+            maxDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
+        }
+        break;
+      case 'BEHE':
+        minDmg += Math.floor(player.stats.zwinnosc + (player.stats.wiedza + player.stats.inteligencja) * (b.licznik / b.mianownik * b.mnoznik));
+        maxDmg += Math.floor(player.stats.zwinnosc + (player.stats.wiedza + player.stats.inteligencja) * (b.licznik / b.mianownik * b.mnoznik));
+        break;
+      case 'OSWIECONY':
+        if(genre === ItemGenre.GUN_1H || genre === ItemGenre.GUN_2H) {
+          minDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
+          maxDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
+        }
+        break;
+      case 'AMBICJA':
+        minDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
+        maxDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
+        break;
+      case 'CZARNY':
+        if (genre === ItemGenre.WHITE_2H) {
+          minDmg += Math.floor(player.stats.sila / b.mianownik);
+          maxDmg += Math.floor(player.stats.sila / b.mianownik);
+        }
+        break;
+      case 'TYTAN':
+        if (genre === ItemGenre.WHITE_1H) {
+          minDmg += Math.floor(player.stats.sila / b.mianownik);
+          maxDmg += Math.floor(player.stats.sila / b.mianownik);
+        }
+        break;
+      case 'SLONECZNY':
+        if(genre === ItemGenre.GUN_2H) {
+          minDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
+          maxDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
+        }
+        break;
+      case 'JASTRZEBI':
+        if(genre === ItemGenre.GUN_1H) {
+          minDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.mnoznik;
+          maxDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.mnoznik;
+        }
+        break;
+    }
+  }
+
+  return { minDmg, maxDmg };
+}
+
   private constructWeaponName(weapon: Item): string {
     const parts: string[] = [];
 
@@ -1117,6 +1189,10 @@ calculateStuff(c: Character): DashboardValues {
       let critMulti = 1;
 
       player.resolveWeaponItem(weapon);
+
+      const bonusResults = this.resolveBonuses(player.bonuses, player, weapon, genre);
+      minDmg += bonusResults.minDmg;
+      maxDmg += bonusResults.maxDmg;
 
       if (genre === ItemGenre.WHITE_2H) {
         minDmg = player.stats.minDpsBiala2h + player.stats.sila;
