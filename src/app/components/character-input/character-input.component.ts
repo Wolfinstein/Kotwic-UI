@@ -181,8 +181,8 @@ attributes = [
 { key: 'charyzma',          label: 'Charyzma' },
 { key: 'wplywy',             label: 'Wplywy' },
 { key: 'spostrzegawczosc',  label: 'Spostrzegawczosc' },
-{ key: 'inteligencja',      label: 'inteligencja' },
-{ key: 'wiedza',            label: 'wiedza' },
+{ key: 'inteligencja',      label: 'Inteligencja' },
+{ key: 'wiedza',            label: 'Wiedza' },
 ];
 
 evolutions = [
