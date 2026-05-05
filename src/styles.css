@@ -1,10 +1,110 @@
+/* ─────────────────────────────────────────────────────── */
+/* MOBILE-FIRST GLOBAL STYLES                             */
+/* ─────────────────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+}
+
 html, body {
-  margin: 0 !important;
+  margin: 0;
   padding: 0;
   background: #5F2E2F;
-  height: 100%;
+  color: #f6e8ea;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
 }
+
 :host {
   display: block;
+}
+
+/* ─────────────────────────────────────────────────────── */
+/* NORMALIZE & RESET                                      */
+/* ─────────────────────────────────────────────────────── */
+
+button, input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Prevent iOS zoom on input focus */
+input, textarea, select {
+  font-size: 16px;
+}
+
+/* ─────────────────────────────────────────────────────── */
+/* FOCUS STYLES FOR ACCESSIBILITY                         */
+/* ─────────────────────────────────────────────────────── */
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid #6A87AB;
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────── */
+/* MOBILE-FIRST CONTAINER                                 */
+/* ─────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  html, body {
+    font-size: 10px;
+  }
+
+  button, input[type="button"], input[type="submit"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ─────────────────────────────────────────────────────── */
+/* SCROLLBAR STYLES (Optional)                            */
+/* ─────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #5F2E2F;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6A87AB;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8aa5c7;
 }

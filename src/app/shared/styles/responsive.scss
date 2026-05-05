@@ -1,0 +1,273 @@
+// ──────────────────────────────────────────────────────────
+// RESPONSIVE UTILITIES & MIXINS
+// ──────────────────────────────────────────────────────────
+
+@import './design-system.scss';
+
+// ──────────────────────────────────────────────────────────
+// Media Query Mixins
+// ──────────────────────────────────────────────────────────
+
+@mixin media-mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin media-mobile-sm {
+  @media (max-width: 480px) {
+    @content;
+  }
+}
+
+@mixin media-mobile-lg {
+  @media (min-width: 481px) and (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin media-tablet {
+  @media (min-width: 769px) and (max-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin media-tablet-portrait {
+  @media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+    @content;
+  }
+}
+
+@mixin media-tablet-landscape {
+  @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+    @content;
+  }
+}
+
+@mixin media-desktop {
+  @media (min-width: 1281px) {
+    @content;
+  }
+}
+
+@mixin media-desktop-lg {
+  @media (min-width: 1920px) {
+    @content;
+  }
+}
+
+@mixin media-landscape {
+  @media (orientation: landscape) {
+    @content;
+  }
+}
+
+@mixin media-portrait {
+  @media (orientation: portrait) {
+    @content;
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// Breakpoint-based Grid Mixin
+// ──────────────────────────────────────────────────────────
+
+@mixin responsive-grid($cols-mobile: 1, $cols-tablet: 2, $cols-desktop: 3, $gap: spacing('lg')) {
+  display: grid;
+  gap: $gap;
+  grid-template-columns: repeat($cols-mobile, 1fr);
+
+  @include media-tablet {
+    grid-template-columns: repeat($cols-tablet, 1fr);
+  }
+
+  @include media-desktop {
+    grid-template-columns: repeat($cols-desktop, 1fr);
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// Responsive Container
+// ──────────────────────────────────────────────────────────
+
+@mixin responsive-container {
+  width: 100%;
+  padding: 0 spacing('lg');
+
+  @include media-tablet {
+    padding: 0 spacing('xl');
+  }
+
+  @include media-desktop {
+    padding: 0;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// Touch Target Sizing
+// ──────────────────────────────────────────────────────────
+
+@mixin touch-target {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+}
+
+@mixin touch-padding {
+  padding: spacing('md') spacing('lg');
+
+  @include media-desktop {
+    padding: spacing('sm') spacing('md');
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// Input Height Responsive
+// ──────────────────────────────────────────────────────────
+
+@mixin responsive-input-height {
+  height: var(--input-height-mobile);
+
+  @include media-desktop {
+    height: var(--input-height-desktop);
+  }
+}
+
+// ──────────────────────────────────────────────────────────
+// Utility Classes
+// ──────────────────────────────────────────────────────────
+
+// Display utilities
+.visible-mobile {
+  display: block;
+
+  @include media-tablet {
+    display: none;
+  }
+}
+
+.visible-tablet {
+  display: none;
+
+  @include media-tablet {
+    display: block;
+  }
+
+  @include media-desktop {
+    display: none;
+  }
+}
+
+.visible-desktop {
+  display: none;
+
+  @include media-desktop {
+    display: block;
+  }
+}
+
+.hidden-mobile {
+  @include media-mobile {
+    display: none;
+  }
+}
+
+.hidden-tablet {
+  @include media-tablet {
+    display: none;
+  }
+}
+
+.hidden-desktop {
+  @include media-desktop {
+    display: none;
+  }
+}
+
+// Flexbox responsive
+.flex-mobile-col {
+  @include media-mobile {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.flex-tablet-row {
+  @include media-tablet {
+    display: flex;
+    flex-direction: row;
+  }
+}
+
+.flex-desktop-row {
+  @include media-desktop {
+    display: flex;
+    flex-direction: row;
+  }
+}
+
+// Grid responsive
+.grid-mobile-1 {
+  @include responsive-grid(1, 2, 3);
+}
+
+.grid-mobile-2 {
+  @include responsive-grid(2, 3, 4);
+}
+
+// Spacing responsive
+.px-mobile-lg {
+  @include media-mobile {
+    padding-left: spacing('lg');
+    padding-right: spacing('lg');
+  }
+}
+
+.py-mobile-lg {
+  @include media-mobile {
+    padding-top: spacing('lg');
+    padding-bottom: spacing('lg');
+  }
+}
+
+// Font responsive
+.text-responsive {
+  font-size: font-size('sm');
+
+  @include media-tablet {
+    font-size: font-size('base');
+  }
+
+  @include media-desktop {
+    font-size: font-size('lg');
+  }
+}
+
+// Width utilities
+.full-width-mobile {
+  @include media-mobile {
+    width: 100%;
+  }
+}
+
+.full-width-tablet {
+  @include media-tablet {
+    width: 100%;
+  }
+}
+
+// Container utilities
+.container-responsive {
+  @include responsive-container;
+}
+
+// ──────────────────────────────────────────────────────────
+// Print Styles
+// ──────────────────────────────────────────────────────────
+
+@media print {
+  .no-print {
+    display: none;
+  }
+}

@@ -5,6 +5,9 @@ import { CharacterService } from '../../services/character.service';
 import { Character, EquipmentItem } from '../../models/character';
 import { WeaponDictionary, ArmourDictionary, JewelsDictionary, BaseDictionary } from '../../logic/dictionaries';
 import { ItemGenre, PrefixType, SuffixType, ItemType, ItemRarity } from '../../logic/item';
+import { CollapsibleSectionComponent } from '../../shared/components/collapsible-section/collapsible-section.component';
+import { CompactInputComponent } from '../../shared/components/compact-input/compact-input.component';
+import { EquipmentSlotCardComponent } from '../../shared/components/equipment-slot-card/equipment-slot-card.component';
 
 // ─── Equipment Dictionaries ───────────────────────────────────────────────────
 
@@ -133,7 +136,13 @@ weapon2: 'weapon1h',
 @Component({
 selector: 'app-character-input',
 standalone: true,
-imports: [CommonModule, FormsModule],
+imports: [
+  CommonModule,
+  FormsModule,
+  CollapsibleSectionComponent,
+  CompactInputComponent,
+  EquipmentSlotCardComponent
+],
 templateUrl: './character-input.component.html',
 styleUrl: './character-input.component.css'
 })

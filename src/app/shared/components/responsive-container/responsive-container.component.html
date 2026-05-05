@@ -1,0 +1,7 @@
+<div [ngClass]="[
+  'responsive-container',
+  'container-' + type,
+  { 'with-padding': padding, 'centered': centered }
+]">
+  <ng-content></ng-content>
+</div>

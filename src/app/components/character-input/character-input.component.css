@@ -1,5 +1,5 @@
 .input-panel {
-  padding: 20px;
+  padding: 8px;
   background: #5F2E2F;
   overflow: hidden;
   height: 100vh;
@@ -12,11 +12,30 @@
 
 .panel-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
   flex: 1;
   min-height: 0;
   align-items: start;
+  overflow-y: auto;
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 769px) {
+  .panel-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Desktop: 3 columns (original layout) */
+@media (min-width: 1281px) {
+  .input-panel {
+    padding: 20px;
+  }
+
+  .panel-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }
 
 .column {
@@ -25,12 +44,26 @@
   gap: 12px;
 }
 
-.column:first-child {
-  grid-row: 1 / -1;
+/* Desktop layout (3 columns) */
+@media (min-width: 1281px) {
+  .column:first-child {
+    grid-row: 1 / -1;
+  }
+
+  .column-equipment {
+    grid-row: 1 / 3;
+  }
 }
 
-.column-equipment {
-  grid-row: 1 / 3;
+/* Mobile & tablet: no special grid row settings */
+@media (max-width: 1280px) {
+  .column:first-child {
+    grid-row: auto;
+  }
+
+  .column-equipment {
+    grid-row: auto;
+  }
 }
 
 .section-equipment {
@@ -90,6 +123,12 @@
   gap: 5px;
 }
 
+@media (max-width: 768px) {
+  .equipment-grid {
+    gap: 8px;
+  }
+}
+
 .eq-slot-btn {
   display: flex;
   align-items: center;
@@ -105,6 +144,20 @@
   transition: all 0.2s ease;
   text-align: left;
   overflow: hidden;
+  min-height: 24px;
+}
+
+/* Mobile: larger touch targets */
+@media (max-width: 768px) {
+  .eq-slot-btn {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 11px;
+  }
+
+  .eq-slot-icon {
+    font-size: 18px;
+  }
 }
 
 .eq-slot-btn:hover:not([disabled]) {
@@ -239,6 +292,88 @@
 }
 
 .bonus-item input:hover { border-color: #c14953; }
+
+/* ─── Responsive Input Styles ──────────────────────────── */
+.section input[type="number"],
+.section input[type="text"],
+.section select {
+  min-height: 24px;
+  padding: 4px 6px;
+  font-size: 10px;
+}
+
+@media (max-width: 768px) {
+  .section input[type="number"],
+  .section input[type="text"],
+  .section select {
+    min-height: 32px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
+
+/* ─── Section Responsive ───────────────────────────────── */
+.section {
+  flex: 0 0 auto;
+  padding: 8px;
+  border: 1px solid #6A87AB;
+  border-radius: 4px;
+  background: #00192d;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 10px;
+  }
+}
+
+.section h3 {
+  margin: 0 0 8px 0;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6A87AB;
+}
+
+@media (max-width: 768px) {
+  .section h3 {
+    font-size: 11px;
+  }
+}
+
+/* ─── Compact Grid ─────────────────────────────────────── */
+.compact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .compact-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1281px) {
+  .compact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.compact-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.compact-item label {
+  font-size: 9px;
+  font-weight: 600;
+  color: #6A87AB;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
 
 .arcane-checkbox {
   appearance: none;
