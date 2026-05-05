@@ -454,8 +454,10 @@ calculateStuff(c: Character): DashboardValues {
       return;
     }
 
+      console.log(JSON.parse(JSON.stringify(c))); // ✅ deep snapshot
+
     for (const bonus of c.huntBonuses) {
-      switch (bonus.toLowerCase()) {
+      switch (bonus) {
         case 'Juggernaut':
           p.addTwardosc(1);
           break;
@@ -470,9 +472,13 @@ calculateStuff(c: Character): DashboardValues {
           p.addTrafienieProcentoweBiala(0.2);
           p.addTrafienieProcentoweDystans(0.2);
           break;
-        case 'Rzeznik':
+        case 'Rzeźnik':
           p.addCritMultiBiala1h(0.5);
           p.addCritMultiBiala2h(1);
+          p.addCritMultiPalna1h(0.5);
+          p.addCritMultiPalna2h(1);
+          p.addCritMultiDystans1h(0.5);
+          p.addCritMultiDystans2h(1);
           break;
       }
     }
@@ -1084,8 +1090,6 @@ private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: Item
   let minDmg = 0;
   let maxDmg = 0;
 
-      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
-
 
   const beheBonuses = bonuses.filter(b => b.type === 'BEHE');
   const otherBonuses = bonuses.filter(b => b.type !== 'BEHE' && b.type !== 'AMBICJA');
@@ -1153,7 +1157,6 @@ private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: Item
     }
   }
 
-      console.log(JSON.parse(JSON.stringify(player))); // ✅ deep snapshot
 
 
   return { minDmg, maxDmg };
