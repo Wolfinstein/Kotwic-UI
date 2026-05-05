@@ -35,6 +35,7 @@ export class TalismanyAndArkany {
   maskaWladzy: number = 0;
   lowca: number = 0;
   piesnKrwi: number = 0;
+  cichyLowca: number = 0;
 
   constructor(
     aMajestat: number = 0,
@@ -64,7 +65,8 @@ export class TalismanyAndArkany {
     maskaStrachu: number = 0,
     maskaWladzy: number = 0,
     lowca: number = 0,
-    piesnKrwi: number = 0
+    piesnKrwi: number = 0,
+    cichyLowca: number = 0
   ) {
     this.aMajestat = aMajestat;
     this.aMaskaOff = aMaskaOff;
@@ -94,6 +96,7 @@ export class TalismanyAndArkany {
     this.maskaWladzy = maskaWladzy;
     this.lowca = lowca;
     this.piesnKrwi = piesnKrwi;
+    this.cichyLowca = cichyLowca;
   }
 
   static builder() {
@@ -111,6 +114,7 @@ export class TalismanyAndArkany {
     this.doOtchlan(p1);
     this.doPotega(p1);
     this.doAura(p1);
+    this.doCichyLowca(p1);
     this.doMaskaOffa(p1);
     this.doLowca(p1);
     this.doPiesnKrwi(p1);
@@ -232,6 +236,26 @@ export class TalismanyAndArkany {
         player.addAllCrit(-0.25);
         player.addCritMulti(0.45);
         player.setZiz4(true);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+
+    private doCichyLowca(player: Player): Player {
+    switch (this.cichyLowca) {
+      case 1:
+        player.addCritMulti(0.2);
+        break;
+      case 2:
+        player.addCritMulti(0.40);
+        break;
+      case 3:
+        player.addCritMulti(0.6);
+        break;
+      case 4:
+        player.addCritMulti(0.6);
         break;
       default:
         break;

@@ -178,15 +178,15 @@
             <span class="sub-text">Kryt. szansa</span>
           </div>
           <div class="value-badge" *ngIf="weapon.critMulti !== undefined">
-            <div>×{{ weapon.critMulti }}</div>
+            <div>×{{ weapon.critMulti | number:'1.0-2' }}</div>
             <span class="sub-text">Kryt. mnożnik</span>
           </div>
           <div class="value-badge " *ngIf="weapon.trafienieProcentowe !== undefined">
-            <div>{{ weapon.trafienieProcentowe }}</div>
+            <div>{{ weapon.trafienieProcentowe | number:'1.0-2' }}</div>
             <span class="sub-text">Mnoznik %</span>
           </div>
           <div class="value-badge " *ngIf="weapon.trafienie !== undefined">
-            <div>{{ weapon.trafienie }}</div>
+            <div>{{ weapon.trafienie | number:'1.0-2' }}</div>
             <span class="sub-text">Sumaryczny zasięg</span>
           </div>
           <div class="value-badge" *ngIf="weapon.ignore !== undefined">

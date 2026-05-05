@@ -217,7 +217,7 @@ talizmanAttributes = [
 { key: 'auraBestii',         label: 'Aura bestii' },
 { key: 'maskaWladzy',        label: 'Maska wladzy' },
 { key: 'maskaStachu',        label: 'Maska strachu' },
-{ key: 'cichylowca',         label: 'Cichy lowca' },
+{ key: 'cichyLowca',         label: 'Cichy lowca' },
 { key: 'piesnKrwi',          label: 'Piesn krwi' },
 ];
 
@@ -253,6 +253,7 @@ issues = [
 'brak liczenia punktow krwi punkty krwi, troche useless',
 'Spaczony Krawat vs Spaczony Amulet brak ciaglosci w statach',
 'lekki rozjazd inicjatywa i trafienie',
+'szczescie i trafieni przeciwnika nie dziala'
 ];
 
 showIssuesDropdown = false;
