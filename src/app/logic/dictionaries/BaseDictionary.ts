@@ -3,9 +3,6 @@ import { Base, Stats, ItemGenre, ItemRarity, ItemType } from '../item';
 export class BaseDictionary {
 private static bases: Base[] | null = null;
 
-/**
-* Get a base item by genre, type, and rarity
-*/
 static getBase(genre: ItemGenre, type: ItemType, rarity: ItemRarity, playerLvl: number): Base {
     if (!BaseDictionary.bases) {
       BaseDictionary.initializeBases(playerLvl);

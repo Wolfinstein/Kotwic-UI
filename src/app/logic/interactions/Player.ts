@@ -241,7 +241,6 @@ constructor(
     );
 
     if (!nonWeapon || nonWeapon.length === 0) {
-    //  console.log('Nie ma itemów');
       return;
     }
 
@@ -261,7 +260,7 @@ constructor(
     this.stats = itemStats;
   }
 
-    resolveWeaponItem(a : Item): void {
+  resolveWeaponItem(a : Item): void {
 
     let itemStats = this.stats;
       const temp = new Stats();
