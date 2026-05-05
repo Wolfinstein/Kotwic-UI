@@ -394,12 +394,30 @@
   gap: 6px;
 }
 
+/* Desktop: label on left */
+@media (min-width: 1281px) {
+  .compact-item {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
 .compact-item label {
   font-size: 10px;
   font-weight: 600;
   color: #6A87AB;
   text-transform: uppercase;
   letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+/* Desktop: label takes fixed width */
+@media (min-width: 1281px) {
+  .compact-item label {
+    min-width: 60px;
+    flex-shrink: 0;
+  }
 }
 
 .arcane-checkbox {
