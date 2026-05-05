@@ -253,7 +253,7 @@ silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: 
 issues = [
 'opiekun i podkowa razem nie sumuje poprawnie zycka',
 'brak liczenia punktow krwi punkty krwi, troche useless',
-'Spaczony Krawat vs Spaczony Amulet brak ciaglosci w statach',
+'rozbieznosci w bazach przedmiotow np bandana vs czapka, z jakiegos powodu wplywa to na ilosc statow z suffixow',
 'lekki rozjazd inicjatywa i trafienie',
 'szczescie i trafieni przeciwnika nie dziala'
 ];
