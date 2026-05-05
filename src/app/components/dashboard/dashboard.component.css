@@ -1,5 +1,5 @@
 .dashboard-panel {
-  padding: 16px;
+  padding: 8px;
   background: #5F2E2F;
   overflow: hidden;
   height: auto;
@@ -8,6 +8,19 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* Tablet & Desktop padding */
+@media (min-width: 769px) {
+  .dashboard-panel {
+    padding: 12px;
+  }
+}
+
+@media (min-width: 1281px) {
+  .dashboard-panel {
+    padding: 16px;
+  }
 }
 
 h2 {
@@ -54,11 +67,20 @@ h4 {
 
 .info-row {
   display: grid;
-  grid-template-columns: auto 80px auto 80px;
-  gap: 10px;
+  grid-template-columns: auto 1fr;
+  gap: 8px;
   margin-bottom: 6px;
   align-items: center;
-  font-size: 11px;
+  font-size: 10px;
+}
+
+/* Desktop: 4 columns */
+@media (min-width: 1281px) {
+  .info-row {
+    grid-template-columns: auto 80px auto 80px;
+    gap: 10px;
+    font-size: 11px;
+  }
 }
 
 .info-row:last-child {
@@ -84,25 +106,104 @@ h4 {
 
 .attr-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
-  padding: 3px 3px 3px 3px ;
+  padding: 3px 3px 3px 3px;
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 769px) {
+  .attr-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Desktop: 3 columns (original) */
+@media (min-width: 1281px) {
+  .attr-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }
 
 .attr-grid--2col {
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 769px) {
+  .attr-grid--2col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1281px) {
+  .attr-grid--2col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.attr-grid--3col {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 769px) {
+  .attr-grid--3col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1281px) {
+  .attr-grid--3col {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+.attr-grid--4col {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 769px) {
+  .attr-grid--4col {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 1281px) {
+  .attr-grid--4col {
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+  }
 }
 
 .attr-item {
   display: flex;
-  justify-content: space-between;
-  padding: 10px 12px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
   background: #00192d;
   border: 1px solid #6A87AB;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 10px;
   transition: all 0.2s ease;
   cursor: pointer;
+  min-height: 40px;
+  justify-content: center;
+}
+
+/* Tablet: flex row */
+@media (min-width: 769px) {
+  .attr-item {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px 12px;
+    font-size: 11px;
+    min-height: auto;
+  }
+}
+
+/* Desktop: same */
+@media (min-width: 1281px) {
+  .attr-item {
+    font-size: 11px;
+  }
 }
 
 .attr-item:hover {
