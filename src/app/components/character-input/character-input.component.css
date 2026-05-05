@@ -863,11 +863,21 @@ button {
   background: #072944;
   border: 1px solid #6A87AB;
   border-radius: 8px;
-  padding: 20px;
-  max-width: 700px;
-  max-height: 70vh;
+  padding: 16px;
+  max-width: 90vw;
+  width: 100%;
+  max-height: 80vh;
   overflow-y: auto;
   color: #f6e8ea;
+}
+
+/* Desktop: restore original sizing */
+@media (min-width: 1281px) {
+  .modal-content {
+    padding: 20px;
+    max-width: 700px;
+    max-height: 70vh;
+  }
 }
 
 .modal-content h3 {
@@ -899,13 +909,23 @@ button {
 ═══════════════════════════════════════════════════ */
 
 .rune-modal-content {
-  max-width: 720px;
-  width: 90vw;
-  max-height: 80vh;
+  max-width: 95vw;
+  width: 100%;
+  max-height: 85vh;
   overflow-y: hidden;
   display: flex;
   flex-direction: column;
-  padding: 16px 20px;
+  padding: 12px 16px;
+}
+
+/* Desktop: restore original sizing */
+@media (min-width: 1281px) {
+  .rune-modal-content {
+    max-width: 720px;
+    width: 90vw;
+    max-height: 80vh;
+    padding: 16px 20px;
+  }
 }
 
 .rune-modal-header {
@@ -935,11 +955,25 @@ button {
 
 .rune-dual-panel {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr;
   gap: 0;
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+
+/* Tablet: side-by-side */
+@media (min-width: 769px) {
+  .rune-dual-panel {
+    grid-template-columns: 1fr auto 1fr;
+  }
+}
+
+/* Desktop: same */
+@media (min-width: 1281px) {
+  .rune-dual-panel {
+    grid-template-columns: 1fr auto 1fr;
+  }
 }
 
 .rune-panel {
@@ -1134,13 +1168,20 @@ button {
 }
 
 .rune-divider {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 0 10px;
-  gap: 6px;
-  flex-shrink: 0;
+  display: none;
+}
+
+/* Show divider on tablet+ */
+@media (min-width: 769px) {
+  .rune-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
 }
 
 .rune-divider-line {
