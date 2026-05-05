@@ -297,25 +297,49 @@
 .section input[type="number"],
 .section input[type="text"],
 .section select {
-  min-height: 24px;
-  padding: 4px 6px;
-  font-size: 10px;
+  width: 100%;
+  min-height: 28px;
+  padding: 6px 8px;
+  font-size: 11px;
+  border: 1px solid #6A87AB;
+  background: #00192d;
+  color: #f6e8ea;
+  border-radius: 3px;
+  box-sizing: border-box;
+}
+
+.section input[type="number"]:focus,
+.section input[type="text"]:focus,
+.section select:focus {
+  outline: none;
+  border-color: #f6e8ea;
+  background: #072944;
 }
 
 @media (max-width: 768px) {
   .section input[type="number"],
   .section input[type="text"],
   .section select {
-    min-height: 32px;
-    padding: 6px 8px;
+    min-height: 36px;
+    padding: 8px 10px;
     font-size: 12px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .section input[type="number"],
+  .section input[type="text"],
+  .section select {
+    min-height: 32px;
+    padding: 7px 9px;
+    font-size: 11px;
   }
 }
 
 /* ─── Section Responsive ───────────────────────────────── */
 .section {
   flex: 0 0 auto;
-  padding: 8px;
+  padding: 12px;
   border: 1px solid #6A87AB;
   border-radius: 4px;
   background: #00192d;
@@ -323,13 +347,13 @@
 
 @media (max-width: 768px) {
   .section {
-    padding: 10px;
+    padding: 14px;
   }
 }
 
 .section h3 {
-  margin: 0 0 8px 0;
-  font-size: 10px;
+  margin: 0 0 12px 0;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -338,7 +362,8 @@
 
 @media (max-width: 768px) {
   .section h3 {
-    font-size: 11px;
+    font-size: 12px;
+    margin-bottom: 14px;
   }
 }
 
@@ -346,29 +371,31 @@
 .compact-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
+  gap: 12px;
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
   .compact-grid {
     grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
 }
 
 @media (min-width: 1281px) {
   .compact-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 }
 
 .compact-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .compact-item label {
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   color: #6A87AB;
   text-transform: uppercase;
