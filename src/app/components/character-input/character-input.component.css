@@ -1120,3 +1120,32 @@ option:hover, option:checked { background-color: #0f3d63; color: #f6e8ea; }
 .issue-item:hover {
   background: #0f3d63;
 }
+
+/* ─── Equipment Tooltip ───────────────────────────────────── */
+.eq-slot-btn {
+  position: relative;
+}
+
+.eq-slot-btn[data-tooltip]:hover::before {
+  content: attr(data-tooltip);
+  position: fixed;
+  bottom: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -120%);
+  background: #00192d;
+  border: 1px solid #6A87AB;
+  border-radius: 4px;
+  padding: 10px 12px;
+  color: #f6e8ea;
+  font-size: 11px;
+  font-family: 'Courier New', monospace;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-width: 320px;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+  line-height: 1.4;
+  display: block;
+}

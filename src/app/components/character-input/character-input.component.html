@@ -124,7 +124,7 @@
 
         <div class="equipment-grid">
           <!-- Non-weapon slots -->
-          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.head?.base" (click)="openEquipmentModal('head')">
+          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.head?.base" (click)="openEquipmentModal('head')" [attr.data-tooltip]="character?.equipment?.head?.base ? getEquipmentTooltip('head') : null">
             <span class="eq-slot-icon">🪖</span>
             <span class="eq-slot-label">{{ slotButtonLabel('head') }}</span>
             <span *ngIf="character?.equipment?.head?.base" class="eq-slot-rarity" [attr.data-rarity]="character!.equipment.head!.rarity">
@@ -132,7 +132,7 @@
             </span>
           </button>
 
-          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.chest?.base" (click)="openEquipmentModal('chest')">
+          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.chest?.base" (click)="openEquipmentModal('chest')" [attr.data-tooltip]="character?.equipment?.chest?.base ? getEquipmentTooltip('chest') : null">
             <span class="eq-slot-icon">🦺</span>
             <span class="eq-slot-label">{{ slotButtonLabel('chest') }}</span>
             <span *ngIf="character?.equipment?.chest?.base" class="eq-slot-rarity" [attr.data-rarity]="character!.equipment.chest!.rarity">
@@ -140,7 +140,7 @@
             </span>
           </button>
 
-          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.legs?.base" (click)="openEquipmentModal('legs')">
+          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.legs?.base" (click)="openEquipmentModal('legs')" [attr.data-tooltip]="character?.equipment?.legs?.base ? getEquipmentTooltip('legs') : null">
             <span class="eq-slot-icon">👖</span>
             <span class="eq-slot-label">{{ slotButtonLabel('legs') }}</span>
             <span *ngIf="character?.equipment?.legs?.base" class="eq-slot-rarity" [attr.data-rarity]="character!.equipment.legs!.rarity">
@@ -148,7 +148,7 @@
             </span>
           </button>
 
-          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.neck?.base" (click)="openEquipmentModal('neck')">
+          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.neck?.base" (click)="openEquipmentModal('neck')" [attr.data-tooltip]="character?.equipment?.neck?.base ? getEquipmentTooltip('neck') : null">
             <span class="eq-slot-icon">📿</span>
             <span class="eq-slot-label">{{ slotButtonLabel('neck') }}</span>
             <span *ngIf="character?.equipment?.neck?.base" class="eq-slot-rarity" [attr.data-rarity]="character!.equipment.neck!.rarity">
@@ -156,7 +156,7 @@
             </span>
           </button>
 
-          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.finger1?.base" (click)="openEquipmentModal('finger1')">
+          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.finger1?.base" (click)="openEquipmentModal('finger1')" [attr.data-tooltip]="character?.equipment?.finger1?.base ? getEquipmentTooltip('finger1') : null">
             <span class="eq-slot-icon">💍</span>
             <span class="eq-slot-label">{{ slotButtonLabel('finger1') }}</span>
             <span *ngIf="character?.equipment?.finger1?.base" class="eq-slot-rarity" [attr.data-rarity]="character!.equipment.finger1!.rarity">
@@ -164,7 +164,7 @@
             </span>
           </button>
 
-          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.finger2?.base" (click)="openEquipmentModal('finger2')">
+          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.finger2?.base" (click)="openEquipmentModal('finger2')" [attr.data-tooltip]="character?.equipment?.finger2?.base ? getEquipmentTooltip('finger2') : null">
             <span class="eq-slot-icon">💍</span>
             <span class="eq-slot-label">{{ slotButtonLabel('finger2') }}</span>
             <span *ngIf="character?.equipment?.finger2?.base" class="eq-slot-rarity" [attr.data-rarity]="character!.equipment.finger2!.rarity">
@@ -173,7 +173,7 @@
           </button>
 
           <!-- Weapon slots — always show weapon1; weapon2 greyed if 2h mode -->
-          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.weapon1?.base" (click)="openEquipmentModal('weapon1')">
+          <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.weapon1?.base" (click)="openEquipmentModal('weapon1')" [attr.data-tooltip]="character?.equipment?.weapon1?.base ? getEquipmentTooltip('weapon1') : null">
             <span class="eq-slot-icon">⚔️</span>
             <span class="eq-slot-label">{{ weaponMode === '2h' ? (slotButtonLabel('weapon1') || '2H Broń') : slotButtonLabel('weapon1') }}</span>
             <span *ngIf="character?.equipment?.weapon1?.base" class="eq-slot-rarity" [attr.data-rarity]="character!.equipment.weapon1!.rarity">
@@ -186,7 +186,8 @@
             [class.eq-slot-filled]="character?.equipment?.weapon2?.base"
             [class.eq-slot-locked]="weapon2Locked"
             [disabled]="weapon2Locked"
-            (click)="openEquipmentModal('weapon2')">
+            (click)="openEquipmentModal('weapon2')"
+            [attr.data-tooltip]="!weapon2Locked && character?.equipment?.weapon2?.base ? getEquipmentTooltip('weapon2') : null">
             <span class="eq-slot-icon">{{ weapon2Locked ? '🔒' : '⚔️' }}</span>
             <span class="eq-slot-label">{{ weapon2Locked ? 'Zajęte (2H)' : slotButtonLabel('weapon2') }}</span>
             <span *ngIf="!weapon2Locked && character?.equipment?.weapon2?.base" class="eq-slot-rarity" [attr.data-rarity]="character!.equipment.weapon2!.rarity">

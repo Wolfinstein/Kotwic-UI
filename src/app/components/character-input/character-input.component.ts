@@ -2,7 +2,9 @@ import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CharacterService } from '../../services/character.service';
-import { Character, EquipmentItem, ItemRarity } from '../../models/character';
+import { Character, EquipmentItem } from '../../models/character';
+import { WeaponDictionary, ArmourDictionary, JewelsDictionary, BaseDictionary } from '../../logic/dictionaries';
+import { ItemGenre, PrefixType, SuffixType, ItemType, ItemRarity } from '../../logic/item';
 
 // ─── Equipment Dictionaries ───────────────────────────────────────────────────
 
@@ -15,7 +17,7 @@ hasPrefix: boolean;
 hasSuffix: boolean;
 }
 
-export const RARITIES: ItemRarity[] = ['ZWYKLY' , 'DOBRY' , 'DOSKONALY' , 'LEGENDARNY' , 'LEGENDARNY_DOBRY' , 'LEGENDARNY_DOSKONALY' , 'EPICKI'];
+export const RARITIES = ['ZWYKLY' , 'DOBRY' , 'DOSKONALY' , 'LEGENDARNY' , 'LEGENDARNY_DOBRY' , 'LEGENDARNY_DOSKONALY' , 'EPICKI'] as const;
 
 export const BASE_ITEMS: BaseItemDef[] = [
 { name: 'Czapka',            category: 'head',     hasPrefix:true,  hasSuffix: true},
@@ -376,6 +378,183 @@ constructor(private characterService: CharacterService, private ngZone: NgZone, 
       weapon1: '1H Lewy', weapon2: this.weaponMode === '2h' ? '2H' : '1H Prawy',
     };
     return labels[slot] ?? slot;
+  }
+
+  getEquipmentTooltip(slot: string): string {
+    const item = (this.character?.equipment as any)?.[slot] as EquipmentItem | undefined;
+    if (!item || !item.base) return '';
+
+    const tooltip: any = {
+      rarity: item.rarity || null,
+      base: item.base || null,
+      prefix: item.prefix || null,
+      suffix: item.suffix || null,
+      stats: {}
+    };
+
+    try {
+      const itemType = item.base as ItemType;
+      const playerLvl = this.character?.poziom || 1;
+      const rarity = (item.rarity || 'ZWYKLY') as ItemRarity;
+      const genre = this.getGenreForItemType(itemType);
+
+      // Get base item stats
+      try {
+        const base = BaseDictionary.getBase(genre, itemType, rarity, playerLvl);
+        tooltip.stats.base = this.extractStats(base.stats);
+      } catch (e) {
+        // Base item not found, continue
+      }
+
+      // Get prefix stats
+      if (item.prefix && item.prefix.trim()) {
+        try {
+          const prefixType = this.getPrefixTypeByName(item.prefix);
+          const dictionaryType = this.getDictionaryForGenre(genre);
+
+          let prefixStats: any = null;
+          switch (dictionaryType) {
+            case 'weapon':
+              prefixStats = WeaponDictionary.getWeaponPrefix(genre, prefixType, rarity, playerLvl);
+              break;
+            case 'armour':
+              if (genre === ItemGenre.LEGS) {
+                prefixStats = ArmourDictionary.getLegsPrefix(genre, itemType, prefixType, rarity);
+              } else {
+                prefixStats = ArmourDictionary.getArmourPrefix(genre, prefixType, rarity);
+              }
+              break;
+            case 'jewel':
+              prefixStats = JewelsDictionary.getJewelPrefix(genre, prefixType, rarity);
+              break;
+          }
+          if (prefixStats) {
+            tooltip.stats.prefix = this.extractStats(prefixStats.stats);
+          }
+        } catch (e) {
+          // Prefix not found, continue
+        }
+      }
+
+      // Get suffix stats
+      if (item.suffix && item.suffix.trim()) {
+        try {
+          const suffixType = this.getSuffixTypeByName(item.suffix);
+          const dictionaryType = this.getDictionaryForGenre(genre);
+
+          let suffixStats: any = null;
+          switch (dictionaryType) {
+            case 'weapon':
+              suffixStats = WeaponDictionary.getWeaponSuffix(genre, suffixType, rarity, playerLvl);
+              break;
+            case 'armour':
+              suffixStats = ArmourDictionary.getArmourSuffix(genre, suffixType, rarity, playerLvl);
+              break;
+            case 'jewel':
+              suffixStats = JewelsDictionary.getJewelSuffix(genre, suffixType, rarity);
+              break;
+          }
+          if (suffixStats) {
+            tooltip.stats.suffix = this.extractStats(suffixStats.stats);
+          }
+        } catch (e) {
+          // Suffix not found, continue
+        }
+      }
+    } catch (error) {
+      // Silently continue with partial data
+    }
+
+    return JSON.stringify(tooltip, null, 2);
+  }
+
+  private getPrefixTypeByName(name: string): PrefixType {
+    const prefixValues = Object.values(PrefixType);
+    const found = prefixValues.find(v => v === name);
+    if (!found) {
+      throw new Error(`Prefix type not found: ${name}`);
+    }
+    return name as PrefixType;
+  }
+
+  private getSuffixTypeByName(name: string): SuffixType {
+    const suffixValues = Object.values(SuffixType);
+    const found = suffixValues.find(v => v === name);
+    if (!found) {
+      throw new Error(`Suffix type not found: ${name}`);
+    }
+    return name as SuffixType;
+  }
+
+  private getGenreForItemType(itemType: ItemType): ItemGenre {
+    const legTypes = [ItemType.SZORTY, ItemType.SPODNIE, ItemType.SPODNICA, ItemType.KILT];
+    const chestTypes = [ItemType.KURTKA, ItemType.KAMIZELKA, ItemType.KOLCZUGA, ItemType.ZBROJAWARSTWOWA, ItemType.KOSZULKA, ItemType.MARYNARKA, ItemType.PELNAZBROJA, ItemType.PELERYNA, ItemType.GORSET, ItemType.SMOKING];
+    const headTypes = [ItemType.CZAPKA, ItemType.KASK, ItemType.HELM, ItemType.MASKA, ItemType.OBRECZ, ItemType.KOMINIARKA, ItemType.KAPELUSZ, ItemType.KORONA, ItemType.OPASKA, ItemType.BANDANA];
+    const ringTypes = [ItemType.PIERSCIEN, ItemType.SYGNET, ItemType.BRANSOLETA];
+    const neckTypes = [ItemType.AMULET, ItemType.LANCUCH, ItemType.NASZYJNIK, ItemType.KRAWAT, ItemType.APASZKA];
+    const melee1hTypes = [ItemType.PALKA, ItemType.NOZ, ItemType.SZTYLET, ItemType.RAPIER, ItemType.MIECZ, ItemType.TOPOR, ItemType.KASTET, ItemType.KAMA, ItemType.PIESCNIEBIOS, ItemType.WAKIZASHI];
+    const melee2hTypes = [ItemType.MACZUGA, ItemType.LOM, ItemType.PIKA, ItemType.TOPORDWURECZNY, ItemType.MIECZDWURECZNY, ItemType.KOSA, ItemType.KORBACZ, ItemType.HALABARDA, ItemType.KATANA, ItemType.PILALANCUCHOWA];
+    const gun1hTypes = [ItemType.GLOCK, ItemType.MAGNUM, ItemType.DESERT_EAGLE, ItemType.BERETTA, ItemType.UZI, ItemType.MP5K, ItemType.SKORPION];
+    const gun2hTypes = [ItemType.KARABINMYSLIWSKI, ItemType.STRZELBA, ItemType.AK47, ItemType.MIOTACZPLOMIENI, ItemType.FN_FAL, ItemType.POLAUTOMATSNAJPERSKI, ItemType.KARABINSNAJPERSKI];
+    const range1hTypes = [ItemType.KROTKILUK, ItemType.LUK, ItemType.DLUGILUK, ItemType.NOZDORZUCANIA, ItemType.TOPOREKDORZUCANIA, ItemType.SHURIKEN];
+    const range2hTypes = [ItemType.KUSZA, ItemType.CIEZKAKUSZA, ItemType.LUKREFLEKSYJNY, ItemType.OSZCZEP, ItemType.PILUM];
+
+    if (legTypes.includes(itemType)) return ItemGenre.LEGS;
+    if (chestTypes.includes(itemType)) return ItemGenre.CHEST;
+    if (headTypes.includes(itemType)) return ItemGenre.HEAD;
+    if (ringTypes.includes(itemType)) return ItemGenre.FINGER;
+    if (neckTypes.includes(itemType)) return ItemGenre.NECK;
+    if (melee1hTypes.includes(itemType)) return ItemGenre.WHITE_1H;
+    if (melee2hTypes.includes(itemType)) return ItemGenre.WHITE_2H;
+    if (gun1hTypes.includes(itemType)) return ItemGenre.GUN_1H;
+    if (gun2hTypes.includes(itemType)) return ItemGenre.GUN_2H;
+    if (range1hTypes.includes(itemType)) return ItemGenre.RANGE_1H;
+    if (range2hTypes.includes(itemType)) return ItemGenre.RANGE_2H;
+
+    throw new Error(`Unknown item type: ${itemType}`);
+  }
+
+  private getDictionaryForGenre(genre: ItemGenre): 'weapon' | 'armour' | 'jewel' {
+    const weaponGenres = [ItemGenre.WHITE_1H, ItemGenre.WHITE_2H, ItemGenre.GUN_1H, ItemGenre.GUN_2H, ItemGenre.RANGE_1H, ItemGenre.RANGE_2H];
+    const armourGenres = [ItemGenre.HEAD, ItemGenre.CHEST, ItemGenre.LEGS];
+    const jewelGenres = [ItemGenre.NECK, ItemGenre.FINGER];
+
+    if (weaponGenres.includes(genre)) return 'weapon';
+    if (armourGenres.includes(genre)) return 'armour';
+    if (jewelGenres.includes(genre)) return 'jewel';
+
+    throw new Error(`Unknown genre: ${genre}`);
+  }
+
+  private extractStats(stats: any): Record<string, any> {
+    const result: Record<string, any> = {};
+    if (!stats) return result;
+
+    const statProps = [
+      // Melee weapon stats (Białą)
+      'trafienieBiala', 'atakiBiala', 'minDpsBiala1h', 'maxDpsBiala1h', 'minDpsBiala2h', 'maxDpsBiala2h',
+      'critChanceBiala1h', 'critChanceBiala2h', 'critMultiBiala1h', 'unikBiala',
+      // Gun weapon stats (Palna)
+      'atakiPalna', 'trafieniePalna', 'minDpsPalna1h', 'maxDpsPalna1h', 'minDpsPalna2h', 'maxDpsPalna2h',
+      'critChancePalna1h', 'critChancePalna2h', 'ignoreObrony',
+      // Range weapon stats (Dystans)
+      'atakiDystans1h', 'atakiDystans2h', 'trafienieDystans', 'minDpsDystans1h', 'maxDpsDystans1h', 'minDpsDystans2h', 'maxDpsDystans2h',
+      'critChanceDystans1h', 'critChanceDystans2h', 'unikDystans',
+      // Defense and armor
+      'obronaPrzedmiotow', 'obronaDodatkowa', 'twardosc', 'redukcjaObrazen', 'mnoznikObrony', 'odpornosc',
+      // Attributes
+      'sila', 'zwinnosc', 'spostrzegawczosc', 'inteligencja', 'wiedza', 'wyglad', 'charyzma', 'wplywy',
+      // Utility
+      'punktyZycia', 'punktyKrwi', 'szczescie'
+    ];
+
+    statProps.forEach(prop => {
+      if (stats[prop] !== undefined && stats[prop] !== null && stats[prop] !== 0) {
+        result[prop] = stats[prop];
+      }
+    });
+
+    return result;
   }
 
   /** Is weapon2 locked (2H mode) */
