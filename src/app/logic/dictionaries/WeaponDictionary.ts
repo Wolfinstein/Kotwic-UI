@@ -1,7 +1,5 @@
 import { Prefix, Suffix, Stats, ItemGenre, ItemRarity, PrefixType, SuffixType } from '../item';
-
 export class WeaponDictionary {
-
   static getWeaponPrefix(
     genre: ItemGenre,
     prefixType: PrefixType,
@@ -12,17 +10,13 @@ export class WeaponDictionary {
     const found = prefixes.find(
       (p) => p.genre === genre && p.prefixType === prefixType && p.rarity === rarity
     );
-
     if (!found) {
       throw new Error(
         `Weapon prefix not found for genre: ${genre}, type: ${prefixType}, rarity: ${rarity}`
       );
     }
-
     return found;
   }
-
-
   static getWeaponSuffix(
     genre: ItemGenre,
     suffixType: SuffixType,
@@ -33,19 +27,15 @@ export class WeaponDictionary {
     const found = suffixes.find(
       (s) => s.genre === genre && s.suffixType === suffixType && s.rarity === rarity
     );
-
     if (!found) {
       throw new Error(
         `Weapon suffix not found for genre: ${genre}, type: ${suffixType}, rarity: ${rarity}`
       );
     }
-
     return found;
   }
-
   private static initializePrefixes(playerLvl: number): Prefix[] {
     const prefixes: Prefix[] = [];
-
     prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.OSTRY, Stats.builder().minDpsBiala1h(2).maxDpsBiala1h(2).build(), ItemRarity.ZWYKLY));
     prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.OSTRY, Stats.builder().minDpsBiala1h(3).maxDpsBiala1h(3).build(), ItemRarity.DOBRY));
     prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.OSTRY, Stats.builder().minDpsBiala1h(4).maxDpsBiala1h(4).build(), ItemRarity.DOSKONALY));
@@ -333,13 +323,10 @@ export class WeaponDictionary {
     prefixes.push(new Prefix(ItemGenre.WHITE_2H, PrefixType.ZWINNY, Stats.builder().atakiBiala(7).build(), ItemRarity.LEGENDARNY_DOBRY));
     prefixes.push(new Prefix(ItemGenre.WHITE_2H, PrefixType.ZWINNY, Stats.builder().atakiBiala(9).build(), ItemRarity.LEGENDARNY_DOSKONALY));
     prefixes.push(new Prefix(ItemGenre.WHITE_2H, PrefixType.ZWINNY, Stats.builder().atakiBiala(11).build(), ItemRarity.EPICKI));
-
     return prefixes;
   }
-
   private static initializeSuffixes(playerLvl: number): Suffix[] {
     const suffixes: Suffix[] = [];
-
     suffixes.push(new Suffix(ItemGenre.WHITE_1H, SuffixType.SEKTY, Stats.builder().charyzma(-3).wplywy(2).trafienieBiala(5).build(), ItemRarity.ZWYKLY));
     suffixes.push(new Suffix(ItemGenre.WHITE_1H, SuffixType.SEKTY, Stats.builder().charyzma(-3).wplywy(3).trafienieBiala(8).build(), ItemRarity.DOBRY));
     suffixes.push(new Suffix(ItemGenre.WHITE_1H, SuffixType.SEKTY, Stats.builder().charyzma(-3).wplywy(4).trafienieBiala(10).build(), ItemRarity.DOSKONALY));
@@ -732,7 +719,6 @@ export class WeaponDictionary {
     suffixes.push(new Suffix(ItemGenre.RANGE_2H, SuffixType.REAKCJI, Stats.builder().spostrzegawczosc(9).zwinnosc(11).trafienieDystans(13).critChanceDystans(0.17).minDpsDystans2h(17).maxDpsDystans2h(17).build(), ItemRarity.LEGENDARNY_DOBRY));
     suffixes.push(new Suffix(ItemGenre.RANGE_2H, SuffixType.REAKCJI, Stats.builder().spostrzegawczosc(11).zwinnosc(14).trafienieDystans(17).critChanceDystans(0.22).minDpsDystans2h(22).maxDpsDystans2h(22).build(), ItemRarity.LEGENDARNY_DOSKONALY));
     suffixes.push(new Suffix(ItemGenre.RANGE_2H, SuffixType.REAKCJI, Stats.builder().spostrzegawczosc(14).zwinnosc(18).trafienieDystans(21).critChanceDystans(0.27).minDpsDystans2h(27).maxDpsDystans2h(27).build(), ItemRarity.EPICKI));
-
     return suffixes;
   }
 }

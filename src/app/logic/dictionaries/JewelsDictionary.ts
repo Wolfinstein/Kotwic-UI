@@ -1,7 +1,5 @@
 import { Prefix, Suffix, Stats, ItemGenre, PrefixType, SuffixType } from '../item';
-
 export class JewelsDictionary {
-
   static getJewelPrefix(
     genre: ItemGenre,
     prefixType: PrefixType
@@ -10,17 +8,13 @@ export class JewelsDictionary {
     const found = prefixes.find(
       (p) => p.genre === genre && p.prefixType === prefixType
     );
-
     if (!found) {
       throw new Error(
         `Jewel prefix not found for genre: ${genre}, type: ${prefixType}`
       );
     }
-
     return found;
   }
-
-
   static getJewelSuffix(
     genre: ItemGenre,
     suffixType: SuffixType
@@ -29,19 +23,15 @@ export class JewelsDictionary {
     const found = suffixes.find(
       (s) => s.genre === genre && s.suffixType === suffixType
     );
-
     if (!found) {
       throw new Error(
         `Jewel suffix not found for genre: ${genre}, type: ${suffixType}`
       );
     }
-
     return found;
   }
-
   private static initializePrefixes(): Prefix[] {
     const prefixes: Prefix[] = [];
-
     prefixes.push(new Prefix(ItemGenre.NECK, PrefixType.MIEDZIANY, Stats.builder().wyglad(2).build()));
     prefixes.push(new Prefix(ItemGenre.NECK, PrefixType.SREBRNY, Stats.builder().wyglad(3).build()));
     prefixes.push(new Prefix(ItemGenre.NECK, PrefixType.SZMARAGDOWY, Stats.builder().wyglad(1).charyzma(2).build()));
@@ -98,13 +88,10 @@ export class JewelsDictionary {
     prefixes.push(new Prefix(ItemGenre.FINGER, PrefixType.SLONECZNY, Stats.builder().spostrzegawczosc(2).wyglad(4).build()));
     prefixes.push(new Prefix(ItemGenre.FINGER, PrefixType.JASTRZEBI, Stats.builder().spostrzegawczosc(3).wplywy(3).build()));
     prefixes.push(new Prefix(ItemGenre.FINGER, PrefixType.CZARNY, Stats.builder().wyglad(-3 - 5).wplywy(10).build()));
-
     return prefixes;
   }
-
   private static initializeSuffixes(): Suffix[] {
     const suffixes: Suffix[] = [];
-
     suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.URODY, Stats.builder().wyglad(3).build()));
     suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.WLADZY, Stats.builder().charyzma(3).build()));
     suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.WYSTEPKU, Stats.builder().wplywy(5).build()));
@@ -143,7 +130,6 @@ export class JewelsDictionary {
     suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.KRWI, Stats.builder().punktyKrwi(0.05).build()));
     suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.SZALENCA, Stats.builder().szczescie(5).inteligencja(4).wplywy(-6).build()));
     suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.SZCZESCIA, Stats.builder().szczescie(5).build()));
-
     return suffixes;
   }
 }

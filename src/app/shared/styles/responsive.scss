@@ -1,9 +1,5 @@
 @import './design-system.scss';
 
-
-
-
-
 @mixin media-mobile {
   @media (max-width: 768px) {
     @content;
@@ -64,10 +60,6 @@
   }
 }
 
-
-
-
-
 @mixin responsive-grid($cols-mobile: 1, $cols-tablet: 2, $cols-desktop: 3, $gap: spacing('lg')) {
   display: grid;
   gap: $gap;
@@ -81,10 +73,6 @@
     grid-template-columns: repeat($cols-desktop, 1fr);
   }
 }
-
-
-
-
 
 @mixin responsive-container {
   width: 100%;
@@ -101,10 +89,6 @@
   }
 }
 
-
-
-
-
 @mixin touch-target {
   min-height: var(--touch-target-min);
   min-width: var(--touch-target-min);
@@ -118,10 +102,6 @@
   }
 }
 
-
-
-
-
 @mixin responsive-input-height {
   height: var(--input-height-mobile);
 
@@ -129,10 +109,6 @@
     height: var(--input-height-desktop);
   }
 }
-
-
-
-
 
 
 .visible-mobile {
@@ -181,7 +157,6 @@
   }
 }
 
-
 .flex-mobile-col {
   @include media-mobile {
     display: flex;
@@ -203,7 +178,6 @@
   }
 }
 
-
 .grid-mobile-1 {
   @include responsive-grid(1, 2, 3);
 }
@@ -211,7 +185,6 @@
 .grid-mobile-2 {
   @include responsive-grid(2, 3, 4);
 }
-
 
 .px-mobile-lg {
   @include media-mobile {
@@ -227,7 +200,6 @@
   }
 }
 
-
 .text-responsive {
   font-size: font-size('sm');
 
@@ -239,7 +211,6 @@
     font-size: font-size('lg');
   }
 }
-
 
 .full-width-mobile {
   @include media-mobile {
@@ -253,14 +224,9 @@
   }
 }
 
-
 .container-responsive {
   @include responsive-container;
 }
-
-
-
-
 
 @media print {
   .no-print {

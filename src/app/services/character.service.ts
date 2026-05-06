@@ -2,17 +2,13 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions } from '../models/character';
 import { DashboardService } from './calculate'
-
 @Injectable({
   providedIn: 'root'
 })
 export class CharacterService {
   private character$ = new BehaviorSubject<Character>(this.createEmptyCharacter());
-
   constructor(private dashboardService: DashboardService) { }
-
   getCharacter$ = () => this.character$.asObservable();
-
   updateCharacter(character: Partial<Character>) {
     const current = this.character$.value;
     const updated: Character = {
@@ -26,7 +22,6 @@ export class CharacterService {
     };
     this.character$.next(updated);
   }
-
   updateAttributes(attributes: Partial<Attributes>) {
     const current = this.character$.value;
     this.character$.next({
@@ -34,7 +29,6 @@ export class CharacterService {
       attributes: { ...current.attributes, ...attributes }
     });
   }
-
   updateEvolutions(evolutions: Partial<Evolutions>) {
     const current = this.character$.value;
     this.character$.next({
@@ -42,7 +36,6 @@ export class CharacterService {
       evolutions: { ...current.evolutions, ...evolutions }
     });
   }
-
   updateTalizmanLevels(levels: Partial<TalizmanLevels>) {
     const current = this.character$.value;
     this.character$.next({
@@ -50,7 +43,6 @@ export class CharacterService {
       talizmanLevels: { ...current.talizmanLevels, ...levels }
     });
   }
-
   updateArcaneLevels(levels: Partial<ArcaneLevels>) {
     const current = this.character$.value;
     this.character$.next({
@@ -58,7 +50,6 @@ export class CharacterService {
       arcaneLevels: { ...current.arcaneLevels, ...levels }
     });
   }
-
   private createEmptyCharacter(): Character {
     return {
       rasa: '',
@@ -145,10 +136,8 @@ export class CharacterService {
       equipment: {}
     };
   }
-
   calculateDashboard(): DashboardValues {
     const char = this.character$.value
     return this.dashboardService.calculateStuff(char)
   };
-
 }

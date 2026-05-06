@@ -1,30 +1,24 @@
 import { Prefix, Suffix, Stats, ItemGenre, PrefixType, SuffixType, ItemType } from '../item';
-
 export class ArmourDictionary {
   private static legsInneCache: Prefix[] | null = null;
   private static armourPrefixCache: Prefix[] | null = null;
   private static armourSuffixCache: Suffix[] | null = null;
-
   static getLegsPrefix(
     genre: ItemGenre,
     itemType: string,
     prefixType: PrefixType
   ): Prefix {
     const list = this.initializeLegsPrefix();;
-
     const found = list.find(
       (p) => p.genre === genre && p.prefixType === prefixType
     );
-
     if (!found) {
       throw new Error(
         `Armour legs prefix not found for type: ${prefixType}`
       );
     }
-
     return found;
   }
-
   static getArmourPrefix(
     genre: ItemGenre,
     prefixType: PrefixType
@@ -33,16 +27,13 @@ export class ArmourDictionary {
     const found = prefixes.find(
       (p) => p.genre === genre && p.prefixType === prefixType
     );
-
     if (!found) {
       throw new Error(
         `Armour prefix not found for genre: ${genre}, type: ${prefixType}`
       );
     }
-
     return found;
   }
-
   static getArmourSuffix(
     genre: ItemGenre,
     suffixType: SuffixType,
@@ -52,24 +43,18 @@ export class ArmourDictionary {
     const found = suffixes.find(
       (s) => s.genre === genre && s.suffixType === suffixType
     );
-
     if (!found) {
       throw new Error(
         `Armour suffix not found for genre: ${genre}, type: ${suffixType}`
       );
     }
-
     return found;
   }
-
   private static initializeLegsPrefix(): Prefix[] {
     if (this.legsInneCache) {
       return this.legsInneCache;
     }
-
     const inne: Prefix[] = [];
-
-
     inne.push(new Prefix(ItemGenre.LEGS, PrefixType.PIKOWANY, Stats.builder().obronaAffixu(3).build()));
     inne.push(new Prefix(ItemGenre.LEGS, PrefixType.WZMOCNIONY, Stats.builder().obronaAffixu(5).build()));
     inne.push(new Prefix(ItemGenre.LEGS, PrefixType.CWIEKOWANY, Stats.builder().obronaAffixu(7).build()));
@@ -87,18 +72,12 @@ export class ArmourDictionary {
     inne.push(new Prefix(ItemGenre.LEGS, PrefixType.TYGRYSI, Stats.builder().odpornosc(2).obronaAffixu(-3).zwinnosc(4).build()));
     inne.push(new Prefix(ItemGenre.LEGS, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.07).critMultiBiala2h(0.07).critMultiPalna1h(0.07).critMultiPalna2h(0.07).critMultiDystans1h(0.07).critMultiDystans2h(0.07).build()));
     inne.push(new Prefix(ItemGenre.LEGS, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(3).minDpsDystans1h(3).minDpsDystans2h(3).minDpsPalna1h(3).minDpsPalna2h(3).minDpsBiala1h(3).maxDpsBiala2h(3).maxDpsDystans1h(3).maxDpsDystans2h(3).maxDpsPalna1h(3).maxDpsPalna2h(3).maxDpsBiala1h(3).build()));
-
     this.legsInneCache = inne;
-
     return inne;
   }
-
   private static initializeArmourPrefix(): Prefix[] {
     if (this.armourPrefixCache) return this.armourPrefixCache;
-
     const prefixes: Prefix[] = [];
-
-
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.OZDOBNA, Stats.builder().obronaAffixu(-2).wyglad(3).build()));
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.UTWARDZANA, Stats.builder().obronaAffixu(2).build()));
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.ELEGANCKA, Stats.builder().wyglad(5).build()));
@@ -118,8 +97,6 @@ export class ArmourDictionary {
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.TYGRYSI, Stats.builder().zwinnosc(3).odpornosc(2).obronaAffixu(-8).build()));
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-5).minDpsBiala2h(4).minDpsDystans1h(4).minDpsDystans2h(4).minDpsPalna1h(4).minDpsPalna2h(4).minDpsBiala1h(4).maxDpsBiala2h(4).maxDpsDystans1h(4).maxDpsDystans2h(4).maxDpsPalna1h(4).maxDpsPalna2h(4).maxDpsBiala1h(4).build()));
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.RYTUALNY, Stats.builder().punktyKrwi(0.05).szczescie(15).build()));
-
-
     prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.WZMOCNIONY, Stats.builder().obronaAffixu(3).build()));
     prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.WLADCZA, Stats.builder().charyzma(3).wyglad(1).build()));
     prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.CWIEKOWANY, Stats.builder().obronaAffixu(5).build()));
@@ -136,17 +113,12 @@ export class ArmourDictionary {
     prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-12).minDpsBiala2h(6).minDpsDystans1h(6).minDpsDystans2h(6).minDpsPalna1h(6).minDpsPalna2h(6).minDpsBiala1h(6).maxDpsBiala2h(6).maxDpsDystans1h(6).maxDpsDystans2h(6).maxDpsPalna1h(6).maxDpsPalna2h(6).maxDpsBiala1h(6).build()));
     prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.07).critMultiBiala2h(0.07).critMultiPalna1h(0.07).critMultiPalna2h(0.07).critMultiDystans1h(0.07).critMultiDystans2h(0.07).build()));
     prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.RUNICZNE, Stats.builder().twardosc(0.01).obronaAffixu(15).szczescie(5).build()));
-
     this.armourPrefixCache = prefixes;
     return prefixes;
   }
-
   private static initializeArmourSuffix(playerLvl: number): Suffix[] {
     if (this.armourSuffixCache) return this.armourSuffixCache;
-
     const suffixes: Suffix[] = [];
-
-
     suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.MISS, Stats.builder().sila(1).zwinnosc(1).odpornosc(1).wyglad(8).charyzma(1).wplywy(1).spostrzegawczosc(1).inteligencja(1).wiedza(1).build()));
     suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.MISTERA, Stats.builder().sila(1).zwinnosc(1).odpornosc(1).wyglad(8).charyzma(1).wplywy(1).spostrzegawczosc(1).inteligencja(1).wiedza(1).build()));
     suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.PODROZNIKA, Stats.builder().obronaAffixu(2).build()));
@@ -165,8 +137,6 @@ export class ArmourDictionary {
     suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.MAGII, Stats.builder().punktyKrwi(-0.07).obronaAffixu(0.1).twardosc(0.01).build()));
     suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.ADRENALINY, Stats.builder().sila(4).spostrzegawczosc(-5).zwinnosc(3).build()));
     suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.PREKOGNICJI, Stats.builder().spostrzegawczosc(10).build()));
-
-
     suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.NARKOMANA, Stats.builder().sila(-1).wyglad(-2).zwinnosc(-1).inteligencja(-3).odpornosc(3).build()));
     suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.ZLODZIEJA, Stats.builder().zwinnosc(3).obronaAffixu(2).build()));
     suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.STRAZNIKA, Stats.builder().obronaAffixu(3).minDpsBiala2h(2).minDpsBiala1h(2).minDpsDystans1h(2).minDpsDystans2h(2).minDpsPalna2h(2).minDpsPalna1h(2).maxDpsBiala2h(2).maxDpsBiala1h(2).maxDpsDystans1h(2).maxDpsDystans2h(2).maxDpsPalna2h(2).maxDpsPalna1h(2).build()));
@@ -187,8 +157,6 @@ export class ArmourDictionary {
     suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.ORCHIDEI, Stats.builder().obronaAffixu(-10).ignoreObrony(0.05).dps(4).build()));
     suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.SIEWCY_SMIERCI, Stats.builder().zwinnosc(20).obronaAffixu(5).dps(6).build()));
     suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.SZYBKOSCI, Stats.builder().atakiBiala(2).atakiDystans1h(2).atakiDystans2h(2).atakiPalna(2).critChancePalna1h(-0.40).critChancePalna2h(-0.80).critMultiSpeed(0.01).build()));
-
-
     suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.NARKOMANA, Stats.builder().sila(-6).wyglad(-3).zwinnosc(-1).inteligencja(-3).odpornosc(3).build()));
     suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.SILACZA, Stats.builder().zwinnosc(-4).sila(4).build()));
     suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.RZEZIMIESZKA, Stats.builder().wplywy(3).obronaAffixu(2).build()));
@@ -204,8 +172,6 @@ export class ArmourDictionary {
     suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(3).odpornosc(-4).obronaAffixu(-4).build()));
     suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.TROPICIELA, Stats.builder().zwinnosc(5).obronaAffixu(5).build()));
     suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.NOCY, Stats.builder().zwinnosc(15).build()));
-
-
     this.armourSuffixCache = suffixes;
     return suffixes;
   }

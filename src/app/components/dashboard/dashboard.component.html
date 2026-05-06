@@ -1,7 +1,5 @@
 <div class="dashboard-panel">
-
   <div class="attributes-display">
-
     <!-- Health Stats Section -->
     <div class="attr-section">
       <div class="attr-section-header health-header">
@@ -18,7 +16,6 @@
         </div>
       </div>
     </div>
-
     <!-- Defense Stats Section -->
     <div class="attr-section">
       <div class="attr-section-header defense-header">
@@ -39,7 +36,6 @@
         </div>
       </div>
     </div>
-
     <!-- Evasion Stats Section -->
     <div class="attr-section">
       <div class="attr-section-header evasion-header">
@@ -60,7 +56,6 @@
         </div>
       </div>
     </div>
-
     <!-- Evasion Stats Section -->
     <div class="attr-section">
       <div class="attr-section-header hit-header">
@@ -81,7 +76,6 @@
         </div>
       </div>
     </div>
-
     <!-- Combat Stats Section -->
     <div class="attr-section">
       <div class="attr-section-header combat-stats-header">
@@ -102,7 +96,6 @@
         </div>
       </div>
     </div>
-
     <!-- Character Attributes Section -->
     <div class="attr-section" *ngIf="dashboardValues?.attributes">
       <div class="attr-section-header attributes-header">
@@ -147,9 +140,7 @@
         </div>
       </div>
     </div>
-
   </div>
-
   <!-- WEAPON DAMAGE -->
   <div class="combat-section" *ngIf="dashboardValues?.obrazenia?.length">
     <h3>Obrażenia</h3>
@@ -196,7 +187,6 @@
       </div>
     </div>
   </div>
-
   <!-- ZIZ AVERAGE ROUNDS -->
   <div class="attributes-display" *ngIf="dashboardValues?.zizAverageRounds?.length">
     <h3>Śr. Rundy ZiZ</h3>
@@ -206,5 +196,4 @@
       </div>
     </div>
   </div>
-
 </div>

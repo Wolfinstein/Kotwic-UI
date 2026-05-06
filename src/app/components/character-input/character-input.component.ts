@@ -10,19 +10,14 @@ import { CollapsibleSectionComponent } from '../../shared/components/collapsible
 import { CompactInputComponent } from '../../shared/components/compact-input/compact-input.component';
 import { EquipmentSlotCardComponent } from '../../shared/components/equipment-slot-card/equipment-slot-card.component';
 
-
-
 export type SlotCategory = 'head' | 'chest' | 'legs' | 'neck' | 'finger' | 'weapon1h' | 'weapon2h';
-
 export interface BaseItemDef {
   name: string;
   category: SlotCategory;
   hasPrefix: boolean;
   hasSuffix: boolean;
 }
-
 export const RARITIES = ['ZWYKLY', 'DOBRY', 'DOSKONALY', 'LEGENDARNY', 'LEGENDARNY_DOBRY', 'LEGENDARNY_DOSKONALY', 'EPICKI'] as const;
-
 export const BASE_ITEMS: BaseItemDef[] = [
   { name: 'Czapka', category: 'head', hasPrefix: true, hasSuffix: true },
   { name: 'Kask', category: 'head', hasPrefix: true, hasSuffix: true },
@@ -102,7 +97,6 @@ export const BASE_ITEMS: BaseItemDef[] = [
   { name: 'CiezkaKusza', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
   { name: 'LukRefleksyjny', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
 ];
-
 export const PREFIXES_BY_CATEGORY: Record<SlotCategory, string[]> = {
   head: ['Ozdobna', 'Utwardzana', 'Elegancka', 'Pomocna', 'Kosztowny', 'Wzmocniony', 'Magnetyczna', 'Rogata', 'Bojowa', 'Zlosliwa', 'Leniwa', 'Kuloodporne', 'Szturmowy', 'Szamanska', 'Runiczne', 'Krwawy', 'Tygrysi', 'Smiercionosny', 'Rytualny'],
   chest: ['Wzmocniony', 'Wladcza', 'Cwiekowany', 'Lekki', 'Kuloodporne', 'Luskowa', 'Gietki', 'Plytowa', 'Szamanska', 'Lowiecka', 'Elfie', 'Bojowa', 'Tygrysi', 'Smiercionosny', 'Krwawy', 'Runiczne'],
@@ -112,7 +106,6 @@ export const PREFIXES_BY_CATEGORY: Record<SlotCategory, string[]> = {
   weapon1h: ['Ostry', 'Kasajacy', 'Okrutny', 'Krysztalowy', 'Przyjacielski', 'Jadowity', 'Lekki', 'Zebaty', 'Wzmacniajacy', 'Opiekunczy', 'Mistyczny', 'Swiecacy', 'Kosciany', 'Zatruty', 'Antyczny', 'Zabojczy', 'Zwinny', 'Szybki', 'Przeklety', 'Demoniczny'],
   weapon2h: ['Ostry', 'Kasajacy', 'Kosztowny', 'Wzmacniajacy', 'Lekki', 'Okrutny', 'Jadowity', 'Swiecacy', 'Krysztalowy', 'Ciezki', 'Szeroki', 'Opiekunczy', 'Mistyczny', 'Napromieniowany', 'Antyczny', 'Zebaty', 'Zatruty', 'Zabojczy', 'Przeklety', 'Demoniczny', 'Zwinny'],
 };
-
 export const SUFFIXES_BY_CATEGORY: Record<SlotCategory, string[]> = {
   head: ['Miss', 'Mistera', 'Podroznika', 'Przezornosci', 'Wytrzymalosci', 'Ochrony', 'Zmyslow', 'Narkomana', 'Gladiatora', 'Wieszcza', 'SmoczejLuski', 'Mocy', 'Kary', 'Pasterza', 'Krwi', 'Magii', 'Adrenaliny', 'Prekognicji'],
   chest: ['Narkomana', 'Zlodzieja', 'Straznika', 'Silacza', 'Gwardzisty', 'Adepta', 'Adrenaliny', 'SkorupyZolwia', 'Zabojcy', 'Kobry', 'Unikow', 'Centuriona', 'Szermierza', 'Kaliguli', 'Odpornosci', 'Grabiezcy', 'Mistrza', 'Orchidei', 'SiewcySmierci', 'Szybkosci'],
@@ -122,7 +115,6 @@ export const SUFFIXES_BY_CATEGORY: Record<SlotCategory, string[]> = {
   weapon1h: ['Sekty', 'Zdobywcy', 'Mocy', 'Dowodcy', 'Zwinnosci', 'Trafienia', 'Kontuzji', 'Wladzy', 'Bolu', 'Odwagi', 'Precyzji', 'Krwi', 'Przodkow', 'Zarazy', 'Drakuli', 'Zemsty', 'Mestwa', 'Klanu', 'Podkowy', 'Bieglosci', 'Samobojcy', 'Imperatora'],
   weapon2h: ['Podstepu', 'Hazardzisty', 'Olowiu', 'Mocy', 'Zdrady', 'Wladzy', 'Zdobywcy', 'Bolu', 'Krwiopijcy', 'Inkwizytora', 'Krwi', 'Drakuli', 'Zarazy', 'Zemsty', 'Podkowy', 'Bazyliszka', 'Autokraty', 'Samobojcy', 'DalekiegoZasiegu', 'Precyzji', 'Driady', 'Zemsty', 'Szybkostrzelnosci', 'Wilka', 'Doskonalosci', 'Reakcji'],
 };
-
 const SLOT_TO_CATEGORY: Record<string, SlotCategory> = {
   head: 'head',
   chest: 'chest',
@@ -133,7 +125,6 @@ const SLOT_TO_CATEGORY: Record<string, SlotCategory> = {
   weapon1: 'weapon1h',
   weapon2: 'weapon1h',
 };
-
 @Component({
   selector: 'app-character-input',
   standalone: true,
@@ -146,37 +137,22 @@ const SLOT_TO_CATEGORY: Record<string, SlotCategory> = {
 })
 export class CharacterInputComponent implements OnInit {
   character: Character | null = null;
-
-
   showEquipmentModal = false;
   showRunesModal = false;
   showUmagiModal = false;
-
-
   selectedEquipmentSlot = '';
   weaponMode: 'dual1h' | '2h' = 'dual1h';
-
   draftItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
   draft2hItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
-
-
   rarities = RARITIES;
-
-
   runeOptions = ['obrazenia 1', 'obrazenia 2', 'obrazenia 3', 'obrazenia 5', 'kryt 3', 'kryt 5', 'kryt 8', 'kryt 12', 'ignore 2', 'ignore 4', 'ignore 6', 'ignore 10', 'sila 1', 'sila 2', 'sila 3', 'sila 4', 'spostrzegawczosc 1', 'spostrzegawczosc 2', 'spostrzegawczosc 3', 'spostrzegawczosc 4', 'inteligencja 1', 'inteligencja 2', 'inteligencja 3', 'inteligencja 4', 'wiedza 1', 'wiedza 2', 'wiedza 3', 'wiedza 4', 'zwinnosc 1', 'zwinnosc 2', 'zwinnosc 3', 'zwinnosc 4', 'obrona 1', 'obrona 2', 'obrona 3', 'obrona 4', 'odpornosc 1', 'odpornosc 2', 'odpornosc 3', 'odpornosc 4', 'twardosc 1', 'twardosc 2', 'twardosc 3', 'twardosc 4', 'zycie 50', 'zycie 100', 'zycie 150', 'zycie 250', 'szczescie 3', 'szczescie 4', 'szczescie 8', 'szczescie 12', 'multi 2', 'multi 4', 'multi 6', 'multi 10'];
   selectedRunes: string[] = [];
   runeFilter = '';
   selectedRuneIndex: number | null = null;
-
-
   umagiOptions = ['obrazenia 1/4', 'ignore 4', 'ignore 6', 'ignore 10', 'ignore 15', 'dodatkowyAtak', 'obrazenia 5', 'obrazenia 7', 'obrazenia 10', 'obrazenia 20', 'kryt 3', 'kryt 5', 'kryt 8', 'kryt 12', 'trafienie 5', 'trafienie 12', 'trafienie 18', 'trafienie 25', 'zycie 25', 'zycie 50', 'zycie 100', 'zycie 250', 'zycie 500', 'zycie 1000', 'obrona 3/4', 'obrona 6/4', 'unik 3', 'unik 5', 'unik 7', 'unik 11', 'obrona 20', 'obrona 30', 'obrona 50', 'obrona 75', 'szczescie 2', 'szczescie 5', 'szczescie 7', 'szczescie 10', 'szczescie 15', 'szczescie 20', 'inicjatywa 36', 'spostrzegawczosc 2', 'spostrzegawczosc 4', 'spostrzegawczosc 8', 'spostrzegawczosc 14', 'zwinnosc 2', 'zwinnosc 4', 'zwinnosc 8', 'zwinnosc 14', 'sila 2', 'sila 4', 'sila 8', 'sila 14', 'charyzma 2', 'charyzma 4', 'charyzma 8', 'charyzma 14', 'wplywy 2', 'wplywy 4', 'wplywy 8', 'wplywy 14', 'odpornosc 2', 'odpornosc 4', 'odpornosc 8', 'odpornosc 14', 'inteligencja 2', 'inteligencja 4', 'inteligencja 8', 'inteligencja 14', 'wiedza 2', 'wiedza 4', 'wiedza 8', 'wiedza 14', 'wyglad 2', 'wyglad 4', 'wyglad 8', 'wyglad 14'];
   selectedUmagi: string[] = [];
   umagiFilter = '';
   selectedUmagiIndex: number | null = null;
-
-
-
-
 
   attributes = [
     { key: 'sila', label: 'Siła' },
@@ -189,7 +165,6 @@ export class CharacterInputComponent implements OnInit {
     { key: 'inteligencja', label: 'Inteligencja' },
     { key: 'wiedza', label: 'Wiedza' },
   ];
-
   evolutions = [
     { key: 'skrzydla', label: 'Skrzydła' },
     { key: 'pancerz', label: 'Pancerz' },
@@ -205,9 +180,7 @@ export class CharacterInputComponent implements OnInit {
     { key: 'harmonijnyRozwo', label: 'Harmonijny rozwój' },
     { key: 'pietnoDemona', label: 'Piętno demona' },
     { key: 'wzmocnioneMiesnie', label: 'Wzmocnione mięsnie' },
-
   ];
-
   talizmanAttributes = [
     { key: 'ambicja', label: 'Ambicja' },
     { key: 'lewiatan', label: 'Lewiatan' },
@@ -227,7 +200,6 @@ export class CharacterInputComponent implements OnInit {
     { key: 'cichyLowca', label: 'Cichy Łowca' },
     { key: 'piesnKrwi', label: 'Pieśń Krwi' },
   ];
-
   arcaneAttributes = [
     { key: 'maskaAdonisa', label: 'Maska Adonisa', type: 'int' },
     { key: 'maskaKaliguli', label: 'Maska Kaliguli', type: 'int' },
@@ -245,30 +217,22 @@ export class CharacterInputComponent implements OnInit {
     { key: 'tchnienieSmierci', label: 'Tchnienie Śmierci', type: 'int' },
     { key: 'groza', label: 'Groza', type: 'boolean' },
   ];
-
   huntBonuses = ['Juggernaut', 'Ronin', 'Adrenalina', 'SokoleOko', 'Rzeźnik'];
   dailyBonuses = ['Brak', 'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień poszukiwaczy', 'Dzień Vlada', 'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina', 'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you', 'Dzień Przemiany', 'Dzień poszukiwaczy', 'Świąteczna wizja Kaina (deluxe)', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami', 'Pierwszy gol', 'Pierwszy serwis', 'szczescie Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden'];
   oneTimeBonuses = ['Brak', 'Krew wilka', 'Jabłko żelaznego drzewa', 'Płetwa rekina', 'Eliksir zmysłów', 'Święcona woda', 'Łza feniksa', 'Magiczna pieczęć', 'Serce nietoperza', 'Kwiat lotosu', 'Jad Wielkopchły', 'Serum oświecenia', 'Wywar z czarnego kota', 'Węgiel', 'Sierść kreta', 'Saletra', 'Sok z żuka', 'Esencja młodości', 'Paznokieć trolla', 'Wilcza jagoda', 'Oko kota', 'Absynt', 'Łuski salamandry', 'Woda źródlana', 'Kość męczennika', 'Napój miłosny', 'Jad skorpiona', 'Korzeń mandragory', 'Gwiezdny pył', 'Fiolka kwasu', 'Siarka', 'Czarny diament', 'Oko topielca', 'Boska łza', 'Ząb ghula', 'Wywar z koralowca', 'Serce proroka', 'Pazur bazyliszka', 'Łuski demona', 'Skrzydła chrząszcza', 'Maska gargulca', 'Sok z modliszki', 'Oddech smoka', 'Ząb wiedźmy', 'Grimoire', 'Czarna żółć', 'Palec kowala', 'Kwiat bzu', 'Ogień z serca ziemi'];
-
   expandedBonuses: { [key: string]: boolean } = {
     silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false
   };
-
-
   issues = [
     'poprawic budowanie bonusow z broni',
     'brak liczenia punktow krwi punkty krwi',
     'szczescie i trafieni przeciwnika nie dziala'
   ];
-
   showIssuesDropdown = false;
-
   selectedHuntBonuses: string[] = [];
   selectedEventBonus: string | null = null;
   selectedOneTimeBonus: string | null = null;
-
   constructor(private characterService: CharacterService, private ngZone: NgZone, private cdr: ChangeDetectorRef) { }
-
   ngOnInit() {
     this.characterService.getCharacter$().subscribe(char => {
       this.character = char;
@@ -289,59 +253,43 @@ export class CharacterInputComponent implements OnInit {
     });
   }
 
-
-
-
   private getSlotCategory(slot: string): SlotCategory {
     if (slot === 'weapon1' || slot === 'weapon2') {
       return this.weaponMode === '2h' ? 'weapon2h' : 'weapon1h';
     }
     return SLOT_TO_CATEGORY[slot] ?? 'head';
   }
-
   baseItemsForSlot(slot: string): BaseItemDef[] {
     const cat = this.getSlotCategory(slot);
     return BASE_ITEMS.filter(b => b.category === cat);
   }
-
   get baseItems2h(): BaseItemDef[] {
     return BASE_ITEMS.filter(b => b.category === 'weapon2h');
   }
-
   prefixesForDraft(draft: EquipmentItem, slot: string): string[] {
     if (!draft.base) return [];
     const def = BASE_ITEMS.find(b => b.name === draft.base);
     if (!def || !def.hasPrefix) return [];
     return PREFIXES_BY_CATEGORY[def.category] ?? [];
   }
-
-
   suffixesForDraft(draft: EquipmentItem, slot: string): string[] {
     if (!draft.base) return [];
     const def = BASE_ITEMS.find(b => b.name === draft.base);
     if (!def || !def.hasSuffix) return [];
     return SUFFIXES_BY_CATEGORY[def.category] ?? [];
   }
-
-
   draftHasPrefix(draft: EquipmentItem): boolean {
     if (!draft.base) return false;
     return !!BASE_ITEMS.find(b => b.name === draft.base)?.hasPrefix;
   }
-
-
   draftHasSuffix(draft: EquipmentItem): boolean {
     if (!draft.base) return false;
     return !!BASE_ITEMS.find(b => b.name === draft.base)?.hasSuffix;
   }
-
-
   onBaseChange(draft: EquipmentItem) {
     draft.prefix = null;
     draft.suffix = null;
   }
-
-
   buildItemLabel(item: EquipmentItem | undefined | null): string {
     if (!item || !item.base) return '';
     const parts: string[] = [];
@@ -351,26 +299,20 @@ export class CharacterInputComponent implements OnInit {
     if (item.suffix) parts.push(item.suffix);
     return parts.join(' ');
   }
-
-
   slotButtonLabel(slot: string): string {
     if (!this.character) return this.defaultSlotLabel(slot);
     const item = (this.character.equipment as any)[slot] as EquipmentItem | undefined;
     if (item && item.base) {
-
       if (item.prefix == null) {
         item.prefix = ''
       }
-
       if (item.suffix == null) {
         item.suffix = ''
       }
-
       return item.prefix + ' ' + item.base + ' ' + item.suffix;
     }
     return this.defaultSlotLabel(slot);
   }
-
   defaultSlotLabel(slot: string): string {
     const labels: Record<string, string> = {
       head: 'Głowa', chest: 'Tułów', legs: 'Nogi',
@@ -379,33 +321,24 @@ export class CharacterInputComponent implements OnInit {
     };
     return labels[slot] ?? slot;
   }
-
   getEquipmentTooltip(slot: string, playerLvl: number): string {
     const item = (this.character?.equipment as any)?.[slot] as EquipmentItem | undefined;
     if (!item || !item.base) return '';
-
     try {
       const itemType = item.base as ItemType;
       const playerLvl = this.character?.poziom || 1;
       const rarity = (item.rarity || 'ZWYKLY') as ItemRarity;
       const genre = this.getGenreForItemType(itemType);
-
       let combinedStats = new Stats();
-
-
       try {
         const base = BaseDictionary.getBase(genre, itemType, rarity, playerLvl);
         combinedStats.addStats(base.stats);
       } catch (e) {
-
       }
-
-
       if (item.prefix && item.prefix.trim()) {
         try {
           const prefixType = this.getPrefixTypeByName(item.prefix);
           const dictionaryType = this.getDictionaryForGenre(genre);
-
           let prefixStats: any = null;
           switch (dictionaryType) {
             case 'weapon':
@@ -426,16 +359,12 @@ export class CharacterInputComponent implements OnInit {
             combinedStats.addStats(prefixStats.stats);
           }
         } catch (e) {
-
         }
       }
-
-
       if (item.suffix && item.suffix.trim()) {
         try {
           const suffixType = this.getSuffixTypeByName(item.suffix);
           const dictionaryType = this.getDictionaryForGenre(genre);
-
           let suffixStats: any = null;
           switch (dictionaryType) {
             case 'weapon':
@@ -452,24 +381,18 @@ export class CharacterInputComponent implements OnInit {
             combinedStats.addStats(suffixStats.stats);
           }
         } catch (e) {
-
         }
       }
-
-
       if (genre === ItemGenre.RANGE_1H || genre === ItemGenre.RANGE_2H || genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H || genre === ItemGenre.GUN_2H || genre === ItemGenre.GUN_1H) {
         return JSON.stringify(this.extractStats(combinedStats), null, 2);
       } else {
         const multipliedStats = applyQualityMultiplier(combinedStats, rarity, playerLvl);
         return JSON.stringify(this.extractStats(multipliedStats), null, 2);
       }
-
     } catch (error) {
-
       return '';
     }
   }
-
   private getPrefixTypeByName(name: string): PrefixType {
     const prefixValues = Object.values(PrefixType);
     const found = prefixValues.find(v => v === name);
@@ -478,7 +401,6 @@ export class CharacterInputComponent implements OnInit {
     }
     return name as PrefixType;
   }
-
   private getSuffixTypeByName(name: string): SuffixType {
     const suffixValues = Object.values(SuffixType);
     const found = suffixValues.find(v => v === name);
@@ -487,7 +409,6 @@ export class CharacterInputComponent implements OnInit {
     }
     return name as SuffixType;
   }
-
   private getGenreForItemType(itemType: ItemType): ItemGenre {
     const legTypes = [ItemType.SZORTY, ItemType.SPODNIE, ItemType.SPODNICA, ItemType.KILT];
     const chestTypes = [ItemType.KURTKA, ItemType.KAMIZELKA, ItemType.KOLCZUGA, ItemType.ZBROJAWARSTWOWA, ItemType.KOSZULKA, ItemType.MARYNARKA, ItemType.PELNAZBROJA, ItemType.PELERYNA, ItemType.GORSET, ItemType.SMOKING];
@@ -500,7 +421,6 @@ export class CharacterInputComponent implements OnInit {
     const gun2hTypes = [ItemType.KARABINMYSLIWSKI, ItemType.STRZELBA, ItemType.AK47, ItemType.MIOTACZPLOMIENI, ItemType.FN_FAL, ItemType.POLAUTOMATSNAJPERSKI, ItemType.KARABINSNAJPERSKI];
     const range1hTypes = [ItemType.KROTKILUK, ItemType.LUK, ItemType.DLUGILUK, ItemType.NOZDORZUCANIA, ItemType.TOPOREKDORZUCANIA, ItemType.SHURIKEN];
     const range2hTypes = [ItemType.KUSZA, ItemType.CIEZKAKUSZA, ItemType.LUKREFLEKSYJNY, ItemType.OSZCZEP, ItemType.PILUM];
-
     if (legTypes.includes(itemType)) return ItemGenre.LEGS;
     if (chestTypes.includes(itemType)) return ItemGenre.CHEST;
     if (headTypes.includes(itemType)) return ItemGenre.HEAD;
@@ -512,41 +432,29 @@ export class CharacterInputComponent implements OnInit {
     if (gun2hTypes.includes(itemType)) return ItemGenre.GUN_2H;
     if (range1hTypes.includes(itemType)) return ItemGenre.RANGE_1H;
     if (range2hTypes.includes(itemType)) return ItemGenre.RANGE_2H;
-
     throw new Error(`Unknown item type: ${itemType}`);
   }
-
   private getDictionaryForGenre(genre: ItemGenre): 'weapon' | 'armour' | 'jewel' {
     const weaponGenres = [ItemGenre.WHITE_1H, ItemGenre.WHITE_2H, ItemGenre.GUN_1H, ItemGenre.GUN_2H, ItemGenre.RANGE_1H, ItemGenre.RANGE_2H];
     const armourGenres = [ItemGenre.HEAD, ItemGenre.CHEST, ItemGenre.LEGS];
     const jewelGenres = [ItemGenre.NECK, ItemGenre.FINGER];
-
     if (weaponGenres.includes(genre)) return 'weapon';
     if (armourGenres.includes(genre)) return 'armour';
     if (jewelGenres.includes(genre)) return 'jewel';
-
     throw new Error(`Unknown genre: ${genre}`);
   }
-
   private extractStats(stats: any): Record<string, any> {
     const result: Record<string, any> = {};
     if (!stats) return result;
-
     const statProps = [
-
       'trafienieBiala', 'atakiBiala', 'minDpsBiala1h', 'maxDpsBiala1h', 'minDpsBiala2h', 'maxDpsBiala2h',
       'critChanceBiala1h', 'critChanceBiala2h', 'critMultiBiala1h', 'unikBiala',
-
       'atakiPalna', 'trafieniePalna', 'minDpsPalna1h', 'maxDpsPalna1h', 'minDpsPalna2h', 'maxDpsPalna2h',
       'critChancePalna1h', 'critChancePalna2h', 'ignoreObrony',
-
       'atakiDystans1h', 'atakiDystans2h', 'trafienieDystans', 'minDpsDystans1h', 'maxDpsDystans1h', 'minDpsDystans2h', 'maxDpsDystans2h',
       'critChanceDystans1h', 'critChanceDystans2h', 'unikDystans',
-
       'obronaPrzedmiotow', 'obronaDodatkowa', 'twardosc', 'redukcjaObrazen', 'mnoznikObrony', 'odpornosc',
-
       'sila', 'zwinnosc', 'spostrzegawczosc', 'inteligencja', 'wiedza', 'wyglad', 'charyzma', 'wplywy',
-
       'punktyZycia', 'punktyKrwi', 'szczescie',
       'critMultiDystans1h',
       'critMultiDystans2h',
@@ -555,21 +463,16 @@ export class CharacterInputComponent implements OnInit {
       'critMultiBiala1h',
       'critMultiBiala2h'
     ];
-
     statProps.forEach(prop => {
       if (stats[prop] !== undefined && stats[prop] !== null && stats[prop] !== 0) {
         result[prop] = stats[prop];
       }
     });
-
     return result;
   }
-
-
   get weapon2Locked(): boolean {
     return this.weaponMode === '2h';
   }
-
   openEquipmentModal(slot: string) {
     if (slot === 'weapon2' && this.weaponMode === '2h') return;
     this.selectedEquipmentSlot = slot;
@@ -581,12 +484,9 @@ export class CharacterInputComponent implements OnInit {
       : { rarity: null, prefix: null, base: null, suffix: null };
     this.showEquipmentModal = true;
   }
-
-
   toggleWeaponMode() {
     this.weaponMode = this.weaponMode === 'dual1h' ? '2h' : 'dual1h';
     if (!this.character) return;
-
     const updated: any = {
       ...this.character.equipment,
       weaponMode: this.weaponMode,
@@ -596,7 +496,6 @@ export class CharacterInputComponent implements OnInit {
     }
     this.characterService.updateCharacter({ ...this.character, equipment: updated });
   }
-
   saveEquipmentItem() {
     if (!this.character) return;
     const updated = {
@@ -607,7 +506,6 @@ export class CharacterInputComponent implements OnInit {
     this.characterService.updateCharacter({ ...this.character, equipment: updated });
     this.showEquipmentModal = false;
   }
-
   clearEquipmentSlot(slot: string) {
     if (!this.character) return;
     const updated: any = { ...this.character.equipment };
@@ -615,56 +513,44 @@ export class CharacterInputComponent implements OnInit {
     this.characterService.updateCharacter({ ...this.character, equipment: updated });
   }
 
-
-
   getAttrValue(key: string): number {
     if (!this.character) return 0;
     return (this.character.attributes as any)[key] || 0;
   }
-
   setAttrValue(key: string, value: number) {
     this.characterService.updateAttributes({ [key]: value } as any);
   }
-
   getEvoValue(key: string): number {
     if (!this.character) return 0;
     return (this.character.evolutions as any)[key] || 0;
   }
-
   setEvoValue(key: string, value: number) {
     this.characterService.updateEvolutions({ [key]: value } as any);
   }
-
   getTalizmanValue(key: string): number {
     if (!this.character) return 0;
     return (this.character.talizmanLevels as any)[key] || 0;
   }
-
   setTalizmanValue(key: string, value: number) {
     this.characterService.updateTalizmanLevels({ [key]: value } as any);
   }
-
   getArcaneValue(key: string): any {
     if (!this.character) return 0;
     return (this.character.arcaneLevels as any)[key] || 0;
   }
-
   setArcaneValue(key: string, value: any) {
     this.characterService.updateArcaneLevels({ [key]: value } as any);
   }
-
   updateCharacterField(field: string, value: any) {
     if (this.character) {
       this.characterService.updateCharacter({ ...this.character, [field]: value });
     }
   }
-
   closeModal() {
     this.showEquipmentModal = false;
     this.showRunesModal = false;
     this.showUmagiModal = false;
   }
-
   importCharacter() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -675,20 +561,14 @@ export class CharacterInputComponent implements OnInit {
       reader.onload = (event: any) => {
         try {
           const imported = JSON.parse(event.target.result);
-
           this.ngZone.run(() => {
-
             if (imported?.bonusValues && !imported?.huntBonuses) {
               imported.huntBonuses = imported.bonusValues.hunt || [];
               imported.eventBonus = imported.bonusValues.daily || null;
               imported.oneTimeBonus = imported.bonusValues.oneTime || null;
               delete imported.bonusValues;
             }
-
-
             this.characterService.updateCharacter(imported);
-
-
             if (imported) {
               this.selectedHuntBonuses = imported.huntBonuses || [];
               this.selectedEventBonus = imported.eventBonus || null;
@@ -703,8 +583,6 @@ export class CharacterInputComponent implements OnInit {
             if (imported?.equipment?.weaponMode) {
               this.weaponMode = imported.equipment.weaponMode;
             }
-
-
             this.cdr.detectChanges();
           });
         } catch (error) {
@@ -715,7 +593,6 @@ export class CharacterInputComponent implements OnInit {
     };
     input.click();
   }
-
   exportCharacter() {
     if (!this.character) return;
     const dataStr = JSON.stringify(this.character, null, 2);
@@ -727,11 +604,9 @@ export class CharacterInputComponent implements OnInit {
     link.click();
     URL.revokeObjectURL(url);
   }
-
   toggleBonusExpand(bonusType: string) {
     this.expandedBonuses[bonusType] = !this.expandedBonuses[bonusType];
   }
-
   toggleBonusSelection(bonusType: string, bonus: string, isSingleSelect = false) {
     if (bonusType === 'hunt') {
       const index = this.selectedHuntBonuses.indexOf(bonus);
@@ -742,7 +617,6 @@ export class CharacterInputComponent implements OnInit {
     } else if (bonusType === 'oneTime') {
       this.selectedOneTimeBonus = this.selectedOneTimeBonus === bonus ? null : bonus;
     }
-
     if (this.character) {
       this.characterService.updateCharacter({
         ...this.character,
@@ -752,7 +626,6 @@ export class CharacterInputComponent implements OnInit {
       });
     }
   }
-
   isBonusSelected(bonusType: string, bonus: string): boolean {
     if (bonusType === 'hunt') {
       return this.selectedHuntBonuses.includes(bonus);
@@ -764,29 +637,23 @@ export class CharacterInputComponent implements OnInit {
     return false;
   }
 
-
-
   get filteredRuneOptions(): string[] {
     if (!this.runeFilter.trim()) return this.runeOptions;
     const f = this.runeFilter.toLowerCase();
     return this.runeOptions.filter(r => r.toLowerCase().includes(f));
   }
-
   openRunesModal() {
     this.selectedRunes = this.character?.runeValues ? [...this.character.runeValues] : [];
     this.runeFilter = '';
     this.selectedRuneIndex = null;
     this.showRunesModal = true;
   }
-
   addRune(rune: string) { this.selectedRunes = [...this.selectedRunes, rune]; }
-
   removeRuneAt(index: number) {
     this.selectedRunes = this.selectedRunes.filter((_, i) => i !== index);
     if (this.selectedRuneIndex === index) this.selectedRuneIndex = null;
     else if (this.selectedRuneIndex !== null && this.selectedRuneIndex > index) this.selectedRuneIndex--;
   }
-
   moveRuneUp(index: number) {
     if (index === 0) return;
     const r = [...this.selectedRunes];
@@ -794,7 +661,6 @@ export class CharacterInputComponent implements OnInit {
     this.selectedRunes = r;
     this.selectedRuneIndex = index - 1;
   }
-
   moveRuneDown(index: number) {
     if (index >= this.selectedRunes.length - 1) return;
     const r = [...this.selectedRunes];
@@ -802,39 +668,31 @@ export class CharacterInputComponent implements OnInit {
     this.selectedRunes = r;
     this.selectedRuneIndex = index + 1;
   }
-
   saveRunes() {
     if (this.character) {
       this.characterService.updateCharacter({ ...this.character, runeValues: [...this.selectedRunes] });
     }
     this.showRunesModal = false;
   }
-
   getRuneCount(rune: string): number { return this.selectedRunes.filter(r => r === rune).length; }
-
-
 
   get filteredUmagiOptions(): string[] {
     if (!this.umagiFilter.trim()) return this.umagiOptions;
     const f = this.umagiFilter.toLowerCase();
     return this.umagiOptions.filter(u => u.toLowerCase().includes(f));
   }
-
   openUmagiModal() {
     this.selectedUmagi = (this.character as any)?.umagiValues ? [...(this.character as any).umagiValues] : [];
     this.umagiFilter = '';
     this.selectedUmagiIndex = null;
     this.showUmagiModal = true;
   }
-
   addUmagi(umagi: string) { this.selectedUmagi = [...this.selectedUmagi, umagi]; }
-
   removeUmagiAt(index: number) {
     this.selectedUmagi = this.selectedUmagi.filter((_, i) => i !== index);
     if (this.selectedUmagiIndex === index) this.selectedUmagiIndex = null;
     else if (this.selectedUmagiIndex !== null && this.selectedUmagiIndex > index) this.selectedUmagiIndex--;
   }
-
   moveUmagiUp(index: number) {
     if (index === 0) return;
     const list = [...this.selectedUmagi];
@@ -842,7 +700,6 @@ export class CharacterInputComponent implements OnInit {
     this.selectedUmagi = list;
     this.selectedUmagiIndex = index - 1;
   }
-
   moveUmagiDown(index: number) {
     if (index >= this.selectedUmagi.length - 1) return;
     const list = [...this.selectedUmagi];
@@ -850,13 +707,11 @@ export class CharacterInputComponent implements OnInit {
     this.selectedUmagi = list;
     this.selectedUmagiIndex = index + 1;
   }
-
   saveUmagi() {
     if (this.character) {
       this.characterService.updateCharacter({ ...this.character, umagiValues: [...this.selectedUmagi] } as any);
     }
     this.showUmagiModal = false;
   }
-
   getUmagiCount(umagi: string): number { return this.selectedUmagi.filter(u => u === umagi).length; }
 }

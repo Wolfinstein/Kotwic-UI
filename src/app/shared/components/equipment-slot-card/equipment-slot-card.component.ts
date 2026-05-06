@@ -1,6 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 @Component({
   selector: 'app-equipment-slot-card',
   standalone: true,
@@ -15,11 +14,9 @@ export class EquipmentSlotCardComponent {
   @Input() icon: string = '';
   @Output() openEquipment = new EventEmitter<void>();
   @Output() clearEquipment = new EventEmitter<void>();
-
   onOpenClick(): void {
     this.openEquipment.emit();
   }
-
   onClearClick(event: Event): void {
     event.stopPropagation();
     this.clearEquipment.emit();

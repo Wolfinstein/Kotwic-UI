@@ -1,11 +1,8 @@
 export enum ItemType {
-
   SZORTY = 'Szorty',
   SPODNIE = 'Spodnie',
   SPODNICA = 'Spodnica',
   KILT = 'Kilt',
-
-
   KURTKA = 'Kurtka',
   KAMIZELKA = 'Kamizelka',
   KOLCZUGA = 'Kolczuga',
@@ -16,8 +13,6 @@ export enum ItemType {
   PELERYNA = 'Peleryna',
   GORSET = 'Gorset',
   SMOKING = 'Smoking',
-
-
   CZAPKA = 'Czapka',
   KASK = 'Kask',
   HELM = 'Helm',
@@ -28,20 +23,14 @@ export enum ItemType {
   KORONA = 'Korona',
   OPASKA = 'Opaska',
   BANDANA = 'Bandana',
-
-
   PIERSCIEN = 'Pierscien',
   SYGNET = 'Sygnet',
   BRANSOLETA = 'Bransoleta',
-
-
   AMULET = 'Amulet',
   LANCUCH = 'Lancuch',
   NASZYJNIK = 'Naszyjnik',
   KRAWAT = 'Krawat',
   APASZKA = 'Apaszka',
-
-
   PALKA = 'Palka',
   NOZ = 'Noz',
   SZTYLET = 'Sztylet',
@@ -52,8 +41,6 @@ export enum ItemType {
   KAMA = 'Kama',
   PIESCNIEBIOS = 'PiescNiebios',
   WAKIZASHI = 'Wakizashi',
-
-
   MACZUGA = 'Maczuga',
   LOM = 'Lom',
   PIKA = 'Pika',
@@ -64,8 +51,6 @@ export enum ItemType {
   HALABARDA = 'Halabarda',
   KATANA = 'Katana',
   PILALANCUCHOWA = 'PilaLancuchowa',
-
-
   GLOCK = 'Glock',
   MAGNUM = 'Magnum',
   DESERT_EAGLE = 'DesertEagle',
@@ -73,8 +58,6 @@ export enum ItemType {
   UZI = 'Uzi',
   MP5K = 'Mp5k',
   SKORPION = 'Skorpion',
-
-
   KARABINMYSLIWSKI = 'KarabinMysliwski',
   STRZELBA = 'Strzelba',
   AK47 = 'AK47',
@@ -82,8 +65,6 @@ export enum ItemType {
   FN_FAL = 'FnFal',
   POLAUTOMATSNAJPERSKI = 'PolautomatSnajperski',
   KARABINSNAJPERSKI = 'KarabinSnajperski',
-
-
   KROTKILUK = 'KrotkiLuk',
   LUK = 'Luk',
   DLUGILUK = 'DlugiLuk',
@@ -91,8 +72,6 @@ export enum ItemType {
   PILUM = 'Pilum',
   NOZDORZUCANIA = 'NozDoRzucania',
   TOPOREKDORZUCANIA = 'ToporekDoRzucania',
-
-
   KUSZA = 'Kusza',
   SHURIKEN = 'Shuriken',
   CIEZKAKUSZA = 'CiezkaKusza',

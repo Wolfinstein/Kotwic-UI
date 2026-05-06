@@ -1,7 +1,6 @@
 <div class="input-panel">
   <div class="panel-grid">
     <div class="column">
-
       <div class="section">
         <div class="compact-grid">
           <div class="compact-item">
@@ -13,7 +12,6 @@
           </div>
         </div>
       </div>
-
       <div class="section">
         <h3>Rasa</h3>
         <select [(ngModel)]="character!.rasa" (change)="updateCharacterField('rasa', character!.rasa)">
@@ -24,7 +22,6 @@
           <option value="Ssak">Ssak</option>
         </select>
       </div>
-
       <div class="section">
         <h3>Trening</h3>
         <div class="compact-grid">
@@ -35,7 +32,6 @@
           </div>
         </div>
       </div>
-
       <div class="section">
         <h3>Talizmany</h3>
         <div class="compact-grid">
@@ -46,7 +42,6 @@
           </div>
         </div>
       </div>
-
       <div class="section">
         <div class="compact-grid">
           <div class="compact-item">
@@ -58,7 +53,6 @@
           </div>
         </div>
       </div>
-
       <div class="section">
         <div class="compact-grid">
           <div class="compact-item">
@@ -70,7 +64,6 @@
           </div>
         </div>
       </div>
-
       <div class="section">
         <div class="compact-grid">
           <div class="compact-item">
@@ -82,7 +75,6 @@
           </div>
         </div>
       </div>
-
       <div class="section">
         <div class="compact-grid">
           <div class="compact-item">
@@ -94,9 +86,7 @@
           </div>
         </div>
       </div>
-
     </div>
-
     <!-- Column 2: Equipment + Runes -->
     <div class="column column-equipment">
       <div class="section section-equipment">
@@ -114,7 +104,6 @@
             </button>
           </div>
         </div>
-
         <div class="equipment-grid">
           <!-- Non-weapon slots -->
           <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.head?.base"
@@ -127,7 +116,6 @@
               {{ character!.equipment.head!.rarity }}
             </span>
           </button>
-
           <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.chest?.base"
             (click)="openEquipmentModal('chest')"
             [attr.data-tooltip]="character?.equipment?.chest?.base ? getEquipmentTooltip('chest', character!.poziom) : null">
@@ -138,7 +126,6 @@
               {{ character!.equipment.chest!.rarity }}
             </span>
           </button>
-
           <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.legs?.base"
             (click)="openEquipmentModal('legs')"
             [attr.data-tooltip]="character?.equipment?.legs?.base ? getEquipmentTooltip('legs', character!.poziom) : null">
@@ -149,7 +136,6 @@
               {{ character!.equipment.legs!.rarity }}
             </span>
           </button>
-
           <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.neck?.base"
             (click)="openEquipmentModal('neck')"
             [attr.data-tooltip]="character?.equipment?.neck?.base ? getEquipmentTooltip('neck', character!.poziom) : null">
@@ -160,7 +146,6 @@
               {{ character!.equipment.neck!.rarity }}
             </span>
           </button>
-
           <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.finger1?.base"
             (click)="openEquipmentModal('finger1')"
             [attr.data-tooltip]="character?.equipment?.finger1?.base ? getEquipmentTooltip('finger1', character!.poziom) : null">
@@ -171,7 +156,6 @@
               {{ character!.equipment.finger1!.rarity }}
             </span>
           </button>
-
           <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.finger2?.base"
             (click)="openEquipmentModal('finger2')"
             [attr.data-tooltip]="character?.equipment?.finger2?.base ? getEquipmentTooltip('finger2', character!.poziom) : null">
@@ -182,7 +166,6 @@
               {{ character!.equipment.finger2!.rarity }}
             </span>
           </button>
-
           <!-- Weapon slots — always show weapon1; weapon2 greyed if 2h mode -->
           <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.weapon1?.base"
             (click)="openEquipmentModal('weapon1')"
@@ -195,7 +178,6 @@
               {{ character!.equipment.weapon1!.rarity }}
             </span>
           </button>
-
           <button class="eq-slot-btn" [class.eq-slot-filled]="character?.equipment?.weapon2?.base"
             [class.eq-slot-locked]="weapon2Locked" [disabled]="weapon2Locked" (click)="openEquipmentModal('weapon2')"
             [attr.data-tooltip]="!weapon2Locked && character?.equipment?.weapon2?.base ? getEquipmentTooltip('weapon2', character!.poziom) : null">
@@ -208,7 +190,6 @@
           </button>
         </div>
       </div>
-
       <div class="section">
         <h3>Arkany</h3>
         <div class="compact-grid">
@@ -223,7 +204,6 @@
           </div>
         </div>
       </div>
-
       <div class="section column-bottom-section">
         <h3>Runy</h3>
         <div class="rune-summary" *ngIf="character?.runeValues?.length">
@@ -234,7 +214,6 @@
           Zarządzaj runami ({{ character?.runeValues?.length || 0 }})
         </button>
       </div>
-
       <div class="section column-bottom-section">
         <h3>Umagi</h3>
         <div class="rune-summary" *ngIf="character?.umagiValues?.length">
@@ -245,14 +224,10 @@
           Zarządzaj umagami ({{ character?.umagiValues?.length || 0 }})
         </button>
       </div>
-
     </div>
-
     <!-- Column 3: Bonuses -->
     <div class="column">
-
       <div class="bonuses-container">
-
         <div class="section column-bonus">
           <div class="section">
             <div class="compact-grid">
@@ -276,7 +251,6 @@
               </div>
             </div>
           </div>
-
           <div class="section">
             <div class="compact-grid">
               <div class="compact-item">
@@ -288,7 +262,6 @@
               </div>
             </div>
           </div>
-
           <div class="section">
             <div class="compact-grid">
               <div class="compact-item">
@@ -300,10 +273,7 @@
               </div>
             </div>
           </div>
-
         </div>
-
-
 
         <div class="section column-bonus">
           <button class="bonus-toggle" (click)="toggleBonusExpand('hunt')">
@@ -317,7 +287,6 @@
             </label>
           </div>
         </div>
-
         <div class="section column-bonus">
           <button class="bonus-toggle" (click)="toggleBonusExpand('daily')">
             <h3>Eventy {{ expandedBonuses['daily'] ? '▼' : '▶' }}</h3>
@@ -330,7 +299,6 @@
             </label>
           </div>
         </div>
-
         <div class="section column-bonus">
           <button class="bonus-toggle" (click)="toggleBonusExpand('oneTime')">
             <h3>Jednoraz {{ expandedBonuses['oneTime'] ? '▼' : '▶' }}</h3>
@@ -343,7 +311,6 @@
             </label>
           </div>
         </div>
-
         <div class="section">
           <h3>Blaszka</h3>
           <label class="bonus-item">
@@ -362,9 +329,7 @@
             Blaszka za Hastura
           </label>
         </div>
-
       </div>
-
       <div class="section">
         <h3>Ewolucje</h3>
         <div class="compact-grid">
@@ -375,12 +340,10 @@
           </div>
         </div>
       </div>
-
       <div class="section action-buttons">
         <button class="action-btn" (click)="importCharacter()">Import</button>
         <button class="action-btn" (click)="exportCharacter()">Export</button>
       </div>
-
       <div class="section issues-section">
         <button class="issues-toggle" (click)="showIssuesDropdown = !showIssuesDropdown">
           <span>Problemy</span>
@@ -392,15 +355,12 @@
       </div>
     </div>
   </div>
-
 </div>
-
 <!-- ═══════════════════════════════════════════════════
      EQUIPMENT MODAL
 ════════════════════════════════════════════════════ -->
 <div *ngIf="showEquipmentModal" class="modal-overlay" (click)="closeModal()">
   <div class="modal-content eq-modal-content" (click)="$event.stopPropagation()">
-
     <!-- Header -->
     <div class="eq-modal-header">
       <h3 class="eq-modal-title">
@@ -412,7 +372,6 @@
         ✕ Wyczyść
       </button>
     </div>
-
     <!-- Item preview -->
     <div class="eq-preview" [class.eq-preview-empty]="!draftItem.base">
       <span *ngIf="draftItem.base; else emptyPreview" class="eq-preview-name" [attr.data-rarity]="draftItem.rarity">
@@ -422,7 +381,6 @@
         <span class="eq-preview-placeholder">Wybierz przedmiot…</span>
       </ng-template>
     </div>
-
     <!-- Step 1: Rarity -->
     <div class="eq-section">
       <div class="eq-section-label">Rzadkość</div>
@@ -433,7 +391,6 @@
         </button>
       </div>
     </div>
-
     <!-- Step 2: Base item -->
     <div class="eq-section">
       <div class="eq-section-label">Przedmiot bazowy</div>
@@ -446,10 +403,8 @@
         </button>
       </div>
     </div>
-
     <!-- Step 3 & 4: Prefix / Suffix — shown independently based on flags -->
     <div class="eq-affix-row" *ngIf="draftHasPrefix(draftItem) || draftHasSuffix(draftItem)">
-
       <!-- Prefix -->
       <div class="eq-section eq-affix-section" *ngIf="draftHasPrefix(draftItem)">
         <div class="eq-section-label">Prefiks <span class="eq-optional">(opcjonalny)</span></div>
@@ -464,7 +419,6 @@
           </button>
         </div>
       </div>
-
       <!-- Suffix -->
       <div class="eq-section eq-affix-section" *ngIf="draftHasSuffix(draftItem)">
         <div class="eq-section-label">Sufiks <span class="eq-optional">(opcjonalny)</span></div>
@@ -479,9 +433,7 @@
           </button>
         </div>
       </div>
-
     </div>
-
     <!-- Footer -->
     <div class="eq-modal-footer">
       <button class="action-btn2 eq-cancel-btn" (click)="closeModal()">Anuluj</button>
@@ -492,7 +444,6 @@
     </div>
   </div>
 </div>
-
 <!-- Runes Modal -->
 <div *ngIf="showRunesModal" class="modal-overlay" (click)="closeModal()">
   <div class="modal-content rune-modal-content" (click)="$event.stopPropagation()">
@@ -500,7 +451,6 @@
       <h3>Zarządzanie Runami</h3>
       <span class="rune-count-badge">{{ selectedRunes.length }} run</span>
     </div>
-
     <div class="rune-dual-panel">
       <!-- Left: Available runes -->
       <div class="rune-panel">
@@ -520,14 +470,12 @@
           </div>
         </div>
       </div>
-
       <!-- Divider -->
       <div class="rune-divider">
         <div class="rune-divider-line"></div>
         <span class="rune-divider-icon">⟷</span>
         <div class="rune-divider-line"></div>
       </div>
-
       <!-- Right: Selected runes -->
       <div class="rune-panel">
         <div class="rune-panel-header">
@@ -554,14 +502,12 @@
         </div>
       </div>
     </div>
-
     <div class="rune-modal-footer">
       <button (click)="closeModal()" class="action-btn rune-cancel-btn">Anuluj</button>
       <button (click)="saveRunes()" class="action-btn rune-save-btn">Zapisz Runy</button>
     </div>
   </div>
 </div>
-
 <!-- Umagi Modal -->
 <div *ngIf="showUmagiModal" class="modal-overlay" (click)="closeModal()">
   <div class="modal-content rune-modal-content" (click)="$event.stopPropagation()">
@@ -569,7 +515,6 @@
       <h3>Zarządzanie Umagami</h3>
       <span class="rune-count-badge">{{ selectedUmagi.length }} run</span>
     </div>
-
     <div class="rune-dual-panel">
       <div class="rune-panel">
         <div class="rune-panel-header">
@@ -588,13 +533,11 @@
           </div>
         </div>
       </div>
-
       <div class="rune-divider">
         <div class="rune-divider-line"></div>
         <span class="rune-divider-icon">⟷</span>
         <div class="rune-divider-line"></div>
       </div>
-
       <div class="rune-panel">
         <div class="rune-panel-header">
           <span class="rune-panel-title">Wybrane Umagi</span>
@@ -620,7 +563,6 @@
         </div>
       </div>
     </div>
-
     <div class="rune-modal-footer">
       <button (click)="closeModal()" class="close-btn rune-cancel-btn">Anuluj</button>
       <button (click)="saveUmagi()" class="calculate-btn rune-save-btn">Zapisz Umagi</button>

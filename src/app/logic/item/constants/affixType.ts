@@ -84,7 +84,6 @@ export enum PrefixType {
   SZEROKI = 'Szeroki',
   NAPROMIENIOWANY = 'Napromieniowany'
 }
-
 export enum SuffixType {
   NARKOMANA = 'Narkomana',
   SILACZA = 'Silacza',

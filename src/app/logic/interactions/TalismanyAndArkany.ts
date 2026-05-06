@@ -1,26 +1,20 @@
 import { Player } from './Player';
 import { MultiplicativeBonus, MultiplicativeBonusType } from './MultiplicativeBonus';
-
 export class TalismanyAndArkany {
   aMajestat: number = 0;
   aMaskaOff: number = 0;
   aMaskaDef: number = 0;
-
   aKrewZycia: number = 0;
   aKocieSciezki: number = 0;
   aZar: number = 0;
-
   aCisza: number = 0;
   aWyssanie: number = 0;
   aMocKrwi: number = 0;
-
   aSkora: number = 0;
   aDziki: number = 0;
   aCienBestii: number = 0;
-
   aNocny: number = 0;
   aTchnienie: number = 0;
-
   ambicja: number = 0;
   behemot: number = 0;
   ziz: number = 0;
@@ -36,7 +30,6 @@ export class TalismanyAndArkany {
   lowca: number = 0;
   piesnKrwi: number = 0;
   cichyLowca: number = 0;
-
   constructor(
     aMajestat: number = 0,
     aMaskaOff: number = 0,
@@ -98,11 +91,9 @@ export class TalismanyAndArkany {
     this.piesnKrwi = piesnKrwi;
     this.cichyLowca = cichyLowca;
   }
-
   static builder() {
     return new TalismanyAndArkanyBuilder();
   }
-
   calculateTalisman(player: Player): Player {
     const p1 = this.doAmbicja(player);
     this.doBehe(p1);
@@ -121,7 +112,6 @@ export class TalismanyAndArkany {
     this.doMaskaDef(p1);
     return p1;
   }
-
   calculateArakny(player: Player): Player {
     const p1 = this.doMajestat(player);
     this.doKocieSciezki(p1);
@@ -137,7 +127,6 @@ export class TalismanyAndArkany {
     this.doWladzy(p1);
     return p1;
   }
-
   private doAmbicja(player: Player): Player {
     switch (this.ambicja) {
       case 1:
@@ -177,7 +166,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doBehe(player: Player): Player {
     switch (this.behemot) {
       case 1:
@@ -217,7 +205,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doZiz(player: Player): Player {
     switch (this.ziz) {
       case 1:
@@ -242,7 +229,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doCichyLowca(player: Player): Player {
     switch (this.cichyLowca) {
       case 1:
@@ -262,7 +248,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doKamykSpota(player: Player): Player {
     switch (this.kamienSpota) {
       case 1:
@@ -282,7 +267,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doKamykZwinki(player: Player): Player {
     switch (this.kamienZwinki) {
       case 1:
@@ -302,7 +286,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doSzpony(player: Player): Player {
     switch (this.szpony) {
       case 1:
@@ -322,7 +305,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doZycieiSmierc(player: Player): Player {
     switch (this.zycieSmierc) {
       case 1:
@@ -342,7 +324,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doOtchlan(player: Player): Player {
     const multi = 0.5 * this.otchlan;
     switch (this.otchlan) {
@@ -357,7 +338,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doPotega(player: Player): Player {
     switch (this.potega) {
       case 1:
@@ -381,7 +361,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doAura(player: Player): Player {
     switch (this.aura) {
       case 1:
@@ -406,7 +385,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doMaskaOffa(player: Player): Player {
     switch (this.maskaStrachu) {
       case 1:
@@ -430,7 +408,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doMaskaDef(player: Player): Player {
     switch (this.maskaWladzy) {
       case 1:
@@ -450,7 +427,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doLowca(player: Player): Player {
     switch (this.lowca) {
       case 1:
@@ -468,7 +444,6 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doPiesnKrwi(player: Player): Player {
     switch (this.piesnKrwi) {
       case 1:
@@ -492,18 +467,15 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doMajestat(player: Player): Player {
     player.addAllDps(this.aMajestat);
     player.setLife(Math.floor(player.life + player.baseLife * (this.aMajestat * 0.07)));
     return player;
   }
-
   private doKocieSciezki(player: Player): Player {
     player.addZwinnosc(this.aKocieSciezki);
     return player;
   }
-
   private doZar(player: Player): Player {
     if (this.aZar === 1) {
       player.setLife(Math.floor(player.life + player.baseLife * 0.4));
@@ -512,33 +484,27 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doMocKrwi(player: Player): Player {
     player.addSzczescie(this.aMocKrwi * 2);
     player.addAllCrit(0.0075 * this.aMocKrwi);
     return player;
   }
-
   private doSkora(player: Player): Player {
     player.addOdpornosc(this.aSkora);
     return player;
   }
-
   private doDziki(player: Player): Player {
     player.addSila(this.aDziki);
     return player;
   }
-
   private doKaligula(player: Player): Player {
     player.addWplywy(this.aMaskaOff);
     return player;
   }
-
   private doWladzy(player: Player): Player {
     player.addCharyzma(this.aMaskaDef);
     return player;
   }
-
   private doCienBestii(player: Player): Player {
     if (this.aCienBestii === 1) {
       player.setLife(Math.floor(player.life + player.baseLife * 0.3));
@@ -547,28 +513,23 @@ export class TalismanyAndArkany {
     }
     return player;
   }
-
   private doaNocny(player: Player): Player {
     player.addSpostrzegawczosc(this.aNocny);
     return player;
   }
-
   private doaTchnienie(player: Player): Player {
     player.addUnikBiala(0.02 * this.aTchnienie);
     player.addUnikDystans(0.02 * this.aTchnienie);
     player.addUnikPalna(0.02 * this.aTchnienie);
-
     player.addAllTrafienie(-1 * this.aTchnienie);
     player.addAllDps(5 * this.aTchnienie);
     return player;
   }
-
   private doKrewZycia(player: Player): Player {
     player.addRegen(this.aKrewZycia * 0.005);
     return player;
   }
 }
-
 class TalismanyAndArkanyBuilder {
   private _aMajestat: number = 0;
   private _aMaskaOff: number = 0;
@@ -598,147 +559,118 @@ class TalismanyAndArkanyBuilder {
   private _maskaWladzy: number = 0;
   private _lowca: number = 0;
   private _piesnKrwi: number = 0;
-
   aMajestat(aMajestat: number): TalismanyAndArkanyBuilder {
     this._aMajestat = aMajestat;
     return this;
   }
-
   aMaskaOff(aMaskaOff: number): TalismanyAndArkanyBuilder {
     this._aMaskaOff = aMaskaOff;
     return this;
   }
-
   aMaskaDef(aMaskaDef: number): TalismanyAndArkanyBuilder {
     this._aMaskaDef = aMaskaDef;
     return this;
   }
-
   aKrewZycia(aKrewZycia: number): TalismanyAndArkanyBuilder {
     this._aKrewZycia = aKrewZycia;
     return this;
   }
-
   aKocieSciezki(aKocieSciezki: number): TalismanyAndArkanyBuilder {
     this._aKocieSciezki = aKocieSciezki;
     return this;
   }
-
   aZar(aZar: number): TalismanyAndArkanyBuilder {
     this._aZar = aZar;
     return this;
   }
-
   aCisza(aCisza: number): TalismanyAndArkanyBuilder {
     this._aCisza = aCisza;
     return this;
   }
-
   aWyssanie(aWyssanie: number): TalismanyAndArkanyBuilder {
     this._aWyssanie = aWyssanie;
     return this;
   }
-
   aMocKrwi(aMocKrwi: number): TalismanyAndArkanyBuilder {
     this._aMocKrwi = aMocKrwi;
     return this;
   }
-
   aSkora(aSkora: number): TalismanyAndArkanyBuilder {
     this._aSkora = aSkora;
     return this;
   }
-
   aDziki(aDziki: number): TalismanyAndArkanyBuilder {
     this._aDziki = aDziki;
     return this;
   }
-
   aCienBestii(aCienBestii: number): TalismanyAndArkanyBuilder {
     this._aCienBestii = aCienBestii;
     return this;
   }
-
   aNocny(aNocny: number): TalismanyAndArkanyBuilder {
     this._aNocny = aNocny;
     return this;
   }
-
   aTchnienie(aTchnienie: number): TalismanyAndArkanyBuilder {
     this._aTchnienie = aTchnienie;
     return this;
   }
-
   ambicja(ambicja: number): TalismanyAndArkanyBuilder {
     this._ambicja = ambicja;
     return this;
   }
-
   behemot(behemot: number): TalismanyAndArkanyBuilder {
     this._behemot = behemot;
     return this;
   }
-
   ziz(ziz: number): TalismanyAndArkanyBuilder {
     this._ziz = ziz;
     return this;
   }
-
   kamienSpota(kamienSpota: number): TalismanyAndArkanyBuilder {
     this._kamienSpota = kamienSpota;
     return this;
   }
-
   kamienZwinki(kamienZwinki: number): TalismanyAndArkanyBuilder {
     this._kamienZwinki = kamienZwinki;
     return this;
   }
-
   szpony(szpony: number): TalismanyAndArkanyBuilder {
     this._szpony = szpony;
     return this;
   }
-
   zycieSmierc(zycieSmierc: number): TalismanyAndArkanyBuilder {
     this._zycieSmierc = zycieSmierc;
     return this;
   }
-
   otchlan(otchlan: number): TalismanyAndArkanyBuilder {
     this._otchlan = otchlan;
     return this;
   }
-
   potega(potega: number): TalismanyAndArkanyBuilder {
     this._potega = potega;
     return this;
   }
-
   aura(aura: number): TalismanyAndArkanyBuilder {
     this._aura = aura;
     return this;
   }
-
   maskaStrachu(maskaStrachu: number): TalismanyAndArkanyBuilder {
     this._maskaStrachu = maskaStrachu;
     return this;
   }
-
   maskaWladzy(maskaWladzy: number): TalismanyAndArkanyBuilder {
     this._maskaWladzy = maskaWladzy;
     return this;
   }
-
   lowca(lowca: number): TalismanyAndArkanyBuilder {
     this._lowca = lowca;
     return this;
   }
-
   piesnKrwi(piesnKrwi: number): TalismanyAndArkanyBuilder {
     this._piesnKrwi = piesnKrwi;
     return this;
   }
-
   build(): TalismanyAndArkany {
     return new TalismanyAndArkany(
       this._aMajestat,

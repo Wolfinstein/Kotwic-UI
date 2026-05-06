@@ -701,7 +701,6 @@ button {
 /* ═══════════════════════════════════════════════════
    EQUIPMENT MODAL
 ═══════════════════════════════════════════════════ */
-
 .eq-modal-content {
   max-width: 560px;
   width: 92vw;
@@ -841,7 +840,6 @@ button {
   letter-spacing: 0.3px;
 }
 
-
 .eq-rarity-btn[data-rarity="ZWYKLY"] {
   border-color: #555;
   color: #aaa;
@@ -876,7 +874,6 @@ button {
   border-color: #8a5000;
   color: #f5a623;
 }
-
 
 .eq-rarity-btn.eq-rarity-selected[data-rarity="ZWYKLY"] {
   background: #444;
@@ -1029,7 +1026,6 @@ button {
 /* ═══════════════════════════════════════════════════
    MODAL BASE
 ═══════════════════════════════════════════════════ */
-
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1092,7 +1088,6 @@ button {
 /* ═══════════════════════════════════════════════════
    RUNE / UMAGI MODAL
 ═══════════════════════════════════════════════════ */
-
 .rune-modal-content {
   max-width: 95vw;
   width: 100%;

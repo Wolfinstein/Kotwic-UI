@@ -1,6 +1,5 @@
 import { Player } from './Player';
 import { MultiplicativeBonus, MultiplicativeBonusType } from './MultiplicativeBonus';
-
 export class Evolution {
   private skrzylda: number = 0;
   private pancerz: number = 0;
@@ -15,7 +14,6 @@ export class Evolution {
   private harmonijnyRozwoj: number = 0;
   private pietnoDemona: number = 0;
   private wzmocnioneMiesnie: number = 0;
-
   calculate(player: Player): Player {
     this.doSkrzydla(player);
     this.doSciegna(player);
@@ -32,7 +30,6 @@ export class Evolution {
     this.doPancerz(player);
     return player;
   }
-
   private bonus(licznik: number, mianownik: number, type: MultiplicativeBonusType): MultiplicativeBonus {
     return MultiplicativeBonus.builder()
       .licznik(licznik)
@@ -41,13 +38,11 @@ export class Evolution {
       .mnoznik(1)
       .build();
   }
-
   private skrzydlaBonusTier(level: number): number {
     if (level >= 15) return 75;
     if (level >= 10) return 50;
     return 25;
   }
-
   private doSkrzydla(player: Player): void {
     if (this.skrzylda < 1) return;
     player.addSpostrzegawczosc(this.skrzydlaSpostrzegawczosc(this.skrzylda));
@@ -62,12 +57,10 @@ export class Evolution {
       player.addCritMulti(this.skrzylda === 15 ? 0.40 : 0.25);
     }
   }
-
   private skrzydlaSpostrzegawczosc(level: number): number {
     if (level <= 10) return level * 4;
     return 40 + (level - 10) * 8;
   }
-
   private skrzydlaUnikBiala(level: number): number {
     if (level === 4) return 0.05;
     if (level <= 8) return 0.06;
@@ -75,7 +68,6 @@ export class Evolution {
     if (level === 14) return 0.17;
     return 0.18;
   }
-
   private skrzydlaUnikDystans(level: number): number {
     if (level === 4) return 0.03;
     if (level <= 8) return 0.05;
@@ -83,7 +75,6 @@ export class Evolution {
     if (level === 14) return 0.13;
     return 0.15;
   }
-
   private doSciegna(player: Player): void {
     if (this.wzmocnioneSciegna < 1) return;
     player.addZwinnosc(this.sciegnaZwinnosc(this.wzmocnioneSciegna));
@@ -100,12 +91,10 @@ export class Evolution {
       player.addCritMulti(this.wzmocnioneSciegna === 14 ? 0.25 : 0.4);
     }
   }
-
   private sciegnaZwinnosc(level: number): number {
     if (level <= 10) return level * 5;
     return 50 + (level - 10) * 10;
   }
-
   private sciegnaUnik(level: number): number {
     if (level <= 8) return 0.04;
     if (level === 9) return 0.07;
@@ -113,13 +102,11 @@ export class Evolution {
     if (level === 14) return 0.11;
     return 0.12;
   }
-
   private sciegnaBonusTier(level: number): number {
     if (level >= 15) return 60;
     if (level >= 10) return 40;
     return 20;
   }
-
   private doPancerz(player: Player): void {
     if (this.pancerz < 1) return;
     player.addOdpornosc(this.pancerzOdpornosc(this.pancerz));
@@ -130,19 +117,16 @@ export class Evolution {
       player.life += Math.floor(lifePct * player.baseLife);
     }
   }
-
   private pancerzOdpornosc(level: number): number {
     if (level <= 10) return level * 7;
     return 70 + (level - 10) * 14;
   }
-
   private pancerzLifePct(level: number): number {
     if (level <= 3) return 0.00;
     if (level <= 8) return 0.15;
     if (level === 9) return 0.25;
     return 0.30;
   }
-
   private doKly(player: Player): void {
     if (this.klyPauzryKolce < 1) return;
     this.applyKlyDamage(player, this.klyPauzryKolce);
@@ -150,7 +134,6 @@ export class Evolution {
     if (this.klyPauzryKolce === 14) player.addLaczneObrazeniaWszystkichBroni(0.04);
     if (this.klyPauzryKolce === 15) player.addLaczneObrazeniaWszystkichBroni(0.10);
   }
-
   private applyKlyDamage(player: Player, level: number): void {
     player.addMinDpsBiala1h(level * 4);
     player.addMaxDpsBiala1h(level * 4);
@@ -165,7 +148,6 @@ export class Evolution {
     player.addMinDpsDystans2h(level * 2);
     player.addMaxDpsDystans2h(level * 2);
   }
-
   private klyTrafienie(level: number): number {
     if (level <= 3) return 0;
     if (level === 4) return 25;
@@ -175,13 +157,10 @@ export class Evolution {
     if (level === 14) return 105;
     return 120;
   }
-
   private doGruczoly(player: Player): void {
     if (this.gruczolyJadowe == 0) return;
-
     player.addAllCrit(this.gruczolyJadowe * 0.05);
     player.addObronaDodatkowa(this.gruczolyObrona(this.gruczolyJadowe));
-
     if (this.gruczolyJadowe >= 15) {
       player.addCritMultiBiala1h(0.6);
       player.addCritMultiBiala2h(1.8);
@@ -205,7 +184,6 @@ export class Evolution {
       player.addCritMultiDystans2h(0.6);
     }
   }
-
   private gruczolyObrona(level: number): number {
     if (level <= 4) return 40;
     if (level === 5) return 85;
@@ -213,12 +191,10 @@ export class Evolution {
     if (level === 10) return 170;
     return 255;
   }
-
   private doKrew(player: Player): void {
     const szczescie = this.krewSzczescie(this.krewDemona);
     if (szczescie > 0) player.addSzczescie(szczescie);
   }
-
   private krewSzczescie(level: number): number {
     switch (level) {
       case 1: return 2;
@@ -230,7 +206,6 @@ export class Evolution {
       default: return 0;
     }
   }
-
   private doMutacja(player: Player): void {
     if (this.mutacjaDna < 1) return;
     const unik = this.mutacjaDna * 0.01;
@@ -243,7 +218,6 @@ export class Evolution {
       player.addZwinnosc(statBonus);
     }
   }
-
   private mutacjaStatBonus(level: number): number {
     if (level === 4) return 2;
     if (level <= 8) return 4;
@@ -251,7 +225,6 @@ export class Evolution {
     if (level === 10) return 8;
     return 0;
   }
-
   private doOswiecony(player: Player): void {
     if (this.oswiecony < 1) return;
     player.addWiedza(this.oswieconyWiedza(this.oswiecony));
@@ -263,13 +236,11 @@ export class Evolution {
     if (this.oswiecony === 14) player.addTrafienieProcentowePalna(0.04);
     if (this.oswiecony === 15) player.addTrafienieProcentowePalna(0.10);
   }
-
   private oswieconyWiedza(level: number): number {
     if (level <= 13) return level * 2;
     if (level === 14) return 36;
     return 40;
   }
-
   private oswieconyPalnaDmg(level: number): number {
     if (level <= 3) return level * 2;
     if (level === 4) return 5;
@@ -279,21 +250,18 @@ export class Evolution {
     if (level === 14) return 19;
     return 21;
   }
-
   private oswieconyBonusTier(level: number): number[] | null {
     if (level >= 14) return [3, 3];
     if (level >= 9) return [2, 3];
     if (level >= 4) return [1, 3];
     return null;
   }
-
   private applyPalnaDamage(player: Player, dmg: number): void {
     player.addMinDpsPalna1h(dmg);
     player.addMaxDpsPalna1h(dmg);
     player.addMinDpsPalna2h(dmg);
     player.addMaxDpsPalna2h(dmg);
   }
-
   private doSzostyZmysl(player: Player): void {
     if (this.szostyZmysl < 1) return;
     const dmg = this.szostyZmysl * 10;
@@ -310,20 +278,17 @@ export class Evolution {
       player.addAtakiDystans2h(ataki[1]);
     }
   }
-
   private szostyZmyslTrafienie(level: number): number {
     if (level <= 8) return 0.08;
     if (level <= 13) return 0.16;
     return 0.24;
   }
-
   private szostyZmyslAtaki(level: number): number[] {
     if (level <= 8) return [2, 1];
     if (level <= 13) return [4, 2];
     if (level === 14) return [4, 2];
     return [6, 3];
   }
-
   private doAbso(player: Player): void {
     if (this.absorpcja < 1) return;
     player.life += this.absoFlatLife(this.absorpcja);
@@ -337,7 +302,6 @@ export class Evolution {
       player.life += player.baseLife * 1.5;
     }
   }
-
   private absoFlatLife(level: number): number {
     if (level <= 3) return level * 150;
     if (level === 4) return 950;
@@ -348,7 +312,6 @@ export class Evolution {
     if (level === 9) return 2500;
     return 3100;
   }
-
   private absoBaseLifeBonus(level: number): number {
     if (level === 11) return 150;
     if (level === 12) return 300;
@@ -356,7 +319,6 @@ export class Evolution {
     if (level === 14) return 950;
     return 1550;
   }
-
   private doHarmonijny(player: Player): void {
     const stat = this.harmonijnyStatValue(this.harmonijnyRozwoj);
     if (stat <= 0) return;
@@ -370,7 +332,6 @@ export class Evolution {
     player.addInteligencja(stat);
     player.addWiedza(stat);
   }
-
   private harmonijnyStatValue(level: number): number {
     switch (level) {
       case 1: return 1;
@@ -391,12 +352,10 @@ export class Evolution {
       default: return 0;
     }
   }
-
   private doPietno(player: Player): void {
     const ignore = this.pietnoIgnore(this.pietnoDemona);
     if (ignore > 0) player.addIgnore(ignore);
   }
-
   private pietnoIgnore(level: number): number {
     switch (level) {
       case 1: return 0.03;
@@ -417,7 +376,6 @@ export class Evolution {
       default: return 0.0;
     }
   }
-
   private doMiesnie(player: Player): void {
     if (this.wzmocnioneMiesnie < 1) return;
     player.addSila(this.miesnieSila(this.wzmocnioneMiesnie));
@@ -435,7 +393,6 @@ export class Evolution {
     if (this.wzmocnioneMiesnie === 14) player.addTrafienieProcentoweBiala(0.04);
     if (this.wzmocnioneMiesnie === 15) player.addTrafienieProcentoweBiala(0.10);
   }
-
   private miesnieSila(level: number): number {
     if (level <= 10) return level * 2;
     if (level === 11) return 24;
@@ -444,7 +401,6 @@ export class Evolution {
     if (level === 14) return 36;
     return 40;
   }
-
   private miesnieDmg1h(level: number): number {
     if (level <= 3) return level * 2;
     if (level === 4) return 5;
@@ -460,7 +416,6 @@ export class Evolution {
     if (level === 14) return 19;
     return 21;
   }
-
   private miesnieDmg2h(level: number): number {
     if (level <= 3) return 0;
     if (level === 4) return 5;
@@ -472,18 +427,15 @@ export class Evolution {
     if (level === 14) return 19;
     return 21;
   }
-
   private miesnieBonusTier(level: number): number {
     if (level >= 14) return 3;
     if (level >= 9) return 2;
     return 1;
   }
-
   static builder(): EvolutionBuilder {
     return new EvolutionBuilder();
   }
 }
-
 class EvolutionBuilder {
   private _skrzylda: number = 0;
   private _pancerz: number = 0;
@@ -498,7 +450,6 @@ class EvolutionBuilder {
   private _harmonijnyRozwoj: number = 0;
   private _pietnoDemona: number = 0;
   private _wzmocnioneMiesnie: number = 0;
-
   skrzylda(value: number): EvolutionBuilder { this._skrzylda = value; return this; }
   pancerz(value: number): EvolutionBuilder { this._pancerz = value; return this; }
   klyPauzryKolce(value: number): EvolutionBuilder { this._klyPauzryKolce = value; return this; }
@@ -512,7 +463,6 @@ class EvolutionBuilder {
   harmonijnyRozwoj(value: number): EvolutionBuilder { this._harmonijnyRozwoj = value; return this; }
   pietnoDemona(value: number): EvolutionBuilder { this._pietnoDemona = value; return this; }
   wzmocnioneMiesnie(value: number): EvolutionBuilder { this._wzmocnioneMiesnie = value; return this; }
-
   build(): Evolution {
     const evo = new Evolution();
     evo['skrzylda'] = this._skrzylda;

@@ -1,8 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 type ContainerType = 'full' | 'constrained' | 'fluid';
-
 @Component({
   selector: 'app-responsive-container',
   standalone: true,

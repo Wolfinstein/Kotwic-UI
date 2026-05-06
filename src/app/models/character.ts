@@ -9,7 +9,6 @@ export interface Attributes {
     inteligencja: number;
     wiedza: number;
 }
-
 export interface TalizmanLevels {
     ambicja: number;
     lewiatan: number;
@@ -29,7 +28,6 @@ export interface TalizmanLevels {
     cichyLowca: number;
     piesnKrwi: number;
 }
-
 export interface ArcaneLevels {
     maskaAdnisa: number,
     maskaKaliguli: number,
@@ -47,7 +45,6 @@ export interface ArcaneLevels {
     tchnienieSmierci: number,
     groza: boolean
 }
-
 export interface Evolutions {
     skrzydla: number,
     pancerz: number,
@@ -64,16 +61,13 @@ export interface Evolutions {
     pietnoDemona: number,
     wzmocnioneMiesnie: number
 }
-
 export type ItemRarity = 'ZWYKLY' | 'DOBRY' | 'DOSKONALY' | 'LEGENDARNY' | 'LEGENDARNY_DOBRY' | 'LEGENDARNY_DOSKONALY' | 'EPICKI';
-
 export interface EquipmentItem {
     rarity: ItemRarity | null;
     prefix: string | null;
     base: string | null;
     suffix: string | null;
 }
-
 export interface EquipmentSlot {
     head?: EquipmentItem;
     chest?: EquipmentItem;
@@ -85,7 +79,6 @@ export interface EquipmentSlot {
     weapon2?: EquipmentItem;
     weaponMode?: 'dual1h' | '2h';
 }
-
 export interface Character {
     rasa: string;
     poziom: number;
@@ -111,7 +104,6 @@ export interface Character {
     strateg: number;
     kaplica: number;
 }
-
 export interface WeaponDamage {
     name: string;
     minDmg: number;
@@ -126,7 +118,6 @@ export interface WeaponDamage {
     critDmgMin?: number;
     critDmgMax?: number;
 }
-
 export interface DashboardValues {
     punktyKrwi?: number;
     punktyZycia?: number;
