@@ -1,14 +1,7 @@
-/**
- * Weapon modifier dictionaries
- * Contains all weapon prefix and suffix modifiers with their stats
- */
-
 import { Prefix, Suffix, Stats, ItemGenre, ItemRarity, PrefixType, SuffixType } from '../item';
 
 export class WeaponDictionary {
-  /**
-   * Get weapon prefix by genre, prefix type, and rarity
-   */
+
   static getWeaponPrefix(
     genre: ItemGenre,
     prefixType: PrefixType,
@@ -29,9 +22,7 @@ export class WeaponDictionary {
     return found;
   }
 
-  /**
-   * Get weapon suffix by genre, suffix type, and rarity
-   */
+
   static getWeaponSuffix(
     genre: ItemGenre,
     suffixType: SuffixType,

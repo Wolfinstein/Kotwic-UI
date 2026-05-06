@@ -1,8 +1,3 @@
-/**
- * Armour modifier dictionaries
- * Contains all armour prefix and suffix modifiers with their stats
- */
-
 import { Prefix, Suffix, Stats, ItemGenre, PrefixType, SuffixType, ItemType } from '../item';
 
 export class ArmourDictionary {

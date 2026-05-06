@@ -1,7 +1,3 @@
-/**
- * Main item composition model
- * An Item is composed of a base, optional prefix, and optional suffix
- */
 
 import { Affix } from './Affix';
 import { Base } from './Base';
@@ -24,17 +20,13 @@ export class Item {
     return this.rarity ?? ItemRarity.ZWYKLY;
   }
 
-  /**
-   * Create a new Item using the builder pattern
-   */
+
   static builder(): ItemBuilder {
     return new ItemBuilder();
   }
 }
 
-/**
- * Builder class for Item
- */
+
 export class ItemBuilder {
   public prefix?: Affix;
   public suffix?: Affix;

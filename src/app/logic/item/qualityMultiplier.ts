@@ -61,9 +61,6 @@ const MULTIPLIED_STAT_PROPERTIES: (keyof Stats)[] = [
   'regen', 'additionalIni'
 ];
 
-/**
- * Get quality multiplier for a given rarity level (base multiplier only, excludes legendary bonus)
- */
 export function getQualityMultiplier(rarity: ItemRarity): number {
   switch (rarity) {
     case ItemRarity.ZWYKLY:
@@ -82,16 +79,12 @@ export function getQualityMultiplier(rarity: ItemRarity): number {
   }
 }
 
-/**
- * Check if a rarity level is legendary (includes the legendary bonus)
- */
+
 function isLegendary(rarity: ItemRarity): boolean {
   return rarity.startsWith('LEGENDARNY') || rarity === ItemRarity.EPICKI;
 }
 
-/**
- * Get the epic quality multiplier (before legendary bonus)
- */
+
 function getEpicMultiplier(rarity: ItemRarity): number {
   if (rarity === ItemRarity.EPICKI) {
     return 2.5;

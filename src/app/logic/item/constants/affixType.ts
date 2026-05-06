@@ -1,7 +1,3 @@
-/**
- * Prefix and Suffix type enumerations
- * Represents the modifier types that can be applied to items
- */
 
 export enum PrefixType {
   PIKOWANY = 'Pikowany',

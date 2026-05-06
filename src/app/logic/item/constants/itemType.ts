@@ -1,7 +1,3 @@
-/**
- * Specific item type enumeration
- * Represents the exact type of item (e.g., Sword, Helmet, Ring)
- */
 export enum ItemType {
 
   SZORTY = 'Szorty',

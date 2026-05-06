@@ -1,7 +1,3 @@
-/**
- * Abstract base class for item modifiers (Prefix and Suffix)
- */
-
 import { ItemGenre, ItemRarity } from './constants';
 import { Stats } from './Stats';
 

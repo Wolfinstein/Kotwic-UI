@@ -1,7 +1,3 @@
-/**
- * Item suffix modifier
- * Represents a suffix that can be applied to items
- */
 
 import { Affix } from './Affix';
 import { ItemGenre, SuffixType, ItemRarity } from './constants';
@@ -15,17 +11,12 @@ export class Suffix extends Affix {
     this.suffixType = suffixType;
   }
 
-  /**
-   * Create a new Suffix using the builder pattern
-   */
   static builder(): SuffixBuilder {
     return new SuffixBuilder();
   }
 }
 
-/**
- * Builder class for Suffix
- */
+
 class SuffixBuilder {
   private genre: ItemGenre | undefined;
   private suffixType: SuffixType | undefined;

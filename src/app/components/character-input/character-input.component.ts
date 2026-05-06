@@ -156,9 +156,7 @@ export class CharacterInputComponent implements OnInit {
   selectedEquipmentSlot = '';
   weaponMode: 'dual1h' | '2h' = 'dual1h';
 
-  /** Draft being edited inside the modal */
   draftItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
-  /** For 2H weapon mode the single item */
   draft2hItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
 
 
@@ -295,7 +293,7 @@ export class CharacterInputComponent implements OnInit {
 
 
 
-  /** Derive slot category, considering current weapon mode */
+
   private getSlotCategory(slot: string): SlotCategory {
     if (slot === 'weapon1' || slot === 'weapon2') {
       return this.weaponMode === '2h' ? 'weapon2h' : 'weapon1h';
@@ -303,18 +301,15 @@ export class CharacterInputComponent implements OnInit {
     return SLOT_TO_CATEGORY[slot] ?? 'head';
   }
 
-  /** Base items available for the given slot */
   baseItemsForSlot(slot: string): BaseItemDef[] {
     const cat = this.getSlotCategory(slot);
     return BASE_ITEMS.filter(b => b.category === cat);
   }
 
-  /** Base items available for the 2H weapon slot */
   get baseItems2h(): BaseItemDef[] {
     return BASE_ITEMS.filter(b => b.category === 'weapon2h');
   }
 
-  /** Prefixes available for the selected base item */
   prefixesForDraft(draft: EquipmentItem, slot: string): string[] {
     if (!draft.base) return [];
     const def = BASE_ITEMS.find(b => b.name === draft.base);
@@ -322,7 +317,7 @@ export class CharacterInputComponent implements OnInit {
     return PREFIXES_BY_CATEGORY[def.category] ?? [];
   }
 
-  /** Suffixes available for the selected base item */
+
   suffixesForDraft(draft: EquipmentItem, slot: string): string[] {
     if (!draft.base) return [];
     const def = BASE_ITEMS.find(b => b.name === draft.base);
@@ -330,25 +325,25 @@ export class CharacterInputComponent implements OnInit {
     return SUFFIXES_BY_CATEGORY[def.category] ?? [];
   }
 
-  /** Does selected base item support a prefix? */
+
   draftHasPrefix(draft: EquipmentItem): boolean {
     if (!draft.base) return false;
     return !!BASE_ITEMS.find(b => b.name === draft.base)?.hasPrefix;
   }
 
-  /** Does selected base item support a suffix? */
+
   draftHasSuffix(draft: EquipmentItem): boolean {
     if (!draft.base) return false;
     return !!BASE_ITEMS.find(b => b.name === draft.base)?.hasSuffix;
   }
 
-  /** Clear prefix/suffix when base changes */
+
   onBaseChange(draft: EquipmentItem) {
     draft.prefix = null;
     draft.suffix = null;
   }
 
-  /** Build display label from an EquipmentItem */
+
   buildItemLabel(item: EquipmentItem | undefined | null): string {
     if (!item || !item.base) return '';
     const parts: string[] = [];
@@ -359,7 +354,7 @@ export class CharacterInputComponent implements OnInit {
     return parts.join(' ');
   }
 
-  /** Button label for a given slot */
+
   slotButtonLabel(slot: string): string {
     if (!this.character) return this.defaultSlotLabel(slot);
     const item = (this.character.equipment as any)[slot] as EquipmentItem | undefined;
@@ -572,7 +567,7 @@ export class CharacterInputComponent implements OnInit {
     return result;
   }
 
-  /** Is weapon2 locked (2H mode) */
+
   get weapon2Locked(): boolean {
     return this.weaponMode === '2h';
   }
@@ -589,7 +584,7 @@ export class CharacterInputComponent implements OnInit {
     this.showEquipmentModal = true;
   }
 
-  /** Toggle weapon mode between dual-1h and 2h */
+
   toggleWeaponMode() {
     this.weaponMode = this.weaponMode === 'dual1h' ? '2h' : 'dual1h';
     if (!this.character) return;

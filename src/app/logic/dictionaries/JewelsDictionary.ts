@@ -1,14 +1,7 @@
-/**
- * Jewel modifier dictionaries
- * Contains all jewel prefix and suffix modifiers with their stats
- */
-
 import { Prefix, Suffix, Stats, ItemGenre, PrefixType, SuffixType } from '../item';
 
 export class JewelsDictionary {
-  /**
-   * Get jewel prefix by genre and prefix type
-   */
+
   static getJewelPrefix(
     genre: ItemGenre,
     prefixType: PrefixType
@@ -27,9 +20,7 @@ export class JewelsDictionary {
     return found;
   }
 
-  /**
-   * Get jewel suffix by genre and suffix type
-   */
+
   static getJewelSuffix(
     genre: ItemGenre,
     suffixType: SuffixType

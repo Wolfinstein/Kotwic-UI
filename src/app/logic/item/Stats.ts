@@ -101,9 +101,6 @@ export class Stats {
   regen: number = 0;
   additionalIni: number = 0;
 
-  /**
-   * Set DPS for all weapon types
-   */
   setAllDps(dps: number): void {
     this.minDpsDystans1h += dps;
     this.maxDpsDystans1h += dps;
@@ -119,9 +116,6 @@ export class Stats {
     this.maxDpsBiala2h += dps;
   }
 
-  /**
-   * Set DPS for all one-handed weapons
-   */
   setAllDps1h(dps: number): void {
     this.minDpsPalna1h += dps;
     this.maxDpsPalna1h += dps;
@@ -141,9 +135,6 @@ export class Stats {
     this.critMultiPalna2h += crit;
   }
 
-  /**
-   * Set DPS for all two-handed weapons
-   */
   setAllDps2h(dps: number): void {
     this.minDpsDystans2h += dps;
     this.maxDpsDystans2h += dps;
@@ -155,9 +146,6 @@ export class Stats {
     this.maxDpsDystans1h += dps;
   }
 
-  /**
-   * Set max DPS for all weapons
-   */
   setAllMaxDps(dps: number): void {
     this.maxDpsDystans1h += dps;
     this.maxDpsDystans2h += dps;
@@ -167,9 +155,6 @@ export class Stats {
     this.maxDpsBiala2h += dps;
   }
 
-  /**
-   * Set min DPS for all weapons
-   */
   setAllMinDps(dps: number): void {
     this.minDpsDystans1h += dps;
     this.minDpsDystans2h += dps;
@@ -179,9 +164,6 @@ export class Stats {
     this.minDpsBiala2h += dps;
   }
 
-  /**
-   * Set critical chance for all weapon types
-   */
   setAllCritChance(crit: number): void {
     this.critChanceDystans += crit;
     this.critChancePalna1h += crit;
@@ -196,27 +178,18 @@ export class Stats {
     this.critChancePalna2h += crit;
   }
 
-  /**
-   * Set hit chance for all weapon types
-   */
   setAllTrafienie(trafienie: number): void {
     this.trafienieDystans += trafienie;
     this.trafieniePalna += trafienie;
     this.trafienieBiala += trafienie;
   }
 
-  /**
-   * Set dodge chance for all weapon types
-   */
   setAllUnik(unik: number): void {
     this.unikBiala += unik;
     this.unikDystans += unik;
     this.unikPalna += unik;
   }
 
-  /**
-   * Set critical multiplier for all weapon types
-   */
   setAllCritMulti(value: number): void {
     this.critMultiBiala1h += value;
     this.critMultiBiala2h += value;
@@ -226,17 +199,11 @@ export class Stats {
     this.critMultiPalna2h += value;
   }
 
-  /**
-   * Set critical multiplier for all one-handed weapons
-   */
   setAllCritMulti1h(value: number): void {
     this.critMultiBiala1h += value;
     this.critMultiPalna1h += value;
   }
 
-  /**
-   * Set critical multiplier for all two-handed weapons
-   */
   setAllCritMulti2h(value: number): void {
     this.critMultiBiala2h += value;
     this.critMultiDystans2h += value;
@@ -244,9 +211,6 @@ export class Stats {
     this.critMultiDystans1h += value;
   }
 
-  /**
-   * Set attack count for all weapon types
-   */
   setAllAtaki(ataki: number): void {
     this.atakiBiala += ataki;
     this.atakiDystans1h += ataki;
@@ -254,9 +218,6 @@ export class Stats {
     this.atakiPalna += ataki;
   }
 
-  /**
-   * Set additional initiative
-   */
   setAdditionalIni(value: number): void {
     this.additionalIni += value;
   }
@@ -273,45 +234,30 @@ export class Stats {
     this.punktyKrwi += value;
   }
 
-  /**
-   * Set percentage hit chance for guns
-   */
+
   setTrafienieProcentowePalna(value: number): void {
     this.trafienieProcentowePalna += value;
   }
 
-  /**
-   * Set percentage hit chance for white/melee
-   */
   setTrafienieProcentoweBiala(value: number): void {
     this.trafienieProcentoweBiala += value;
   }
 
-  /**
-   * Set percentage hit chance for ranged
-   */
   setTrafienieProcentoweDystans(value: number): void {
     this.trafienieProcentoweDystans += value;
   }
 
-  /**
-   * Set total damage multiplier for all weapons
-   */
+
   setLaczneObrazeniaWszystkichBroni(value: number): void {
     this.laczneObrazeniaWszystkichBroni += value;
   }
 
-  /**
-   * Set total damage multiplier for all weapons
-   */
+
   setObrazeniaProcentoweRuny(value: number): void {
     this.obrazeniaProcentoweRuny += value;
   }
 
-  /**
-   * Aggregate (add) another Stats object to this one
-   * Combines all stats from the provided stats object into this object
-   */
+
   addStats(newStats: Stats): this {
     this.sila += newStats.sila;
     this.zwinnosc += newStats.zwinnosc;
@@ -399,16 +345,12 @@ export class Stats {
     return this;
   }
 
-  /**
-   * Create a new Stats instance from a builder
-   */
+
   static builder(): StatsBuilder {
     return new StatsBuilder();
   }
 
-  /**
-   * Clone this Stats object
-   */
+
   clone(): Stats {
     const cloned = new Stats();
     Object.assign(cloned, this);
@@ -416,9 +358,7 @@ export class Stats {
   }
 }
 
-/**
- * Builder class for Stats
- */
+
 export class StatsBuilder {
   private stats: Stats = new Stats();
 

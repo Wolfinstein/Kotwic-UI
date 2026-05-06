@@ -1,7 +1,3 @@
-/**
- * Base item representation
- * Contains the foundational properties of an item (stats, genre, type)
- */
 
 import { ItemGenre, ItemType, ItemRarity } from './constants';
 import { Stats } from './Stats';
@@ -19,17 +15,11 @@ export class Base {
     this.rarity = rarity;
   }
 
-  /**
-   * Create a new Base using the builder pattern
-   */
   static builder(): BaseBuilder {
     return new BaseBuilder();
   }
 }
 
-/**
- * Builder class for Base
- */
 class BaseBuilder {
   private stats: Stats = new Stats();
   private genre: ItemGenre | undefined;

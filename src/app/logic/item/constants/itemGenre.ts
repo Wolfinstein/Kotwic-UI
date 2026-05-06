@@ -1,7 +1,4 @@
-/**
- * Item genre/slot enumeration
- * Represents where an item is equipped on the character
- */
+
 export enum ItemGenre {
   HEAD = 'head',
   CHEST = 'chest',

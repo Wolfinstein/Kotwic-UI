@@ -1,7 +1,4 @@
-/**
- * Item rarity levels enumeration
- * Represents the quality/power level of game items
- */
+
 export enum ItemRarity {
   EPICKI = 'EPICKI',
   LEGENDARNY_DOSKONALY = 'LEGENDARNY_DOSKONALY',

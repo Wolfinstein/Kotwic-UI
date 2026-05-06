@@ -1,7 +1,3 @@
-/**
- * Item prefix modifier
- * Represents a prefix that can be applied to items
- */
 
 import { Affix } from './Affix';
 import { ItemGenre, PrefixType, ItemRarity } from './constants';
@@ -15,17 +11,13 @@ export class Prefix extends Affix {
     this.prefixType = prefixType;
   }
 
-  /**
-   * Create a new Prefix using the builder pattern
-   */
+
   static builder(): PrefixBuilder {
     return new PrefixBuilder();
   }
 }
 
-/**
- * Builder class for Prefix
- */
+
 class PrefixBuilder {
   private genre: ItemGenre | undefined;
   private prefixType: PrefixType | undefined;

@@ -1,7 +1,3 @@
-/**
- * Item set definition
- * Represents a set bonus that can be applied to multiple items
- */
 
 import { ItemRarity } from './constants';
 import { Stats } from './Stats';
@@ -60,17 +56,13 @@ export class Set {
     this.bonusList = bonusList;
   }
 
-  /**
-   * Create a new Set using the builder pattern
-   */
+
   static builder(): SetBuilder {
     return new SetBuilder();
   }
 }
 
-/**
- * Builder class for Set
- */
+
 class SetBuilder {
   private type: SetType | undefined;
   private rarity: ItemRarity | undefined;
