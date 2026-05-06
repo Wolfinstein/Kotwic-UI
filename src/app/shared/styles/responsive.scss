@@ -1,12 +1,8 @@
-// ──────────────────────────────────────────────────────────
-// RESPONSIVE UTILITIES & MIXINS
-// ──────────────────────────────────────────────────────────
-
 @import './design-system.scss';
 
-// ──────────────────────────────────────────────────────────
-// Media Query Mixins
-// ──────────────────────────────────────────────────────────
+
+
+
 
 @mixin media-mobile {
   @media (max-width: 768px) {
@@ -68,9 +64,9 @@
   }
 }
 
-// ──────────────────────────────────────────────────────────
-// Breakpoint-based Grid Mixin
-// ──────────────────────────────────────────────────────────
+
+
+
 
 @mixin responsive-grid($cols-mobile: 1, $cols-tablet: 2, $cols-desktop: 3, $gap: spacing('lg')) {
   display: grid;
@@ -86,9 +82,9 @@
   }
 }
 
-// ──────────────────────────────────────────────────────────
-// Responsive Container
-// ──────────────────────────────────────────────────────────
+
+
+
 
 @mixin responsive-container {
   width: 100%;
@@ -105,9 +101,9 @@
   }
 }
 
-// ──────────────────────────────────────────────────────────
-// Touch Target Sizing
-// ──────────────────────────────────────────────────────────
+
+
+
 
 @mixin touch-target {
   min-height: var(--touch-target-min);
@@ -122,9 +118,9 @@
   }
 }
 
-// ──────────────────────────────────────────────────────────
-// Input Height Responsive
-// ──────────────────────────────────────────────────────────
+
+
+
 
 @mixin responsive-input-height {
   height: var(--input-height-mobile);
@@ -134,11 +130,11 @@
   }
 }
 
-// ──────────────────────────────────────────────────────────
-// Utility Classes
-// ──────────────────────────────────────────────────────────
 
-// Display utilities
+
+
+
+
 .visible-mobile {
   display: block;
 
@@ -185,7 +181,7 @@
   }
 }
 
-// Flexbox responsive
+
 .flex-mobile-col {
   @include media-mobile {
     display: flex;
@@ -207,7 +203,7 @@
   }
 }
 
-// Grid responsive
+
 .grid-mobile-1 {
   @include responsive-grid(1, 2, 3);
 }
@@ -216,7 +212,7 @@
   @include responsive-grid(2, 3, 4);
 }
 
-// Spacing responsive
+
 .px-mobile-lg {
   @include media-mobile {
     padding-left: spacing('lg');
@@ -231,7 +227,7 @@
   }
 }
 
-// Font responsive
+
 .text-responsive {
   font-size: font-size('sm');
 
@@ -244,7 +240,7 @@
   }
 }
 
-// Width utilities
+
 .full-width-mobile {
   @include media-mobile {
     width: 100%;
@@ -257,14 +253,14 @@
   }
 }
 
-// Container utilities
+
 .container-responsive {
   @include responsive-container;
 }
 
-// ──────────────────────────────────────────────────────────
-// Print Styles
-// ──────────────────────────────────────────────────────────
+
+
+
 
 @media print {
   .no-print {

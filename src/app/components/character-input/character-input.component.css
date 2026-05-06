@@ -201,13 +201,40 @@
 }
 
 /* Rarity colour coding */
-[data-rarity="ZWYKLY"]     { background: #444;    color: #ccc; }
-[data-rarity="DOBRY"]  { background: #444;    color: #ccc; }
-[data-rarity="DOSKONALY"]     { background: #444;    color: #ccc; }
-[data-rarity="LEGENDARNY"]     { background: #3a1a4a; color: #c97ef5; }
-[data-rarity="LEGENDARNY_DOBRY"] { background: #3a1a4a; color: #c97ef5; }
-[data-rarity="LEGENDARNY_DOSKONALY"] { background: #3a1a4a; color: #c97ef5; }
-[data-rarity="EPICKI"] { background: #4a2d10; color: #f5a623; }
+[data-rarity="ZWYKLY"] {
+  background: #444;
+  color: #ccc;
+}
+
+[data-rarity="DOBRY"] {
+  background: #444;
+  color: #ccc;
+}
+
+[data-rarity="DOSKONALY"] {
+  background: #444;
+  color: #ccc;
+}
+
+[data-rarity="LEGENDARNY"] {
+  background: #3a1a4a;
+  color: #c97ef5;
+}
+
+[data-rarity="LEGENDARNY_DOBRY"] {
+  background: #3a1a4a;
+  color: #c97ef5;
+}
+
+[data-rarity="LEGENDARNY_DOSKONALY"] {
+  background: #3a1a4a;
+  color: #c97ef5;
+}
+
+[data-rarity="EPICKI"] {
+  background: #4a2d10;
+  color: #f5a623;
+}
 
 .column-bottom-section {
   flex-shrink: 0;
@@ -254,8 +281,14 @@
   border-radius: 3px;
   transition: background 0.15s;
 }
-.bonus-item:hover { background: rgba(255,255,255,0.06); }
-.bonus-item:has(input:checked) { color: #ffd8db; }
+
+.bonus-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.bonus-item:has(input:checked) {
+  color: #ffd8db;
+}
 
 .bonus-item input[type="checkbox"],
 .bonus-item input[type="radio"] {
@@ -271,8 +304,13 @@
   margin: 0;
 }
 
-.bonus-item input[type="checkbox"] { border-radius: 3px; }
-.bonus-item input[type="radio"]    { border-radius: 50%; }
+.bonus-item input[type="checkbox"] {
+  border-radius: 3px;
+}
+
+.bonus-item input[type="radio"] {
+  border-radius: 50%;
+}
 
 .bonus-item input[type="checkbox"]:checked {
   background: #c14953;
@@ -291,7 +329,9 @@
   background-position: center;
 }
 
-.bonus-item input:hover { border-color: #c14953; }
+.bonus-item input:hover {
+  border-color: #c14953;
+}
 
 /* ─── Responsive Input Styles ──────────────────────────── */
 .section input[type="number"],
@@ -317,6 +357,7 @@
 }
 
 @media (max-width: 768px) {
+
   .section input[type="number"],
   .section input[type="text"],
   .section select {
@@ -327,6 +368,7 @@
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
+
   .section input[type="number"],
   .section input[type="text"],
   .section select {
@@ -441,7 +483,9 @@
   margin: 1px;
 }
 
-.arcane-checkbox:hover { border-color: #c14953; }
+.arcane-checkbox:hover {
+  border-color: #c14953;
+}
 
 .arcane-checkbox:checked {
   background: #c14953;
@@ -720,13 +764,33 @@ button {
 }
 
 /* Preview name coloured by rarity */
-.eq-preview-name[data-rarity="ZWYKLY"]     { color: #ddd0d2; }
-.eq-preview-name[data-rarity="DOBRY"]  { color: #ddd0d2; }
-.eq-preview-name[data-rarity="DOSKONALY"]     { color: #ddd0d2; }
-.eq-preview-name[data-rarity="LEGENDARNY"]     { color: #c97ef5; }
-.eq-preview-name[data-rarity="LEGENDARNY_DOBRY"] { color: #c97ef5; }
-.eq-preview-name[data-rarity="LEGENDARNY_DOSKONALY"] { color: #c97ef5; }
-.eq-preview-name[data-rarity="EPICKI"] { color: #f5a623; }
+.eq-preview-name[data-rarity="ZWYKLY"] {
+  color: #ddd0d2;
+}
+
+.eq-preview-name[data-rarity="DOBRY"] {
+  color: #ddd0d2;
+}
+
+.eq-preview-name[data-rarity="DOSKONALY"] {
+  color: #ddd0d2;
+}
+
+.eq-preview-name[data-rarity="LEGENDARNY"] {
+  color: #c97ef5;
+}
+
+.eq-preview-name[data-rarity="LEGENDARNY_DOBRY"] {
+  color: #c97ef5;
+}
+
+.eq-preview-name[data-rarity="LEGENDARNY_DOSKONALY"] {
+  color: #c97ef5;
+}
+
+.eq-preview-name[data-rarity="EPICKI"] {
+  color: #f5a623;
+}
 
 .eq-preview-placeholder {
   font-size: 10px;
@@ -778,22 +842,83 @@ button {
 }
 
 
-.eq-rarity-btn[data-rarity="ZWYKLY"]     { border-color: #555;    color: #aaa; }
-.eq-rarity-btn[data-rarity="DOBRY"]  { border-color: #555;    color: #aaa; }
-.eq-rarity-btn[data-rarity="DOSKONALY"]     { border-color: #555;    color: #aaa; }
-.eq-rarity-btn[data-rarity="LEGENDARNY"] { border-color: #6b3090; color: #c97ef5; }
-.eq-rarity-btn[data-rarity="LEGENDARNY_DOBRY"] { border-color: #6b3090; color: #c97ef5; }
-.eq-rarity-btn[data-rarity="LEGENDARNY_DOSKONALY"] { border-color: #6b3090; color: #c97ef5; }
-.eq-rarity-btn[data-rarity="EPICKI"] { border-color: #8a5000; color: #f5a623; }
+.eq-rarity-btn[data-rarity="ZWYKLY"] {
+  border-color: #555;
+  color: #aaa;
+}
+
+.eq-rarity-btn[data-rarity="DOBRY"] {
+  border-color: #555;
+  color: #aaa;
+}
+
+.eq-rarity-btn[data-rarity="DOSKONALY"] {
+  border-color: #555;
+  color: #aaa;
+}
+
+.eq-rarity-btn[data-rarity="LEGENDARNY"] {
+  border-color: #6b3090;
+  color: #c97ef5;
+}
+
+.eq-rarity-btn[data-rarity="LEGENDARNY_DOBRY"] {
+  border-color: #6b3090;
+  color: #c97ef5;
+}
+
+.eq-rarity-btn[data-rarity="LEGENDARNY_DOSKONALY"] {
+  border-color: #6b3090;
+  color: #c97ef5;
+}
+
+.eq-rarity-btn[data-rarity="EPICKI"] {
+  border-color: #8a5000;
+  color: #f5a623;
+}
 
 
-.eq-rarity-btn.eq-rarity-selected[data-rarity="ZWYKLY"]     { background: #444;    color: #fff; border-color: #5BF48B66 }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="DOBRY"]  { background: #444;    color: #fff; border-color: #5BF48B66; }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="DOSKONALY"]     { background: #444;    color: #fff; border-color: #5BF48B66; }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY"]     { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOBRY"]  { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOSKONALY"]  { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
-.eq-rarity-btn.eq-rarity-selected[data-rarity="EPICKI"] { background: #4a2d10; color: #f5a623; border-color: #fff; }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="ZWYKLY"] {
+  background: #444;
+  color: #fff;
+  border-color: #5BF48B66
+}
+
+.eq-rarity-btn.eq-rarity-selected[data-rarity="DOBRY"] {
+  background: #444;
+  color: #fff;
+  border-color: #5BF48B66;
+}
+
+.eq-rarity-btn.eq-rarity-selected[data-rarity="DOSKONALY"] {
+  background: #444;
+  color: #fff;
+  border-color: #5BF48B66;
+}
+
+.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY"] {
+  background: #3a1a4a;
+  color: #c97ef5;
+  border-color: #fff;
+}
+
+.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOBRY"] {
+  background: #3a1a4a;
+  color: #c97ef5;
+  border-color: #fff;
+}
+
+.eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOSKONALY"] {
+  background: #3a1a4a;
+  color: #c97ef5;
+  border-color: #fff;
+}
+
+.eq-rarity-btn.eq-rarity-selected[data-rarity="EPICKI"] {
+  background: #4a2d10;
+  color: #f5a623;
+  border-color: #fff;
+}
 
 .eq-rarity-btn:hover:not(.eq-rarity-selected) {
   background: #0f3d63;
@@ -888,8 +1013,13 @@ button {
   margin-top: 4px;
 }
 
-.eq-cancel-btn { flex: 1; }
-.eq-save-btn   { flex: 2; }
+.eq-cancel-btn {
+  flex: 1;
+}
+
+.eq-save-btn {
+  flex: 2;
+}
 
 .eq-save-btn:disabled {
   opacity: 0.35;
@@ -902,7 +1032,10 @@ button {
 
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.65);
   display: flex;
   align-items: center;
@@ -1266,15 +1399,44 @@ button {
 }
 
 /* ─── Scrollbar ─────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #5F2E2F; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #0f3d63; }
+::-webkit-scrollbar {
+  width: 6px;
+}
 
-select { background-color: #00192d; color: #f6e8ea; }
-select:focus { background-color: #00192d; outline: none; border-color: #0f3d63; }
-option { background-color: #00192d; color: #f6e8ea; }
-option:hover, option:checked { background-color: #0f3d63; color: #f6e8ea; }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5F2E2F;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0f3d63;
+}
+
+select {
+  background-color: #00192d;
+  color: #f6e8ea;
+}
+
+select:focus {
+  background-color: #00192d;
+  outline: none;
+  border-color: #0f3d63;
+}
+
+option {
+  background-color: #00192d;
+  color: #f6e8ea;
+}
+
+option:hover,
+option:checked {
+  background-color: #0f3d63;
+  color: #f6e8ea;
+}
 
 /* ─── Issues Dropdown ─────────────────────────────── */
 .issues-section {

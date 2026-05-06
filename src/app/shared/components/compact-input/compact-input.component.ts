@@ -24,8 +24,8 @@ export class CompactInputComponent implements ControlValueAccessor {
   @Input() step: number = 1;
   @Output() valueChange = new EventEmitter<number>();
 
-  private onChange: (value: number) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: number) => void = () => { };
+  private onTouched: () => void = () => { };
 
   onInputChange(event: Event): void {
     const input = event.target as HTMLInputElement;

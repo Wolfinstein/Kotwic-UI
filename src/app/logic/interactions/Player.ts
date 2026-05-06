@@ -4,6 +4,7 @@ import { ItemGenre } from '../item/constants/itemGenre';
 import { SetsDictionary } from '../dictionaries/SetsDictionary';
 import { PrefixType } from '../item/constants/affixType';
 import { Prefix } from '../item/Prefix';
+import { applyQualityMultiplier } from '../item/qualityMultiplier';
 
 export enum PlayerRasa {
   LM = 'LM',
@@ -22,11 +23,11 @@ export class Player {
   stats: Stats;
   ziz4: boolean = false;
   hasZar: boolean = false;
-  obronaPrzeciwnika : number;
-  odpornoscPrzeciwnika : number;
-  szczesciePrzeciwnika : number;
-  trafieniePrzeciwnika : number;
-constructor(
+  obronaPrzeciwnika: number;
+  odpornoscPrzeciwnika: number;
+  szczesciePrzeciwnika: number;
+  trafieniePrzeciwnika: number;
+  constructor(
     lvl: number = 1,
     life: number = 0,
     baseLife: number = 0,
@@ -35,10 +36,10 @@ constructor(
     bonuses?: MultiplicativeBonus[],
     ziz4?: boolean,
     hasZar?: boolean,
-    obronaPrzeciwnika : number = 0,
-    odpornoscPrzeciwnika : number = 0,
-    szczesciePrzeciwnika : number = 0,
-    trafieniePrzeciwnika : number = 0
+    obronaPrzeciwnika: number = 0,
+    odpornoscPrzeciwnika: number = 0,
+    szczesciePrzeciwnika: number = 0,
+    trafieniePrzeciwnika: number = 0
   ) {
     this.lvl = lvl;
     this.life = life;
@@ -198,10 +199,10 @@ constructor(
     this.stats.unikPalna += value;
   }
 
-  addAllUnik(value: number) :void {
-      this.addUnikPalna(value)
-      this.addUnikDystans(value)
-      this.addUnikBiala(value)
+  addAllUnik(value: number): void {
+    this.addUnikPalna(value)
+    this.addUnikDystans(value)
+    this.addUnikBiala(value)
   }
 
   addRedukcjaObrazen(value: number): void {
@@ -211,6 +212,7 @@ constructor(
   addObronaDodatkowa(value: number): void {
     this.stats.obronaDodatkowa += value;
   }
+
 
   addBaseLife(value: number): void {
     this.baseLife += value;
@@ -228,7 +230,7 @@ constructor(
     this.stats.setAllCritMulti(value);
   }
 
-  resolveNonWeaponItems(): void {
+  resolveNonWeaponItems(playerLvl: Number): void {
     const nonWeapon = this.items.filter(
       (a) =>
         a.base &&
@@ -250,7 +252,10 @@ constructor(
       if (a.base) temp.addStats(a.base.stats);
       if (a.prefix) temp.addStats(a.prefix.stats);
       if (a.suffix) temp.addStats(a.suffix.stats);
-      itemStats.addStats(temp);
+
+
+      const multipliedStats = applyQualityMultiplier(temp, a.getRarity(), playerLvl.valueOf());
+      itemStats.addStats(multipliedStats);
     }
 
     if (this.stats.isObronaZero) {
@@ -260,14 +265,14 @@ constructor(
     this.stats = itemStats;
   }
 
-  resolveWeaponItem(a : Item): void {
+  resolveWeaponItem(a: Item): void {
 
     let itemStats = this.stats;
-      const temp = new Stats();
-      if (a.base) temp.addStats(a.base.stats);
-      if (a.prefix) temp.addStats(a.prefix.stats);
-      if (a.suffix) temp.addStats(a.suffix.stats);
-      itemStats.addStats(temp);
+    const temp = new Stats();
+    if (a.base) temp.addStats(a.base.stats);
+    if (a.prefix) temp.addStats(a.prefix.stats);
+    if (a.suffix) temp.addStats(a.suffix.stats);
+    itemStats.addStats(temp);
 
     if (this.stats.isObronaZero) {
       itemStats.obronaPrzedmiotow = 0;
@@ -339,9 +344,9 @@ constructor(
         continue;
       }
 
-      let minRarity = items[0].base?.rarity;
+      let minRarity = items[0].getRarity();
       for (const item of items) {
-        const itemRarity = item.base?.rarity;
+        const itemRarity = item.getRarity();
         if (!itemRarity || !minRarity) continue;
 
         const minIndex = rarityHierarchy.indexOf(minRarity as string);
@@ -580,7 +585,7 @@ constructor(
   }
 }
 
-export  class PlayerBuilder {
+export class PlayerBuilder {
   private _lvl: number = 1;
   private _life: number = 0;
   private _baseLife: number = 0;
@@ -589,10 +594,10 @@ export  class PlayerBuilder {
   private _stats?: Stats;
   private _ziz4: boolean = false;
   private _hasZar: boolean = false;
-  private _obronaPrzeciwnika : number = 0;
-  private _odpornoscPrzeciwnika : number = 0;
-  private _szczesciePrzeciwnika : number = 0;
-  private _trafieniePrzeciwnika : number = 0;
+  private _obronaPrzeciwnika: number = 0;
+  private _odpornoscPrzeciwnika: number = 0;
+  private _szczesciePrzeciwnika: number = 0;
+  private _trafieniePrzeciwnika: number = 0;
 
   lvl(lvl: number): PlayerBuilder {
     this._lvl = lvl;

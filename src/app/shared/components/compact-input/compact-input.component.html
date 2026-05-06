@@ -2,16 +2,8 @@
   <label class="compact-label" *ngIf="label">{{ label }}</label>
   <div class="compact-input-wrapper">
     <button class="compact-btn-decrement" (click)="decrement()" [disabled]="value <= min" type="button">−</button>
-    <input
-      type="number"
-      class="compact-input"
-      [value]="value"
-      [min]="min"
-      [max]="max"
-      [step]="step"
-      (change)="onInputChange($event)"
-      (blur)="onBlur()"
-    />
+    <input type="number" class="compact-input" [value]="value" [min]="min" [max]="max" [step]="step"
+      (change)="onInputChange($event)" (blur)="onBlur()" />
     <button class="compact-btn-increment" (click)="increment()" [disabled]="value >= max" type="button">+</button>
   </div>
 </div>

@@ -1,79 +1,79 @@
 import { Injectable } from '@angular/core';
 
-import {Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions, WeaponDamage} from '../models/character';
-import {ArmourDictionary} from '../logic/dictionaries/ArmourDictionary';
-import {BaseDictionary} from '../logic/dictionaries/BaseDictionary';
-import {JewelsDictionary} from '../logic/dictionaries/JewelsDictionary';
-import {SetsDictionary} from '../logic/dictionaries/SetsDictionary';
-import {WeaponDictionary} from '../logic/dictionaries/WeaponDictionary';
+import { Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions, WeaponDamage } from '../models/character';
+import { ArmourDictionary } from '../logic/dictionaries/ArmourDictionary';
+import { BaseDictionary } from '../logic/dictionaries/BaseDictionary';
+import { JewelsDictionary } from '../logic/dictionaries/JewelsDictionary';
+import { SetsDictionary } from '../logic/dictionaries/SetsDictionary';
+import { WeaponDictionary } from '../logic/dictionaries/WeaponDictionary';
 
-import {Player, PlayerBuilder, PlayerRasa} from '../logic/interactions/Player';
-import {Evolution} from '../logic/interactions/Evolution';
-import {TalismanyAndArkany} from '../logic/interactions/TalismanyAndArkany';
+import { Player, PlayerBuilder, PlayerRasa } from '../logic/interactions/Player';
+import { Evolution } from '../logic/interactions/Evolution';
+import { TalismanyAndArkany } from '../logic/interactions/TalismanyAndArkany';
 
-import {Affix} from '../logic/item/Affix';
-import {Base} from '../logic/item/Base';
-import {Item, ItemBuilder} from '../logic/item/Item';
-import {Prefix} from '../logic/item/Prefix';
-import {Set} from '../logic/item/Set';
-import {Stats, StatsBuilder} from '../logic/item/Stats';
-import {Suffix} from '../logic/item/Suffix';
+import { Affix } from '../logic/item/Affix';
+import { Base } from '../logic/item/Base';
+import { Item, ItemBuilder } from '../logic/item/Item';
+import { Prefix } from '../logic/item/Prefix';
+import { Set } from '../logic/item/Set';
+import { Stats, StatsBuilder } from '../logic/item/Stats';
+import { Suffix } from '../logic/item/Suffix';
 
-import {SuffixType, PrefixType} from '../logic/item/constants/affixType';
-import {ItemRarity} from '../logic/item/constants/itemRarity';
-import {ItemGenre} from '../logic/item/constants/itemGenre';
-import {ItemType} from '../logic/item/constants/itemType';
+import { SuffixType, PrefixType } from '../logic/item/constants/affixType';
+import { ItemRarity } from '../logic/item/constants/itemRarity';
+import { ItemGenre } from '../logic/item/constants/itemGenre';
+import { ItemType } from '../logic/item/constants/itemType';
 
 @Injectable({
-providedIn: 'root'
+  providedIn: 'root'
 })
 export class DashboardService {
 
 
-calculateStuff(c: Character): DashboardValues {
-      let player : Player = new PlayerBuilder()
-                                .lvl(c.poziom)
-                                .stats(new StatsBuilder()
-                                    .sila(c.attributes.sila)
-                                    .zwinnosc(c.attributes.zwinnosc)
-                                    .odpornosc(c.attributes.odpornosc)
-                                    .wyglad(c.attributes.wyglad)
-                                    .charyzma(c.attributes.charyzma)
-                                    .wplywy(c.attributes.wplywy)
-                                    .spostrzegawczosc(c.attributes.spostrzegawczosc)
-                                    .inteligencja(c.attributes.inteligencja)
-                                    .wiedza(c.attributes.wiedza)
-                                    .build())
-                                .obronaPrzeciwnika(c.obronaPrzeciwnika)
-                                .odpornoscPrzeciwnika(c.odpornoscPrzeciwnika)
-                                .szczesciePrzeciwnika(c.szczesciePrzeciwnika)
-                                .trafieniePrzeciwnika(c.trafieniePrzeciwnika)
-                                .items(this.mapItems(c))
-                                .build();
+  calculateStuff(c: Character): DashboardValues {
+    let player: Player = new PlayerBuilder()
+      .lvl(c.poziom)
+      .stats(new StatsBuilder()
+        .sila(c.attributes.sila)
+        .zwinnosc(c.attributes.zwinnosc)
+        .odpornosc(c.attributes.odpornosc)
+        .wyglad(c.attributes.wyglad)
+        .charyzma(c.attributes.charyzma)
+        .wplywy(c.attributes.wplywy)
+        .spostrzegawczosc(c.attributes.spostrzegawczosc)
+        .inteligencja(c.attributes.inteligencja)
+        .wiedza(c.attributes.wiedza)
+        .build())
+      .obronaPrzeciwnika(c.obronaPrzeciwnika)
+      .odpornoscPrzeciwnika(c.odpornoscPrzeciwnika)
+      .szczesciePrzeciwnika(c.szczesciePrzeciwnika)
+      .trafieniePrzeciwnika(c.trafieniePrzeciwnika)
+      .items(this.mapItems(c))
+      .build();
 
 
-      player.baseLife += this.calculateBaseLife(c);
-      this.calculateUmagi(c, player);
-      player.doMysliwy(c.mysliwy);
-      player.doNinja(c.ninja);
-      this.calculateKaplica(c, player);
-      this.calculateBlaszki(c, player);
-      this.calculateRunyZTalkow(c, player);
-      player.resolveNonWeaponItems();
-      player.resolveSetBonuses();
-      this.calculateEwolucje(c, player);
-      this.calculateRasa(c, player);
-      this.calculateTalizmanyAndArkany(c, player);
-      this.calculateHuntBonuses(c, player);
-      this.calculateOneTimeBonus(c, player);
-      this.calculateEventBonus(c, player);
-      this.calculateStrateg(c, player);
-      let dashboard : DashboardValues = this.buildDashboardValues(player);
+    player.baseLife += this.calculateBaseLife(c);
+    this.calculateUmagi(c, player);
+    player.doMysliwy(c.mysliwy);
+    player.doNinja(c.ninja);
+    this.calculateKaplica(c, player);
+    this.calculateBlaszki(c, player);
+    this.calculateRunyZTalkow(c, player);
+    player.resolveNonWeaponItems(c.poziom);
+    player.resolveSetBonuses();
+    this.calculateEwolucje(c, player);
+    this.calculateRasa(c, player);
+    this.calculateTalizmanyAndArkany(c, player);
+    this.calculateHuntBonuses(c, player);
+    this.calculateOneTimeBonus(c, player);
+    this.calculateEventBonus(c, player);
+    this.calculateStrateg(c, player);
+    let dashboard: DashboardValues = this.buildDashboardValues(player);
 
-      return dashboard;
-    }
+    return dashboard;
+  }
 
-  calculateStrateg(c : Character, p : Player) : void {
+  calculateStrateg(c: Character, p: Player): void {
     const strateg = c.strateg;
 
     switch (strateg) {
@@ -125,7 +125,7 @@ calculateStuff(c: Character): DashboardValues {
     const melee2hTypes = [ItemType.MACZUGA, ItemType.LOM, ItemType.PIKA, ItemType.TOPORDWURECZNY, ItemType.MIECZDWURECZNY, ItemType.KOSA, ItemType.KORBACZ, ItemType.HALABARDA, ItemType.KATANA, ItemType.PILALANCUCHOWA];
     const gun1hTypes = [ItemType.GLOCK, ItemType.MAGNUM, ItemType.DESERT_EAGLE, ItemType.BERETTA, ItemType.UZI, ItemType.MP5K, ItemType.SKORPION];
     const gun2hTypes = [ItemType.KARABINMYSLIWSKI, ItemType.STRZELBA, ItemType.AK47, ItemType.MIOTACZPLOMIENI, ItemType.FN_FAL, ItemType.POLAUTOMATSNAJPERSKI, ItemType.KARABINSNAJPERSKI];
-    const range1hTypes = [ItemType.KROTKILUK, ItemType.LUK, ItemType.DLUGILUK,  ItemType.NOZDORZUCANIA, ItemType.TOPOREKDORZUCANIA,ItemType.SHURIKEN];
+    const range1hTypes = [ItemType.KROTKILUK, ItemType.LUK, ItemType.DLUGILUK, ItemType.NOZDORZUCANIA, ItemType.TOPOREKDORZUCANIA, ItemType.SHURIKEN];
     const range2hTypes = [ItemType.KUSZA, ItemType.CIEZKAKUSZA, ItemType.LUKREFLEKSYJNY, ItemType.OSZCZEP, ItemType.PILUM];
 
     if (legTypes.includes(itemType)) return ItemGenre.LEGS;
@@ -165,7 +165,7 @@ calculateStuff(c: Character): DashboardValues {
       const genre = this.getGenreForItemType(itemType);
       const base = BaseDictionary.getBase(genre, itemType, item.rarity, c.poziom);
 
-      const builder = new ItemBuilder().setBase(base);
+      const builder = new ItemBuilder().setBase(base).setRarity(item.rarity);
 
       if (item.prefix) {
         const prefixType = this.getPrefixTypeByName(item.prefix);
@@ -177,14 +177,14 @@ calculateStuff(c: Character): DashboardValues {
             prefix = WeaponDictionary.getWeaponPrefix(genre, prefixType, item.rarity, c.poziom);
             break;
           case 'armour':
-            if(genre == 'legs'){
-              prefix = ArmourDictionary.getLegsPrefix(genre, item.base, prefixType, item.rarity);
+            if (genre == 'legs') {
+              prefix = ArmourDictionary.getLegsPrefix(genre, item.base, prefixType);
             } else {
-              prefix = ArmourDictionary.getArmourPrefix(genre, prefixType, item.rarity);
-              }
-          break;
+              prefix = ArmourDictionary.getArmourPrefix(genre, prefixType);
+            }
+            break;
           case 'jewel':
-            prefix = JewelsDictionary.getJewelPrefix(genre, prefixType, item.rarity);
+            prefix = JewelsDictionary.getJewelPrefix(genre, prefixType);
             break;
         }
         builder.setPrefix(prefix);
@@ -200,10 +200,10 @@ calculateStuff(c: Character): DashboardValues {
             suffix = WeaponDictionary.getWeaponSuffix(genre, suffixType, item.rarity, c.poziom);
             break;
           case 'armour':
-            suffix = ArmourDictionary.getArmourSuffix(genre, suffixType, item.rarity, c.poziom);
+            suffix = ArmourDictionary.getArmourSuffix(genre, suffixType, c.poziom);
             break;
           case 'jewel':
-            suffix = JewelsDictionary.getJewelSuffix(genre, suffixType, item.rarity);
+            suffix = JewelsDictionary.getJewelSuffix(genre, suffixType);
             break;
         }
         builder.setSuffix(suffix);
@@ -217,162 +217,162 @@ calculateStuff(c: Character): DashboardValues {
 
 
 
-  calculateBlaszki(c: Character, p : Player) : void {
-    if(c.blaszkaZaKronosa){
+  calculateBlaszki(c: Character, p: Player): void {
+    if (c.blaszkaZaKronosa) {
       p.addIgnore(0.1);
     }
-    if(c.blaszkaZaMoba){
+    if (c.blaszkaZaMoba) {
       p.addIgnore(0.1);
     }
-    if(c.blaszkaZaHastura){
+    if (c.blaszkaZaHastura) {
       p.addLaczneObrazeniaWszystkichBroni(0.1);
     }
   }
 
 
-  calculateKaplica(c: Character, p : Player) : void {
-      switch (c.kaplica) {
-        case 0:
-          break;
-        case 1:
-          p.addLife(25);
-          break;
-        case 2:
-          p.addLife(50);
-          break;
-        case 3:
-          p.addLife(75);
-          break;
-        case 4:
-          p.addLife(200);
-          break;
-        case 5:
-          p.addLife(300);
-          break;
-        case 6:
-          p.addLife(450);
-          break;
-        default:
-          break;
-}
-  }
-
-  calculateBaseLife(c: Character) : number {
-        if(c.poziom == 0){
-          return 0;
-        }
-
-        let base = 102;
-        let term1 = 4 * (c.poziom - 1);
-        let tenDigit = Math.floor(c.poziom / 10);
-        let term2 = 5 * tenDigit * (tenDigit - 1);
-        let oneDigit = c.poziom - 10 * tenDigit;
-        let term3 = tenDigit * oneDigit;
-        let term4 = 10 * tenDigit * (tenDigit + 1) / 2;
-
-        return Math.floor(base + term1 + term2 + term3 + term4);
-  }
-
-  calculateUmagi(c : Character, p : Player) : void {
-    for (const mod of c.umagiValues) {
-    const parts = mod.trim().split(/\s+/);
-    const key = parts[0].toLowerCase();
-    const value = parts[1] !== undefined ? parseFloat(parts[1]) : NaN;
-
-    const toDecimal = (num: number | string): number => Number(num) / 100;
-
-    switch (key) {
-      case 'obrazenia':
-        if (parts[1]?.includes('/')) {
-          p.addMinDmg(Math.floor((1 / 4 * c.poziom)));
-          p.addMaxDmg(Math.floor((1 / 4 * c.poziom)));
-        } else {
-          p.addMinDmg(value);
-          p.addMaxDmg(value);
-        }
+  calculateKaplica(c: Character, p: Player): void {
+    switch (c.kaplica) {
+      case 0:
         break;
-
-      case 'ignore':
-        p.addIgnore(toDecimal(value));
+      case 1:
+        p.addLife(25);
         break;
-
-      case 'dodatkowyatak':
-        p.addAllAtaki(1);
+      case 2:
+        p.addLife(50);
         break;
-
-      case 'kryt':
-        p.addAllCrit(toDecimal(value));
+      case 3:
+        p.addLife(75);
         break;
-
-      case 'trafienie':
-        p.addAllTrafienie(value);
+      case 4:
+        p.addLife(200);
         break;
-
-      case 'zycie':
-        p.addBaseLife(value);
+      case 5:
+        p.addLife(300);
         break;
-
-      case 'obrona':
-        if (parts[1]?.includes('/')) {
-          const [num, den] = parts[1].split('/').map(Number);
-          p.addObronaDodatkowa((Math.floor(num / den) * c.poziom));
-        } else {
-          p.addObronaDodatkowa(value);
-        }
+      case 6:
+        p.addLife(450);
         break;
-
-      case 'unik':
-        p.addAllUnik(toDecimal(value));
-        break;
-
-      case 'szczescie':
-        p.addSzczescie(value);
-        break;
-
-      case 'inicjatywa':
-        p.addAdditionalIni(value);
-        break;
-
-      case 'spostrzegawczosc':
-        p.addSpostrzegawczosc(value);
-        break;
-
-      case 'zwinnosc':
-        p.addZwinnosc(value);
-        break;
-
-      case 'sila':
-        p.addSila(value);
-        break;
-
-      case 'charyzma':
-        p.addCharyzma(value);
-        break;
-
-      case 'wplywy':
-        p.addWplywy(value);
-        break;
-
-      case 'odpornosc':
-        p.addOdpornosc(value);
-        break;
-
-      case 'inteligencja':
-        p.addInteligencja(value);
-        break;
-
-      case 'wiedza':
-        p.addWiedza(value);
-        break;
-
-      case 'wyglad':
-        p.addWyglad(value);
-        break;
-
       default:
         break;
     }
   }
+
+  calculateBaseLife(c: Character): number {
+    if (c.poziom == 0) {
+      return 0;
+    }
+
+    let base = 102;
+    let term1 = 4 * (c.poziom - 1);
+    let tenDigit = Math.floor(c.poziom / 10);
+    let term2 = 5 * tenDigit * (tenDigit - 1);
+    let oneDigit = c.poziom - 10 * tenDigit;
+    let term3 = tenDigit * oneDigit;
+    let term4 = 10 * tenDigit * (tenDigit + 1) / 2;
+
+    return Math.floor(base + term1 + term2 + term3 + term4);
+  }
+
+  calculateUmagi(c: Character, p: Player): void {
+    for (const mod of c.umagiValues) {
+      const parts = mod.trim().split(/\s+/);
+      const key = parts[0].toLowerCase();
+      const value = parts[1] !== undefined ? parseFloat(parts[1]) : NaN;
+
+      const toDecimal = (num: number | string): number => Number(num) / 100;
+
+      switch (key) {
+        case 'obrazenia':
+          if (parts[1]?.includes('/')) {
+            p.addMinDmg(Math.floor((1 / 4 * c.poziom)));
+            p.addMaxDmg(Math.floor((1 / 4 * c.poziom)));
+          } else {
+            p.addMinDmg(value);
+            p.addMaxDmg(value);
+          }
+          break;
+
+        case 'ignore':
+          p.addIgnore(toDecimal(value));
+          break;
+
+        case 'dodatkowyatak':
+          p.addAllAtaki(1);
+          break;
+
+        case 'kryt':
+          p.addAllCrit(toDecimal(value));
+          break;
+
+        case 'trafienie':
+          p.addAllTrafienie(value);
+          break;
+
+        case 'zycie':
+          p.addBaseLife(value);
+          break;
+
+        case 'obrona':
+          if (parts[1]?.includes('/')) {
+            const [num, den] = parts[1].split('/').map(Number);
+            p.addObronaDodatkowa((Math.floor(num / den) * c.poziom));
+          } else {
+            p.addObronaDodatkowa(value);
+          }
+          break;
+
+        case 'unik':
+          p.addAllUnik(toDecimal(value));
+          break;
+
+        case 'szczescie':
+          p.addSzczescie(value);
+          break;
+
+        case 'inicjatywa':
+          p.addAdditionalIni(value);
+          break;
+
+        case 'spostrzegawczosc':
+          p.addSpostrzegawczosc(value);
+          break;
+
+        case 'zwinnosc':
+          p.addZwinnosc(value);
+          break;
+
+        case 'sila':
+          p.addSila(value);
+          break;
+
+        case 'charyzma':
+          p.addCharyzma(value);
+          break;
+
+        case 'wplywy':
+          p.addWplywy(value);
+          break;
+
+        case 'odpornosc':
+          p.addOdpornosc(value);
+          break;
+
+        case 'inteligencja':
+          p.addInteligencja(value);
+          break;
+
+        case 'wiedza':
+          p.addWiedza(value);
+          break;
+
+        case 'wyglad':
+          p.addWyglad(value);
+          break;
+
+        default:
+          break;
+      }
+    }
   }
 
   calculateEwolucje(c: Character, p: Player): void {
@@ -388,7 +388,7 @@ calculateStuff(c: Character): DashboardValues {
         .oswiecony(c.evolutions?.oswiecony ?? 0)
         .szostyZmysl(c.evolutions?.szostyZmysl ?? 0)
         .absorpcja(c.evolutions?.absorpcja ?? 0)
-        .harmonijnyRozwoj(c.evolutions?.harmonijnyRozwo ?? 0)
+        .harmonijnyRozwoj(c.evolutions?.harmonijnyRozwoj ?? 0)
         .pietnoDemona(c.evolutions?.pietnoDemona ?? 0)
         .wzmocnioneMiesnie(c.evolutions?.wzmocnioneMiesnie ?? 0)
         .build();
@@ -402,7 +402,7 @@ calculateStuff(c: Character): DashboardValues {
     if (!c.rasa) {
       return;
     }
-      p.doRasa(c.rasa);
+    p.doRasa(c.rasa);
   }
 
   private getRasaFromString(rasaStr: string): PlayerRasa | null {
@@ -453,8 +453,6 @@ calculateStuff(c: Character): DashboardValues {
     if (!Array.isArray(c.huntBonuses) || c.huntBonuses.length === 0) {
       return;
     }
-
-      console.log(JSON.parse(JSON.stringify(c))); // ✅ deep snapshot
 
     for (const bonus of c.huntBonuses) {
       switch (bonus) {
@@ -801,7 +799,7 @@ calculateStuff(c: Character): DashboardValues {
 
     switch (bonus) {
       case 'klątwa bogów':
-      //  p.addMinDmg(); /// TODO fill
+
         break;
 
       case 'noc długich noży':
@@ -821,7 +819,7 @@ calculateStuff(c: Character): DashboardValues {
         break;
 
       case 'dzień vlada':
-      //  p.addPunktyKrwi(1); /// TODO fill
+
         break;
 
       case 'dzień gwiazd północy':
@@ -899,125 +897,125 @@ calculateStuff(c: Character): DashboardValues {
     }
   }
 
-    calculateRunyZTalkow(c : Character, p : Player) : void {
-      for (const mod of c.runeValues) {
-        const parts = mod.trim().split(/\s+/);
-        const key = parts[0].toLowerCase();
-        const value = parts[1] !== undefined ? parseFloat(parts[1]) : NaN;
+  calculateRunyZTalkow(c: Character, p: Player): void {
+    for (const mod of c.runeValues) {
+      const parts = mod.trim().split(/\s+/);
+      const key = parts[0].toLowerCase();
+      const value = parts[1] !== undefined ? parseFloat(parts[1]) : NaN;
 
-        const toDecimal = (num: number | string): number => Number(num) / 100;
-        switch (key) {
-          case 'obrazenia':
-              p.addObrazeniaProcentoweRuny(value);
-            break;
+      const toDecimal = (num: number | string): number => Number(num) / 100;
+      switch (key) {
+        case 'obrazenia':
+          p.addObrazeniaProcentoweRuny(value);
+          break;
 
-          case 'kryt':
-            p.addAllCrit(toDecimal(value));
-            break;
+        case 'kryt':
+          p.addAllCrit(toDecimal(value));
+          break;
 
-          case 'ignore':
-            p.addIgnore(toDecimal(value));
-            break;
+        case 'ignore':
+          p.addIgnore(toDecimal(value));
+          break;
 
-          case 'sila':
-            if(value <= 2){
-              p.addSila(Math.floor(c.poziom / 60));
-            } else if (value == 3){
-              p.addSila(Math.floor(c.poziom / 60) * 2);
-            } else {
-              p.addSila(Math.floor(c.poziom / 60) * 3);
-            }
-            p.addSila(value);
-            break;
+        case 'sila':
+          if (value <= 2) {
+            p.addSila(Math.floor(c.poziom / 60));
+          } else if (value == 3) {
+            p.addSila(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addSila(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addSila(value);
+          break;
 
-          case 'spostrzegawczosc':
-            if(value <= 2){
-              p.addSpostrzegawczosc(Math.floor(c.poziom / 60));
-            } else if (value == 3){
-              p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 2);
-            } else {
-              p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 3);
-            }
-            p.addSpostrzegawczosc(value);
-            break;
+        case 'spostrzegawczosc':
+          if (value <= 2) {
+            p.addSpostrzegawczosc(Math.floor(c.poziom / 60));
+          } else if (value == 3) {
+            p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addSpostrzegawczosc(value);
+          break;
 
-          case 'inteligencja':
-            if(value <= 2){
-              p.addInteligencja(Math.floor(c.poziom / 60));
-            } else if (value == 3){
-              p.addInteligencja(Math.floor(c.poziom / 60) * 2);
-            } else {
-              p.addInteligencja(Math.floor(c.poziom / 60) * 3);
-            }
-            p.addInteligencja(value);
-            break;
+        case 'inteligencja':
+          if (value <= 2) {
+            p.addInteligencja(Math.floor(c.poziom / 60));
+          } else if (value == 3) {
+            p.addInteligencja(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addInteligencja(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addInteligencja(value);
+          break;
 
-          case 'wiedza':
-            if(value <= 2){
-              p.addWiedza(Math.floor(c.poziom / 60));
-            } else if (value == 3){
-              p.addWiedza(Math.floor(c.poziom / 60) * 2);
-            } else {
-              p.addWiedza(Math.floor(c.poziom / 60) * 3);
-            }
-            p.addWiedza(value);
-            break;
+        case 'wiedza':
+          if (value <= 2) {
+            p.addWiedza(Math.floor(c.poziom / 60));
+          } else if (value == 3) {
+            p.addWiedza(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addWiedza(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addWiedza(value);
+          break;
 
-          case 'zwinnosc':
-            if(value <= 2){
-              p.addZwinnosc(Math.floor(c.poziom / 60));
-            } else if (value == 3){
-              p.addZwinnosc(Math.floor(c.poziom / 60) * 2);
-            } else {
-              p.addZwinnosc(Math.floor(c.poziom / 60) * 3);
-            }
-            p.addZwinnosc(value);
-            break;
+        case 'zwinnosc':
+          if (value <= 2) {
+            p.addZwinnosc(Math.floor(c.poziom / 60));
+          } else if (value == 3) {
+            p.addZwinnosc(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addZwinnosc(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addZwinnosc(value);
+          break;
 
-          case 'obrona':
-            p.addObronaDodatkowa(Math.floor(c.poziom / 8) * value);
-            break;
+        case 'obrona':
+          p.addObronaDodatkowa(Math.floor(c.poziom / 8) * value);
+          break;
 
-          case 'odpornosc':
-            if(value <= 2){
-              p.addOdpornosc(Math.floor(c.poziom / 60));
-            } else if (value == 3){
-              p.addOdpornosc(Math.floor(c.poziom / 60) * 2);
-            } else {
-              p.addOdpornosc(Math.floor(c.poziom / 60) * 3);
-            }
-            p.addOdpornosc(value);
-            break;
+        case 'odpornosc':
+          if (value <= 2) {
+            p.addOdpornosc(Math.floor(c.poziom / 60));
+          } else if (value == 3) {
+            p.addOdpornosc(Math.floor(c.poziom / 60) * 2);
+          } else {
+            p.addOdpornosc(Math.floor(c.poziom / 60) * 3);
+          }
+          p.addOdpornosc(value);
+          break;
 
-          case 'twardosc':
-            p.addTwardosc(toDecimal(value));
-            break;
+        case 'twardosc':
+          p.addTwardosc(toDecimal(value));
+          break;
 
-          case 'zycie':
-            if(value == 50){
-              p.addLife((Math.floor(c.poziom / 60)) * 50);
-            } else if (value == 100){
-              p.addLife(Math.floor(c.poziom / 60)  * 75);
-            } else if (value == 150) {
-              p.addLife(Math.floor(c.poziom / 60)  * 100);
-            } else {
-              p.addLife(Math.floor(c.poziom / 60)  * 150);
-            }
-            p.addLife(value);
-            break;
+        case 'zycie':
+          if (value == 50) {
+            p.addLife((Math.floor(c.poziom / 60)) * 50);
+          } else if (value == 100) {
+            p.addLife(Math.floor(c.poziom / 60) * 75);
+          } else if (value == 150) {
+            p.addLife(Math.floor(c.poziom / 60) * 100);
+          } else {
+            p.addLife(Math.floor(c.poziom / 60) * 150);
+          }
+          p.addLife(value);
+          break;
 
-          case 'szczescie':
-            p.addSzczescie(value);
-            break;
+        case 'szczescie':
+          p.addSzczescie(value);
+          break;
 
-          case 'multi':
-            p.addCritMulti(toDecimal(value));
-            break;
+        case 'multi':
+          p.addCritMulti(toDecimal(value));
+          break;
 
-          default:
-            break;
-        }
+        default:
+          break;
       }
+    }
   }
 
   buildDashboardValues(player: Player): DashboardValues {
@@ -1060,8 +1058,8 @@ calculateStuff(c: Character): DashboardValues {
 
       return {
         punktyZycia: player.life + player.baseLife,
-        effectiveHp : effectiveHp,
-        punktyKrwi : 0,
+        effectiveHp: effectiveHp,
+        punktyKrwi: 0,
         szczescie: player.stats.szczescie,
         obrona: player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc,
         attributes: attributes,
@@ -1086,87 +1084,88 @@ calculateStuff(c: Character): DashboardValues {
     }
   }
 
-private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: ItemGenre | undefined): { minDmg: number, maxDmg: number } {
-  let minDmg = 0;
-  let maxDmg = 0;
+  private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: ItemGenre | undefined): { minDmg: number, maxDmg: number } {
+    let minDmg = 0;
+    let maxDmg = 0;
 
 
-  const beheBonuses = bonuses.filter(b => b.type === 'BEHE');
-  const otherBonuses = bonuses.filter(b => b.type !== 'BEHE' && b.type !== 'AMBICJA');
-  const ambitjaBonuses = bonuses.filter(b => b.type === 'AMBICJA');
+    const beheBonuses = bonuses.filter(b => b.type === 'BEHE');
+    const otherBonuses = bonuses.filter(b => b.type !== 'BEHE' && b.type !== 'AMBICJA');
+    const ambitjaBonuses = bonuses.filter(b => b.type === 'AMBICJA');
 
-  const allBonusesToProcess = [
-    ...beheBonuses,
-    ...otherBonuses,
-    ...ambitjaBonuses
-  ];
+    const allBonusesToProcess = [
+      ...beheBonuses,
+      ...otherBonuses,
+      ...ambitjaBonuses
+    ];
 
-  for (const b of allBonusesToProcess) {
-    switch (b.type) {
-      case 'SKRZYDLA':
-        player.addWyglad(Math.floor(player.stats.spostrzegawczosc * (b.licznik / b.mianownik * b.mnoznik)));
-        break;
-      case 'SCIEGNA':
-        player.addWyglad(Math.floor(player.stats.zwinnosc * (b.licznik / b.mianownik * b.mnoznik)));
-        break;
-      case 'MIESNIE':
-        if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
+    for (const b of allBonusesToProcess) {
+      switch (b.type) {
+        case 'SKRZYDLA':
+          player.addWyglad(Math.floor(player.stats.spostrzegawczosc * (b.licznik / b.mianownik * b.mnoznik)));
+          break;
+        case 'SCIEGNA':
+          player.addWyglad(Math.floor(player.stats.zwinnosc * (b.licznik / b.mianownik * b.mnoznik)));
+          break;
+        case 'MIESNIE':
+          if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
             minDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
             maxDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
-        }
-        break;
-      case 'BEHE':
-        player.addZwinnosc(Math.floor(player.stats.sila * (b.licznik / b.mianownik * b.mnoznik)));
-        let suma = player.stats.wiedza + player.stats.inteligencja;
-        player.addSpostrzegawczosc(Math.floor(suma * (b.licznik / b.mianownik) * b.mnoznik));
-        break;
-      case 'OSWIECONY':
-        if(genre === ItemGenre.GUN_1H || genre === ItemGenre.GUN_2H) {
-          minDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
-          maxDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
-        }
-        break;
-      case 'AMBICJA':
-        minDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
-        maxDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
-        break;
-      case 'CZARNY':
-        if (genre === ItemGenre.WHITE_2H) {
-          minDmg += Math.floor(player.stats.sila / b.mianownik);
-          maxDmg += Math.floor(player.stats.sila / b.mianownik);
-        }
-        break;
-      case 'TYTAN':
-        if (genre === ItemGenre.WHITE_1H) {
-          minDmg += Math.floor(player.stats.sila / b.mianownik);
-          maxDmg += Math.floor(player.stats.sila / b.mianownik);
-        }
-        break;
-      case 'SLONECZNY':
-        if(genre === ItemGenre.GUN_2H) {
-          minDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
-          maxDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
-        }
-        break;
-      case 'JASTRZEBI':
-        if(genre === ItemGenre.GUN_1H) {
-          minDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.mnoznik;
-          maxDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.mnoznik;
-        }
-        break;
+          }
+          break;
+        case 'BEHE':
+          player.addZwinnosc(Math.floor(player.stats.sila * (b.licznik / b.mianownik * b.mnoznik)));
+          let suma = player.stats.wiedza + player.stats.inteligencja;
+          player.addSpostrzegawczosc(Math.floor(suma * (b.licznik / b.mianownik) * b.mnoznik));
+          break;
+        case 'OSWIECONY':
+          if (genre === ItemGenre.GUN_1H || genre === ItemGenre.GUN_2H) {
+            minDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
+            maxDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
+          }
+          break;
+        case 'AMBICJA':
+          minDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
+          maxDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
+          break;
+        case 'CZARNY':
+          if (genre === ItemGenre.WHITE_2H) {
+            minDmg += Math.floor(player.stats.sila / b.mianownik);
+            maxDmg += Math.floor(player.stats.sila / b.mianownik);
+          }
+          break;
+        case 'TYTAN':
+          if (genre === ItemGenre.WHITE_1H) {
+            minDmg += Math.floor(player.stats.sila / b.mianownik);
+            maxDmg += Math.floor(player.stats.sila / b.mianownik);
+          }
+          break;
+        case 'SLONECZNY':
+          if (genre === ItemGenre.GUN_2H) {
+            minDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
+            maxDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
+          }
+          break;
+        case 'JASTRZEBI':
+          if (genre === ItemGenre.GUN_1H) {
+            minDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.mnoznik;
+            maxDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.mnoznik;
+          }
+          break;
+      }
     }
+
+
+
+    return { minDmg, maxDmg };
   }
-
-
-
-  return { minDmg, maxDmg };
-}
 
   private constructWeaponName(weapon: Item): string {
     const parts: string[] = [];
 
-    if (weapon.base?.rarity) {
-      parts.push(weapon.base.rarity);
+    const rarity = weapon.getRarity();
+    if (rarity) {
+      parts.push(rarity);
     }
 
     if (weapon.prefix) {
@@ -1190,7 +1189,7 @@ private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: Item
     return parts.join(' ');
   }
 
- private calculateWeaponDamage(weapon: Item, player: Player): WeaponDamage | null {
+  private calculateWeaponDamage(weapon: Item, player: Player): WeaponDamage | null {
     try {
       const genre = weapon.base?.genre;
 
@@ -1265,7 +1264,7 @@ private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: Item
       minDmg = Math.floor((1 + player.stats.laczneObrazeniaWszystkichBroni) * Math.floor(minDmg));
       maxDmg = Math.floor((1 + player.stats.laczneObrazeniaWszystkichBroni) * Math.floor(maxDmg));
 
-      // Apply defense reduction
+
       if (player.stats.ignoreObrony < 1) {
         if (genre === ItemGenre.RANGE_1H || genre === ItemGenre.RANGE_2H) {
           minDmg = Math.trunc(minDmg - Math.floor((1 / 4 * player.obronaPrzeciwnika) * (1 - player.stats.ignoreObrony)));
@@ -1279,8 +1278,8 @@ private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: Item
         }
       }
 
-      minDmg = Math.floor(minDmg + ( 2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
-      maxDmg = Math.floor(maxDmg + ( 2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
+      minDmg = Math.floor(minDmg + (2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
+      maxDmg = Math.floor(maxDmg + (2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
 
       const toDecimal = (num: number | string): number => Number(num) / 100;
 
@@ -1296,9 +1295,9 @@ private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: Item
         maxDmg,
         iloscAtakow: ataki,
         trafienie: Math.floor(trafienie / 2),
-        trafienieProcentowe : trafienieProcentowe,
+        trafienieProcentowe: trafienieProcentowe,
         ignore: player.stats.ignoreObrony,
-        critChance: critChance + toDecimal(Math.floor(player.stats.szczescie / 5 )),
+        critChance: critChance + toDecimal(Math.floor(player.stats.szczescie / 5)),
         critMulti,
         critDmgMin,
         critDmgMax,

@@ -4,14 +4,14 @@
  */
 
 import { Affix } from './Affix';
-import { ItemGenre, ItemRarity, PrefixType } from './constants';
+import { ItemGenre, PrefixType, ItemRarity } from './constants';
 import { Stats } from './Stats';
 
 export class Prefix extends Affix {
   prefixType: PrefixType;
 
-  constructor(genre: ItemGenre, rarity: ItemRarity, prefixType: PrefixType, stats: Stats) {
-    super(genre, rarity, stats);
+  constructor(genre: ItemGenre, prefixType: PrefixType, stats: Stats, rarity?: ItemRarity) {
+    super(genre, stats, rarity);
     this.prefixType = prefixType;
   }
 
@@ -28,17 +28,12 @@ export class Prefix extends Affix {
  */
 class PrefixBuilder {
   private genre: ItemGenre | undefined;
-  private rarity: ItemRarity | undefined;
   private prefixType: PrefixType | undefined;
   private stats: Stats = new Stats();
+  private rarity: ItemRarity | undefined;
 
   setGenre(genre: ItemGenre): this {
     this.genre = genre;
-    return this;
-  }
-
-  setRarity(rarity: ItemRarity): this {
-    this.rarity = rarity;
     return this;
   }
 
@@ -52,10 +47,15 @@ class PrefixBuilder {
     return this;
   }
 
+  setRarity(rarity: ItemRarity): this {
+    this.rarity = rarity;
+    return this;
+  }
+
   build(): Prefix {
-    if (!this.genre || !this.rarity || !this.prefixType) {
-      throw new Error('Genre, rarity, and prefixType are required to build a Prefix');
+    if (!this.genre || !this.prefixType) {
+      throw new Error('Genre and prefixType are required to build a Prefix');
     }
-    return new Prefix(this.genre, this.rarity, this.prefixType, this.stats);
+    return new Prefix(this.genre, this.prefixType, this.stats, this.rarity);
   }
 }

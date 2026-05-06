@@ -3,49 +3,45 @@
  * Contains all armour prefix and suffix modifiers with their stats
  */
 
-import { Prefix, Suffix, Stats, ItemGenre, ItemRarity, PrefixType, SuffixType, ItemType } from '../item';
+import { Prefix, Suffix, Stats, ItemGenre, PrefixType, SuffixType, ItemType } from '../item';
 
 export class ArmourDictionary {
-private static legsSzortyCache: Prefix[] | null = null;
-private static legsInneCache: Prefix[] | null = null;
-private static armourPrefixCache: Prefix[] | null = null;
-private static armourSuffixCache: Suffix[] | null = null;
+  private static legsInneCache: Prefix[] | null = null;
+  private static armourPrefixCache: Prefix[] | null = null;
+  private static armourSuffixCache: Suffix[] | null = null;
 
-static getLegsPrefix(
-  genre: ItemGenre,
-  itemType: string,
-  prefixType: PrefixType,
-  rarity: ItemRarity
-): Prefix {
-  const { szorty, inne } = this.initializeLegsPrefix();
-  const list = itemType === ItemType.SZORTY ? szorty : inne;
-
-  const found = list.find(
-    (p) => p.rarity === rarity && p.genre === genre && p.prefixType === prefixType
-  );
-
-  if (!found) {
-    throw new Error(
-      `Armour legs prefix not found for type: ${prefixType}, rarity: ${rarity}`
-    );
-  }
-
-  return found;
-}
-
-  static getArmourPrefix(
+  static getLegsPrefix(
     genre: ItemGenre,
-    prefixType: PrefixType,
-    rarity: ItemRarity
+    itemType: string,
+    prefixType: PrefixType
   ): Prefix {
-    const prefixes = this.initializeArmourPrefix();
-    const found = prefixes.find(
-      (p) => p.rarity === rarity && p.genre === genre && p.prefixType === prefixType
+    const list = this.initializeLegsPrefix();;
+
+    const found = list.find(
+      (p) => p.genre === genre && p.prefixType === prefixType
     );
 
     if (!found) {
       throw new Error(
-        `Armour prefix not found for genre: ${genre}, type: ${prefixType}, rarity: ${rarity}`
+        `Armour legs prefix not found for type: ${prefixType}`
+      );
+    }
+
+    return found;
+  }
+
+  static getArmourPrefix(
+    genre: ItemGenre,
+    prefixType: PrefixType
+  ): Prefix {
+    const prefixes = this.initializeArmourPrefix();
+    const found = prefixes.find(
+      (p) => p.genre === genre && p.prefixType === prefixType
+    );
+
+    if (!found) {
+      throw new Error(
+        `Armour prefix not found for genre: ${genre}, type: ${prefixType}`
       );
     }
 
@@ -55,277 +51,51 @@ static getLegsPrefix(
   static getArmourSuffix(
     genre: ItemGenre,
     suffixType: SuffixType,
-    rarity: ItemRarity,
     playerLvl: number
   ): Suffix {
     const suffixes = this.initializeArmourSuffix(playerLvl);
     const found = suffixes.find(
-      (s) => s.rarity === rarity && s.genre === genre && s.suffixType === suffixType
+      (s) => s.genre === genre && s.suffixType === suffixType
     );
 
     if (!found) {
       throw new Error(
-        `Armour suffix not found for genre: ${genre}, type: ${suffixType}, rarity: ${rarity}`
+        `Armour suffix not found for genre: ${genre}, type: ${suffixType}`
       );
     }
 
     return found;
   }
 
-private static initializeLegsPrefix(): { szorty: Prefix[], inne: Prefix[] } {
-  if (this.legsSzortyCache && this.legsInneCache) {
-    return { szorty: this.legsSzortyCache, inne: this.legsInneCache };
-  }
+  private static initializeLegsPrefix(): Prefix[] {
+    if (this.legsInneCache) {
+      return this.legsInneCache;
+    }
 
-    const szorty: Prefix[] = [];
     const inne: Prefix[] = [];
 
-    // SZORTY
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(3).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(5).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(6).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(5).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(7).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(9).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(11).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(5).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(8).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(10).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(7).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(11).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(14).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(18).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(7).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(11).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(14).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(10).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(15).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(19).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(25).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.LEKKI, Stats.builder().zwinnosc(2).obronaPrzedmiotow(2).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.LEKKI, Stats.builder().zwinnosc(3).obronaPrzedmiotow(3).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.LEKKI, Stats.builder().zwinnosc(4).obronaPrzedmiotow(4).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.LEKKI, Stats.builder().zwinnosc(3).obronaPrzedmiotow(3).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.LEKKI, Stats.builder().zwinnosc(5).obronaPrzedmiotow(5).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.LEKKI, Stats.builder().zwinnosc(6).obronaPrzedmiotow(6).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.LEKKI, Stats.builder().zwinnosc(7).obronaPrzedmiotow(7).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.KROTKIE, Stats.builder().zwinnosc(2).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.KROTKIE, Stats.builder().zwinnosc(3).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.KROTKIE, Stats.builder().zwinnosc(4).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.KROTKIE, Stats.builder().zwinnosc(3).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KROTKIE, Stats.builder().zwinnosc(5).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KROTKIE, Stats.builder().zwinnosc(6).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.KROTKIE, Stats.builder().zwinnosc(7).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.AKSAMITNE, Stats.builder().wyglad(2).obronaPrzedmiotow(-6).wplywy(3).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.AKSAMITNE, Stats.builder().wyglad(3).obronaPrzedmiotow(-6).wplywy(5).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.AKSAMITNE, Stats.builder().wyglad(4).obronaPrzedmiotow(-6).wplywy(6).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.AKSAMITNE, Stats.builder().wyglad(3).obronaPrzedmiotow(-6).wplywy(5).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.AKSAMITNE, Stats.builder().wyglad(5).obronaPrzedmiotow(-6).wplywy(7).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.AKSAMITNE, Stats.builder().wyglad(6).obronaPrzedmiotow(-6).wplywy(9).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.AKSAMITNE, Stats.builder().wyglad(7).obronaPrzedmiotow(-6).wplywy(11).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(10).zwinnosc(-3).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(15).zwinnosc(-4).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(20).zwinnosc(-5).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(14).zwinnosc(-4).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(21).zwinnosc(-6).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(27).zwinnosc(-7).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(34).zwinnosc(-8).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(4).twardosc(0.01).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(6).twardosc(0.02).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(8).twardosc(0.02).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(6).twardosc(0.02).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(9).twardosc(0.03).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(11).twardosc(0.03).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.KULOODPORNE, Stats.builder().odpornosc(14).twardosc(0.05).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.GIETKI, Stats.builder().zwinnosc(4).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.GIETKI, Stats.builder().zwinnosc(6).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.GIETKI, Stats.builder().zwinnosc(8).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.GIETKI, Stats.builder().zwinnosc(6).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.GIETKI, Stats.builder().zwinnosc(9).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.GIETKI, Stats.builder().zwinnosc(11).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.GIETKI, Stats.builder().zwinnosc(14).obronaPrzedmiotow(-1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(14).twardosc(0.01).zwinnosc(-3 - 2).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(21).twardosc(0.02).zwinnosc(-4 - 2).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(28).twardosc(0.02).zwinnosc(-5 - 2).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(19).twardosc(0.02).zwinnosc(-4 - 2).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(29).twardosc(0.03).zwinnosc(-6 - 2).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(38).twardosc(0.03).zwinnosc(-7 - 2).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(48).twardosc(0.05).zwinnosc(-8 - 2).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(15).twardosc(0.01).zwinnosc(-3 - 1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(23).twardosc(0.02).zwinnosc(-4 - 1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(30).twardosc(0.02).zwinnosc(-5 - 1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(21).twardosc(0.02).zwinnosc(-4 - 1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(32).twardosc(0.03).zwinnosc(-6 - 1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(41).twardosc(0.03).zwinnosc(-7 - 1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(52).twardosc(0.05).zwinnosc(-8 - 1).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.ELFIE, Stats.builder().zwinnosc(6).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.ELFIE, Stats.builder().zwinnosc(9).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.ELFIE, Stats.builder().zwinnosc(12).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.ELFIE, Stats.builder().zwinnosc(8).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.ELFIE, Stats.builder().zwinnosc(12).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.ELFIE, Stats.builder().zwinnosc(16).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.ELFIE, Stats.builder().zwinnosc(20).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.RUNICZNE, Stats.builder().szczescie(5).obronaPrzedmiotow(10).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.RUNICZNE, Stats.builder().szczescie(8).obronaPrzedmiotow(15).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.RUNICZNE, Stats.builder().szczescie(10).obronaPrzedmiotow(20).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.RUNICZNE, Stats.builder().szczescie(7).obronaPrzedmiotow(14).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.RUNICZNE, Stats.builder().szczescie(11).obronaPrzedmiotow(21).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.RUNICZNE, Stats.builder().szczescie(14).obronaPrzedmiotow(27).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.RUNICZNE, Stats.builder().szczescie(18).obronaPrzedmiotow(34).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.05).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.08).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.10).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.07).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.11).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.14).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.18).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.TYGRYSI, Stats.builder().odpornosc(2).obronaPrzedmiotow(-3).zwinnosc(4).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.TYGRYSI, Stats.builder().odpornosc(3).obronaPrzedmiotow(-3).zwinnosc(6).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.TYGRYSI, Stats.builder().odpornosc(4).obronaPrzedmiotow(-3).zwinnosc(8).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.TYGRYSI, Stats.builder().odpornosc(3).obronaPrzedmiotow(-3).zwinnosc(6).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.TYGRYSI, Stats.builder().odpornosc(5).obronaPrzedmiotow(-3).zwinnosc(9).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.TYGRYSI, Stats.builder().odpornosc(6).obronaPrzedmiotow(-3).zwinnosc(11).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.TYGRYSI, Stats.builder().odpornosc(7).obronaPrzedmiotow(-3).zwinnosc(14).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.7).critMultiBiala2h(0.7).critMultiPalna1h(0.7).critMultiPalna2h(0.7).critMultiDystans1h(0.7).critMultiDystans2h(0.7).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.11).critMultiBiala2h(0.11).critMultiPalna1h(0.11).critMultiPalna2h(0.11).critMultiDystans1h(0.11).critMultiDystans2h(0.11).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.14).critMultiBiala2h(0.14).critMultiPalna1h(0.14).critMultiPalna2h(0.14).critMultiDystans1h(0.14).critMultiDystans2h(0.14).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.10).critMultiBiala2h(0.10).critMultiPalna1h(0.10).critMultiPalna2h(0.10).critMultiDystans1h(0.10).critMultiDystans2h(0.10).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.15).critMultiBiala2h(0.15).critMultiPalna1h(0.15).critMultiPalna2h(0.15).critMultiDystans1h(0.15).critMultiDystans2h(0.15).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.19).critMultiBiala2h(0.19).critMultiPalna1h(0.19).critMultiPalna2h(0.19).critMultiDystans1h(0.19).critMultiDystans2h(0.19).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.25).critMultiBiala2h(0.25).critMultiPalna1h(0.25).critMultiPalna2h(0.25).critMultiDystans1h(0.25).critMultiDystans2h(0.25).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(3).minDpsDystans1h(3).minDpsDystans2h(3).minDpsPalna1h(3).minDpsPalna2h(3).minDpsBiala1h(3).maxDpsBiala2h(3).maxDpsDystans1h(3).maxDpsDystans2h(3).maxDpsPalna1h(3).maxDpsPalna2h(3).maxDpsBiala1h(3).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna1h(5).minDpsPalna2h(5).minDpsBiala1h(5).maxDpsBiala2h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna1h(5).maxDpsPalna2h(5).maxDpsBiala1h(5).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(6).minDpsDystans1h(6).minDpsDystans2h(6).minDpsPalna1h(6).minDpsPalna2h(6).minDpsBiala1h(6).maxDpsBiala2h(6).maxDpsDystans1h(6).maxDpsDystans2h(6).maxDpsPalna1h(6).maxDpsPalna2h(6).maxDpsBiala1h(6).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna1h(5).minDpsPalna2h(5).minDpsBiala1h(5).maxDpsBiala2h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna1h(5).maxDpsPalna2h(5).maxDpsBiala1h(5).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(7).minDpsDystans1h(7).minDpsDystans2h(7).minDpsPalna1h(7).minDpsPalna2h(7).minDpsBiala1h(7).maxDpsBiala2h(7).maxDpsDystans1h(7).maxDpsDystans2h(7).maxDpsPalna1h(7).maxDpsPalna2h(7).maxDpsBiala1h(7).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(9).minDpsDystans1h(9).minDpsDystans2h(9).minDpsPalna1h(9).minDpsPalna2h(9).minDpsBiala1h(9).maxDpsBiala2h(9).maxDpsDystans1h(9).maxDpsDystans2h(9).maxDpsPalna1h(9).maxDpsPalna2h(9).maxDpsBiala1h(9).build()));
-    szorty.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(11).minDpsDystans1h(11).minDpsDystans2h(11).minDpsPalna1h(11).minDpsPalna2h(11).minDpsBiala1h(11).maxDpsBiala2h(11).maxDpsDystans1h(11).maxDpsDystans2h(11).maxDpsPalna1h(11).maxDpsPalna2h(11).maxDpsBiala1h(11).build()));
 
-    // INNE
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(6).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(7).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(9).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.PIKOWANY, Stats.builder().obronaPrzedmiotow(11).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(8).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(10).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(7).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(11).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(14).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(18).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(7).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(11).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(14).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(10).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(15).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(19).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(25).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.LEKKI, Stats.builder().zwinnosc(2).obronaPrzedmiotow(2).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.LEKKI, Stats.builder().zwinnosc(3).obronaPrzedmiotow(3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.LEKKI, Stats.builder().zwinnosc(4).obronaPrzedmiotow(4).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.LEKKI, Stats.builder().zwinnosc(3).obronaPrzedmiotow(3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.LEKKI, Stats.builder().zwinnosc(5).obronaPrzedmiotow(5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.LEKKI, Stats.builder().zwinnosc(6).obronaPrzedmiotow(6).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.LEKKI, Stats.builder().zwinnosc(7).obronaPrzedmiotow(7).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.KROTKIE, Stats.builder().zwinnosc(2).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.KROTKIE, Stats.builder().zwinnosc(3).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.KROTKIE, Stats.builder().zwinnosc(4).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.KROTKIE, Stats.builder().zwinnosc(3).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KROTKIE, Stats.builder().zwinnosc(5).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KROTKIE, Stats.builder().zwinnosc(6).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.KROTKIE, Stats.builder().zwinnosc(7).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.AKSAMITNE, Stats.builder().wyglad(2).obronaPrzedmiotow(-6).wplywy(3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.AKSAMITNE, Stats.builder().wyglad(3).obronaPrzedmiotow(-6).wplywy(5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.AKSAMITNE, Stats.builder().wyglad(4).obronaPrzedmiotow(-6).wplywy(6).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.AKSAMITNE, Stats.builder().wyglad(3).obronaPrzedmiotow(-6).wplywy(5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.AKSAMITNE, Stats.builder().wyglad(5).obronaPrzedmiotow(-6).wplywy(7).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.AKSAMITNE, Stats.builder().wyglad(6).obronaPrzedmiotow(-6).wplywy(9).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.AKSAMITNE, Stats.builder().wyglad(7).obronaPrzedmiotow(-6).wplywy(11).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(10).zwinnosc(-3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(15).zwinnosc(-3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(20).zwinnosc(-3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(14).zwinnosc(-3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(21).zwinnosc(-3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(27).zwinnosc(-3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.KOLCZE, Stats.builder().obronaPrzedmiotow(34).zwinnosc(-3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(4).twardosc(0.01).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(6).twardosc(0.02).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(8).twardosc(0.02).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(6).twardosc(0.02).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(9).twardosc(0.03).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(11).twardosc(0.03).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.KULOODPORNE, Stats.builder().odpornosc(14).twardosc(0.05).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.GIETKI, Stats.builder().zwinnosc(4).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.GIETKI, Stats.builder().zwinnosc(6).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.GIETKI, Stats.builder().zwinnosc(8).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.GIETKI, Stats.builder().zwinnosc(6).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.GIETKI, Stats.builder().zwinnosc(9).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.GIETKI, Stats.builder().zwinnosc(11).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.GIETKI, Stats.builder().zwinnosc(14).obronaPrzedmiotow(-1).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(14).twardosc(0.01).zwinnosc(-5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(21).twardosc(0.02).zwinnosc(-5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(28).twardosc(0.02).zwinnosc(-5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(19).twardosc(0.02).zwinnosc(-5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(29).twardosc(0.03).zwinnosc(-5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(38).twardosc(0.03).zwinnosc(-5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.PANCERNE, Stats.builder().obronaPrzedmiotow(48).twardosc(0.05).zwinnosc(-5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(15).twardosc(0.01).zwinnosc(-4).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(23).twardosc(0.02).zwinnosc(-4).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(30).twardosc(0.02).zwinnosc(-4).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(21).twardosc(0.02).zwinnosc(-4).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(32).twardosc(0.03).zwinnosc(-4).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(41).twardosc(0.03).zwinnosc(-4).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.KOMPOZYTOWE, Stats.builder().obronaPrzedmiotow(52).twardosc(0.05).zwinnosc(-4).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.ELFIE, Stats.builder().zwinnosc(6).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.ELFIE, Stats.builder().zwinnosc(9).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.ELFIE, Stats.builder().zwinnosc(12).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.ELFIE, Stats.builder().zwinnosc(9).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.ELFIE, Stats.builder().zwinnosc(13).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.ELFIE, Stats.builder().zwinnosc(17).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.ELFIE, Stats.builder().zwinnosc(21).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.RUNICZNE, Stats.builder().szczescie(5).obronaPrzedmiotow(10).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.RUNICZNE, Stats.builder().szczescie(8).obronaPrzedmiotow(15).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.RUNICZNE, Stats.builder().szczescie(10).obronaPrzedmiotow(20).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.RUNICZNE, Stats.builder().szczescie(7).obronaPrzedmiotow(14).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.RUNICZNE, Stats.builder().szczescie(11).obronaPrzedmiotow(21).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.RUNICZNE, Stats.builder().szczescie(14).obronaPrzedmiotow(27).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.RUNICZNE, Stats.builder().szczescie(18).obronaPrzedmiotow(34).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.05).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.08).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.10).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.07).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.11).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.14).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.18).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.TYGRYSI, Stats.builder().odpornosc(2).obronaPrzedmiotow(-3).zwinnosc(4).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.TYGRYSI, Stats.builder().odpornosc(3).obronaPrzedmiotow(-3).zwinnosc(6).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.TYGRYSI, Stats.builder().odpornosc(4).obronaPrzedmiotow(-3).zwinnosc(8).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.TYGRYSI, Stats.builder().odpornosc(3).obronaPrzedmiotow(-3).zwinnosc(6).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.TYGRYSI, Stats.builder().odpornosc(5).obronaPrzedmiotow(-3).zwinnosc(9).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.TYGRYSI, Stats.builder().odpornosc(6).obronaPrzedmiotow(-3).zwinnosc(11).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.TYGRYSI, Stats.builder().odpornosc(7).obronaPrzedmiotow(-3).zwinnosc(14).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.7).critMultiBiala2h(0.7).critMultiPalna1h(0.7).critMultiPalna2h(0.7).critMultiDystans1h(0.7).critMultiDystans2h(0.7).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.11).critMultiBiala2h(0.11).critMultiPalna1h(0.11).critMultiPalna2h(0.11).critMultiDystans1h(0.11).critMultiDystans2h(0.11).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.14).critMultiBiala2h(0.14).critMultiPalna1h(0.14).critMultiPalna2h(0.14).critMultiDystans1h(0.14).critMultiDystans2h(0.14).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.10).critMultiBiala2h(0.10).critMultiPalna1h(0.10).critMultiPalna2h(0.10).critMultiDystans1h(0.10).critMultiDystans2h(0.10).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.15).critMultiBiala2h(0.15).critMultiPalna1h(0.15).critMultiPalna2h(0.15).critMultiDystans1h(0.15).critMultiDystans2h(0.15).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.19).critMultiBiala2h(0.19).critMultiPalna1h(0.19).critMultiPalna2h(0.19).critMultiDystans1h(0.19).critMultiDystans2h(0.19).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.25).critMultiBiala2h(0.25).critMultiPalna1h(0.25).critMultiPalna2h(0.25).critMultiDystans1h(0.25).critMultiDystans2h(0.25).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.ZWYKLY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(3).minDpsDystans1h(3).minDpsDystans2h(3).minDpsPalna1h(3).minDpsPalna2h(3).minDpsBiala1h(3).maxDpsBiala2h(3).maxDpsDystans1h(3).maxDpsDystans2h(3).maxDpsPalna1h(3).maxDpsPalna2h(3).maxDpsBiala1h(3).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOBRY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna1h(5).minDpsPalna2h(5).minDpsBiala1h(5).maxDpsBiala2h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna1h(5).maxDpsPalna2h(5).maxDpsBiala1h(5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.DOSKONALY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(6).minDpsDystans1h(6).minDpsDystans2h(6).minDpsPalna1h(6).minDpsPalna2h(6).minDpsBiala1h(6).maxDpsBiala2h(6).maxDpsDystans1h(6).maxDpsDystans2h(6).maxDpsPalna1h(6).maxDpsPalna2h(6).maxDpsBiala1h(6).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna1h(5).minDpsPalna2h(5).minDpsBiala1h(5).maxDpsBiala2h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna1h(5).maxDpsPalna2h(5).maxDpsBiala1h(5).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(7).minDpsDystans1h(7).minDpsDystans2h(7).minDpsPalna1h(7).minDpsPalna2h(7).minDpsBiala1h(7).maxDpsBiala2h(7).maxDpsDystans1h(7).maxDpsDystans2h(7).maxDpsPalna1h(7).maxDpsPalna2h(7).maxDpsBiala1h(7).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(9).minDpsDystans1h(9).minDpsDystans2h(9).minDpsPalna1h(9).minDpsPalna2h(9).minDpsBiala1h(9).maxDpsBiala2h(9).maxDpsDystans1h(9).maxDpsDystans2h(9).maxDpsPalna1h(9).maxDpsPalna2h(9).maxDpsBiala1h(9).build()));
-    inne.push(new Prefix(ItemGenre.LEGS, ItemRarity.EPICKI, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(11).minDpsDystans1h(11).minDpsDystans2h(11).minDpsPalna1h(11).minDpsPalna2h(11).minDpsBiala1h(11).maxDpsBiala2h(11).maxDpsDystans1h(11).maxDpsDystans2h(11).maxDpsPalna1h(11).maxDpsPalna2h(11).maxDpsBiala1h(11).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.PIKOWANY, Stats.builder().obronaAffixu(3).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.WZMOCNIONY, Stats.builder().obronaAffixu(5).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.CWIEKOWANY, Stats.builder().obronaAffixu(7).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.LEKKI, Stats.builder().zwinnosc(2).obronaAffixu(2).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.KROTKIE, Stats.builder().zwinnosc(2).obronaAffixu(-1).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.AKSAMITNE, Stats.builder().wyglad(2).obronaAffixu(-6).wplywy(3).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.KOLCZE, Stats.builder().obronaAffixu(10).zwinnosc(-3).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.KULOODPORNE, Stats.builder().odpornosc(4).twardosc(0.01).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.GIETKI, Stats.builder().zwinnosc(4).obronaAffixu(-1).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.PANCERNE, Stats.builder().obronaAffixu(14).twardosc(0.01).zwinnosc(-5).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.KOMPOZYTOWE, Stats.builder().obronaAffixu(15).twardosc(0.01).zwinnosc(-4).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.ELFIE, Stats.builder().zwinnosc(6).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.RUNICZNE, Stats.builder().szczescie(5).obronaAffixu(10).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.05).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.TYGRYSI, Stats.builder().odpornosc(2).obronaAffixu(-3).zwinnosc(4).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.07).critMultiBiala2h(0.07).critMultiPalna1h(0.07).critMultiPalna2h(0.07).critMultiDystans1h(0.07).critMultiDystans2h(0.07).build()));
+    inne.push(new Prefix(ItemGenre.LEGS, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-4).minDpsBiala2h(3).minDpsDystans1h(3).minDpsDystans2h(3).minDpsPalna1h(3).minDpsPalna2h(3).minDpsBiala1h(3).maxDpsBiala2h(3).maxDpsDystans1h(3).maxDpsDystans2h(3).maxDpsPalna1h(3).maxDpsPalna2h(3).maxDpsBiala1h(3).build()));
 
-    this.legsSzortyCache = szorty;
     this.legsInneCache = inne;
 
-    return { szorty, inne };
+    return inne;
   }
 
   private static initializeArmourPrefix(): Prefix[] {
@@ -333,254 +103,44 @@ private static initializeLegsPrefix(): { szorty: Prefix[], inne: Prefix[] } {
 
     const prefixes: Prefix[] = [];
 
-    // HEAD prefixes
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.OZDOBNA, Stats.builder().obronaPrzedmiotow(-2).wyglad(3).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.OZDOBNA, Stats.builder().obronaPrzedmiotow(-2).wyglad(5).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.OZDOBNA, Stats.builder().obronaPrzedmiotow(-2).wyglad(6).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.OZDOBNA, Stats.builder().obronaPrzedmiotow(-2).wyglad(5).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.OZDOBNA, Stats.builder().obronaPrzedmiotow(-2).wyglad(7).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.OZDOBNA, Stats.builder().obronaPrzedmiotow(-2).wyglad(9).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.OZDOBNA, Stats.builder().obronaPrzedmiotow(-2).wyglad(11).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.UTWARDZANA, Stats.builder().obronaPrzedmiotow(2).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.UTWARDZANA, Stats.builder().obronaPrzedmiotow(3).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.UTWARDZANA, Stats.builder().obronaPrzedmiotow(4).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.UTWARDZANA, Stats.builder().obronaPrzedmiotow(3).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.UTWARDZANA, Stats.builder().obronaPrzedmiotow(5).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.UTWARDZANA, Stats.builder().obronaPrzedmiotow(6).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.UTWARDZANA, Stats.builder().obronaPrzedmiotow(7).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.ELEGANCKA, Stats.builder().wyglad(5).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.ELEGANCKA, Stats.builder().wyglad(8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.ELEGANCKA, Stats.builder().wyglad(10).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.ELEGANCKA, Stats.builder().wyglad(7).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.ELEGANCKA, Stats.builder().wyglad(11).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.ELEGANCKA, Stats.builder().wyglad(14).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.ELEGANCKA, Stats.builder().wyglad(18).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.POMOCNA, Stats.builder().obronaPrzedmiotow(3).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.POMOCNA, Stats.builder().obronaPrzedmiotow(5).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.POMOCNA, Stats.builder().obronaPrzedmiotow(6).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.POMOCNA, Stats.builder().obronaPrzedmiotow(5).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.POMOCNA, Stats.builder().obronaPrzedmiotow(7).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.POMOCNA, Stats.builder().obronaPrzedmiotow(9).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.POMOCNA, Stats.builder().obronaPrzedmiotow(11).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.KOSZTOWNY, Stats.builder().wyglad(8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.KOSZTOWNY, Stats.builder().wyglad(12).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.KOSZTOWNY, Stats.builder().wyglad(16).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.KOSZTOWNY, Stats.builder().wyglad(11).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KOSZTOWNY, Stats.builder().wyglad(17).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KOSZTOWNY, Stats.builder().wyglad(22).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.KOSZTOWNY, Stats.builder().wyglad(27).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(5).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(10).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(7).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(11).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(14).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(18).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.MAGNETYCZNA, Stats.builder().inteligencja(2).wiedza(-4).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.MAGNETYCZNA, Stats.builder().inteligencja(3).wiedza(-4).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.MAGNETYCZNA, Stats.builder().inteligencja(4).wiedza(-4).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.MAGNETYCZNA, Stats.builder().inteligencja(3).wiedza(-4).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.MAGNETYCZNA, Stats.builder().inteligencja(5).wiedza(-4).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.MAGNETYCZNA, Stats.builder().inteligencja(6).wiedza(-4).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.MAGNETYCZNA, Stats.builder().inteligencja(7).wiedza(-4).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.ROGATA, Stats.builder().minDpsBiala2h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna1h(5).minDpsPalna2h(5).minDpsBiala1h(5).maxDpsBiala2h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna1h(5).maxDpsPalna2h(5).maxDpsBiala1h(5).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.ROGATA, Stats.builder().minDpsBiala2h(8).minDpsDystans1h(8).minDpsDystans2h(8).minDpsPalna1h(8).minDpsPalna2h(8).minDpsBiala1h(8).maxDpsBiala2h(8).maxDpsDystans1h(8).maxDpsDystans2h(8).maxDpsPalna1h(8).maxDpsPalna2h(8).maxDpsBiala1h(8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.ROGATA, Stats.builder().minDpsBiala2h(10).minDpsDystans1h(10).minDpsDystans2h(10).minDpsPalna1h(10).minDpsPalna2h(10).minDpsBiala1h(10).maxDpsBiala2h(10).maxDpsDystans1h(10).maxDpsDystans2h(10).maxDpsPalna1h(10).maxDpsPalna2h(10).maxDpsBiala1h(10).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.ROGATA, Stats.builder().minDpsBiala2h(7).minDpsDystans1h(7).minDpsDystans2h(7).minDpsPalna1h(7).minDpsPalna2h(7).minDpsBiala1h(7).maxDpsBiala2h(7).maxDpsDystans1h(7).maxDpsDystans2h(7).maxDpsPalna1h(7).maxDpsPalna2h(7).maxDpsBiala1h(7).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.ROGATA, Stats.builder().minDpsBiala2h(11).minDpsDystans1h(11).minDpsDystans2h(11).minDpsPalna1h(11).minDpsPalna2h(11).minDpsBiala1h(11).maxDpsBiala2h(11).maxDpsDystans1h(11).maxDpsDystans2h(11).maxDpsPalna1h(11).maxDpsPalna2h(11).maxDpsBiala1h(11).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.ROGATA, Stats.builder().minDpsBiala2h(14).minDpsDystans1h(14).minDpsDystans2h(14).minDpsPalna1h(14).minDpsPalna2h(14).minDpsBiala1h(14).maxDpsBiala2h(14).maxDpsDystans1h(14).maxDpsDystans2h(14).maxDpsPalna1h(14).maxDpsPalna2h(14).maxDpsBiala1h(14).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.ROGATA, Stats.builder().minDpsBiala2h(18).minDpsDystans1h(18).minDpsDystans2h(18).minDpsPalna1h(18).minDpsPalna2h(18).minDpsBiala1h(18).maxDpsBiala2h(18).maxDpsDystans1h(18).maxDpsDystans2h(18).maxDpsPalna1h(18).maxDpsPalna2h(18).maxDpsBiala1h(18).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.BOJOWA, Stats.builder().obronaPrzedmiotow(10).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.BOJOWA, Stats.builder().obronaPrzedmiotow(15).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.BOJOWA, Stats.builder().obronaPrzedmiotow(20).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.BOJOWA, Stats.builder().obronaPrzedmiotow(14).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.BOJOWA, Stats.builder().obronaPrzedmiotow(21).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.BOJOWA, Stats.builder().obronaPrzedmiotow(27).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.BOJOWA, Stats.builder().obronaPrzedmiotow(34).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.ZLOSLIWA, Stats.builder().szczescie(5).punktyKrwi(0.05).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.ZLOSLIWA, Stats.builder().szczescie(8).punktyKrwi(0.08).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.ZLOSLIWA, Stats.builder().szczescie(10).punktyKrwi(0.10).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.ZLOSLIWA, Stats.builder().szczescie(7).punktyKrwi(0.07).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.ZLOSLIWA, Stats.builder().szczescie(11).punktyKrwi(0.11).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.ZLOSLIWA, Stats.builder().szczescie(14).punktyKrwi(0.14).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.ZLOSLIWA, Stats.builder().szczescie(18).punktyKrwi(0.18).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.LENIWA, Stats.builder().zwinnosc(-5).odpornosc(4).obronaPrzedmiotow(7).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.LENIWA, Stats.builder().zwinnosc(-5).odpornosc(6).obronaPrzedmiotow(11).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.LENIWA, Stats.builder().zwinnosc(-5).odpornosc(8).obronaPrzedmiotow(14).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.LENIWA, Stats.builder().zwinnosc(-5).odpornosc(6).obronaPrzedmiotow(10).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.LENIWA, Stats.builder().zwinnosc(-5).odpornosc(9).obronaPrzedmiotow(15).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.LENIWA, Stats.builder().zwinnosc(-5).odpornosc(11).obronaPrzedmiotow(19).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.LENIWA, Stats.builder().zwinnosc(-5).odpornosc(14).obronaPrzedmiotow(25).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.KULOODPORNE, Stats.builder().obronaPrzedmiotow(6).odpornosc(3).twardosc(0.01).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.KULOODPORNE, Stats.builder().obronaPrzedmiotow(9).odpornosc(5).twardosc(0.02).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.KULOODPORNE, Stats.builder().obronaPrzedmiotow(12).odpornosc(6).twardosc(0.02).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.KULOODPORNE, Stats.builder().obronaPrzedmiotow(9).odpornosc(5).twardosc(0.02).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KULOODPORNE, Stats.builder().obronaPrzedmiotow(13).odpornosc(7).twardosc(0.03).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KULOODPORNE, Stats.builder().obronaPrzedmiotow(17).odpornosc(9).twardosc(0.03).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.KULOODPORNE, Stats.builder().obronaPrzedmiotow(21).odpornosc(11).twardosc(0.05).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.SZTURMOWY, Stats.builder().obronaPrzedmiotow(12).twardosc(0.01).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.SZTURMOWY, Stats.builder().obronaPrzedmiotow(18).twardosc(0.02).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.SZTURMOWY, Stats.builder().obronaPrzedmiotow(24).twardosc(0.02).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.SZTURMOWY, Stats.builder().obronaPrzedmiotow(17).twardosc(0.02).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.SZTURMOWY, Stats.builder().obronaPrzedmiotow(25).twardosc(0.03).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.SZTURMOWY, Stats.builder().obronaPrzedmiotow(33).twardosc(0.03).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.SZTURMOWY, Stats.builder().obronaPrzedmiotow(41).twardosc(0.05).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.10).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.15).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.20).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.14).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.21).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.27).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.34).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.RUNICZNE, Stats.builder().szczescie(5).obronaPrzedmiotow(10).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.RUNICZNE, Stats.builder().szczescie(8).obronaPrzedmiotow(15).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.RUNICZNE, Stats.builder().szczescie(10).obronaPrzedmiotow(20).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.RUNICZNE, Stats.builder().szczescie(7).obronaPrzedmiotow(14).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.RUNICZNE, Stats.builder().szczescie(11).obronaPrzedmiotow(21).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.RUNICZNE, Stats.builder().szczescie(14).obronaPrzedmiotow(27).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.RUNICZNE, Stats.builder().szczescie(18).obronaPrzedmiotow(34).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.07).critMultiBiala2h(0.07).critMultiPalna1h(0.07).critMultiPalna2h(0.07).critMultiDystans1h(0.07).critMultiDystans2h(0.07).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.11).critMultiBiala2h(0.11).critMultiPalna1h(0.11).critMultiPalna2h(0.11).critMultiDystans1h(0.11).critMultiDystans2h(0.11).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.14).critMultiBiala2h(0.14).critMultiPalna1h(0.14).critMultiPalna2h(0.14).critMultiDystans1h(0.14).critMultiDystans2h(0.14).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.10).critMultiBiala2h(0.10).critMultiPalna1h(0.10).critMultiPalna2h(0.10).critMultiDystans1h(0.10).critMultiDystans2h(0.10).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.15).critMultiBiala2h(0.15).critMultiPalna1h(0.15).critMultiPalna2h(0.15).critMultiDystans1h(0.15).critMultiDystans2h(0.15).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.19).critMultiBiala2h(0.19).critMultiPalna1h(0.19).critMultiPalna2h(0.19).critMultiDystans1h(0.19).critMultiDystans2h(0.19).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.25).critMultiBiala2h(0.25).critMultiPalna1h(0.25).critMultiPalna2h(0.25).critMultiDystans1h(0.25).critMultiDystans2h(0.25).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(3).odpornosc(2).obronaPrzedmiotow(-8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(5).odpornosc(3).obronaPrzedmiotow(-8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(6).odpornosc(4).obronaPrzedmiotow(-8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(5).odpornosc(3).obronaPrzedmiotow(-8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(7).odpornosc(5).obronaPrzedmiotow(-8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(9).odpornosc(6).obronaPrzedmiotow(-8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.TYGRYSI, Stats.builder().zwinnosc(11).odpornosc(7).obronaPrzedmiotow(-8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-5).minDpsBiala2h(4).minDpsDystans1h(4).minDpsDystans2h(4).minDpsPalna1h(4).minDpsPalna2h(4).minDpsBiala1h(4).maxDpsBiala2h(4).maxDpsDystans1h(4).maxDpsDystans2h(4).maxDpsPalna1h(4).maxDpsPalna2h(4).maxDpsBiala1h(4).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-5).minDpsBiala2h(6).minDpsDystans1h(6).minDpsDystans2h(6).minDpsPalna1h(6).minDpsPalna2h(6).minDpsBiala1h(6).maxDpsBiala2h(6).maxDpsDystans1h(6).maxDpsDystans2h(6).maxDpsPalna1h(6).maxDpsPalna2h(6).maxDpsBiala1h(6).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-5).minDpsBiala2h(8).minDpsDystans1h(8).minDpsDystans2h(8).minDpsPalna1h(8).minDpsPalna2h(8).minDpsBiala1h(8).maxDpsBiala2h(8).maxDpsDystans1h(8).maxDpsDystans2h(8).maxDpsPalna1h(8).maxDpsPalna2h(8).maxDpsBiala1h(8).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-5).minDpsBiala2h(6).minDpsDystans1h(6).minDpsDystans2h(6).minDpsPalna1h(6).minDpsPalna2h(6).minDpsBiala1h(6).maxDpsBiala2h(6).maxDpsDystans1h(6).maxDpsDystans2h(6).maxDpsPalna1h(6).maxDpsPalna2h(6).maxDpsBiala1h(6).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-5).minDpsBiala2h(9).minDpsDystans1h(9).minDpsDystans2h(9).minDpsPalna1h(9).minDpsPalna2h(9).minDpsBiala1h(9).maxDpsBiala2h(9).maxDpsDystans1h(9).maxDpsDystans2h(9).maxDpsPalna1h(9).maxDpsPalna2h(9).maxDpsBiala1h(9).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-5).minDpsBiala2h(11).minDpsDystans1h(11).minDpsDystans2h(11).minDpsPalna1h(11).minDpsPalna2h(11).minDpsBiala1h(11).maxDpsBiala2h(11).maxDpsDystans1h(11).maxDpsDystans2h(11).maxDpsPalna1h(11).maxDpsPalna2h(11).maxDpsBiala1h(11).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-5).minDpsBiala2h(14).minDpsDystans1h(14).minDpsDystans2h(14).minDpsPalna1h(14).minDpsPalna2h(14).minDpsBiala1h(14).maxDpsBiala2h(14).maxDpsDystans1h(14).maxDpsDystans2h(14).maxDpsPalna1h(14).maxDpsPalna2h(14).maxDpsBiala1h(14).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.ZWYKLY, PrefixType.RYTUALNY, Stats.builder().punktyKrwi(0.05).szczescie(15).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOBRY, PrefixType.RYTUALNY, Stats.builder().punktyKrwi(0.08).szczescie(23).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.DOSKONALY, PrefixType.RYTUALNY, Stats.builder().punktyKrwi(0.10).szczescie(30).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, PrefixType.RYTUALNY, Stats.builder().punktyKrwi(0.07).szczescie(21).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, PrefixType.RYTUALNY, Stats.builder().punktyKrwi(0.11).szczescie(32).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.RYTUALNY, Stats.builder().punktyKrwi(0.14).szczescie(41).build()));
-    prefixes.push(new Prefix(ItemGenre.HEAD, ItemRarity.EPICKI, PrefixType.RYTUALNY, Stats.builder().punktyKrwi(0.18).szczescie(52).build()));
 
-    // CHEST prefixes
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(3).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(5).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(6).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(5).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(7).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(9).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.WZMOCNIONY, Stats.builder().obronaPrzedmiotow(11).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.WLADCZA, Stats.builder().charyzma(3).wyglad(1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.WLADCZA, Stats.builder().charyzma(5).wyglad(2).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.WLADCZA, Stats.builder().charyzma(6).wyglad(3).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.WLADCZA, Stats.builder().charyzma(5).wyglad(2).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.WLADCZA, Stats.builder().charyzma(7).wyglad(3).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.WLADCZA, Stats.builder().charyzma(9).wyglad(3).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.WLADCZA, Stats.builder().charyzma(11).wyglad(5).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(5).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(8).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(10).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(7).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(11).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(14).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.CWIEKOWANY, Stats.builder().obronaPrzedmiotow(18).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.LEKKI, Stats.builder().zwinnosc(3).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.LEKKI, Stats.builder().zwinnosc(5).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.LEKKI, Stats.builder().zwinnosc(6).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.LEKKI, Stats.builder().zwinnosc(5).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.LEKKI, Stats.builder().zwinnosc(7).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.LEKKI, Stats.builder().zwinnosc(9).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.LEKKI, Stats.builder().zwinnosc(11).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(5).twardosc(0.01).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(8).twardosc(0.02).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(10).twardosc(0.02).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(7).twardosc(0.02).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(11).twardosc(0.03).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KULOODPORNE, Stats.builder().odpornosc(14).twardosc(0.03).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.KULOODPORNE, Stats.builder().odpornosc(18).twardosc(0.05).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.LUSKOWA, Stats.builder().obronaPrzedmiotow(8).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.LUSKOWA, Stats.builder().obronaPrzedmiotow(12).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.LUSKOWA, Stats.builder().obronaPrzedmiotow(16).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.LUSKOWA, Stats.builder().obronaPrzedmiotow(11).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.LUSKOWA, Stats.builder().obronaPrzedmiotow(17).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.LUSKOWA, Stats.builder().obronaPrzedmiotow(22).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.LUSKOWA, Stats.builder().obronaPrzedmiotow(27).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.GIETKI, Stats.builder().zwinnosc(6).obronaPrzedmiotow(-2).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.GIETKI, Stats.builder().zwinnosc(9).obronaPrzedmiotow(-2).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.GIETKI, Stats.builder().zwinnosc(12).obronaPrzedmiotow(-2).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.GIETKI, Stats.builder().zwinnosc(9).obronaPrzedmiotow(-2).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.GIETKI, Stats.builder().zwinnosc(13).obronaPrzedmiotow(-2).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.GIETKI, Stats.builder().zwinnosc(17).obronaPrzedmiotow(-2).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.GIETKI, Stats.builder().zwinnosc(21).obronaPrzedmiotow(-2).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.PLYTOWA, Stats.builder().obronaPrzedmiotow(12).twardosc(0.02).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.PLYTOWA, Stats.builder().obronaPrzedmiotow(18).twardosc(0.03).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.PLYTOWA, Stats.builder().obronaPrzedmiotow(24).twardosc(0.04).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.PLYTOWA, Stats.builder().obronaPrzedmiotow(17).twardosc(0.03).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.PLYTOWA, Stats.builder().obronaPrzedmiotow(25).twardosc(0.05).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.PLYTOWA, Stats.builder().obronaPrzedmiotow(33).twardosc(0.06).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.PLYTOWA, Stats.builder().obronaPrzedmiotow(41).twardosc(0.07).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.05).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.08).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.10).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.07).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.11).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.14).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.18).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.LOWIECKA, Stats.builder().spostrzegawczosc(6).wiedza(4).critMultiPalna1h(-0.24).critMultiPalna2h(-0.24).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.LOWIECKA, Stats.builder().spostrzegawczosc(9).wiedza(6).critMultiPalna1h(-0.24).critMultiPalna2h(-0.24).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.LOWIECKA, Stats.builder().spostrzegawczosc(12).wiedza(8).critMultiPalna1h(-0.24).critMultiPalna2h(-0.24).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.LOWIECKA, Stats.builder().spostrzegawczosc(9).wiedza(6).critMultiPalna1h(-0.24).critMultiPalna2h(-0.24).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.LOWIECKA, Stats.builder().spostrzegawczosc(13).wiedza(9).critMultiPalna1h(-0.24).critMultiPalna2h(-0.24).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.LOWIECKA, Stats.builder().spostrzegawczosc(17).wiedza(11).critMultiPalna1h(-0.24).critMultiPalna2h(-0.24).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.LOWIECKA, Stats.builder().spostrzegawczosc(21).wiedza(14).critMultiPalna1h(-0.24).critMultiPalna2h(-0.24).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.ELFIE, Stats.builder().zwinnosc(8).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.ELFIE, Stats.builder().zwinnosc(12).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.ELFIE, Stats.builder().zwinnosc(16).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.ELFIE, Stats.builder().zwinnosc(11).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.ELFIE, Stats.builder().zwinnosc(17).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.ELFIE, Stats.builder().zwinnosc(22).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.ELFIE, Stats.builder().zwinnosc(27).obronaPrzedmiotow(-1).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.BOJOWA, Stats.builder().szczescie(5).obronaPrzedmiotow(5).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.BOJOWA, Stats.builder().szczescie(8).obronaPrzedmiotow(8).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.BOJOWA, Stats.builder().szczescie(10).obronaPrzedmiotow(10).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.BOJOWA, Stats.builder().szczescie(7).obronaPrzedmiotow(7).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.BOJOWA, Stats.builder().szczescie(11).obronaPrzedmiotow(11).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.BOJOWA, Stats.builder().szczescie(14).obronaPrzedmiotow(14).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.BOJOWA, Stats.builder().szczescie(18).obronaPrzedmiotow(18).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(6).obronaPrzedmiotow(-4).odpornosc(3).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(9).obronaPrzedmiotow(-4).odpornosc(5).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(12).obronaPrzedmiotow(-4).odpornosc(6).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(9).obronaPrzedmiotow(-4).odpornosc(5).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(13).obronaPrzedmiotow(-4).odpornosc(7).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.TYGRYSI, Stats.builder().zwinnosc(17).obronaPrzedmiotow(-4).odpornosc(9).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.TYGRYSI, Stats.builder().zwinnosc(21).obronaPrzedmiotow(-4).odpornosc(11).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-12).minDpsBiala2h(6).minDpsDystans1h(6).minDpsDystans2h(6).minDpsPalna1h(6).minDpsPalna2h(6).minDpsBiala1h(6).maxDpsBiala2h(6).maxDpsDystans1h(6).maxDpsDystans2h(6).maxDpsPalna1h(6).maxDpsPalna2h(6).maxDpsBiala1h(6).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-12).minDpsBiala2h(9).minDpsDystans1h(9).minDpsDystans2h(9).minDpsPalna1h(9).minDpsPalna2h(9).minDpsBiala1h(9).maxDpsBiala2h(9).maxDpsDystans1h(9).maxDpsDystans2h(9).maxDpsPalna1h(9).maxDpsPalna2h(9).maxDpsBiala1h(9).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-12).minDpsBiala2h(12).minDpsDystans1h(12).minDpsDystans2h(12).minDpsPalna1h(12).minDpsPalna2h(12).minDpsBiala1h(12).maxDpsBiala2h(12).maxDpsDystans1h(12).maxDpsDystans2h(12).maxDpsPalna1h(12).maxDpsPalna2h(12).maxDpsBiala1h(12).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-12).minDpsBiala2h(9).minDpsDystans1h(9).minDpsDystans2h(9).minDpsPalna1h(9).minDpsPalna2h(9).minDpsBiala1h(9).maxDpsBiala2h(9).maxDpsDystans1h(9).maxDpsDystans2h(9).maxDpsPalna1h(9).maxDpsPalna2h(9).maxDpsBiala1h(9).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-12).minDpsBiala2h(13).minDpsDystans1h(13).minDpsDystans2h(13).minDpsPalna1h(13).minDpsPalna2h(13).minDpsBiala1h(13).maxDpsBiala2h(13).maxDpsDystans1h(13).maxDpsDystans2h(13).maxDpsPalna1h(13).maxDpsPalna2h(13).maxDpsBiala1h(13).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-12).minDpsBiala2h(17).minDpsDystans1h(17).minDpsDystans2h(17).minDpsPalna1h(17).minDpsPalna2h(17).minDpsBiala1h(17).maxDpsBiala2h(17).maxDpsDystans1h(17).maxDpsDystans2h(17).maxDpsPalna1h(17).maxDpsPalna2h(17).maxDpsBiala1h(17).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-12).minDpsBiala2h(21).minDpsDystans1h(21).minDpsDystans2h(21).minDpsPalna1h(21).minDpsPalna2h(21).minDpsBiala1h(21).maxDpsBiala2h(21).maxDpsDystans1h(21).maxDpsDystans2h(21).maxDpsPalna1h(21).maxDpsPalna2h(21).maxDpsBiala1h(21).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.07).critMultiBiala2h(0.07).critMultiPalna1h(0.07).critMultiPalna2h(0.07).critMultiDystans1h(0.07).critMultiDystans2h(0.07).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.11).critMultiBiala2h(0.11).critMultiPalna1h(0.11).critMultiPalna2h(0.11).critMultiDystans1h(0.11).critMultiDystans2h(0.11).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.14).critMultiBiala2h(0.14).critMultiPalna1h(0.14).critMultiPalna2h(0.14).critMultiDystans1h(0.14).critMultiDystans2h(0.14).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.10).critMultiBiala2h(0.10).critMultiPalna1h(0.10).critMultiPalna2h(0.10).critMultiDystans1h(0.10).critMultiDystans2h(0.10).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.15).critMultiBiala2h(0.15).critMultiPalna1h(0.15).critMultiPalna2h(0.15).critMultiDystans1h(0.15).critMultiDystans2h(0.15).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.19).critMultiBiala2h(0.19).critMultiPalna1h(0.19).critMultiPalna2h(0.19).critMultiDystans1h(0.19).critMultiDystans2h(0.19).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.25).critMultiBiala2h(0.25).critMultiPalna1h(0.25).critMultiPalna2h(0.25).critMultiDystans1h(0.25).critMultiDystans2h(0.25).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.ZWYKLY, PrefixType.RUNICZNE, Stats.builder().twardosc(0.01).obronaPrzedmiotow(15).szczescie(5).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOBRY, PrefixType.RUNICZNE, Stats.builder().twardosc(0.02).obronaPrzedmiotow(23).szczescie(8).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.DOSKONALY, PrefixType.RUNICZNE, Stats.builder().twardosc(0.02).obronaPrzedmiotow(30).szczescie(10).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, PrefixType.RUNICZNE, Stats.builder().twardosc(0.02).obronaPrzedmiotow(21).szczescie(7).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, PrefixType.RUNICZNE, Stats.builder().twardosc(0.03).obronaPrzedmiotow(32).szczescie(11).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, PrefixType.RUNICZNE, Stats.builder().twardosc(0.03).obronaPrzedmiotow(41).szczescie(14).build()));
-    prefixes.push(new Prefix(ItemGenre.CHEST, ItemRarity.EPICKI, PrefixType.RUNICZNE, Stats.builder().twardosc(0.05).obronaPrzedmiotow(52).szczescie(18).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.OZDOBNA, Stats.builder().obronaAffixu(-2).wyglad(3).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.UTWARDZANA, Stats.builder().obronaAffixu(2).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.ELEGANCKA, Stats.builder().wyglad(5).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.POMOCNA, Stats.builder().obronaAffixu(3).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.KOSZTOWNY, Stats.builder().wyglad(8).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.WZMOCNIONY, Stats.builder().obronaAffixu(5).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.MAGNETYCZNA, Stats.builder().inteligencja(2).wiedza(-4).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.ROGATA, Stats.builder().minDpsBiala2h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna1h(5).minDpsPalna2h(5).minDpsBiala1h(5).maxDpsBiala2h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna1h(5).maxDpsPalna2h(5).maxDpsBiala1h(5).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.BOJOWA, Stats.builder().obronaAffixu(10).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.ZLOSLIWA, Stats.builder().szczescie(5).punktyKrwi(0.05).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.LENIWA, Stats.builder().zwinnosc(-5).odpornosc(4).obronaAffixu(7).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.KULOODPORNE, Stats.builder().obronaAffixu(6).odpornosc(3).twardosc(0.01).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.SZTURMOWY, Stats.builder().obronaAffixu(12).twardosc(0.01).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.10).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.RUNICZNE, Stats.builder().szczescie(5).obronaAffixu(10).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.07).critMultiBiala2h(0.07).critMultiPalna1h(0.07).critMultiPalna2h(0.07).critMultiDystans1h(0.07).critMultiDystans2h(0.07).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.TYGRYSI, Stats.builder().zwinnosc(3).odpornosc(2).obronaAffixu(-8).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-5).minDpsBiala2h(4).minDpsDystans1h(4).minDpsDystans2h(4).minDpsPalna1h(4).minDpsPalna2h(4).minDpsBiala1h(4).maxDpsBiala2h(4).maxDpsDystans1h(4).maxDpsDystans2h(4).maxDpsPalna1h(4).maxDpsPalna2h(4).maxDpsBiala1h(4).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.RYTUALNY, Stats.builder().punktyKrwi(0.05).szczescie(15).build()));
+
+
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.WZMOCNIONY, Stats.builder().obronaAffixu(3).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.WLADCZA, Stats.builder().charyzma(3).wyglad(1).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.CWIEKOWANY, Stats.builder().obronaAffixu(5).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.LEKKI, Stats.builder().zwinnosc(3).obronaAffixu(-1).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.KULOODPORNE, Stats.builder().odpornosc(5).twardosc(0.01).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.LUSKOWA, Stats.builder().obronaAffixu(8).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.GIETKI, Stats.builder().zwinnosc(6).obronaAffixu(-2).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.PLYTOWA, Stats.builder().obronaAffixu(12).twardosc(0.02).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.SZAMANSKA, Stats.builder().punktyKrwi(0.05).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.LOWIECKA, Stats.builder().spostrzegawczosc(6).wiedza(4).critMultiPalna1h(-0.24).critMultiPalna2h(-0.24).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.ELFIE, Stats.builder().zwinnosc(8).obronaAffixu(-1).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.BOJOWA, Stats.builder().szczescie(5).obronaAffixu(5).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.TYGRYSI, Stats.builder().zwinnosc(6).obronaAffixu(-4).odpornosc(3).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.SMIERCIONOSNY, Stats.builder().odpornosc(-12).minDpsBiala2h(6).minDpsDystans1h(6).minDpsDystans2h(6).minDpsPalna1h(6).minDpsPalna2h(6).minDpsBiala1h(6).maxDpsBiala2h(6).maxDpsDystans1h(6).maxDpsDystans2h(6).maxDpsPalna1h(6).maxDpsPalna2h(6).maxDpsBiala1h(6).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.KRWAWY, Stats.builder().critMultiBiala1h(0.07).critMultiBiala2h(0.07).critMultiPalna1h(0.07).critMultiPalna2h(0.07).critMultiDystans1h(0.07).critMultiDystans2h(0.07).build()));
+    prefixes.push(new Prefix(ItemGenre.CHEST, PrefixType.RUNICZNE, Stats.builder().twardosc(0.01).obronaAffixu(15).szczescie(5).build()));
 
     this.armourPrefixCache = prefixes;
     return prefixes;
@@ -591,382 +151,64 @@ private static initializeLegsPrefix(): { szorty: Prefix[], inne: Prefix[] } {
 
     const suffixes: Suffix[] = [];
 
-      // HEAD
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.MISS, Stats.builder().sila(1).zwinnosc(1).odpornosc(1).wyglad(8).charyzma(1).wplywy(1).spostrzegawczosc(1).inteligencja(1).wiedza(1).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.MISS, Stats.builder().sila(2).zwinnosc(2).odpornosc(2).wyglad(12).charyzma(2).wplywy(2).spostrzegawczosc(2).inteligencja(2).wiedza(2).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.MISS, Stats.builder().sila(2).zwinnosc(2).odpornosc(2).wyglad(16).charyzma(2).wplywy(2).spostrzegawczosc(2).inteligencja(2).wiedza(2).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.MISS, Stats.builder().sila(2).zwinnosc(2).odpornosc(2).wyglad(11).charyzma(2).wplywy(2).spostrzegawczosc(2).inteligencja(2).wiedza(2).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.MISS, Stats.builder().sila(3).zwinnosc(3).odpornosc(3).wyglad(17).charyzma(3).wplywy(3).spostrzegawczosc(3).inteligencja(3).wiedza(3).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.MISS, Stats.builder().sila(3).zwinnosc(3).odpornosc(3).wyglad(22).charyzma(3).wplywy(3).spostrzegawczosc(3).inteligencja(3).wiedza(3).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.MISS, Stats.builder().sila(5).zwinnosc(5).odpornosc(5).wyglad(27).charyzma(5).wplywy(5).spostrzegawczosc(5).inteligencja(5).wiedza(5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.MISTERA, Stats.builder().sila(1).zwinnosc(1).odpornosc(1).wyglad(8).charyzma(1).wplywy(1).spostrzegawczosc(1).inteligencja(1).wiedza(1).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.MISTERA, Stats.builder().sila(2).zwinnosc(2).odpornosc(2).wyglad(12).charyzma(2).wplywy(2).spostrzegawczosc(2).inteligencja(2).wiedza(2).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.MISTERA, Stats.builder().sila(2).zwinnosc(2).odpornosc(2).wyglad(16).charyzma(2).wplywy(2).spostrzegawczosc(2).inteligencja(2).wiedza(2).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.MISTERA, Stats.builder().sila(2).zwinnosc(2).odpornosc(2).wyglad(11).charyzma(2).wplywy(2).spostrzegawczosc(2).inteligencja(2).wiedza(2).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.MISTERA, Stats.builder().sila(3).zwinnosc(3).odpornosc(3).wyglad(17).charyzma(3).wplywy(3).spostrzegawczosc(3).inteligencja(3).wiedza(3).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.MISTERA, Stats.builder().sila(3).zwinnosc(3).odpornosc(3).wyglad(22).charyzma(3).wplywy(3).spostrzegawczosc(3).inteligencja(3).wiedza(3).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.MISTERA, Stats.builder().sila(5).zwinnosc(5).odpornosc(5).wyglad(27).charyzma(5).wplywy(5).spostrzegawczosc(5).inteligencja(5).wiedza(5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.PODROZNIKA, Stats.builder().obronaPrzedmiotow(2).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.PODROZNIKA, Stats.builder().obronaPrzedmiotow(3).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.PODROZNIKA, Stats.builder().obronaPrzedmiotow(4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.PODROZNIKA, Stats.builder().obronaPrzedmiotow(3).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.PODROZNIKA, Stats.builder().obronaPrzedmiotow(5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.PODROZNIKA, Stats.builder().obronaPrzedmiotow(6).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.PODROZNIKA, Stats.builder().obronaPrzedmiotow(7).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.PRZEZORNOSCI, Stats.builder().spostrzegawczosc(2).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.PRZEZORNOSCI, Stats.builder().spostrzegawczosc(3).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.PRZEZORNOSCI, Stats.builder().spostrzegawczosc(4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.PRZEZORNOSCI, Stats.builder().spostrzegawczosc(3).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.PRZEZORNOSCI, Stats.builder().spostrzegawczosc(5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.PRZEZORNOSCI, Stats.builder().spostrzegawczosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.PRZEZORNOSCI, Stats.builder().spostrzegawczosc(7).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.WYTRZYMALOSCI, Stats.builder().obronaPrzedmiotow(4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.WYTRZYMALOSCI, Stats.builder().obronaPrzedmiotow(6).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.WYTRZYMALOSCI, Stats.builder().obronaPrzedmiotow(8).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.WYTRZYMALOSCI, Stats.builder().obronaPrzedmiotow(6).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.WYTRZYMALOSCI, Stats.builder().obronaPrzedmiotow(9).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.WYTRZYMALOSCI, Stats.builder().obronaPrzedmiotow(11).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.WYTRZYMALOSCI, Stats.builder().obronaPrzedmiotow(14).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.OCHRONY, Stats.builder().obronaPrzedmiotow(6).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.OCHRONY, Stats.builder().obronaPrzedmiotow(9).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.OCHRONY, Stats.builder().obronaPrzedmiotow(12).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.OCHRONY, Stats.builder().obronaPrzedmiotow(9).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.OCHRONY, Stats.builder().obronaPrzedmiotow(13).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.OCHRONY, Stats.builder().obronaPrzedmiotow(17).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.OCHRONY, Stats.builder().obronaPrzedmiotow(21).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.ZMYSLOW, Stats.builder().spostrzegawczosc(4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.ZMYSLOW, Stats.builder().spostrzegawczosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.ZMYSLOW, Stats.builder().spostrzegawczosc(8).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.ZMYSLOW, Stats.builder().spostrzegawczosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.ZMYSLOW, Stats.builder().spostrzegawczosc(9).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.ZMYSLOW, Stats.builder().spostrzegawczosc(11).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.ZMYSLOW, Stats.builder().spostrzegawczosc(14).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.NARKOMANA, Stats.builder().odpornosc(4).inteligencja(-6).wyglad(-5).sila(-5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.NARKOMANA, Stats.builder().odpornosc(6).inteligencja(-6).wyglad(-5).sila(-5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.NARKOMANA, Stats.builder().odpornosc(8).inteligencja(-6).wyglad(-5).sila(-5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.NARKOMANA, Stats.builder().odpornosc(6).inteligencja(-6).wyglad(-5).sila(-5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.NARKOMANA, Stats.builder().odpornosc(9).inteligencja(-6).wyglad(-5).sila(-5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.NARKOMANA, Stats.builder().odpornosc(11).inteligencja(-6).wyglad(-5).sila(-5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.NARKOMANA, Stats.builder().odpornosc(14).inteligencja(-6).wyglad(-5).sila(-5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.GLADIATORA, Stats.builder().obronaPrzedmiotow(7).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.GLADIATORA, Stats.builder().obronaPrzedmiotow(11).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.GLADIATORA, Stats.builder().obronaPrzedmiotow(14).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.GLADIATORA, Stats.builder().obronaPrzedmiotow(10).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.GLADIATORA, Stats.builder().obronaPrzedmiotow(15).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.GLADIATORA, Stats.builder().obronaPrzedmiotow(19).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.GLADIATORA, Stats.builder().obronaPrzedmiotow(25).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.WIESZCZA, Stats.builder().spostrzegawczosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.WIESZCZA, Stats.builder().spostrzegawczosc(9).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.WIESZCZA, Stats.builder().spostrzegawczosc(12).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.WIESZCZA, Stats.builder().spostrzegawczosc(9).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.WIESZCZA, Stats.builder().spostrzegawczosc(13).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.WIESZCZA, Stats.builder().spostrzegawczosc(17).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.WIESZCZA, Stats.builder().spostrzegawczosc(21).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.SMOCZEJ_LUSKI, Stats.builder().obronaPrzedmiotow(9).twardosc(0.01).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.SMOCZEJ_LUSKI, Stats.builder().obronaPrzedmiotow(14).twardosc(0.02).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.SMOCZEJ_LUSKI, Stats.builder().obronaPrzedmiotow(18).twardosc(0.02).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.SMOCZEJ_LUSKI, Stats.builder().obronaPrzedmiotow(13).twardosc(0.02).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.SMOCZEJ_LUSKI, Stats.builder().obronaPrzedmiotow(19).twardosc(0.03).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.SMOCZEJ_LUSKI, Stats.builder().obronaPrzedmiotow(25).twardosc(0.03).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.SMOCZEJ_LUSKI, Stats.builder().obronaPrzedmiotow(32).twardosc(0.05).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.MOCY, Stats.builder().obronaPrzedmiotow(10).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.MOCY, Stats.builder().obronaPrzedmiotow(15).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.MOCY, Stats.builder().obronaPrzedmiotow(20).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.MOCY, Stats.builder().obronaPrzedmiotow(14).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.MOCY, Stats.builder().obronaPrzedmiotow(21).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.MOCY, Stats.builder().obronaPrzedmiotow(27).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.MOCY, Stats.builder().obronaPrzedmiotow(34).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.KARY, Stats.builder().build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.KARY, Stats.builder().build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.KARY, Stats.builder().build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.KARY, Stats.builder().build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.KARY, Stats.builder().build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.KARY, Stats.builder().build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.KARY, Stats.builder().build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(7).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(11).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(14).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(10).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(15).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(19).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(25).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.KRWI, Stats.builder().punktyKrwi(-0.10).obronaPrzedmiotow(2 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.KRWI, Stats.builder().punktyKrwi(-0.10).obronaPrzedmiotow(3 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.KRWI, Stats.builder().punktyKrwi(-0.10).obronaPrzedmiotow(4 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.KRWI, Stats.builder().punktyKrwi(-0.10).obronaPrzedmiotow(3 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.KRWI, Stats.builder().punktyKrwi(-0.10).obronaPrzedmiotow(5 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.KRWI, Stats.builder().punktyKrwi(-0.10).obronaPrzedmiotow(6 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.KRWI, Stats.builder().punktyKrwi(-0.10).obronaPrzedmiotow(7 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.MAGII, Stats.builder().punktyKrwi(-0.07).obronaPrzedmiotow(2 * Math.floor(playerLvl / 4)).twardosc(0.01).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.MAGII, Stats.builder().punktyKrwi(-0.07).obronaPrzedmiotow(3 * Math.floor(playerLvl / 4)).twardosc(0.02).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.MAGII, Stats.builder().punktyKrwi(-0.07).obronaPrzedmiotow(4 * Math.floor(playerLvl / 4)).twardosc(0.02).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.MAGII, Stats.builder().punktyKrwi(-0.07).obronaPrzedmiotow(3 * Math.floor(playerLvl / 4)).twardosc(0.02).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.MAGII, Stats.builder().punktyKrwi(-0.07).obronaPrzedmiotow(5 * Math.floor(playerLvl / 4)).twardosc(0.03).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.MAGII, Stats.builder().punktyKrwi(-0.07).obronaPrzedmiotow(6 * Math.floor(playerLvl / 4)).twardosc(0.03).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.MAGII, Stats.builder().punktyKrwi(-0.07).obronaPrzedmiotow(7 * Math.floor(playerLvl / 4)).twardosc(0.05).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.ADRENALINY, Stats.builder().sila(4).spostrzegawczosc(-5).zwinnosc(3).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.ADRENALINY, Stats.builder().sila(6).spostrzegawczosc(-5).zwinnosc(5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.ADRENALINY, Stats.builder().sila(8).spostrzegawczosc(-5).zwinnosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.ADRENALINY, Stats.builder().sila(6).spostrzegawczosc(-5).zwinnosc(5).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.ADRENALINY, Stats.builder().sila(9).spostrzegawczosc(-5).zwinnosc(7).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.ADRENALINY, Stats.builder().sila(11).spostrzegawczosc(-5).zwinnosc(9).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.ADRENALINY, Stats.builder().sila(14).spostrzegawczosc(-5).zwinnosc(11).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.ZWYKLY, SuffixType.PREKOGNICJI, Stats.builder().spostrzegawczosc(10).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOBRY, SuffixType.PREKOGNICJI, Stats.builder().spostrzegawczosc(15).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.DOSKONALY, SuffixType.PREKOGNICJI, Stats.builder().spostrzegawczosc(20).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY, SuffixType.PREKOGNICJI, Stats.builder().spostrzegawczosc(14).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOBRY, SuffixType.PREKOGNICJI, Stats.builder().spostrzegawczosc(21).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.PREKOGNICJI, Stats.builder().spostrzegawczosc(27).build()));
-      suffixes.push(new Suffix(ItemGenre.HEAD, ItemRarity.EPICKI, SuffixType.PREKOGNICJI, Stats.builder().spostrzegawczosc(34).build()));
 
-      // CHEST
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.NARKOMANA, Stats.builder().sila(-1).wyglad(-2).zwinnosc(-1).inteligencja(-3).odpornosc(3).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.NARKOMANA, Stats.builder().sila(-1).wyglad(-2).zwinnosc(-1).inteligencja(-3).odpornosc(5).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.NARKOMANA, Stats.builder().sila(-1).wyglad(-2).zwinnosc(-1).inteligencja(-3).odpornosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.NARKOMANA, Stats.builder().sila(-1).wyglad(-2).zwinnosc(-1).inteligencja(-3).odpornosc(5).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.NARKOMANA, Stats.builder().sila(-1).wyglad(-2).zwinnosc(-1).inteligencja(-3).odpornosc(7).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.NARKOMANA, Stats.builder().sila(-1).wyglad(-2).zwinnosc(-1).inteligencja(-3).odpornosc(9).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.NARKOMANA, Stats.builder().sila(-1).wyglad(-2).zwinnosc(-1).inteligencja(-3).odpornosc(11).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.ZLODZIEJA, Stats.builder().zwinnosc(3).obronaPrzedmiotow(2).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.ZLODZIEJA, Stats.builder().zwinnosc(5).obronaPrzedmiotow(3).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.ZLODZIEJA, Stats.builder().zwinnosc(6).obronaPrzedmiotow(4).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.ZLODZIEJA, Stats.builder().zwinnosc(5).obronaPrzedmiotow(3).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.ZLODZIEJA, Stats.builder().zwinnosc(7).obronaPrzedmiotow(5).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.ZLODZIEJA, Stats.builder().zwinnosc(9).obronaPrzedmiotow(6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.ZLODZIEJA, Stats.builder().zwinnosc(11).obronaPrzedmiotow(7).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.STRAZNIKA, Stats.builder().obronaPrzedmiotow(3).minDpsBiala2h(2).minDpsBiala1h(2).minDpsDystans1h(2).minDpsDystans2h(2).minDpsPalna2h(2).minDpsPalna1h(2).maxDpsBiala2h(2).maxDpsBiala1h(2).maxDpsDystans1h(2).maxDpsDystans2h(2).maxDpsPalna2h(2).maxDpsPalna1h(2).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.STRAZNIKA, Stats.builder().obronaPrzedmiotow(5).minDpsBiala2h(3).minDpsBiala1h(3).minDpsDystans1h(3).minDpsDystans2h(3).minDpsPalna2h(3).minDpsPalna1h(3).maxDpsBiala2h(3).maxDpsBiala1h(3).maxDpsDystans1h(3).maxDpsDystans2h(3).maxDpsPalna2h(3).maxDpsPalna1h(3).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.STRAZNIKA, Stats.builder().obronaPrzedmiotow(6).minDpsBiala2h(4).minDpsBiala1h(4).minDpsDystans1h(4).minDpsDystans2h(4).minDpsPalna2h(4).minDpsPalna1h(4).maxDpsBiala2h(4).maxDpsBiala1h(4).maxDpsDystans1h(4).maxDpsDystans2h(4).maxDpsPalna2h(4).maxDpsPalna1h(4).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.STRAZNIKA, Stats.builder().obronaPrzedmiotow(5).minDpsBiala2h(3).minDpsBiala1h(3).minDpsDystans1h(3).minDpsDystans2h(3).minDpsPalna2h(3).minDpsPalna1h(3).maxDpsBiala2h(3).maxDpsBiala1h(3).maxDpsDystans1h(3).maxDpsDystans2h(3).maxDpsPalna2h(3).maxDpsPalna1h(3).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.STRAZNIKA, Stats.builder().obronaPrzedmiotow(7).minDpsBiala2h(5).minDpsBiala1h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna2h(5).minDpsPalna1h(5).maxDpsBiala2h(5).maxDpsBiala1h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna2h(5).maxDpsPalna1h(5).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.STRAZNIKA, Stats.builder().obronaPrzedmiotow(9).minDpsBiala2h(6).minDpsBiala1h(6).minDpsDystans1h(6).minDpsDystans2h(6).minDpsPalna2h(6).minDpsPalna1h(6).maxDpsBiala2h(6).maxDpsBiala1h(6).maxDpsDystans1h(6).maxDpsDystans2h(6).maxDpsPalna2h(6).maxDpsPalna1h(6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.STRAZNIKA, Stats.builder().obronaPrzedmiotow(11).minDpsBiala2h(7).minDpsBiala1h(7).minDpsDystans1h(7).minDpsDystans2h(7).minDpsPalna2h(7).minDpsPalna1h(7).maxDpsBiala2h(7).maxDpsBiala1h(7).maxDpsDystans1h(7).maxDpsDystans2h(7).maxDpsPalna2h(7).maxDpsPalna1h(7).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.SILACZA, Stats.builder().sila(8).zwinnosc(-6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.SILACZA, Stats.builder().sila(12).zwinnosc(-6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.SILACZA, Stats.builder().sila(16).zwinnosc(-6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.SILACZA, Stats.builder().sila(11).zwinnosc(-6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.SILACZA, Stats.builder().sila(17).zwinnosc(-6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.SILACZA, Stats.builder().sila(22).zwinnosc(-6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.SILACZA, Stats.builder().sila(27).zwinnosc(-6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.GWARDZISTY, Stats.builder().obronaPrzedmiotow(5).minDpsBiala2h(5).minDpsBiala1h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna2h(5).minDpsPalna1h(5).maxDpsBiala2h(5).maxDpsBiala1h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna2h(5).maxDpsPalna1h(5).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.GWARDZISTY, Stats.builder().obronaPrzedmiotow(8).minDpsBiala2h(8).minDpsBiala1h(8).minDpsDystans1h(8).minDpsDystans2h(8).minDpsPalna2h(8).minDpsPalna1h(8).maxDpsBiala2h(8).maxDpsBiala1h(8).maxDpsDystans1h(8).maxDpsDystans2h(8).maxDpsPalna2h(8).maxDpsPalna1h(8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.GWARDZISTY, Stats.builder().obronaPrzedmiotow(10).minDpsBiala2h(10).minDpsBiala1h(10).minDpsDystans1h(10).minDpsDystans2h(10).minDpsPalna2h(10).minDpsPalna1h(10).maxDpsBiala2h(10).maxDpsBiala1h(10).maxDpsDystans1h(10).maxDpsDystans2h(10).maxDpsPalna2h(10).maxDpsPalna1h(10).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.GWARDZISTY, Stats.builder().obronaPrzedmiotow(7).minDpsBiala2h(7).minDpsBiala1h(7).minDpsDystans1h(7).minDpsDystans2h(7).minDpsPalna2h(7).minDpsPalna1h(7).maxDpsBiala2h(7).maxDpsBiala1h(7).maxDpsDystans1h(7).maxDpsDystans2h(7).maxDpsPalna2h(7).maxDpsPalna1h(7).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.GWARDZISTY, Stats.builder().obronaPrzedmiotow(11).minDpsBiala2h(11).minDpsBiala1h(11).minDpsDystans1h(11).minDpsDystans2h(11).minDpsPalna2h(11).minDpsPalna1h(11).maxDpsBiala2h(11).maxDpsBiala1h(11).maxDpsDystans1h(11).maxDpsDystans2h(11).maxDpsPalna2h(11).maxDpsPalna1h(11).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.GWARDZISTY, Stats.builder().obronaPrzedmiotow(14).minDpsBiala2h(14).minDpsBiala1h(14).minDpsDystans1h(14).minDpsDystans2h(14).minDpsPalna2h(14).minDpsPalna1h(14).maxDpsBiala2h(14).maxDpsBiala1h(14).maxDpsDystans1h(14).maxDpsDystans2h(14).maxDpsPalna2h(14).maxDpsPalna1h(14).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.GWARDZISTY, Stats.builder().obronaPrzedmiotow(18).minDpsBiala2h(18).minDpsBiala1h(18).minDpsDystans1h(18).minDpsDystans2h(18).minDpsPalna2h(18).minDpsPalna1h(18).maxDpsBiala2h(18).maxDpsBiala1h(18).maxDpsDystans1h(18).maxDpsDystans2h(18).maxDpsPalna2h(18).maxDpsPalna1h(18).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.ADEPTA, Stats.builder().mnoznikObrony(0.25).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.ADEPTA, Stats.builder().mnoznikObrony(0.38).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.ADEPTA, Stats.builder().mnoznikObrony(0.50).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.ADEPTA, Stats.builder().mnoznikObrony(0.34).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.ADEPTA, Stats.builder().mnoznikObrony(0.52).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.ADEPTA, Stats.builder().mnoznikObrony(0.68).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.ADEPTA, Stats.builder().mnoznikObrony(0.86).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.ADRENALINY, Stats.builder().zwinnosc(5).spostrzegawczosc(-8).sila(4).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.ADRENALINY, Stats.builder().zwinnosc(8).spostrzegawczosc(-8).sila(6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.ADRENALINY, Stats.builder().zwinnosc(10).spostrzegawczosc(-8).sila(8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.ADRENALINY, Stats.builder().zwinnosc(7).spostrzegawczosc(-8).sila(6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.ADRENALINY, Stats.builder().zwinnosc(11).spostrzegawczosc(-8).sila(9).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.ADRENALINY, Stats.builder().zwinnosc(14).spostrzegawczosc(-8).sila(11).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.ADRENALINY, Stats.builder().zwinnosc(18).spostrzegawczosc(-8).sila(14).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.SKORUPYZOLWIA, Stats.builder().zwinnosc(-5).odpornosc(4).twardosc(0.01).obronaPrzedmiotow(14).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.SKORUPYZOLWIA, Stats.builder().zwinnosc(-5).odpornosc(6).twardosc(0.02).obronaPrzedmiotow(21).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.SKORUPYZOLWIA, Stats.builder().zwinnosc(-5).odpornosc(8).twardosc(0.02).obronaPrzedmiotow(28).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.SKORUPYZOLWIA, Stats.builder().zwinnosc(-5).odpornosc(6).twardosc(0.02).obronaPrzedmiotow(19).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.SKORUPYZOLWIA, Stats.builder().zwinnosc(-5).odpornosc(9).twardosc(0.03).obronaPrzedmiotow(29).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.SKORUPYZOLWIA, Stats.builder().zwinnosc(-5).odpornosc(11).twardosc(0.03).obronaPrzedmiotow(38).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.SKORUPYZOLWIA, Stats.builder().zwinnosc(-5).odpornosc(14).twardosc(0.05).obronaPrzedmiotow(48).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.ZABOJCY, Stats.builder().obronaPrzedmiotow(4).zwinnosc(4).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.ZABOJCY, Stats.builder().obronaPrzedmiotow(6).zwinnosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.ZABOJCY, Stats.builder().obronaPrzedmiotow(8).zwinnosc(8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.ZABOJCY, Stats.builder().obronaPrzedmiotow(6).zwinnosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.ZABOJCY, Stats.builder().obronaPrzedmiotow(9).zwinnosc(9).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.ZABOJCY, Stats.builder().obronaPrzedmiotow(11).zwinnosc(11).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.ZABOJCY, Stats.builder().obronaPrzedmiotow(14).zwinnosc(14).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.KOBRY, Stats.builder().obronaPrzedmiotow(2).zwinnosc(5).minDpsBiala2h(5).minDpsBiala1h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna2h(5).minDpsPalna1h(5).maxDpsBiala2h(5).maxDpsBiala1h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna2h(5).maxDpsPalna1h(5).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.KOBRY, Stats.builder().obronaPrzedmiotow(3).zwinnosc(8).minDpsBiala2h(8).minDpsBiala1h(8).minDpsDystans1h(8).minDpsDystans2h(8).minDpsPalna2h(8).minDpsPalna1h(8).maxDpsBiala2h(8).maxDpsBiala1h(8).maxDpsDystans1h(8).maxDpsDystans2h(8).maxDpsPalna2h(8).maxDpsPalna1h(8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.KOBRY, Stats.builder().obronaPrzedmiotow(4).zwinnosc(10).minDpsBiala2h(10).minDpsBiala1h(10).minDpsDystans1h(10).minDpsDystans2h(10).minDpsPalna2h(10).minDpsPalna1h(10).maxDpsBiala2h(10).maxDpsBiala1h(10).maxDpsDystans1h(10).maxDpsDystans2h(10).maxDpsPalna2h(10).maxDpsPalna1h(10).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.KOBRY, Stats.builder().obronaPrzedmiotow(3).zwinnosc(7).minDpsBiala2h(7).minDpsBiala1h(7).minDpsDystans1h(7).minDpsDystans2h(7).minDpsPalna2h(7).minDpsPalna1h(7).maxDpsBiala2h(7).maxDpsBiala1h(7).maxDpsDystans1h(7).maxDpsDystans2h(7).maxDpsPalna2h(7).maxDpsPalna1h(7).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.KOBRY, Stats.builder().obronaPrzedmiotow(5).zwinnosc(11).minDpsBiala2h(11).minDpsBiala1h(11).minDpsDystans1h(11).minDpsDystans2h(11).minDpsPalna2h(11).minDpsPalna1h(11).maxDpsBiala2h(11).maxDpsBiala1h(11).maxDpsDystans1h(11).maxDpsDystans2h(11).maxDpsPalna2h(11).maxDpsPalna1h(11).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.KOBRY, Stats.builder().obronaPrzedmiotow(6).zwinnosc(14).minDpsBiala2h(14).minDpsBiala1h(14).minDpsDystans1h(14).minDpsDystans2h(14).minDpsPalna2h(14).minDpsPalna1h(14).maxDpsBiala2h(14).maxDpsBiala1h(14).maxDpsDystans1h(14).maxDpsDystans2h(14).maxDpsPalna2h(14).maxDpsPalna1h(14).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.KOBRY, Stats.builder().obronaPrzedmiotow(7).zwinnosc(18).minDpsBiala2h(18).minDpsBiala1h(18).minDpsDystans1h(18).minDpsDystans2h(18).minDpsPalna2h(18).minDpsPalna1h(18).maxDpsBiala2h(18).maxDpsBiala1h(18).maxDpsDystans1h(18).maxDpsDystans2h(18).maxDpsPalna2h(18).maxDpsPalna1h(18).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.UNIKOW, Stats.builder().obronaPrzedmiotow(10).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.UNIKOW, Stats.builder().obronaPrzedmiotow(15).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.UNIKOW, Stats.builder().obronaPrzedmiotow(20).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.UNIKOW, Stats.builder().obronaPrzedmiotow(14).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.UNIKOW, Stats.builder().obronaPrzedmiotow(21).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.UNIKOW, Stats.builder().obronaPrzedmiotow(27).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.UNIKOW, Stats.builder().obronaPrzedmiotow(34).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.CENTURIONA, Stats.builder().obronaPrzedmiotow(10).minDpsBiala2h(8).minDpsBiala1h(8).minDpsDystans1h(8).minDpsDystans2h(8).minDpsPalna2h(8).minDpsPalna1h(8).maxDpsBiala2h(8).maxDpsBiala1h(8).maxDpsDystans1h(8).maxDpsDystans2h(8).maxDpsPalna2h(8).maxDpsPalna1h(8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.CENTURIONA, Stats.builder().obronaPrzedmiotow(15).minDpsBiala2h(12).minDpsBiala1h(12).minDpsDystans1h(12).minDpsDystans2h(12).minDpsPalna2h(12).minDpsPalna1h(12).maxDpsBiala2h(12).maxDpsBiala1h(12).maxDpsDystans1h(12).maxDpsDystans2h(12).maxDpsPalna2h(12).maxDpsPalna1h(12).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.CENTURIONA, Stats.builder().obronaPrzedmiotow(20).minDpsBiala2h(16).minDpsBiala1h(16).minDpsDystans1h(16).minDpsDystans2h(16).minDpsPalna2h(16).minDpsPalna1h(16).maxDpsBiala2h(16).maxDpsBiala1h(16).maxDpsDystans1h(16).maxDpsDystans2h(16).maxDpsPalna2h(16).maxDpsPalna1h(16).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.CENTURIONA, Stats.builder().obronaPrzedmiotow(14).minDpsBiala2h(11).minDpsBiala1h(11).minDpsDystans1h(11).minDpsDystans2h(11).minDpsPalna2h(11).minDpsPalna1h(11).maxDpsBiala2h(11).maxDpsBiala1h(11).maxDpsDystans1h(11).maxDpsDystans2h(11).maxDpsPalna2h(11).maxDpsPalna1h(11).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.CENTURIONA, Stats.builder().obronaPrzedmiotow(21).minDpsBiala2h(17).minDpsBiala1h(17).minDpsDystans1h(17).minDpsDystans2h(17).minDpsPalna2h(17).minDpsPalna1h(17).maxDpsBiala2h(17).maxDpsBiala1h(17).maxDpsDystans1h(17).maxDpsDystans2h(17).maxDpsPalna2h(17).maxDpsPalna1h(17).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.CENTURIONA, Stats.builder().obronaPrzedmiotow(27).minDpsBiala2h(22).minDpsBiala1h(22).minDpsDystans1h(22).minDpsDystans2h(22).minDpsPalna2h(22).minDpsPalna1h(22).maxDpsBiala2h(22).maxDpsBiala1h(22).maxDpsDystans1h(22).maxDpsDystans2h(22).maxDpsPalna2h(22).maxDpsPalna1h(22).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.CENTURIONA, Stats.builder().obronaPrzedmiotow(34).minDpsBiala2h(27).minDpsBiala1h(27).minDpsDystans1h(27).minDpsDystans2h(27).minDpsPalna2h(27).minDpsPalna1h(27).maxDpsBiala2h(27).maxDpsBiala1h(27).maxDpsDystans1h(27).maxDpsDystans2h(27).maxDpsPalna2h(27).maxDpsPalna1h(27).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.SZERMIERZA, Stats.builder().mnoznikObrony(0.50).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.SZERMIERZA, Stats.builder().mnoznikObrony(0.75).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.SZERMIERZA, Stats.builder().mnoznikObrony(1.00).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.SZERMIERZA, Stats.builder().mnoznikObrony(0.68).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.SZERMIERZA, Stats.builder().mnoznikObrony(1.02).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.SZERMIERZA, Stats.builder().mnoznikObrony(1.35).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.SZERMIERZA, Stats.builder().mnoznikObrony(1.69).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.KALIGULI, Stats.builder().obronaPrzedmiotow(10).minDpsBiala2h(10).minDpsBiala1h(10).minDpsDystans1h(10).minDpsDystans2h(10).minDpsPalna2h(10).minDpsPalna1h(10).maxDpsBiala2h(10).maxDpsBiala1h(10).maxDpsDystans1h(10).maxDpsDystans2h(10).maxDpsPalna2h(10).maxDpsPalna1h(10).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.KALIGULI, Stats.builder().obronaPrzedmiotow(15).minDpsBiala2h(15).minDpsBiala1h(15).minDpsDystans1h(15).minDpsDystans2h(15).minDpsPalna2h(15).minDpsPalna1h(15).maxDpsBiala2h(15).maxDpsBiala1h(15).maxDpsDystans1h(15).maxDpsDystans2h(15).maxDpsPalna2h(15).maxDpsPalna1h(15).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.KALIGULI, Stats.builder().obronaPrzedmiotow(20).minDpsBiala2h(20).minDpsBiala1h(20).minDpsDystans1h(20).minDpsDystans2h(20).minDpsPalna2h(20).minDpsPalna1h(20).maxDpsBiala2h(20).maxDpsBiala1h(20).maxDpsDystans1h(20).maxDpsDystans2h(20).maxDpsPalna2h(20).maxDpsPalna1h(20).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.KALIGULI, Stats.builder().obronaPrzedmiotow(14).minDpsBiala2h(14).minDpsBiala1h(14).minDpsDystans1h(14).minDpsDystans2h(14).minDpsPalna2h(14).minDpsPalna1h(14).maxDpsBiala2h(14).maxDpsBiala1h(14).maxDpsDystans1h(14).maxDpsDystans2h(14).maxDpsPalna2h(14).maxDpsPalna1h(14).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.KALIGULI, Stats.builder().obronaPrzedmiotow(21).minDpsBiala2h(21).minDpsBiala1h(21).minDpsDystans1h(21).minDpsDystans2h(21).minDpsPalna2h(21).minDpsPalna1h(21).maxDpsBiala2h(21).maxDpsBiala1h(21).maxDpsDystans1h(21).maxDpsDystans2h(21).maxDpsPalna2h(21).maxDpsPalna1h(21).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.KALIGULI, Stats.builder().obronaPrzedmiotow(27).minDpsBiala2h(27).minDpsBiala1h(27).minDpsDystans1h(27).minDpsDystans2h(27).minDpsPalna2h(27).minDpsPalna1h(27).maxDpsBiala2h(27).maxDpsBiala1h(27).maxDpsDystans1h(27).maxDpsDystans2h(27).maxDpsPalna2h(27).maxDpsPalna1h(27).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.KALIGULI, Stats.builder().obronaPrzedmiotow(34).minDpsBiala2h(34).minDpsBiala1h(34).minDpsDystans1h(34).minDpsDystans2h(34).minDpsPalna2h(34).minDpsPalna1h(34).maxDpsBiala2h(34).maxDpsBiala1h(34).maxDpsDystans1h(34).maxDpsDystans2h(34).maxDpsPalna2h(34).maxDpsPalna1h(34).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.ODPORNOSCI, Stats.builder().obronaPrzedmiotow(20).twardosc(0.02).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.ODPORNOSCI, Stats.builder().obronaPrzedmiotow(30).twardosc(0.03).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.ODPORNOSCI, Stats.builder().obronaPrzedmiotow(40).twardosc(0.04).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.ODPORNOSCI, Stats.builder().obronaPrzedmiotow(27).twardosc(0.03).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.ODPORNOSCI, Stats.builder().obronaPrzedmiotow(41).twardosc(0.05).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.ODPORNOSCI, Stats.builder().obronaPrzedmiotow(54).twardosc(0.06).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.ODPORNOSCI, Stats.builder().obronaPrzedmiotow(68).twardosc(0.07).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.GRABIEZCY, Stats.builder().szczescie(5).charyzma(-8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.GRABIEZCY, Stats.builder().szczescie(8).charyzma(-8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.GRABIEZCY, Stats.builder().szczescie(10).charyzma(-8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.GRABIEZCY, Stats.builder().szczescie(7).charyzma(-8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.GRABIEZCY, Stats.builder().szczescie(11).charyzma(-8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.GRABIEZCY, Stats.builder().szczescie(14).charyzma(-8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.GRABIEZCY, Stats.builder().szczescie(18).charyzma(-8).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.MISTRZA, Stats.builder().mnoznikObrony(0.75).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.MISTRZA, Stats.builder().mnoznikObrony(1.13).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.MISTRZA, Stats.builder().mnoznikObrony(1.50).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.MISTRZA, Stats.builder().mnoznikObrony(1.02).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.MISTRZA, Stats.builder().mnoznikObrony(1.53).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.MISTRZA, Stats.builder().mnoznikObrony(2.03).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.MISTRZA, Stats.builder().mnoznikObrony(2.54).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.ORCHIDEI, Stats.builder().obronaPrzedmiotow(-10).ignoreObrony(0.05).minDpsBiala2h(2 * Math.floor(playerLvl / 4)).minDpsBiala1h(2 * Math.floor(playerLvl / 4)).minDpsDystans1h(2 * Math.floor(playerLvl / 4)).minDpsDystans2h(2 * Math.floor(playerLvl / 4)).minDpsPalna2h(2 * Math.floor(playerLvl / 4)).minDpsPalna1h(2 * Math.floor(playerLvl / 4)).maxDpsBiala2h(2 * Math.floor(playerLvl / 4)).maxDpsBiala1h(2 * Math.floor(playerLvl / 4)).maxDpsDystans1h(2 * Math.floor(playerLvl / 4)).maxDpsDystans2h(2 * Math.floor(playerLvl / 4)).maxDpsPalna2h(2 * Math.floor(playerLvl / 4)).maxDpsPalna1h(2 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.ORCHIDEI, Stats.builder().obronaPrzedmiotow(-10).ignoreObrony(0.08).minDpsBiala2h(3 * Math.floor(playerLvl / 4)).minDpsBiala1h(3 * Math.floor(playerLvl / 4)).minDpsDystans1h(3 * Math.floor(playerLvl / 4)).minDpsDystans2h(3 * Math.floor(playerLvl / 4)).minDpsPalna2h(3 * Math.floor(playerLvl / 4)).minDpsPalna1h(3 * Math.floor(playerLvl / 4)).maxDpsBiala2h(3 * Math.floor(playerLvl / 4)).maxDpsBiala1h(3 * Math.floor(playerLvl / 4)).maxDpsDystans1h(3 * Math.floor(playerLvl / 4)).maxDpsDystans2h(3 * Math.floor(playerLvl / 4)).maxDpsPalna2h(3 * Math.floor(playerLvl / 4)).maxDpsPalna1h(3 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.ORCHIDEI, Stats.builder().obronaPrzedmiotow(-10).ignoreObrony(0.10).minDpsBiala2h(4 * Math.floor(playerLvl / 4)).minDpsBiala1h(4 * Math.floor(playerLvl / 4)).minDpsDystans1h(4 * Math.floor(playerLvl / 4)).minDpsDystans2h(4 * Math.floor(playerLvl / 4)).minDpsPalna2h(4 * Math.floor(playerLvl / 4)).minDpsPalna1h(4 * Math.floor(playerLvl / 4)).maxDpsBiala2h(4 * Math.floor(playerLvl / 4)).maxDpsBiala1h(4 * Math.floor(playerLvl / 4)).maxDpsDystans1h(4 * Math.floor(playerLvl / 4)).maxDpsDystans2h(4 * Math.floor(playerLvl / 4)).maxDpsPalna2h(4 * Math.floor(playerLvl / 4)).maxDpsPalna1h(4 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.ORCHIDEI, Stats.builder().obronaPrzedmiotow(-10).ignoreObrony(0.07).minDpsBiala2h(3 * Math.floor(playerLvl / 4)).minDpsBiala1h(3 * Math.floor(playerLvl / 4)).minDpsDystans1h(3 * Math.floor(playerLvl / 4)).minDpsDystans2h(3 * Math.floor(playerLvl / 4)).minDpsPalna2h(3 * Math.floor(playerLvl / 4)).minDpsPalna1h(3 * Math.floor(playerLvl / 4)).maxDpsBiala2h(3 * Math.floor(playerLvl / 4)).maxDpsBiala1h(3 * Math.floor(playerLvl / 4)).maxDpsDystans1h(3 * Math.floor(playerLvl / 4)).maxDpsDystans2h(3 * Math.floor(playerLvl / 4)).maxDpsPalna2h(3 * Math.floor(playerLvl / 4)).maxDpsPalna1h(3 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.ORCHIDEI, Stats.builder().obronaPrzedmiotow(-10).ignoreObrony(0.11).minDpsBiala2h(5 * Math.floor(playerLvl / 4)).minDpsBiala1h(5 * Math.floor(playerLvl / 4)).minDpsDystans1h(5 * Math.floor(playerLvl / 4)).minDpsDystans2h(5 * Math.floor(playerLvl / 4)).minDpsPalna2h(5 * Math.floor(playerLvl / 4)).minDpsPalna1h(5 * Math.floor(playerLvl / 4)).maxDpsBiala2h(5 * Math.floor(playerLvl / 4)).maxDpsBiala1h(5 * Math.floor(playerLvl / 4)).maxDpsDystans1h(5 * Math.floor(playerLvl / 4)).maxDpsDystans2h(5 * Math.floor(playerLvl / 4)).maxDpsPalna2h(5 * Math.floor(playerLvl / 4)).maxDpsPalna1h(5 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.ORCHIDEI, Stats.builder().obronaPrzedmiotow(-10).ignoreObrony(0.14).minDpsBiala2h(6 * Math.floor(playerLvl / 4)).minDpsBiala1h(6 * Math.floor(playerLvl / 4)).minDpsDystans1h(6 * Math.floor(playerLvl / 4)).minDpsDystans2h(6 * Math.floor(playerLvl / 4)).minDpsPalna2h(6 * Math.floor(playerLvl / 4)).minDpsPalna1h(6 * Math.floor(playerLvl / 4)).maxDpsBiala2h(6 * Math.floor(playerLvl / 4)).maxDpsBiala1h(6 * Math.floor(playerLvl / 4)).maxDpsDystans1h(6 * Math.floor(playerLvl / 4)).maxDpsDystans2h(6 * Math.floor(playerLvl / 4)).maxDpsPalna2h(6 * Math.floor(playerLvl / 4)).maxDpsPalna1h(6 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.ORCHIDEI, Stats.builder().obronaPrzedmiotow(-10).ignoreObrony(0.18).minDpsBiala2h(7 * Math.floor(playerLvl / 4)).minDpsBiala1h(7 * Math.floor(playerLvl / 4)).minDpsDystans1h(7 * Math.floor(playerLvl / 4)).minDpsDystans2h(7 * Math.floor(playerLvl / 4)).minDpsPalna2h(7 * Math.floor(playerLvl / 4)).minDpsPalna1h(7 * Math.floor(playerLvl / 4)).maxDpsBiala2h(7 * Math.floor(playerLvl / 4)).maxDpsBiala1h(7 * Math.floor(playerLvl / 4)).maxDpsDystans1h(7 * Math.floor(playerLvl / 4)).maxDpsDystans2h(7 * Math.floor(playerLvl / 4)).maxDpsPalna2h(7 * Math.floor(playerLvl / 4)).maxDpsPalna1h(7 * Math.floor(playerLvl / 4)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.SIEWCY_SMIERCI, Stats.builder().zwinnosc(20).obronaPrzedmiotow(5).minDpsBiala2h(2 * Math.floor(playerLvl / 6)).minDpsBiala1h(2 * Math.floor(playerLvl / 6)).minDpsDystans1h(2 * Math.floor(playerLvl / 6)).minDpsDystans2h(2 * Math.floor(playerLvl / 6)).minDpsPalna2h(2 * Math.floor(playerLvl / 6)).minDpsPalna1h(2 * Math.floor(playerLvl / 6)).maxDpsBiala2h(2 * Math.floor(playerLvl / 6)).maxDpsBiala1h(2 * Math.floor(playerLvl / 6)).maxDpsDystans1h(2 * Math.floor(playerLvl / 6)).maxDpsDystans2h(2 * Math.floor(playerLvl / 6)).maxDpsPalna2h(2 * Math.floor(playerLvl / 6)).maxDpsPalna1h(2 * Math.floor(playerLvl / 6)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.SIEWCY_SMIERCI, Stats.builder().zwinnosc(30).obronaPrzedmiotow(8).minDpsBiala2h(3 * Math.floor(playerLvl / 6)).minDpsBiala1h(3 * Math.floor(playerLvl / 6)).minDpsDystans1h(3 * Math.floor(playerLvl / 6)).minDpsDystans2h(3 * Math.floor(playerLvl / 6)).minDpsPalna2h(3 * Math.floor(playerLvl / 6)).minDpsPalna1h(3 * Math.floor(playerLvl / 6)).maxDpsBiala2h(3 * Math.floor(playerLvl / 6)).maxDpsBiala1h(3 * Math.floor(playerLvl / 6)).maxDpsDystans1h(3 * Math.floor(playerLvl / 6)).maxDpsDystans2h(3 * Math.floor(playerLvl / 6)).maxDpsPalna2h(3 * Math.floor(playerLvl / 6)).maxDpsPalna1h(3 * Math.floor(playerLvl / 6)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.SIEWCY_SMIERCI, Stats.builder().zwinnosc(40).obronaPrzedmiotow(10).minDpsBiala2h(4 * Math.floor(playerLvl / 6)).minDpsBiala1h(4 * Math.floor(playerLvl / 6)).minDpsDystans1h(4 * Math.floor(playerLvl / 6)).minDpsDystans2h(4 * Math.floor(playerLvl / 6)).minDpsPalna2h(4 * Math.floor(playerLvl / 6)).minDpsPalna1h(4 * Math.floor(playerLvl / 6)).maxDpsBiala2h(4 * Math.floor(playerLvl / 6)).maxDpsBiala1h(4 * Math.floor(playerLvl / 6)).maxDpsDystans1h(4 * Math.floor(playerLvl / 6)).maxDpsDystans2h(4 * Math.floor(playerLvl / 6)).maxDpsPalna2h(4 * Math.floor(playerLvl / 6)).maxDpsPalna1h(4 * Math.floor(playerLvl / 6)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.SIEWCY_SMIERCI, Stats.builder().zwinnosc(27).obronaPrzedmiotow(7).minDpsBiala2h(3 * Math.floor(playerLvl / 6)).minDpsBiala1h(3 * Math.floor(playerLvl / 6)).minDpsDystans1h(3 * Math.floor(playerLvl / 6)).minDpsDystans2h(3 * Math.floor(playerLvl / 6)).minDpsPalna2h(3 * Math.floor(playerLvl / 6)).minDpsPalna1h(3 * Math.floor(playerLvl / 6)).maxDpsBiala2h(3 * Math.floor(playerLvl / 6)).maxDpsBiala1h(3 * Math.floor(playerLvl / 6)).maxDpsDystans1h(3 * Math.floor(playerLvl / 6)).maxDpsDystans2h(3 * Math.floor(playerLvl / 6)).maxDpsPalna2h(3 * Math.floor(playerLvl / 6)).maxDpsPalna1h(3 * Math.floor(playerLvl / 6)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.SIEWCY_SMIERCI, Stats.builder().zwinnosc(41).obronaPrzedmiotow(11).minDpsBiala2h(5 * Math.floor(playerLvl / 6)).minDpsBiala1h(5 * Math.floor(playerLvl / 6)).minDpsDystans1h(5 * Math.floor(playerLvl / 6)).minDpsDystans2h(5 * Math.floor(playerLvl / 6)).minDpsPalna2h(5 * Math.floor(playerLvl / 6)).minDpsPalna1h(5 * Math.floor(playerLvl / 6)).maxDpsBiala2h(5 * Math.floor(playerLvl / 6)).maxDpsBiala1h(5 * Math.floor(playerLvl / 6)).maxDpsDystans1h(5 * Math.floor(playerLvl / 6)).maxDpsDystans2h(5 * Math.floor(playerLvl / 6)).maxDpsPalna2h(5 * Math.floor(playerLvl / 6)).maxDpsPalna1h(5 * Math.floor(playerLvl / 6)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.SIEWCY_SMIERCI, Stats.builder().zwinnosc(54).obronaPrzedmiotow(14).minDpsBiala2h(6 * Math.floor(playerLvl / 6)).minDpsBiala1h(6 * Math.floor(playerLvl / 6)).minDpsDystans1h(6 * Math.floor(playerLvl / 6)).minDpsDystans2h(6 * Math.floor(playerLvl / 6)).minDpsPalna2h(6 * Math.floor(playerLvl / 6)).minDpsPalna1h(6 * Math.floor(playerLvl / 6)).maxDpsBiala2h(6 * Math.floor(playerLvl / 6)).maxDpsBiala1h(6 * Math.floor(playerLvl / 6)).maxDpsDystans1h(6 * Math.floor(playerLvl / 6)).maxDpsDystans2h(6 * Math.floor(playerLvl / 6)).maxDpsPalna2h(6 * Math.floor(playerLvl / 6)).maxDpsPalna1h(6 * Math.floor(playerLvl / 6)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.SIEWCY_SMIERCI, Stats.builder().zwinnosc(68).obronaPrzedmiotow(18).minDpsBiala2h(7 * Math.floor(playerLvl / 6)).minDpsBiala1h(7 * Math.floor(playerLvl / 6)).minDpsDystans1h(7 * Math.floor(playerLvl / 6)).minDpsDystans2h(7 * Math.floor(playerLvl / 6)).minDpsPalna2h(7 * Math.floor(playerLvl / 6)).minDpsPalna1h(7 * Math.floor(playerLvl / 6)).maxDpsBiala2h(7 * Math.floor(playerLvl / 6)).maxDpsBiala1h(7 * Math.floor(playerLvl / 6)).maxDpsDystans1h(7 * Math.floor(playerLvl / 6)).maxDpsDystans2h(7 * Math.floor(playerLvl / 6)).maxDpsPalna2h(7 * Math.floor(playerLvl / 6)).maxDpsPalna1h(7 * Math.floor(playerLvl / 6)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.ZWYKLY, SuffixType.SZYBKOSCI, Stats.builder().atakiBiala(2).atakiDystans1h(2).atakiDystans2h(2).atakiPalna(2).critChancePalna1h(-0.40).critChancePalna2h(-0.80).critMultiPalna2h(0.01 * (playerLvl / 4.0)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOBRY, SuffixType.SZYBKOSCI, Stats.builder().atakiBiala(3).atakiDystans1h(3).atakiDystans2h(3).atakiPalna(3).critChancePalna1h(-0.40).critChancePalna2h(-0.80).critMultiPalna2h(0.02 * (playerLvl / 4.0)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.DOSKONALY, SuffixType.SZYBKOSCI, Stats.builder().atakiBiala(4).atakiDystans1h(4).atakiDystans2h(4).atakiPalna(4).critChancePalna1h(-0.40).critChancePalna2h(-0.80).critMultiPalna2h(0.02 * (playerLvl / 4.0)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY, SuffixType.SZYBKOSCI, Stats.builder().atakiBiala(3).atakiDystans1h(3).atakiDystans2h(3).atakiPalna(3).critChancePalna1h(-0.40).critChancePalna2h(-0.80).critMultiPalna2h(0.02 * (playerLvl / 4.0)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOBRY, SuffixType.SZYBKOSCI, Stats.builder().atakiBiala(5).atakiDystans1h(5).atakiDystans2h(5).atakiPalna(5).critChancePalna1h(-0.40).critChancePalna2h(-0.80).critMultiPalna2h(0.03 * (playerLvl / 4.0)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.SZYBKOSCI, Stats.builder().atakiBiala(6).atakiDystans1h(6).atakiDystans2h(6).atakiPalna(6).critChancePalna1h(-0.40).critChancePalna2h(-0.80).critMultiPalna2h(0.03 * (playerLvl / 4.0)).build()));
-      suffixes.push(new Suffix(ItemGenre.CHEST, ItemRarity.EPICKI, SuffixType.SZYBKOSCI, Stats.builder().atakiBiala(7).atakiDystans1h(7).atakiDystans2h(7).atakiPalna(7).critChancePalna1h(-0.40).critChancePalna2h(-0.80).critMultiPalna2h(0.05 * (playerLvl / 4.0)).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.MISS, Stats.builder().sila(1).zwinnosc(1).odpornosc(1).wyglad(8).charyzma(1).wplywy(1).spostrzegawczosc(1).inteligencja(1).wiedza(1).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.MISTERA, Stats.builder().sila(1).zwinnosc(1).odpornosc(1).wyglad(8).charyzma(1).wplywy(1).spostrzegawczosc(1).inteligencja(1).wiedza(1).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.PODROZNIKA, Stats.builder().obronaAffixu(2).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.PRZEZORNOSCI, Stats.builder().spostrzegawczosc(2).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.WYTRZYMALOSCI, Stats.builder().obronaAffixu(4).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.OCHRONY, Stats.builder().obronaAffixu(6).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.ZMYSLOW, Stats.builder().spostrzegawczosc(4).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.NARKOMANA, Stats.builder().odpornosc(4).inteligencja(-6).wyglad(-5).sila(-5).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.GLADIATORA, Stats.builder().obronaAffixu(7).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.WIESZCZA, Stats.builder().spostrzegawczosc(6).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.SMOCZEJ_LUSKI, Stats.builder().obronaAffixu(9).twardosc(0.01).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.MOCY, Stats.builder().obronaAffixu(10).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.KARY, Stats.builder().build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(7).odpornosc(-4).obronaAffixu(-4).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.KRWI, Stats.builder().punktyKrwi(-0.10).obronaAffixu(0.1).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.MAGII, Stats.builder().punktyKrwi(-0.07).obronaAffixu(0.1).twardosc(0.01).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.ADRENALINY, Stats.builder().sila(4).spostrzegawczosc(-5).zwinnosc(3).build()));
+    suffixes.push(new Suffix(ItemGenre.HEAD, SuffixType.PREKOGNICJI, Stats.builder().spostrzegawczosc(10).build()));
 
-      // LEGS
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.NARKOMANA, Stats.builder().sila(-6).wyglad(-3).zwinnosc(-1).inteligencja(-3).odpornosc(3).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.NARKOMANA, Stats.builder().sila(-6).wyglad(-3).zwinnosc(-1).inteligencja(-3).odpornosc(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.NARKOMANA, Stats.builder().sila(-6).wyglad(-3).zwinnosc(-1).inteligencja(-3).odpornosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.NARKOMANA, Stats.builder().sila(-6).wyglad(-3).zwinnosc(-1).inteligencja(-3).odpornosc(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.NARKOMANA, Stats.builder().sila(-6).wyglad(-3).zwinnosc(-1).inteligencja(-3).odpornosc(7).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.NARKOMANA, Stats.builder().sila(-6).wyglad(-3).zwinnosc(-1).inteligencja(-3).odpornosc(9).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.NARKOMANA, Stats.builder().sila(-6).wyglad(-3).zwinnosc(-1).inteligencja(-3).odpornosc(11).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.SILACZA, Stats.builder().zwinnosc(-4).sila(4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.SILACZA, Stats.builder().zwinnosc(-4).sila(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.SILACZA, Stats.builder().zwinnosc(-4).sila(8).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.SILACZA, Stats.builder().zwinnosc(-4).sila(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.SILACZA, Stats.builder().zwinnosc(-4).sila(9).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.SILACZA, Stats.builder().zwinnosc(-4).sila(11).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.SILACZA, Stats.builder().zwinnosc(-4).sila(14).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.RZEZIMIESZKA, Stats.builder().wplywy(3).obronaPrzedmiotow(2).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.RZEZIMIESZKA, Stats.builder().wplywy(5).obronaPrzedmiotow(3).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.RZEZIMIESZKA, Stats.builder().wplywy(6).obronaPrzedmiotow(4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.RZEZIMIESZKA, Stats.builder().wplywy(5).obronaPrzedmiotow(3).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.RZEZIMIESZKA, Stats.builder().wplywy(7).obronaPrzedmiotow(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.RZEZIMIESZKA, Stats.builder().wplywy(9).obronaPrzedmiotow(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.RZEZIMIESZKA, Stats.builder().wplywy(11).obronaPrzedmiotow(7).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(2).zwinnosc(2).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(3).zwinnosc(3).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(4).zwinnosc(4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(3).zwinnosc(3).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(5).zwinnosc(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(6).zwinnosc(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(7).zwinnosc(7).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.SKRYTOSCI, Stats.builder().wplywy(3).zwinnosc(4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.SKRYTOSCI, Stats.builder().wplywy(5).zwinnosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.SKRYTOSCI, Stats.builder().wplywy(6).zwinnosc(8).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.SKRYTOSCI, Stats.builder().wplywy(5).zwinnosc(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.SKRYTOSCI, Stats.builder().wplywy(7).zwinnosc(9).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.SKRYTOSCI, Stats.builder().wplywy(9).zwinnosc(11).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.SKRYTOSCI, Stats.builder().wplywy(11).zwinnosc(14).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.PRZEMYTNIKA, Stats.builder().wplywy(5).obronaPrzedmiotow(4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.PRZEMYTNIKA, Stats.builder().wplywy(8).obronaPrzedmiotow(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.PRZEMYTNIKA, Stats.builder().wplywy(10).obronaPrzedmiotow(8).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.PRZEMYTNIKA, Stats.builder().wplywy(7).obronaPrzedmiotow(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.PRZEMYTNIKA, Stats.builder().wplywy(11).obronaPrzedmiotow(9).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.PRZEMYTNIKA, Stats.builder().wplywy(14).obronaPrzedmiotow(11).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.PRZEMYTNIKA, Stats.builder().wplywy(18).obronaPrzedmiotow(14).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.SLONCA, Stats.builder().spostrzegawczosc(2).wyglad(2).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.SLONCA, Stats.builder().spostrzegawczosc(3).wyglad(3).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.SLONCA, Stats.builder().spostrzegawczosc(4).wyglad(4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.SLONCA, Stats.builder().spostrzegawczosc(3).wyglad(3).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.SLONCA, Stats.builder().spostrzegawczosc(5).wyglad(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.SLONCA, Stats.builder().spostrzegawczosc(6).wyglad(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.SLONCA, Stats.builder().spostrzegawczosc(7).wyglad(7).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.LOWCYCIENI, Stats.builder().zwinnosc(6).wplywy(4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.LOWCYCIENI, Stats.builder().zwinnosc(9).wplywy(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.LOWCYCIENI, Stats.builder().zwinnosc(12).wplywy(8).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.LOWCYCIENI, Stats.builder().zwinnosc(9).wplywy(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.LOWCYCIENI, Stats.builder().zwinnosc(13).wplywy(9).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.LOWCYCIENI, Stats.builder().zwinnosc(17).wplywy(11).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.LOWCYCIENI, Stats.builder().zwinnosc(21).wplywy(14).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.HANDLARZABRONIA, Stats.builder().obronaPrzedmiotow(6).wplywy(7).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.HANDLARZABRONIA, Stats.builder().obronaPrzedmiotow(9).wplywy(11).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.HANDLARZABRONIA, Stats.builder().obronaPrzedmiotow(12).wplywy(14).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.HANDLARZABRONIA, Stats.builder().obronaPrzedmiotow(9).wplywy(10).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.HANDLARZABRONIA, Stats.builder().obronaPrzedmiotow(13).wplywy(15).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.HANDLARZABRONIA, Stats.builder().obronaPrzedmiotow(17).wplywy(19).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.HANDLARZABRONIA, Stats.builder().obronaPrzedmiotow(21).wplywy(25).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.INKOW, Stats.builder().odpornosc(3).wiedza(3).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.INKOW, Stats.builder().odpornosc(5).wiedza(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.INKOW, Stats.builder().odpornosc(6).wiedza(6).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.INKOW, Stats.builder().odpornosc(5).wiedza(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.INKOW, Stats.builder().odpornosc(7).wiedza(7).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.INKOW, Stats.builder().odpornosc(9).wiedza(9).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.INKOW, Stats.builder().odpornosc(11).wiedza(11).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.UNIKOW, Stats.builder().zwinnosc(5).unikBiala(0.02).unikDystans(0.02).unikPalna(0.02).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.UNIKOW, Stats.builder().zwinnosc(8).unikBiala(0.03).unikDystans(0.03).unikPalna(0.03).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.UNIKOW, Stats.builder().zwinnosc(10).unikBiala(0.04).unikDystans(0.04).unikPalna(0.04).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.UNIKOW, Stats.builder().zwinnosc(7).unikBiala(0.03).unikDystans(0.03).unikPalna(0.03).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.UNIKOW, Stats.builder().zwinnosc(11).unikBiala(0.05).unikDystans(0.05).unikPalna(0.05).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.UNIKOW, Stats.builder().zwinnosc(14).unikBiala(0.06).unikDystans(0.06).unikPalna(0.06).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.UNIKOW, Stats.builder().zwinnosc(18).unikBiala(0.07).unikDystans(0.07).unikPalna(0.07).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.WEZA, Stats.builder().wplywy(5).szczescie(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.WEZA, Stats.builder().wplywy(8).szczescie(8).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.WEZA, Stats.builder().wplywy(10).szczescie(10).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.WEZA, Stats.builder().wplywy(7).szczescie(7).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.WEZA, Stats.builder().wplywy(11).szczescie(11).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.WEZA, Stats.builder().wplywy(14).szczescie(14).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.WEZA, Stats.builder().wplywy(18).szczescie(18).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(3).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(5).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(6).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(5).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(7).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(9).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(11).odpornosc(-4).obronaPrzedmiotow(-4).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.TROPICIELA, Stats.builder().zwinnosc(5).obronaPrzedmiotow(5).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.TROPICIELA, Stats.builder().zwinnosc(8).obronaPrzedmiotow(8).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.TROPICIELA, Stats.builder().zwinnosc(10).obronaPrzedmiotow(10).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.TROPICIELA, Stats.builder().zwinnosc(7).obronaPrzedmiotow(7).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.TROPICIELA, Stats.builder().zwinnosc(11).obronaPrzedmiotow(11).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.TROPICIELA, Stats.builder().zwinnosc(14).obronaPrzedmiotow(14).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.TROPICIELA, Stats.builder().zwinnosc(18).obronaPrzedmiotow(18).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.ZWYKLY, SuffixType.NOCY, Stats.builder().zwinnosc(15).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOBRY, SuffixType.NOCY, Stats.builder().zwinnosc(23).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.DOSKONALY, SuffixType.NOCY, Stats.builder().zwinnosc(30).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY, SuffixType.NOCY, Stats.builder().zwinnosc(21).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOBRY, SuffixType.NOCY, Stats.builder().zwinnosc(32).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.LEGENDARNY_DOSKONALY, SuffixType.NOCY, Stats.builder().zwinnosc(41).build()));
-      suffixes.push(new Suffix(ItemGenre.LEGS, ItemRarity.EPICKI, SuffixType.NOCY, Stats.builder().zwinnosc(52).build()));
+
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.NARKOMANA, Stats.builder().sila(-1).wyglad(-2).zwinnosc(-1).inteligencja(-3).odpornosc(3).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.ZLODZIEJA, Stats.builder().zwinnosc(3).obronaAffixu(2).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.STRAZNIKA, Stats.builder().obronaAffixu(3).minDpsBiala2h(2).minDpsBiala1h(2).minDpsDystans1h(2).minDpsDystans2h(2).minDpsPalna2h(2).minDpsPalna1h(2).maxDpsBiala2h(2).maxDpsBiala1h(2).maxDpsDystans1h(2).maxDpsDystans2h(2).maxDpsPalna2h(2).maxDpsPalna1h(2).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.SILACZA, Stats.builder().sila(8).zwinnosc(-6).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.GWARDZISTY, Stats.builder().obronaAffixu(5).minDpsBiala2h(5).minDpsBiala1h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna2h(5).minDpsPalna1h(5).maxDpsBiala2h(5).maxDpsBiala1h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna2h(5).maxDpsPalna1h(5).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.ADEPTA, Stats.builder().mnoznikObrony(0.25).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.ADRENALINY, Stats.builder().zwinnosc(5).spostrzegawczosc(-8).sila(4).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.SKORUPYZOLWIA, Stats.builder().zwinnosc(-5).odpornosc(4).twardosc(0.01).obronaAffixu(14).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.ZABOJCY, Stats.builder().obronaAffixu(4).zwinnosc(4).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.KOBRY, Stats.builder().obronaAffixu(2).zwinnosc(5).minDpsBiala2h(5).minDpsBiala1h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna2h(5).minDpsPalna1h(5).maxDpsBiala2h(5).maxDpsBiala1h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna2h(5).maxDpsPalna1h(5).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.UNIKOW, Stats.builder().obronaAffixu(10).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.CENTURIONA, Stats.builder().obronaAffixu(10).minDpsBiala2h(8).minDpsBiala1h(8).minDpsDystans1h(8).minDpsDystans2h(8).minDpsPalna2h(8).minDpsPalna1h(8).maxDpsBiala2h(8).maxDpsBiala1h(8).maxDpsDystans1h(8).maxDpsDystans2h(8).maxDpsPalna2h(8).maxDpsPalna1h(8).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.SZERMIERZA, Stats.builder().mnoznikObrony(0.50).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.KALIGULI, Stats.builder().obronaAffixu(10).minDpsBiala2h(10).minDpsBiala1h(10).minDpsDystans1h(10).minDpsDystans2h(10).minDpsPalna2h(10).minDpsPalna1h(10).maxDpsBiala2h(10).maxDpsBiala1h(10).maxDpsDystans1h(10).maxDpsDystans2h(10).maxDpsPalna2h(10).maxDpsPalna1h(10).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.ODPORNOSCI, Stats.builder().obronaAffixu(20).twardosc(0.02).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.GRABIEZCY, Stats.builder().szczescie(5).charyzma(-8).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.MISTRZA, Stats.builder().mnoznikObrony(0.75).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.ORCHIDEI, Stats.builder().obronaAffixu(-10).ignoreObrony(0.05).dps(4).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.SIEWCY_SMIERCI, Stats.builder().zwinnosc(20).obronaAffixu(5).dps(6).build()));
+    suffixes.push(new Suffix(ItemGenre.CHEST, SuffixType.SZYBKOSCI, Stats.builder().atakiBiala(2).atakiDystans1h(2).atakiDystans2h(2).atakiPalna(2).critChancePalna1h(-0.40).critChancePalna2h(-0.80).critMultiSpeed(0.01).build()));
+
+
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.NARKOMANA, Stats.builder().sila(-6).wyglad(-3).zwinnosc(-1).inteligencja(-3).odpornosc(3).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.SILACZA, Stats.builder().zwinnosc(-4).sila(4).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.RZEZIMIESZKA, Stats.builder().wplywy(3).obronaAffixu(2).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.CICHYCHRUCHOW, Stats.builder().wplywy(2).zwinnosc(2).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.SKRYTOSCI, Stats.builder().wplywy(3).zwinnosc(4).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.PRZEMYTNIKA, Stats.builder().wplywy(5).obronaAffixu(4).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.SLONCA, Stats.builder().spostrzegawczosc(2).wyglad(2).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.LOWCYCIENI, Stats.builder().zwinnosc(6).wplywy(4).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.HANDLARZABRONIA, Stats.builder().obronaAffixu(6).wplywy(7).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.INKOW, Stats.builder().odpornosc(3).wiedza(3).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.UNIKOW, Stats.builder().zwinnosc(5).unikBiala(0.02).unikDystans(0.02).unikPalna(0.02).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.WEZA, Stats.builder().wplywy(5).szczescie(5).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.PASTERZA, Stats.builder().spostrzegawczosc(3).odpornosc(-4).obronaAffixu(-4).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.TROPICIELA, Stats.builder().zwinnosc(5).obronaAffixu(5).build()));
+    suffixes.push(new Suffix(ItemGenre.LEGS, SuffixType.NOCY, Stats.builder().zwinnosc(15).build()));
 
 
     this.armourSuffixCache = suffixes;

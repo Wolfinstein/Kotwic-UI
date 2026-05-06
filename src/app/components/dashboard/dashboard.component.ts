@@ -14,7 +14,7 @@ export class DashboardComponent implements OnInit {
   character: Character | null = null;
   dashboardValues: DashboardValues | null = null;
 
-  constructor(private characterService: CharacterService) {}
+  constructor(private characterService: CharacterService) { }
 
   ngOnInit() {
     this.characterService.getCharacter$().subscribe(char => {

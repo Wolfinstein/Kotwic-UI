@@ -1,22 +1,22 @@
 /**
  * Base item representation
- * Contains the foundational properties of an item (rarity, stats, genre, type)
+ * Contains the foundational properties of an item (stats, genre, type)
  */
 
-import { ItemGenre, ItemRarity, ItemType } from './constants';
+import { ItemGenre, ItemType, ItemRarity } from './constants';
 import { Stats } from './Stats';
 
 export class Base {
-  rarity: ItemRarity;
   stats: Stats;
   genre: ItemGenre;
   type: ItemType;
+  rarity?: ItemRarity;
 
-  constructor(rarity: ItemRarity, stats: Stats, genre: ItemGenre, type: ItemType) {
-    this.rarity = rarity;
+  constructor(stats: Stats, genre: ItemGenre, type: ItemType, rarity?: ItemRarity) {
     this.stats = stats;
     this.genre = genre;
     this.type = type;
+    this.rarity = rarity;
   }
 
   /**
@@ -31,15 +31,10 @@ export class Base {
  * Builder class for Base
  */
 class BaseBuilder {
-  private rarity: ItemRarity | undefined;
   private stats: Stats = new Stats();
   private genre: ItemGenre | undefined;
   private type: ItemType | undefined;
-
-  setRarity(rarity: ItemRarity): this {
-    this.rarity = rarity;
-    return this;
-  }
+  private rarity: ItemRarity | undefined;
 
   setStats(stats: Stats): this {
     this.stats = stats;
@@ -56,10 +51,15 @@ class BaseBuilder {
     return this;
   }
 
+  setRarity(rarity: ItemRarity): this {
+    this.rarity = rarity;
+    return this;
+  }
+
   build(): Base {
-    if (!this.rarity || !this.genre || !this.type) {
-      throw new Error('Rarity, genre, and type are required to build a Base');
+    if (!this.genre || !this.type) {
+      throw new Error('Genre and type are required to build a Base');
     }
-    return new Base(this.rarity, this.stats, this.genre, this.type);
+    return new Base(this.stats, this.genre, this.type, this.rarity);
   }
 }

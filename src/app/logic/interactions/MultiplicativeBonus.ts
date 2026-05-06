@@ -9,7 +9,7 @@ export enum MultiplicativeBonusType {
   CZARNY = 'CZARNY',
   TYTAN = 'TYTAN',
   JASTRZEBI = 'JASTRZEBI',
-  SLONECZNY = 'SLONECZNY',
+  SLONECZNY = 'SLONECZNY'
 }
 
 export class MultiplicativeBonus {

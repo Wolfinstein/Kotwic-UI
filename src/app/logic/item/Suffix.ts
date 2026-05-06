@@ -4,14 +4,14 @@
  */
 
 import { Affix } from './Affix';
-import { ItemGenre, ItemRarity, SuffixType } from './constants';
+import { ItemGenre, SuffixType, ItemRarity } from './constants';
 import { Stats } from './Stats';
 
 export class Suffix extends Affix {
   suffixType: SuffixType;
 
-  constructor(genre: ItemGenre, rarity: ItemRarity, suffixType: SuffixType, stats: Stats) {
-    super(genre, rarity, stats);
+  constructor(genre: ItemGenre, suffixType: SuffixType, stats: Stats, rarity?: ItemRarity) {
+    super(genre, stats, rarity);
     this.suffixType = suffixType;
   }
 
@@ -28,17 +28,11 @@ export class Suffix extends Affix {
  */
 class SuffixBuilder {
   private genre: ItemGenre | undefined;
-  private rarity: ItemRarity | undefined;
   private suffixType: SuffixType | undefined;
   private stats: Stats = new Stats();
 
   setGenre(genre: ItemGenre): this {
     this.genre = genre;
-    return this;
-  }
-
-  setRarity(rarity: ItemRarity): this {
-    this.rarity = rarity;
     return this;
   }
 
@@ -53,9 +47,9 @@ class SuffixBuilder {
   }
 
   build(): Suffix {
-    if (!this.genre || !this.rarity || !this.suffixType) {
-      throw new Error('Genre, rarity, and suffixType are required to build a Suffix');
+    if (!this.genre || !this.suffixType) {
+      throw new Error('Genre and suffixType are required to build a Suffix');
     }
-    return new Suffix(this.genre, this.rarity, this.suffixType, this.stats);
+    return new Suffix(this.genre, this.suffixType, this.stats);
   }
 }

@@ -1,7 +1,8 @@
 <div class="equipment-slot-card" (click)="onOpenClick()">
   <div class="slot-header">
     <span class="slot-name">{{ slotName }}</span>
-    <button class="slot-clear-btn" *ngIf="itemName" (click)="onClearClick($event)" type="button" title="Clear slot">✕</button>
+    <button class="slot-clear-btn" *ngIf="itemName" (click)="onClearClick($event)" type="button"
+      title="Clear slot">✕</button>
   </div>
   <div class="slot-content">
     <div class="slot-icon" *ngIf="icon">{{ icon }}</div>

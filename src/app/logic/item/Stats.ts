@@ -1,6 +1,6 @@
 
 export class Stats {
-  // Attributes
+
   sila: number = 0;
   zwinnosc: number = 0;
   odpornosc: number = 0;
@@ -12,11 +12,13 @@ export class Stats {
   wiedza: number = 0;
   szczescie: number = 0;
 
-  // Health points
+
   punktyKrwi: number = 0;
   punktyZycia: number = 0;
 
-  // Defense
+
+  obronaAffixu: number = 0;
+  obronaBazy: number = 0;
   obronaPrzedmiotow: number = 0;
   obronaDodatkowa: number = 0;
   redukcjaObrazen: number = 0;
@@ -24,19 +26,19 @@ export class Stats {
   mnoznikObrony: number = 0;
   isObronaZero: boolean = false;
 
-  // Dodge/Evasion
+
   unikDystans: number = 0;
   unikPalna: number = 0;
   unikBiala: number = 0;
 
-  // Critical chance
+
   critChanceDystans: number = 0;
   critChancePalna1h: number = 0;
   critChancePalna2h: number = 0;
   critChanceBiala1h: number = 0;
   critChanceBiala2h: number = 0;
 
-  // Critical multiplier
+
   critMultiDystans1h: number = 0;
   critMultiDystans2h: number = 0;
   critMultiPalna1h: number = 0;
@@ -44,13 +46,15 @@ export class Stats {
   critMultiBiala1h: number = 0;
   critMultiBiala2h: number = 0;
 
-  // Attack count
+  critMultiSpeed: number = 0;
+
+
   atakiDystans1h: number = 0;
   atakiDystans2h: number = 0;
   atakiPalna: number = 0;
   atakiBiala: number = 0;
 
-  // Hit chance
+
   trafienieDystans: number = 0;
   trafieniePalna: number = 0;
   trafienieBiala: number = 0;
@@ -58,40 +62,42 @@ export class Stats {
   trafienieProcentowePalna: number = 0;
   trafienieProcentoweDystans: number = 0;
 
-  // Armor penetration
+
   ignoreObrony: number = 0;
 
-  // Damage per second (DPS) - Ranged 1h
+  dps: number = 0;
+
+
   minDpsDystans1h: number = 0;
   maxDpsDystans1h: number = 0;
 
-  // Damage per second (DPS) - Ranged 2h
+
   minDpsDystans2h: number = 0;
   maxDpsDystans2h: number = 0;
 
-  // Damage per second (DPS) - Gun 1h
+
   minDpsPalna1h: number = 0;
   maxDpsPalna1h: number = 0;
 
-  // Damage per second (DPS) - Gun 2h
+
   minDpsPalna2h: number = 0;
   maxDpsPalna2h: number = 0;
 
-  // Damage per second (DPS) - White/Melee 1h
+
   minDpsBiala1h: number = 0;
   maxDpsBiala1h: number = 0;
 
-  // Damage per second (DPS) - White/Melee 2h
+
   minDpsBiala2h: number = 0;
   maxDpsBiala2h: number = 0;
 
-  // Damage multipliers and totals
+
   laczneObrazeniaWszystkichBroni: number = 0;
 
-  // Damage multipliers and totals
+
   obrazeniaProcentoweRuny: number = 0;
 
-  // Regeneration and initiative
+
   regen: number = 0;
   additionalIni: number = 0;
 
@@ -123,10 +129,17 @@ export class Stats {
     this.maxDpsBiala1h += dps;
   }
 
-    setRegeneration(regen: number): void {
+  setRegeneration(regen: number): void {
     this.regen += regen;
   }
 
+  setObronaPrzedmiotow(obrona: number): void {
+    this.obronaPrzedmiotow += obrona;
+  }
+
+  setCritMultiPalna2h(crit: number): void {
+    this.critMultiPalna2h += crit;
+  }
 
   /**
    * Set DPS for all two-handed weapons
@@ -248,6 +261,14 @@ export class Stats {
     this.additionalIni += value;
   }
 
+  setObronaBazy(value: number): void {
+    this.obronaBazy += value;
+  }
+
+  setObronaAffixu(value: number): void {
+    this.obronaAffixu += value;
+  }
+
   setPunktyKrwi(value: number): void {
     this.punktyKrwi += value;
   }
@@ -359,12 +380,18 @@ export class Stats {
     this.obrazeniaProcentoweRuny += newStats.obrazeniaProcentoweRuny;
     this.obronaDodatkowa += newStats.obronaDodatkowa;
 
-    // Handle armor multiplier if present
-    if (newStats.mnoznikObrony !== null && newStats.mnoznikObrony !== undefined) {
-      this.obronaPrzedmiotow += newStats.obronaPrzedmiotow + Math.ceil((newStats.obronaPrzedmiotow * newStats.mnoznikObrony));
-    }
+    this.critMultiSpeed += newStats.critMultiSpeed;
 
-    // Update armor zero flag
+    this.dps += newStats.dps;
+
+    this.obronaAffixu += newStats.obronaAffixu;
+    this.obronaBazy += newStats.obronaBazy;
+
+    this.obronaPrzedmiotow += newStats.obronaPrzedmiotow;
+
+    this.mnoznikObrony += newStats.mnoznikObrony;
+
+
     if (this.isObronaZero) {
       this.isObronaZero = newStats.isObronaZero;
     }
@@ -535,6 +562,16 @@ export class StatsBuilder {
     return this;
   }
 
+  obronaAffixu(value: number): this {
+    this.stats.obronaAffixu = value;
+    return this;
+  }
+
+  obronaBazy(value: number): this {
+    this.stats.obronaBazy = value;
+    return this;
+  }
+
   obronaPrzedmiotow(value: number): this {
     this.stats.obronaPrzedmiotow = value;
     return this;
@@ -599,6 +636,17 @@ export class StatsBuilder {
     this.stats.minDpsPalna2h = value;
     return this;
   }
+
+  dps(value: number): this {
+    this.stats.dps = value;
+    return this;
+  }
+
+  critMultiSpeed(value: number): this {
+    this.stats.critMultiSpeed = value;
+    return this;
+  }
+
 
   maxDpsPalna2h(value: number): this {
     this.stats.maxDpsPalna2h = value;

@@ -1,15 +1,15 @@
-import {Injectable} from '@angular/core';
-import {BehaviorSubject}from 'rxjs';
-import {Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions} from '../models/character';
-import {DashboardService} from './calculate'
+import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
+import { Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions } from '../models/character';
+import { DashboardService } from './calculate'
 
 @Injectable({
-providedIn: 'root'
+  providedIn: 'root'
 })
 export class CharacterService {
-private character$ = new BehaviorSubject<Character>(this.createEmptyCharacter());
+  private character$ = new BehaviorSubject<Character>(this.createEmptyCharacter());
 
-constructor(private dashboardService: DashboardService) {}
+  constructor(private dashboardService: DashboardService) { }
 
   getCharacter$ = () => this.character$.asObservable();
 
@@ -115,31 +115,31 @@ constructor(private dashboardService: DashboardService) {}
       },
       evolutions: {
         skrzydla: 0,
-        pancerz : 0,
-        klyPazuryKolce : 0,
-        gruczolyJadowe : 0,
-        wzmocnioneSciegna : 0,
+        pancerz: 0,
+        klyPazuryKolce: 0,
+        gruczolyJadowe: 0,
+        wzmocnioneSciegna: 0,
         dodatkowaKomora: 0,
-        krewDemona : 0,
-        mutacjaDna : 0,
+        krewDemona: 0,
+        mutacjaDna: 0,
         oswiecony: 0,
-        szostyZmysl : 0,
+        szostyZmysl: 0,
         absorpcja: 0,
-        harmonijnyRozwo: 0,
+        harmonijnyRozwoj: 0,
         pietnoDemona: 0,
-        wzmocnioneMiesnie : 0
+        wzmocnioneMiesnie: 0
       },
-      mysliwy : 0,
-      ninja : 0,
-      strateg : 0,
-      kaplica : 0,
-      obronaPrzeciwnika : 0,
-      odpornoscPrzeciwnika : 0,
+      mysliwy: 0,
+      ninja: 0,
+      strateg: 0,
+      kaplica: 0,
+      obronaPrzeciwnika: 0,
+      odpornoscPrzeciwnika: 0,
       huntBonuses: [],
       eventBonus: '',
       oneTimeBonus: '',
-      szczesciePrzeciwnika : 0,
-      trafieniePrzeciwnika : 0,
+      szczesciePrzeciwnika: 0,
+      trafieniePrzeciwnika: 0,
       runeValues: [],
       umagiValues: [],
       equipment: {}
@@ -149,6 +149,6 @@ constructor(private dashboardService: DashboardService) {}
   calculateDashboard(): DashboardValues {
     const char = this.character$.value
     return this.dashboardService.calculateStuff(char)
-    };
+  };
 
 }

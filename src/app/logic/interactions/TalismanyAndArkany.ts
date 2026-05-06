@@ -243,7 +243,7 @@ export class TalismanyAndArkany {
     return player;
   }
 
-    private doCichyLowca(player: Player): Player {
+  private doCichyLowca(player: Player): Player {
     switch (this.cichyLowca) {
       case 1:
         player.addCritMulti(0.2);

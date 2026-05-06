@@ -7,12 +7,12 @@ import { Stats } from './Stats';
 
 export abstract class Affix {
   genre: ItemGenre;
-  rarity: ItemRarity;
   stats: Stats;
+  rarity?: ItemRarity;
 
-  constructor(genre: ItemGenre, rarity: ItemRarity, stats: Stats) {
+  constructor(genre: ItemGenre, stats: Stats, rarity?: ItemRarity) {
     this.genre = genre;
-    this.rarity = rarity;
     this.stats = stats;
+    this.rarity = rarity;
   }
 }

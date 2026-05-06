@@ -5,16 +5,23 @@
 
 import { Affix } from './Affix';
 import { Base } from './Base';
+import { ItemRarity } from './constants/itemRarity';
 
 export class Item {
   prefix?: Affix;
   suffix?: Affix;
   base?: Base;
+  rarity?: ItemRarity;
 
-  constructor(prefix?: Affix, suffix?: Affix, base?: Base) {
+  constructor(prefix?: Affix, suffix?: Affix, base?: Base, rarity?: ItemRarity) {
     this.prefix = prefix;
     this.suffix = suffix;
     this.base = base;
+    this.rarity = rarity;
+  }
+
+  getRarity(): ItemRarity {
+    return this.rarity ?? ItemRarity.ZWYKLY;
   }
 
   /**
@@ -29,9 +36,10 @@ export class Item {
  * Builder class for Item
  */
 export class ItemBuilder {
-  public  prefix?: Affix;
-  public  suffix?: Affix;
-  public  base?: Base;
+  public prefix?: Affix;
+  public suffix?: Affix;
+  public base?: Base;
+  public rarity?: ItemRarity;
 
   setPrefix(prefix: Affix): this {
     this.prefix = prefix;
@@ -48,7 +56,12 @@ export class ItemBuilder {
     return this;
   }
 
+  setRarity(rarity: ItemRarity): this {
+    this.rarity = rarity;
+    return this;
+  }
+
   build(): Item {
-    return new Item(this.prefix, this.suffix, this.base);
+    return new Item(this.prefix, this.suffix, this.base, this.rarity);
   }
 }
