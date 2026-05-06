@@ -256,10 +256,8 @@ export class CharacterInputComponent implements OnInit {
 
 
   issues = [
-    'opiekun i podkowa razem nie sumuje poprawnie zycka',
-    'brak liczenia punktow krwi punkty krwi, troche useless',
-    'rozbieznosci w bazach przedmiotow np bandana vs czapka, z jakiegos powodu wplywa to na ilosc statow z suffixow',
-    'lekki rozjazd inicjatywa i trafienie',
+    'poprawic budowanie bonusow z broni',
+    'brak liczenia punktow krwi punkty krwi',
     'szczescie i trafieni przeciwnika nie dziala'
   ];
 
