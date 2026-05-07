@@ -5,6 +5,8 @@ import { SetsDictionary } from '../dictionaries/SetsDictionary';
 import { PrefixType } from '../item/constants/affixType';
 import { Prefix } from '../item/Prefix';
 import { applyQualityMultiplier } from '../item/qualityMultiplier';
+import { WeaponStats } from '../item/WeaponStats';
+import { applyQualityWeaponMultiplier } from '../item/qualityWeaponMultiplier';
 export enum PlayerRasa {
   LM = 'LM',
   SSAK = 'SSAK',
@@ -198,6 +200,7 @@ export class Player {
   addCritMulti(value: number): void {
     this.stats.setAllCritMulti(value);
   }
+
   resolveNonWeaponItems(playerLvl: Number): void {
     const nonWeapon = this.items.filter(
       (a) =>
@@ -226,18 +229,32 @@ export class Player {
     }
     this.stats = itemStats;
   }
-  resolveWeaponItem(a: Item): void {
+
+  resolveWeaponItem(a: Item, playerLvl: number): void {
     let itemStats = this.stats;
-    const temp = new Stats();
-    if (a.base) temp.addStats(a.base.stats);
-    if (a.prefix) temp.addStats(a.prefix.stats);
-    if (a.suffix) temp.addStats(a.suffix.stats);
-    itemStats.addStats(temp);
+    const temp = new WeaponStats();
+
+    if (a.base?.stats) {
+      temp.addWeaponStats(a.base.stats as WeaponStats);
+    }
+
+    if (a.prefix?.stats) {
+      temp.addWeaponStats(a.prefix.stats as WeaponStats);
+    }
+
+    if (a.suffix?.stats) {
+      temp.addWeaponStats(a.suffix.stats as WeaponStats);
+    }
+
+    const multiplied = applyQualityWeaponMultiplier(temp, a.getRarity(), a.getGenre(), playerLvl);
+    itemStats.addStats(multiplied);
+
     if (this.stats.isObronaZero) {
       itemStats.obronaPrzedmiotow = 0;
     }
     this.stats = itemStats;
   }
+
   resolveSetBonuses(): void {
     const itemsWithPrefix = this.items.filter((item) => item.prefix);
     if (!itemsWithPrefix || itemsWithPrefix.length < 3) {

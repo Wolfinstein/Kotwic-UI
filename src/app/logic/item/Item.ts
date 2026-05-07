@@ -1,6 +1,7 @@
 
 import { Affix } from './Affix';
 import { Base } from './Base';
+import { ItemGenre } from './constants';
 import { ItemRarity } from './constants/itemRarity';
 export class Item {
   prefix?: Affix;
@@ -15,6 +16,9 @@ export class Item {
   }
   getRarity(): ItemRarity {
     return this.rarity ?? ItemRarity.ZWYKLY;
+  }
+  getGenre(): ItemGenre {
+    return this.base?.genre ?? ItemGenre.CHEST;
   }
   static builder(): ItemBuilder {
     return new ItemBuilder();

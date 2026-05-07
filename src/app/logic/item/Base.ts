@@ -1,16 +1,17 @@
 
 import { ItemGenre, ItemType, ItemRarity } from './constants';
 import { Stats } from './Stats';
+import { WeaponStats } from './WeaponStats';
 export class Base {
   stats: Stats;
   genre: ItemGenre;
   type: ItemType;
   rarity?: ItemRarity;
-  constructor(stats: Stats, genre: ItemGenre, type: ItemType, rarity?: ItemRarity) {
+  weaponStats? : WeaponStats;
+  constructor(stats: Stats, genre: ItemGenre, type: ItemType) {
     this.stats = stats;
     this.genre = genre;
     this.type = type;
-    this.rarity = rarity;
   }
   static builder(): BaseBuilder {
     return new BaseBuilder();
@@ -20,7 +21,7 @@ class BaseBuilder {
   private stats: Stats = new Stats();
   private genre: ItemGenre | undefined;
   private type: ItemType | undefined;
-  private rarity: ItemRarity | undefined;
+  private _weaponStats: WeaponStats | undefined;
   setStats(stats: Stats): this {
     this.stats = stats;
     return this;
@@ -33,14 +34,16 @@ class BaseBuilder {
     this.type = type;
     return this;
   }
-  setRarity(rarity: ItemRarity): this {
-    this.rarity = rarity;
+  setWeaponStats(weaponStats: WeaponStats): this {
+    this._weaponStats = weaponStats;
     return this;
   }
   build(): Base {
     if (!this.genre || !this.type) {
       throw new Error('Genre and type are required to build a Base');
     }
-    return new Base(this.stats, this.genre, this.type, this.rarity);
+    const base = new Base(this.stats, this.genre, this.type);
+    if (this._weaponStats) base.weaponStats = this._weaponStats;
+    return base;
   }
 }

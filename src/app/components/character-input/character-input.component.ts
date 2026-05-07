@@ -6,9 +6,7 @@ import { Character, EquipmentItem } from '../../models/character';
 import { WeaponDictionary, ArmourDictionary, JewelsDictionary, BaseDictionary } from '../../logic/dictionaries';
 import { ItemGenre, PrefixType, SuffixType, ItemType, ItemRarity, Stats } from '../../logic/item';
 import { applyQualityMultiplier } from '../../logic/item/qualityMultiplier';
-import { CollapsibleSectionComponent } from '../../shared/components/collapsible-section/collapsible-section.component';
-import { CompactInputComponent } from '../../shared/components/compact-input/compact-input.component';
-import { EquipmentSlotCardComponent } from '../../shared/components/equipment-slot-card/equipment-slot-card.component';
+import { applyQualityWeaponMultiplier } from '../../logic/item/qualityWeaponMultiplier';
 
 export type SlotCategory = 'head' | 'chest' | 'legs' | 'neck' | 'finger' | 'weapon1h' | 'weapon2h';
 export interface BaseItemDef {
@@ -331,7 +329,7 @@ export class CharacterInputComponent implements OnInit {
       const genre = this.getGenreForItemType(itemType);
       let combinedStats = new Stats();
       try {
-        const base = BaseDictionary.getBase(genre, itemType, rarity, playerLvl);
+        const base = BaseDictionary.getBase(genre, itemType);
         combinedStats.addStats(base.stats);
       } catch (e) {
       }
@@ -342,7 +340,7 @@ export class CharacterInputComponent implements OnInit {
           let prefixStats: any = null;
           switch (dictionaryType) {
             case 'weapon':
-              prefixStats = WeaponDictionary.getWeaponPrefix(genre, prefixType, rarity, playerLvl);
+              prefixStats = WeaponDictionary.getWeaponPrefix(genre, prefixType);
               break;
             case 'armour':
               if (genre === ItemGenre.LEGS) {
@@ -368,7 +366,7 @@ export class CharacterInputComponent implements OnInit {
           let suffixStats: any = null;
           switch (dictionaryType) {
             case 'weapon':
-              suffixStats = WeaponDictionary.getWeaponSuffix(genre, suffixType, rarity, playerLvl);
+              suffixStats = WeaponDictionary.getWeaponSuffix(genre, suffixType);
               break;
             case 'armour':
               suffixStats = ArmourDictionary.getArmourSuffix(genre, suffixType, playerLvl);
@@ -383,8 +381,9 @@ export class CharacterInputComponent implements OnInit {
         } catch (e) {
         }
       }
-      if (genre === ItemGenre.RANGE_1H || genre === ItemGenre.RANGE_2H || genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H || genre === ItemGenre.GUN_2H || genre === ItemGenre.GUN_1H) {
-        return JSON.stringify(this.extractStats(combinedStats), null, 2);
+      if (genre == ItemGenre.RANGE_1H || genre == ItemGenre.RANGE_2H || genre == ItemGenre.WHITE_1H || genre == ItemGenre.WHITE_2H || genre == ItemGenre.GUN_2H || genre == ItemGenre.GUN_1H) {
+        const multipliedStats = applyQualityWeaponMultiplier(combinedStats, rarity, genre, playerLvl);
+        return JSON.stringify(this.extractStats(multipliedStats), null, 2);
       } else {
         const multipliedStats = applyQualityMultiplier(combinedStats, rarity, playerLvl);
         return JSON.stringify(this.extractStats(multipliedStats), null, 2);

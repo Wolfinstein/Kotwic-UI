@@ -1,5 +1,6 @@
 import { Stats } from './Stats';
 import { ItemRarity } from './constants/itemRarity';
+
 const MULTIPLIED_STAT_PROPERTIES: (keyof Stats)[] = [
   'sila', 'zwinnosc', 'odpornosc', 'wyglad', 'charyzma', 'wplywy',
   'spostrzegawczosc', 'inteligencja', 'wiedza', 'szczescie',
@@ -24,6 +25,7 @@ const MULTIPLIED_STAT_PROPERTIES: (keyof Stats)[] = [
   'laczneObrazeniaWszystkichBroni', 'obrazeniaProcentoweRuny',
   'regen', 'additionalIni'
 ];
+
 export function getQualityMultiplier(rarity: ItemRarity): number {
   switch (rarity) {
     case ItemRarity.ZWYKLY:
@@ -41,15 +43,18 @@ export function getQualityMultiplier(rarity: ItemRarity): number {
       return 1.0;
   }
 }
+
 function isLegendary(rarity: ItemRarity): boolean {
   return rarity.startsWith('LEGENDARNY') || rarity === ItemRarity.EPICKI;
 }
+
 function getEpicMultiplier(rarity: ItemRarity): number {
   if (rarity === ItemRarity.EPICKI) {
     return 2.5;
   }
   return 1.0;
 }
+
 function scaleAndApply(value: number, multipliers: number[], name: string): number {
   if (value >= 1) {
     let result = value;
@@ -77,6 +82,7 @@ function scaleAndApply(value: number, multipliers: number[], name: string): numb
   }
   return scaled / scaleFactor;
 }
+
 export function applyQualityMultiplier(stats: Stats, rarity: ItemRarity, playerLvl: number): Stats {
   const result = stats.clone();
   const qualityMult = getQualityMultiplier(rarity);
@@ -129,6 +135,7 @@ export function applyQualityMultiplier(stats: Stats, rarity: ItemRarity, playerL
   result.setObronaPrzedmiotow(tempObrona);
   return result;
 }
+
 function calcValue(value: number, rarity: ItemRarity, prop: string): number {
   const qualityMult = getQualityMultiplier(rarity);
   const isEpic = rarity === ItemRarity.EPICKI;

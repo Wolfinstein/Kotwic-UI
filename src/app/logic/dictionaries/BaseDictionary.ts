@@ -1,387 +1,223 @@
 import { Base, Stats, ItemGenre, ItemRarity, ItemType } from '../item';
+import { WeaponStats, WeaponStatsBuilder } from '../item/WeaponStats';
+
 export class BaseDictionary {
   private static bases: Base[] | null = null;
-  static getBase(genre: ItemGenre, type: ItemType, rarity: ItemRarity, playerLvl: number): Base {
+
+  static getBase(genre: ItemGenre, type: ItemType): Base {
     if (!BaseDictionary.bases) {
-      BaseDictionary.initializeBases(playerLvl);
+      BaseDictionary.initializeBases();
     }
+
     const usesRarity =
       genre === ItemGenre.RANGE_2H ||
       genre === ItemGenre.RANGE_1H ||
       genre === ItemGenre.GUN_2H ||
       genre === ItemGenre.GUN_1H;
+
     const found = BaseDictionary.bases!.find((b) =>
       usesRarity
-        ? b.genre === genre && b.type === type && b.rarity === rarity
+        ? b.genre === genre && b.type === type 
         : b.genre === genre && b.type === type
     );
+
     if (!found) {
-      throw new Error(`Base not found for genre: ${genre}, type: ${type}, rarity: ${rarity}`);
+      throw new Error(`Base not found for genre: ${genre}, type: ${type}`);
     }
+
     return found;
   }
-  private static initializeBases(playerLvl: number = 0): void {
+
+  private static initializeBases(): void {
     BaseDictionary.bases = [];
     const bases = BaseDictionary.bases;
 
-
     bases.push(new Base(Stats.builder().obronaBazy(1).build(), ItemGenre.HEAD, ItemType.CZAPKA));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(3).build(), ItemGenre.HEAD, ItemType.KASK));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(1).wplywy(2).wyglad(-5).build(), ItemGenre.HEAD, ItemType.KOMINIARKA));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(2).wyglad(3).build(), ItemGenre.HEAD, ItemType.KAPELUSZ));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(7).twardosc(0.01).build(), ItemGenre.HEAD, ItemType.HELM));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(1).charyzma(5).build(), ItemGenre.HEAD, ItemType.OBRECZ));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(2).spostrzegawczosc(3).wyglad(5).build(), ItemGenre.HEAD, ItemType.OPASKA));
+
+
     const s1 = Stats.builder().obronaBazy(4).spostrzegawczosc(1).wyglad(3).build(); s1.setAllDps(1);
     bases.push(new Base(s1, ItemGenre.HEAD, ItemType.BANDANA));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(3).twardosc(0.1).build(), ItemGenre.HEAD, ItemType.MASKA));
+
+
     const q1 = Stats.builder().obronaBazy(12).charyzma(3).wplywy(3).build(); q1.setAllMaxDps(5);
     bases.push(new Base(q1, ItemGenre.HEAD, ItemType.KORONA));
 
+
     bases.push(new Base(Stats.builder().obronaBazy(2).build(), ItemGenre.CHEST, ItemType.KOSZULKA));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(5).build(), ItemGenre.CHEST, ItemType.KURTKA));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(2).charyzma(2).wyglad(3).build(), ItemGenre.CHEST, ItemType.MARYNARKA));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(10).build(), ItemGenre.CHEST, ItemType.KAMIZELKA));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(3).wplywy(2).wyglad(4).build(), ItemGenre.CHEST, ItemType.GORSET));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(4).wplywy(3).wyglad(4).zwinnosc(-1).build(), ItemGenre.CHEST, ItemType.SMOKING));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(15).build(), ItemGenre.CHEST, ItemType.KOLCZUGA));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(0).wplywy(3).zwinnosc(2).odpornosc(2).build(), ItemGenre.CHEST, ItemType.PELERYNA));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(20).twardosc(0.01).build(), ItemGenre.CHEST, ItemType.ZBROJAWARSTWOWA));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(30).twardosc(0.05).build(), ItemGenre.CHEST, ItemType.PELNAZBROJA));
 
+
     bases.push(new Base(Stats.builder().obronaBazy(2).zwinnosc(2).build(), ItemGenre.LEGS, ItemType.SZORTY));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(5).twardosc(0.01).build(), ItemGenre.LEGS, ItemType.SPODNIE));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(1).zwinnosc(-1).wplywy(1).wyglad(2).szczescie(1).build(), ItemGenre.LEGS, ItemType.KILT));
+
+
     bases.push(new Base(Stats.builder().obronaBazy(4).zwinnosc(-2).wyglad(3).szczescie(2).build(), ItemGenre.LEGS, ItemType.SPODNICA));
 
+
+
+
     bases.push(new Base(Stats.builder().wyglad(4).build(), ItemGenre.NECK, ItemType.AMULET));
+
+
     bases.push(new Base(Stats.builder().charyzma(-1).wplywy(-1).wyglad(8).build(), ItemGenre.NECK, ItemType.NASZYJNIK));
+
     bases.push(new Base(Stats.builder().charyzma(1).wplywy(1).wyglad(2).build(), ItemGenre.NECK, ItemType.KRAWAT));
+
     bases.push(new Base(Stats.builder().charyzma(4).wyglad(3).build(), ItemGenre.NECK, ItemType.APASZKA));
+
     bases.push(new Base(Stats.builder().charyzma(-1).wplywy(3).build(), ItemGenre.NECK, ItemType.LANCUCH));
 
     bases.push(new Base(Stats.builder().wyglad(2).build(), ItemGenre.FINGER, ItemType.PIERSCIEN));
+
     bases.push(new Base(Stats.builder().charyzma(3).wplywy(-2).build(), ItemGenre.FINGER, ItemType.BRANSOLETA));
+
     bases.push(new Base(Stats.builder().wplywy(2).wyglad(1).build(), ItemGenre.FINGER, ItemType.SYGNET));
-    bases.push(new Base(Stats.builder().trafienieBiala(4).minDpsBiala1h(3).maxDpsBiala1h(6).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.PALKA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(6).minDpsBiala1h(5).maxDpsBiala1h(9).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.PALKA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(8).minDpsBiala1h(6).maxDpsBiala1h(12).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.PALKA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(6).minDpsBiala1h(5).maxDpsBiala1h(9).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.PALKA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(9).minDpsBiala1h(7).maxDpsBiala1h(13).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.PALKA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(11).minDpsBiala1h(9).maxDpsBiala1h(17).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.PALKA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(14).minDpsBiala1h(11).maxDpsBiala1h(21).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.PALKA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(5).minDpsBiala1h(5).maxDpsBiala1h(6).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.NOZ, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(8).minDpsBiala1h(8).maxDpsBiala1h(9).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.NOZ, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(10).minDpsBiala1h(10).maxDpsBiala1h(12).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.NOZ, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(7).minDpsBiala1h(7).maxDpsBiala1h(9).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.NOZ, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(11).minDpsBiala1h(11).maxDpsBiala1h(13).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.NOZ, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(14).minDpsBiala1h(14).maxDpsBiala1h(17).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.NOZ, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(18).minDpsBiala1h(18).maxDpsBiala1h(21).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.NOZ, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(8).minDpsBiala1h(7).maxDpsBiala1h(8).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.SZTYLET, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(12).minDpsBiala1h(11).maxDpsBiala1h(12).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.SZTYLET, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(16).minDpsBiala1h(14).maxDpsBiala1h(16).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.SZTYLET, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(11).minDpsBiala1h(10).maxDpsBiala1h(11).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.SZTYLET, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(17).minDpsBiala1h(15).maxDpsBiala1h(17).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.SZTYLET, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(22).minDpsBiala1h(19).maxDpsBiala1h(22).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.SZTYLET, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(27).minDpsBiala1h(25).maxDpsBiala1h(27).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.SZTYLET, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(10).minDpsBiala1h(7).maxDpsBiala1h(10).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.RAPIER, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(15).minDpsBiala1h(11).maxDpsBiala1h(15).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.RAPIER, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(20).minDpsBiala1h(14).maxDpsBiala1h(20).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.RAPIER, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(14).minDpsBiala1h(10).maxDpsBiala1h(14).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.RAPIER, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(21).minDpsBiala1h(15).maxDpsBiala1h(21).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.RAPIER, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(27).minDpsBiala1h(19).maxDpsBiala1h(27).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.RAPIER, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(34).minDpsBiala1h(25).maxDpsBiala1h(34).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.RAPIER, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(6).minDpsBiala1h(9).maxDpsBiala1h(12).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.MIECZ, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(9).minDpsBiala1h(14).maxDpsBiala1h(18).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.MIECZ, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(12).minDpsBiala1h(18).maxDpsBiala1h(24).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.MIECZ, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(9).minDpsBiala1h(13).maxDpsBiala1h(17).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.MIECZ, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(13).minDpsBiala1h(19).maxDpsBiala1h(25).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.MIECZ, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(17).minDpsBiala1h(25).maxDpsBiala1h(33).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.MIECZ, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(21).minDpsBiala1h(32).maxDpsBiala1h(41).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.MIECZ, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(8).minDpsBiala1h(6).maxDpsBiala1h(25).critMultiBiala1h(0.10).trafienieProcentoweBiala(0.05).ignoreObrony(0.20).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.TOPOR, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(12).minDpsBiala1h(9).maxDpsBiala1h(38).critMultiBiala1h(0.15).trafienieProcentoweBiala(0.08).ignoreObrony(0.30).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.TOPOR, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(16).minDpsBiala1h(12).maxDpsBiala1h(50).critMultiBiala1h(0.20).trafienieProcentoweBiala(0.10).ignoreObrony(0.40).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.TOPOR, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(11).minDpsBiala1h(9).maxDpsBiala1h(34).critMultiBiala1h(0.14).trafienieProcentoweBiala(0.07).ignoreObrony(0.27).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.TOPOR, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(17).minDpsBiala1h(13).maxDpsBiala1h(52).critMultiBiala1h(0.21).trafienieProcentoweBiala(0.11).ignoreObrony(0.41).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.TOPOR, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(22).minDpsBiala1h(17).maxDpsBiala1h(68).critMultiBiala1h(0.27).trafienieProcentoweBiala(0.14).ignoreObrony(0.54).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.TOPOR, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(27).minDpsBiala1h(21).maxDpsBiala1h(86).critMultiBiala1h(0.34).trafienieProcentoweBiala(0.18).ignoreObrony(0.68).atakiBiala(1).build(), ItemGenre.WHITE_1H, ItemType.TOPOR, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(2).maxDpsBiala1h(3).trafienieProcentoweBiala(0.10).atakiBiala(2).build(), ItemGenre.WHITE_1H, ItemType.KASTET, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(3).maxDpsBiala1h(5).trafienieProcentoweBiala(0.15).atakiBiala(3).build(), ItemGenre.WHITE_1H, ItemType.KASTET, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(4).maxDpsBiala1h(6).trafienieProcentoweBiala(0.20).atakiBiala(4).build(), ItemGenre.WHITE_1H, ItemType.KASTET, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(3).maxDpsBiala1h(5).trafienieProcentoweBiala(0.14).atakiBiala(3).build(), ItemGenre.WHITE_1H, ItemType.KASTET, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(5).maxDpsBiala1h(7).trafienieProcentoweBiala(0.21).atakiBiala(5).build(), ItemGenre.WHITE_1H, ItemType.KASTET, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(6).maxDpsBiala1h(9).trafienieProcentoweBiala(0.27).atakiBiala(6).build(), ItemGenre.WHITE_1H, ItemType.KASTET, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(7).maxDpsBiala1h(11).trafienieProcentoweBiala(0.34).atakiBiala(7).build(), ItemGenre.WHITE_1H, ItemType.KASTET, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsBiala1h(14).maxDpsBiala1h(32).critMultiBiala1h(0.10).atakiBiala(3).trafienieProcentoweBiala(0.05).build(), ItemGenre.WHITE_1H, ItemType.KAMA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsBiala1h(21).maxDpsBiala1h(48).critMultiBiala1h(0.15).atakiBiala(4).trafienieProcentoweBiala(0.08).build(), ItemGenre.WHITE_1H, ItemType.KAMA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsBiala1h(28).maxDpsBiala1h(64).critMultiBiala1h(0.20).atakiBiala(5).trafienieProcentoweBiala(0.10).build(), ItemGenre.WHITE_1H, ItemType.KAMA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsBiala1h(19).maxDpsBiala1h(44).critMultiBiala1h(0.14).atakiBiala(4).trafienieProcentoweBiala(0.07).build(), ItemGenre.WHITE_1H, ItemType.KAMA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsBiala1h(29).maxDpsBiala1h(68).critMultiBiala1h(0.21).atakiBiala(6).trafienieProcentoweBiala(0.11).build(), ItemGenre.WHITE_1H, ItemType.KAMA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsBiala1h(38).maxDpsBiala1h(87).critMultiBiala1h(0.27).atakiBiala(7).trafienieProcentoweBiala(0.14).build(), ItemGenre.WHITE_1H, ItemType.KAMA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsBiala1h(48).maxDpsBiala1h(108).critMultiBiala1h(0.34).atakiBiala(8).trafienieProcentoweBiala(0.18).build(), ItemGenre.WHITE_1H, ItemType.KAMA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(10).maxDpsBiala1h(18).critChanceBiala1h(0.05).atakiBiala(2).ignoreObrony(0.15).build(), ItemGenre.WHITE_1H, ItemType.PIESCNIEBIOS, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(15).maxDpsBiala1h(27).critChanceBiala1h(0.08).atakiBiala(3).ignoreObrony(0.23).build(), ItemGenre.WHITE_1H, ItemType.PIESCNIEBIOS, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(20).maxDpsBiala1h(36).critChanceBiala1h(0.10).atakiBiala(4).ignoreObrony(0.3).build(), ItemGenre.WHITE_1H, ItemType.PIESCNIEBIOS, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(14).maxDpsBiala1h(25).critChanceBiala1h(0.07).atakiBiala(3).ignoreObrony(0.21).build(), ItemGenre.WHITE_1H, ItemType.PIESCNIEBIOS, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(21).maxDpsBiala1h(37).critChanceBiala1h(0.11).atakiBiala(5).ignoreObrony(0.32).build(), ItemGenre.WHITE_1H, ItemType.PIESCNIEBIOS, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(27).maxDpsBiala1h(49).critChanceBiala1h(0.14).atakiBiala(6).ignoreObrony(0.41).build(), ItemGenre.WHITE_1H, ItemType.PIESCNIEBIOS, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala1h(34).maxDpsBiala1h(61).critChanceBiala1h(0.18).atakiBiala(7).ignoreObrony(0.52).build(), ItemGenre.WHITE_1H, ItemType.PIESCNIEBIOS, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(10).minDpsBiala1h(22).maxDpsBiala1h(45).critMultiBiala1h(0.20).atakiBiala(3).trafienieProcentoweBiala(0.05).build(), ItemGenre.WHITE_1H, ItemType.WAKIZASHI, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(15).minDpsBiala1h(33).maxDpsBiala1h(68).critMultiBiala1h(0.30).atakiBiala(4).trafienieProcentoweBiala(0.08).build(), ItemGenre.WHITE_1H, ItemType.WAKIZASHI, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(20).minDpsBiala1h(44).maxDpsBiala1h(90).critMultiBiala1h(0.40).atakiBiala(5).trafienieProcentoweBiala(0.10).build(), ItemGenre.WHITE_1H, ItemType.WAKIZASHI, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(14).minDpsBiala1h(30).maxDpsBiala1h(61).critMultiBiala1h(0.28).atakiBiala(4).trafienieProcentoweBiala(0.07).build(), ItemGenre.WHITE_1H, ItemType.WAKIZASHI, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(21).minDpsBiala1h(45).maxDpsBiala1h(92).critMultiBiala1h(0.42).atakiBiala(6).trafienieProcentoweBiala(0.11).build(), ItemGenre.WHITE_1H, ItemType.WAKIZASHI, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(27).minDpsBiala1h(60).maxDpsBiala1h(122).critMultiBiala1h(0.54).atakiBiala(7).trafienieProcentoweBiala(0.14).build(), ItemGenre.WHITE_1H, ItemType.WAKIZASHI, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(34).minDpsBiala1h(75).maxDpsBiala1h(153).critMultiBiala1h(0.68).atakiBiala(8).trafienieProcentoweBiala(0.18).build(), ItemGenre.WHITE_1H, ItemType.WAKIZASHI, ItemRarity.EPICKI));
 
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala2h(15).maxDpsBiala2h(30).critChanceBiala2h(0.07).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MACZUGA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala2h(23).maxDpsBiala2h(45).critChanceBiala2h(0.11).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MACZUGA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala2h(30).maxDpsBiala2h(60).critChanceBiala2h(0.14).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MACZUGA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala2h(21).maxDpsBiala2h(41).critChanceBiala2h(0.10).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MACZUGA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala2h(32).maxDpsBiala2h(61).critChanceBiala2h(0.15).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MACZUGA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala2h(41).maxDpsBiala2h(81).critChanceBiala2h(0.19).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MACZUGA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-4).minDpsBiala2h(52).maxDpsBiala2h(102).critChanceBiala2h(0.25).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MACZUGA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(-8).minDpsBiala2h(20).maxDpsBiala2h(35).critChanceBiala2h(0.08).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.LOM, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-8).minDpsBiala2h(30).maxDpsBiala2h(53).critChanceBiala2h(0.12).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.LOM, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-8).minDpsBiala2h(40).maxDpsBiala2h(70).critChanceBiala2h(0.16).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.LOM, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-8).minDpsBiala2h(27).maxDpsBiala2h(48).critChanceBiala2h(0.11).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.LOM, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-8).minDpsBiala2h(41).maxDpsBiala2h(72).critChanceBiala2h(0.17).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.LOM, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-8).minDpsBiala2h(54).maxDpsBiala2h(95).critChanceBiala2h(0.22).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.LOM, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-8).minDpsBiala2h(68).maxDpsBiala2h(119).critChanceBiala2h(0.27).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.LOM, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(-12).minDpsBiala2h(5).maxDpsBiala2h(40).critChanceBiala2h(0.09).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.PIKA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-12).minDpsBiala2h(8).maxDpsBiala2h(60).critChanceBiala2h(0.14).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.PIKA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-12).minDpsBiala2h(10).maxDpsBiala2h(80).critChanceBiala2h(0.18).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.PIKA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-12).minDpsBiala2h(7).maxDpsBiala2h(54).critChanceBiala2h(0.13).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.PIKA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-12).minDpsBiala2h(11).maxDpsBiala2h(81).critChanceBiala2h(0.19).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.PIKA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-12).minDpsBiala2h(14).maxDpsBiala2h(108).critChanceBiala2h(0.25).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.PIKA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-12).minDpsBiala2h(18).maxDpsBiala2h(135).critChanceBiala2h(0.32).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.PIKA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(-16).minDpsBiala2h(20).maxDpsBiala2h(40).critChanceBiala2h(0.10).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.TOPORDWURECZNY, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-16).minDpsBiala2h(30).maxDpsBiala2h(60).critChanceBiala2h(0.15).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.TOPORDWURECZNY, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-16).minDpsBiala2h(40).maxDpsBiala2h(80).critChanceBiala2h(0.20).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.TOPORDWURECZNY, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-16).minDpsBiala2h(27).maxDpsBiala2h(54).critChanceBiala2h(0.14).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.TOPORDWURECZNY, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-16).minDpsBiala2h(41).maxDpsBiala2h(81).critChanceBiala2h(0.21).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.TOPORDWURECZNY, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-16).minDpsBiala2h(54).maxDpsBiala2h(108).critChanceBiala2h(0.27).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.TOPORDWURECZNY, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-16).minDpsBiala2h(68).maxDpsBiala2h(135).critChanceBiala2h(0.34).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.TOPORDWURECZNY, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsBiala2h(30).maxDpsBiala2h(40).critChanceBiala2h(0.11).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MIECZDWURECZNY, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsBiala2h(45).maxDpsBiala2h(60).critChanceBiala2h(0.17).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MIECZDWURECZNY, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsBiala2h(60).maxDpsBiala2h(80).critChanceBiala2h(0.22).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MIECZDWURECZNY, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsBiala2h(41).maxDpsBiala2h(54).critChanceBiala2h(0.15).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MIECZDWURECZNY, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsBiala2h(61).maxDpsBiala2h(81).critChanceBiala2h(0.23).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MIECZDWURECZNY, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsBiala2h(81).maxDpsBiala2h(108).critChanceBiala2h(0.30).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MIECZDWURECZNY, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsBiala2h(102).maxDpsBiala2h(135).critChanceBiala2h(0.38).atakiBiala(1).build(), ItemGenre.WHITE_2H, ItemType.MIECZDWURECZNY, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(-24).minDpsBiala2h(55).maxDpsBiala2h(70).critChanceBiala2h(0.12).atakiBiala(1).trafienieProcentoweBiala(0.10).build(), ItemGenre.WHITE_2H, ItemType.KOSA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-24).minDpsBiala2h(83).maxDpsBiala2h(105).critChanceBiala2h(0.18).atakiBiala(1).trafienieProcentoweBiala(0.15).build(), ItemGenre.WHITE_2H, ItemType.KOSA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-24).minDpsBiala2h(110).maxDpsBiala2h(140).critChanceBiala2h(0.24).atakiBiala(1).trafienieProcentoweBiala(0.20).build(), ItemGenre.WHITE_2H, ItemType.KOSA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-24).minDpsBiala2h(75).maxDpsBiala2h(95).critChanceBiala2h(0.17).atakiBiala(1).trafienieProcentoweBiala(0.14).build(), ItemGenre.WHITE_2H, ItemType.KOSA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-24).minDpsBiala2h(113).maxDpsBiala2h(143).critChanceBiala2h(0.25).atakiBiala(1).trafienieProcentoweBiala(0.21).build(), ItemGenre.WHITE_2H, ItemType.KOSA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-24).minDpsBiala2h(149).maxDpsBiala2h(189).critChanceBiala2h(0.33).atakiBiala(1).trafienieProcentoweBiala(0.27).build(), ItemGenre.WHITE_2H, ItemType.KOSA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-24).minDpsBiala2h(187).maxDpsBiala2h(237).critChanceBiala2h(0.41).atakiBiala(1).trafienieProcentoweBiala(0.34).build(), ItemGenre.WHITE_2H, ItemType.KOSA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(-22).minDpsBiala2h(35).maxDpsBiala2h(65).critChanceBiala2h(0.13).atakiBiala(1).trafienieProcentoweBiala(0.05).critMultiBiala2h(0.15).build(), ItemGenre.WHITE_2H, ItemType.KORBACZ, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-22).minDpsBiala2h(53).maxDpsBiala2h(98).critChanceBiala2h(0.20).atakiBiala(1).trafienieProcentoweBiala(0.08).critMultiBiala2h(0.23).build(), ItemGenre.WHITE_2H, ItemType.KORBACZ, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-22).minDpsBiala2h(70).maxDpsBiala2h(130).critChanceBiala2h(0.26).atakiBiala(1).trafienieProcentoweBiala(0.10).critMultiBiala2h(0.30).build(), ItemGenre.WHITE_2H, ItemType.KORBACZ, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-22).minDpsBiala2h(48).maxDpsBiala2h(88).critChanceBiala2h(0.18).atakiBiala(1).trafienieProcentoweBiala(0.07).critMultiBiala2h(0.21).build(), ItemGenre.WHITE_2H, ItemType.KORBACZ, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-22).minDpsBiala2h(72).maxDpsBiala2h(133).critChanceBiala2h(0.27).atakiBiala(1).trafienieProcentoweBiala(0.11).critMultiBiala2h(0.32).build(), ItemGenre.WHITE_2H, ItemType.KORBACZ, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-22).minDpsBiala2h(95).maxDpsBiala2h(176).critChanceBiala2h(0.36).atakiBiala(1).trafienieProcentoweBiala(0.14).critMultiBiala2h(0.41).build(), ItemGenre.WHITE_2H, ItemType.KORBACZ, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-22).minDpsBiala2h(119).maxDpsBiala2h(221).critChanceBiala2h(0.45).atakiBiala(1).trafienieProcentoweBiala(0.18).critMultiBiala2h(0.52).build(), ItemGenre.WHITE_2H, ItemType.KORBACZ, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(-28).minDpsBiala2h(80).maxDpsBiala2h(95).critChanceBiala2h(0.13).atakiBiala(1).trafienieProcentoweBiala(0.05).build(), ItemGenre.WHITE_2H, ItemType.HALABARDA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-28).minDpsBiala2h(120).maxDpsBiala2h(143).critChanceBiala2h(0.20).atakiBiala(1).trafienieProcentoweBiala(0.08).build(), ItemGenre.WHITE_2H, ItemType.HALABARDA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-28).minDpsBiala2h(160).maxDpsBiala2h(190).critChanceBiala2h(0.26).atakiBiala(1).trafienieProcentoweBiala(0.10).build(), ItemGenre.WHITE_2H, ItemType.HALABARDA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-28).minDpsBiala2h(108).maxDpsBiala2h(129).critChanceBiala2h(0.18).atakiBiala(1).trafienieProcentoweBiala(0.07).build(), ItemGenre.WHITE_2H, ItemType.HALABARDA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-28).minDpsBiala2h(162).maxDpsBiala2h(194).critChanceBiala2h(0.28).atakiBiala(1).trafienieProcentoweBiala(0.11).build(), ItemGenre.WHITE_2H, ItemType.HALABARDA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-28).minDpsBiala2h(216).maxDpsBiala2h(257).critChanceBiala2h(0.36).atakiBiala(1).trafienieProcentoweBiala(0.14).build(), ItemGenre.WHITE_2H, ItemType.HALABARDA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-28).minDpsBiala2h(270).maxDpsBiala2h(322).critChanceBiala2h(0.45).atakiBiala(1).trafienieProcentoweBiala(0.18).build(), ItemGenre.WHITE_2H, ItemType.HALABARDA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(-34).minDpsBiala2h(40).maxDpsBiala2h(65).critChanceBiala2h(0.14).atakiBiala(1).trafienieProcentoweBiala(0.10).critMultiBiala2h(0.20).build(), ItemGenre.WHITE_2H, ItemType.KATANA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-34).minDpsBiala2h(60).maxDpsBiala2h(98).critChanceBiala2h(0.21).atakiBiala(1).trafienieProcentoweBiala(0.15).critMultiBiala2h(0.30).build(), ItemGenre.WHITE_2H, ItemType.KATANA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-34).minDpsBiala2h(80).maxDpsBiala2h(130).critChanceBiala2h(0.28).atakiBiala(1).trafienieProcentoweBiala(0.20).critMultiBiala2h(0.40).build(), ItemGenre.WHITE_2H, ItemType.KATANA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-34).minDpsBiala2h(54).maxDpsBiala2h(88).critChanceBiala2h(0.19).atakiBiala(1).trafienieProcentoweBiala(0.14).critMultiBiala2h(0.27).build(), ItemGenre.WHITE_2H, ItemType.KATANA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-34).minDpsBiala2h(81).maxDpsBiala2h(133).critChanceBiala2h(0.29).atakiBiala(1).trafienieProcentoweBiala(0.21).critMultiBiala2h(0.41).build(), ItemGenre.WHITE_2H, ItemType.KATANA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-34).minDpsBiala2h(108).maxDpsBiala2h(176).critChanceBiala2h(0.38).atakiBiala(1).trafienieProcentoweBiala(0.27).critMultiBiala2h(0.54).build(), ItemGenre.WHITE_2H, ItemType.KATANA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-34).minDpsBiala2h(135).maxDpsBiala2h(221).critChanceBiala2h(0.48).atakiBiala(1).trafienieProcentoweBiala(0.34).critMultiBiala2h(0.68).build(), ItemGenre.WHITE_2H, ItemType.KATANA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().trafienieBiala(-40).minDpsBiala2h(90).maxDpsBiala2h(110).critChanceBiala2h(0.15).atakiBiala(1).critMultiBiala2h(0.25).build(), ItemGenre.WHITE_2H, ItemType.PILALANCUCHOWA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-40).minDpsBiala2h(135).maxDpsBiala2h(165).critChanceBiala2h(0.23).atakiBiala(1).critMultiBiala2h(0.38).build(), ItemGenre.WHITE_2H, ItemType.PILALANCUCHOWA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-40).minDpsBiala2h(180).maxDpsBiala2h(220).critChanceBiala2h(0.30).atakiBiala(1).critMultiBiala2h(0.50).build(), ItemGenre.WHITE_2H, ItemType.PILALANCUCHOWA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-40).minDpsBiala2h(122).maxDpsBiala2h(149).critChanceBiala2h(0.21).atakiBiala(1).critMultiBiala2h(0.34).build(), ItemGenre.WHITE_2H, ItemType.PILALANCUCHOWA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-40).minDpsBiala2h(183).maxDpsBiala2h(223).critChanceBiala2h(0.32).atakiBiala(1).critMultiBiala2h(0.52).build(), ItemGenre.WHITE_2H, ItemType.PILALANCUCHOWA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-40).minDpsBiala2h(243).maxDpsBiala2h(297).critChanceBiala2h(0.41).atakiBiala(1).critMultiBiala2h(0.68).build(), ItemGenre.WHITE_2H, ItemType.PILALANCUCHOWA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().trafienieBiala(-40).minDpsBiala2h(304).maxDpsBiala2h(372).critChanceBiala2h(0.52).atakiBiala(1).critMultiBiala2h(0.86).build(), ItemGenre.WHITE_2H, ItemType.PILALANCUCHOWA, ItemRarity.EPICKI));
 
-    bases.push(new Base(Stats.builder().minDpsPalna1h(6).maxDpsPalna1h(12).atakiPalna(2).build(), ItemGenre.GUN_1H, ItemType.GLOCK, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(9).maxDpsPalna1h(18).atakiPalna(3).build(), ItemGenre.GUN_1H, ItemType.GLOCK, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(12).maxDpsPalna1h(24).atakiPalna(4).build(), ItemGenre.GUN_1H, ItemType.GLOCK, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(9).maxDpsPalna1h(17).atakiPalna(3).build(), ItemGenre.GUN_1H, ItemType.GLOCK, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(13).maxDpsPalna1h(25).atakiPalna(5).build(), ItemGenre.GUN_1H, ItemType.GLOCK, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(17).maxDpsPalna1h(33).atakiPalna(6).build(), ItemGenre.GUN_1H, ItemType.GLOCK, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(21).maxDpsPalna1h(41).atakiPalna(7).build(), ItemGenre.GUN_1H, ItemType.GLOCK, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(10).maxDpsPalna1h(16).atakiPalna(2).build(), ItemGenre.GUN_1H, ItemType.MAGNUM, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(15).maxDpsPalna1h(24).atakiPalna(3).build(), ItemGenre.GUN_1H, ItemType.MAGNUM, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(20).maxDpsPalna1h(32).atakiPalna(4).build(), ItemGenre.GUN_1H, ItemType.MAGNUM, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(14).maxDpsPalna1h(22).atakiPalna(3).build(), ItemGenre.GUN_1H, ItemType.MAGNUM, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(21).maxDpsPalna1h(33).atakiPalna(5).build(), ItemGenre.GUN_1H, ItemType.MAGNUM, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(27).maxDpsPalna1h(44).atakiPalna(6).build(), ItemGenre.GUN_1H, ItemType.MAGNUM, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(34).maxDpsPalna1h(54).atakiPalna(7).build(), ItemGenre.GUN_1H, ItemType.MAGNUM, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(12).maxDpsPalna1h(18).atakiPalna(2).critChancePalna1h(0.01).critMultiPalna1h(0.25).trafienieProcentowePalna(0.05).build(), ItemGenre.GUN_1H, ItemType.DESERT_EAGLE, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(18).maxDpsPalna1h(27).atakiPalna(3).critChancePalna1h(0.02).critMultiPalna1h(0.38).trafienieProcentowePalna(0.08).build(), ItemGenre.GUN_1H, ItemType.DESERT_EAGLE, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(24).maxDpsPalna1h(36).atakiPalna(4).critChancePalna1h(0.02).critMultiPalna1h(0.50).trafienieProcentowePalna(0.10).build(), ItemGenre.GUN_1H, ItemType.DESERT_EAGLE, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(17).maxDpsPalna1h(25).atakiPalna(3).critChancePalna1h(0.02).critMultiPalna1h(0.34).trafienieProcentowePalna(0.07).build(), ItemGenre.GUN_1H, ItemType.DESERT_EAGLE, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(25).maxDpsPalna1h(37).atakiPalna(5).critChancePalna1h(0.03).critMultiPalna1h(0.52).trafienieProcentowePalna(0.11).build(), ItemGenre.GUN_1H, ItemType.DESERT_EAGLE, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(33).maxDpsPalna1h(49).atakiPalna(6).critChancePalna1h(0.03).critMultiPalna1h(0.68).trafienieProcentowePalna(0.14).build(), ItemGenre.GUN_1H, ItemType.DESERT_EAGLE, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(41).maxDpsPalna1h(61).atakiPalna(7).critChancePalna1h(0.05).critMultiPalna1h(0.86).trafienieProcentowePalna(0.18).build(), ItemGenre.GUN_1H, ItemType.DESERT_EAGLE, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(4).maxDpsPalna1h(9).atakiPalna(3).build(), ItemGenre.GUN_1H, ItemType.BERETTA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(6).maxDpsPalna1h(14).atakiPalna(5).build(), ItemGenre.GUN_1H, ItemType.BERETTA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(8).maxDpsPalna1h(18).atakiPalna(6).build(), ItemGenre.GUN_1H, ItemType.BERETTA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(6).maxDpsPalna1h(13).atakiPalna(5).build(), ItemGenre.GUN_1H, ItemType.BERETTA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(9).maxDpsPalna1h(19).atakiPalna(7).build(), ItemGenre.GUN_1H, ItemType.BERETTA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(11).maxDpsPalna1h(25).atakiPalna(9).build(), ItemGenre.GUN_1H, ItemType.BERETTA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(14).maxDpsPalna1h(32).atakiPalna(11).build(), ItemGenre.GUN_1H, ItemType.BERETTA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(1).maxDpsPalna1h(15).atakiPalna(3).build(), ItemGenre.GUN_1H, ItemType.UZI, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(2).maxDpsPalna1h(23).atakiPalna(5).build(), ItemGenre.GUN_1H, ItemType.UZI, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(2).maxDpsPalna1h(30).atakiPalna(6).build(), ItemGenre.GUN_1H, ItemType.UZI, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(2).maxDpsPalna1h(21).atakiPalna(5).build(), ItemGenre.GUN_1H, ItemType.UZI, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(3).maxDpsPalna1h(32).atakiPalna(7).build(), ItemGenre.GUN_1H, ItemType.UZI, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(3).maxDpsPalna1h(41).atakiPalna(9).build(), ItemGenre.GUN_1H, ItemType.UZI, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(5).maxDpsPalna1h(52).atakiPalna(11).build(), ItemGenre.GUN_1H, ItemType.UZI, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(6).maxDpsPalna1h(18).atakiPalna(3).critChancePalna1h(0.02).trafienieProcentowePalna(0.10).build(), ItemGenre.GUN_1H, ItemType.MP5K, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(9).maxDpsPalna1h(27).atakiPalna(5).critChancePalna1h(0.03).trafienieProcentowePalna(0.15).build(), ItemGenre.GUN_1H, ItemType.MP5K, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(12).maxDpsPalna1h(36).atakiPalna(6).critChancePalna1h(0.04).trafienieProcentowePalna(0.20).build(), ItemGenre.GUN_1H, ItemType.MP5K, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(9).maxDpsPalna1h(25).atakiPalna(5).critChancePalna1h(0.03).trafienieProcentowePalna(0.14).build(), ItemGenre.GUN_1H, ItemType.MP5K, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(13).maxDpsPalna1h(37).atakiPalna(7).critChancePalna1h(0.05).trafienieProcentowePalna(0.21).build(), ItemGenre.GUN_1H, ItemType.MP5K, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(17).maxDpsPalna1h(49).atakiPalna(9).critChancePalna1h(0.06).trafienieProcentowePalna(0.27).build(), ItemGenre.GUN_1H, ItemType.MP5K, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(21).maxDpsPalna1h(61).atakiPalna(18).trafienieProcentowePalna(0.34).critChancePalna1h(0.07).build(), ItemGenre.GUN_1H, ItemType.MP5K, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(3).maxDpsPalna1h(12).atakiPalna(4).critChancePalna1h(0.05).trafienieProcentowePalna(0.05).build(), ItemGenre.GUN_1H, ItemType.SKORPION, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(5).maxDpsPalna1h(18).atakiPalna(6).critChancePalna1h(0.08).trafienieProcentowePalna(0.08).build(), ItemGenre.GUN_1H, ItemType.SKORPION, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(6).maxDpsPalna1h(24).atakiPalna(8).critChancePalna1h(0.10).trafienieProcentowePalna(0.10).build(), ItemGenre.GUN_1H, ItemType.SKORPION, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(5).maxDpsPalna1h(17).atakiPalna(6).critChancePalna1h(0.07).trafienieProcentowePalna(0.07).build(), ItemGenre.GUN_1H, ItemType.SKORPION, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(7).maxDpsPalna1h(25).atakiPalna(9).critChancePalna1h(0.11).trafienieProcentowePalna(0.11).build(), ItemGenre.GUN_1H, ItemType.SKORPION, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(9).maxDpsPalna1h(33).atakiPalna(11).critChancePalna1h(0.14).trafienieProcentowePalna(0.14).build(), ItemGenre.GUN_1H, ItemType.SKORPION, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna1h(11).maxDpsPalna1h(41).atakiPalna(21).critChancePalna1h(0.18).trafienieProcentowePalna(0.18).build(), ItemGenre.GUN_1H, ItemType.SKORPION, ItemRarity.EPICKI));
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(4).bazaDpsMin(3).bazaDpsMax(6).atakiNaRunde(1).build(), ItemGenre.WHITE_1H, ItemType.PALKA));
 
-    bases.push(new Base(Stats.builder().minDpsPalna2h(10).maxDpsPalna2h(20).atakiPalna(2).critChancePalna2h(0.20).ignoreObrony(0.40).spostrzegawczosc(2).build(), ItemGenre.GUN_2H, ItemType.KARABINMYSLIWSKI, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(15).maxDpsPalna2h(30).atakiPalna(3).critChancePalna2h(0.30).ignoreObrony(0.60).spostrzegawczosc(3).build(), ItemGenre.GUN_2H, ItemType.KARABINMYSLIWSKI, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(20).maxDpsPalna2h(40).atakiPalna(4).critChancePalna2h(0.40).ignoreObrony(0.80).spostrzegawczosc(4).build(), ItemGenre.GUN_2H, ItemType.KARABINMYSLIWSKI, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(14).maxDpsPalna2h(27).atakiPalna(3).critChancePalna2h(0.27).ignoreObrony(0.54).spostrzegawczosc(3).build(), ItemGenre.GUN_2H, ItemType.KARABINMYSLIWSKI, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(21).maxDpsPalna2h(41).atakiPalna(5).critChancePalna2h(0.41).ignoreObrony(0.81).spostrzegawczosc(5).build(), ItemGenre.GUN_2H, ItemType.KARABINMYSLIWSKI, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(27).maxDpsPalna2h(54).atakiPalna(6).critChancePalna2h(0.54).ignoreObrony(1.08).spostrzegawczosc(6).build(), ItemGenre.GUN_2H, ItemType.KARABINMYSLIWSKI, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(34).maxDpsPalna2h(68).atakiPalna(7).critChancePalna2h(0.68).ignoreObrony(1.35).spostrzegawczosc(7).build(), ItemGenre.GUN_2H, ItemType.KARABINMYSLIWSKI, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(20).maxDpsPalna2h(60).atakiPalna(3).critChancePalna2h(0.25).ignoreObrony(0.50).trafieniePalna(10).build(), ItemGenre.GUN_2H, ItemType.STRZELBA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(30).maxDpsPalna2h(90).atakiPalna(4).critChancePalna2h(0.38).ignoreObrony(0.50).trafieniePalna(15).build(), ItemGenre.GUN_2H, ItemType.STRZELBA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(40).maxDpsPalna2h(120).atakiPalna(5).critChancePalna2h(0.50).ignoreObrony(0.50).trafieniePalna(20).build(), ItemGenre.GUN_2H, ItemType.STRZELBA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(27).maxDpsPalna2h(81).atakiPalna(4).critChancePalna2h(0.34).ignoreObrony(0.50).trafieniePalna(14).build(), ItemGenre.GUN_2H, ItemType.STRZELBA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(41).maxDpsPalna2h(122).atakiPalna(6).critChancePalna2h(0.52).ignoreObrony(0.50).trafieniePalna(21).build(), ItemGenre.GUN_2H, ItemType.STRZELBA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(54).maxDpsPalna2h(162).atakiPalna(7).critChancePalna2h(0.68).ignoreObrony(0.50).trafieniePalna(27).build(), ItemGenre.GUN_2H, ItemType.STRZELBA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(68).maxDpsPalna2h(203).atakiPalna(8).critChancePalna2h(0.86).ignoreObrony(0.50).trafieniePalna(34).build(), ItemGenre.GUN_2H, ItemType.STRZELBA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(15).maxDpsPalna2h(25).atakiPalna(5).build(), ItemGenre.GUN_2H, ItemType.AK47, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(23).maxDpsPalna2h(38).atakiPalna(8).build(), ItemGenre.GUN_2H, ItemType.AK47, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(30).maxDpsPalna2h(50).atakiPalna(10).build(), ItemGenre.GUN_2H, ItemType.AK47, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(21).maxDpsPalna2h(34).atakiPalna(7).build(), ItemGenre.GUN_2H, ItemType.AK47, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(32).maxDpsPalna2h(52).atakiPalna(11).build(), ItemGenre.GUN_2H, ItemType.AK47, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(41).maxDpsPalna2h(68).atakiPalna(14).build(), ItemGenre.GUN_2H, ItemType.AK47, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(52).maxDpsPalna2h(86).atakiPalna(18).critChancePalna2h(0.18).build(), ItemGenre.GUN_2H, ItemType.AK47, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(15).maxDpsPalna2h(50).atakiPalna(1).critChancePalna2h(0.50).critMultiPalna2h(0.25).ignoreObrony(1.00).trafieniePalna(-10).twardosc(0.05).build(), ItemGenre.GUN_2H, ItemType.MIOTACZPLOMIENI, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(23).maxDpsPalna2h(75).atakiPalna(1).critChancePalna2h(0.75).critMultiPalna2h(0.38).ignoreObrony(1.00).trafieniePalna(-10).twardosc(0.08).build(), ItemGenre.GUN_2H, ItemType.MIOTACZPLOMIENI, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(30).maxDpsPalna2h(100).atakiPalna(1).critChancePalna2h(1.00).critMultiPalna2h(0.50).ignoreObrony(1.00).trafieniePalna(-10).twardosc(0.10).build(), ItemGenre.GUN_2H, ItemType.MIOTACZPLOMIENI, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(21).maxDpsPalna2h(68).atakiPalna(1).critChancePalna2h(0.68).critMultiPalna2h(0.34).ignoreObrony(1.00).trafieniePalna(-10).twardosc(0.07).build(), ItemGenre.GUN_2H, ItemType.MIOTACZPLOMIENI, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(32).maxDpsPalna2h(102).atakiPalna(1).critChancePalna2h(1.02).critMultiPalna2h(0.52).ignoreObrony(1.00).trafieniePalna(-10).twardosc(0.11).build(), ItemGenre.GUN_2H, ItemType.MIOTACZPLOMIENI, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(41).maxDpsPalna2h(135).atakiPalna(1).critChancePalna2h(1.35).critMultiPalna2h(0.68).ignoreObrony(1.00).trafieniePalna(-10).twardosc(0.14).build(), ItemGenre.GUN_2H, ItemType.MIOTACZPLOMIENI, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(52).maxDpsPalna2h(169).atakiPalna(1).critChancePalna2h(1.69).critMultiPalna2h(0.86).ignoreObrony(1.00).trafieniePalna(-10).twardosc(0.18).build(), ItemGenre.GUN_2H, ItemType.MIOTACZPLOMIENI, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(30 + Math.floor(playerLvl / 4)).maxDpsPalna2h(45 + Math.floor(playerLvl / 4)).atakiPalna(3).trafienieProcentowePalna(0.05).critChancePalna2h(0.05).build(), ItemGenre.GUN_2H, ItemType.FN_FAL, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(45 + Math.floor(playerLvl * 2 / 4)).maxDpsPalna2h(68 + Math.floor(playerLvl * 2 / 4)).atakiPalna(5).trafienieProcentowePalna(0.08).critChancePalna2h(0.08).build(), ItemGenre.GUN_2H, ItemType.FN_FAL, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(60 + Math.floor(playerLvl * 2 / 4)).maxDpsPalna2h(90 + Math.floor(playerLvl * 2 / 4)).atakiPalna(6).trafienieProcentowePalna(0.10).critChancePalna2h(0.10).build(), ItemGenre.GUN_2H, ItemType.FN_FAL, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(41 + Math.floor(playerLvl * 2 / 4)).maxDpsPalna2h(61 + Math.floor(playerLvl * 2 / 4)).atakiPalna(5).trafienieProcentowePalna(0.07).critChancePalna2h(0.07).build(), ItemGenre.GUN_2H, ItemType.FN_FAL, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(61 + Math.floor(playerLvl * 3 / 4)).maxDpsPalna2h(92 + Math.floor(playerLvl * 3 / 4)).atakiPalna(7).trafienieProcentowePalna(0.11).critChancePalna2h(0.11).build(), ItemGenre.GUN_2H, ItemType.FN_FAL, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(81 + Math.floor(playerLvl * 3 / 4)).maxDpsPalna2h(122 + Math.floor(playerLvl * 3 / 4)).atakiPalna(9).trafienieProcentowePalna(0.14).critChancePalna2h(0.14).build(), ItemGenre.GUN_2H, ItemType.FN_FAL, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(102 + Math.floor(playerLvl * 5 / 4)).maxDpsPalna2h(153 + Math.floor(playerLvl * 5 / 4)).atakiPalna(11).trafienieProcentowePalna(0.18).critChancePalna2h(0.18).build(), ItemGenre.GUN_2H, ItemType.FN_FAL, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(15).maxDpsPalna2h(25).atakiPalna(4).critChancePalna2h(0.25).ignoreObrony(0.30).trafienieProcentowePalna(0.05).build(), ItemGenre.GUN_2H, ItemType.POLAUTOMATSNAJPERSKI, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(23).maxDpsPalna2h(38).atakiPalna(6).critChancePalna2h(0.38).ignoreObrony(0.45).trafienieProcentowePalna(0.08).build(), ItemGenre.GUN_2H, ItemType.POLAUTOMATSNAJPERSKI, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(30).maxDpsPalna2h(50).atakiPalna(8).critChancePalna2h(0.50).ignoreObrony(0.60).trafienieProcentowePalna(0.10).build(), ItemGenre.GUN_2H, ItemType.POLAUTOMATSNAJPERSKI, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(21).maxDpsPalna2h(34).atakiPalna(6).critChancePalna2h(0.35).ignoreObrony(0.51).trafienieProcentowePalna(0.07).build(), ItemGenre.GUN_2H, ItemType.POLAUTOMATSNAJPERSKI, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(32).maxDpsPalna2h(52).atakiPalna(10).critChancePalna2h(0.52).ignoreObrony(0.61).trafienieProcentowePalna(0.11).build(), ItemGenre.GUN_2H, ItemType.POLAUTOMATSNAJPERSKI, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(41).maxDpsPalna2h(68).atakiPalna(12).critChancePalna2h(0.68).ignoreObrony(0.81).trafienieProcentowePalna(0.14).build(), ItemGenre.GUN_2H, ItemType.POLAUTOMATSNAJPERSKI, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(52).maxDpsPalna2h(86).atakiPalna(14).critChancePalna2h(0.86).ignoreObrony(1.02).trafienieProcentowePalna(0.18).build(), ItemGenre.GUN_2H, ItemType.POLAUTOMATSNAJPERSKI, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(80).maxDpsPalna2h(80).atakiPalna(2).critChancePalna2h(0.50).ignoreObrony(1.00).trafienieProcentowePalna(0.05).spostrzegawczosc(4).zwinnosc(-5).build(), ItemGenre.GUN_2H, ItemType.KARABINSNAJPERSKI, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(120).maxDpsPalna2h(120).atakiPalna(3).critChancePalna2h(0.75).ignoreObrony(1.00).trafienieProcentowePalna(0.08).spostrzegawczosc(6).zwinnosc(-5).build(), ItemGenre.GUN_2H, ItemType.KARABINSNAJPERSKI, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(160).maxDpsPalna2h(160).atakiPalna(4).critChancePalna2h(1.00).ignoreObrony(1.00).trafienieProcentowePalna(0.10).spostrzegawczosc(8).zwinnosc(-5).build(), ItemGenre.GUN_2H, ItemType.KARABINSNAJPERSKI, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(108).maxDpsPalna2h(108).atakiPalna(3).critChancePalna2h(0.68).ignoreObrony(1.00).trafienieProcentowePalna(0.07).spostrzegawczosc(6).zwinnosc(-5).build(), ItemGenre.GUN_2H, ItemType.KARABINSNAJPERSKI, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(162).maxDpsPalna2h(162).atakiPalna(5).critChancePalna2h(1.02).ignoreObrony(1.00).trafienieProcentowePalna(0.11).spostrzegawczosc(9).zwinnosc(-5).build(), ItemGenre.GUN_2H, ItemType.KARABINSNAJPERSKI, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(216).maxDpsPalna2h(216).atakiPalna(6).critChancePalna2h(1.35).ignoreObrony(1.00).trafienieProcentowePalna(0.14).spostrzegawczosc(11).zwinnosc(-5).build(), ItemGenre.GUN_2H, ItemType.KARABINSNAJPERSKI, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsPalna2h(270).maxDpsPalna2h(270).atakiPalna(8).critChancePalna2h(1.69).ignoreObrony(1.00).trafienieProcentowePalna(0.18).spostrzegawczosc(14).zwinnosc(-5).build(), ItemGenre.GUN_2H, ItemType.KARABINSNAJPERSKI, ItemRarity.EPICKI));
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(5).bazaDpsMin(5).bazaDpsMax(6).atakiNaRunde(1).build(), ItemGenre.WHITE_1H, ItemType.NOZ));
 
-    bases.push(new Base(Stats.builder().minDpsDystans1h(18).maxDpsDystans1h(22).atakiDystans1h(2).trafienieDystans(3).build(), ItemGenre.RANGE_1H, ItemType.KROTKILUK, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(27).maxDpsDystans1h(33).atakiDystans1h(3).trafienieDystans(5).build(), ItemGenre.RANGE_1H, ItemType.KROTKILUK, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(36).maxDpsDystans1h(44).atakiDystans1h(4).trafienieDystans(6).build(), ItemGenre.RANGE_1H, ItemType.KROTKILUK, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(25).maxDpsDystans1h(30).atakiDystans1h(3).trafienieDystans(5).build(), ItemGenre.RANGE_1H, ItemType.KROTKILUK, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(37).maxDpsDystans1h(45).atakiDystans1h(5).trafienieDystans(7).build(), ItemGenre.RANGE_1H, ItemType.KROTKILUK, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(49).maxDpsDystans1h(60).atakiDystans1h(6).trafienieDystans(9).build(), ItemGenre.RANGE_1H, ItemType.KROTKILUK, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(61).maxDpsDystans1h(75).atakiDystans1h(7).trafienieDystans(11).build(), ItemGenre.RANGE_1H, ItemType.KROTKILUK, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(22).maxDpsDystans1h(26).atakiDystans1h(3).trafienieDystans(-5).build(), ItemGenre.RANGE_1H, ItemType.LUK, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(33).maxDpsDystans1h(39).atakiDystans1h(5).trafienieDystans(-5).build(), ItemGenre.RANGE_1H, ItemType.LUK, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(44).maxDpsDystans1h(52).atakiDystans1h(6).trafienieDystans(-5).build(), ItemGenre.RANGE_1H, ItemType.LUK, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(30).maxDpsDystans1h(36).atakiDystans1h(5).trafienieDystans(-5).build(), ItemGenre.RANGE_1H, ItemType.LUK, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(45).maxDpsDystans1h(53).atakiDystans1h(7).trafienieDystans(-5).build(), ItemGenre.RANGE_1H, ItemType.LUK, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(60).maxDpsDystans1h(71).atakiDystans1h(9).trafienieDystans(-5).build(), ItemGenre.RANGE_1H, ItemType.LUK, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(75).maxDpsDystans1h(88).atakiDystans1h(11).trafienieDystans(-5).build(), ItemGenre.RANGE_1H, ItemType.LUK, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(14).maxDpsDystans1h(18).atakiDystans1h(3).ignoreObrony(0.15).critChanceDystans(0.15).critMultiDystans1h(0.20).trafienieDystans(10).trafienieProcentoweDystans(0.10).build(), ItemGenre.RANGE_1H, ItemType.NOZDORZUCANIA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(21).maxDpsDystans1h(27).atakiDystans1h(5).ignoreObrony(0.23).critChanceDystans(0.23).critMultiDystans1h(0.30).trafienieDystans(8).trafienieProcentoweDystans(0.15).build(), ItemGenre.RANGE_1H, ItemType.NOZDORZUCANIA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(28).maxDpsDystans1h(36).atakiDystans1h(6).ignoreObrony(0.30).critChanceDystans(0.30).critMultiDystans1h(0.40).trafienieDystans(10).trafienieProcentoweDystans(0.2).build(), ItemGenre.RANGE_1H, ItemType.NOZDORZUCANIA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(19).maxDpsDystans1h(25).atakiDystans1h(5).ignoreObrony(0.21).critChanceDystans(0.21).critMultiDystans1h(0.27).trafienieDystans(7).trafienieProcentoweDystans(0.14).build(), ItemGenre.RANGE_1H, ItemType.NOZDORZUCANIA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(29).maxDpsDystans1h(37).atakiDystans1h(7).ignoreObrony(0.32).critChanceDystans(0.32).critMultiDystans1h(0.41).trafienieDystans(11).trafienieProcentoweDystans(0.21).build(), ItemGenre.RANGE_1H, ItemType.NOZDORZUCANIA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(38).maxDpsDystans1h(49).atakiDystans1h(9).ignoreObrony(0.51).critChanceDystans(0.41).critMultiDystans1h(0.54).trafienieDystans(14).trafienieProcentoweDystans(0.27).build(), ItemGenre.RANGE_1H, ItemType.NOZDORZUCANIA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(48).maxDpsDystans1h(61).atakiDystans1h(11).ignoreObrony(0.52).critChanceDystans(0.52).critMultiDystans1h(0.68).trafienieDystans(18).trafienieProcentoweDystans(0.34).build(), ItemGenre.RANGE_1H, ItemType.NOZDORZUCANIA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(18).maxDpsDystans1h(24).atakiDystans1h(4).ignoreObrony(0.10).critChanceDystans(0.15).critMultiDystans1h(0.30).trafienieProcentoweDystans(0.10).build(), ItemGenre.RANGE_1H, ItemType.TOPOREKDORZUCANIA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(27).maxDpsDystans1h(36).atakiDystans1h(6).ignoreObrony(0.15).critChanceDystans(0.23).critMultiDystans1h(0.45).trafienieProcentoweDystans(0.15).build(), ItemGenre.RANGE_1H, ItemType.TOPOREKDORZUCANIA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(36).maxDpsDystans1h(48).atakiDystans1h(8).ignoreObrony(0.20).critChanceDystans(0.30).critMultiDystans1h(0.60).trafienieDystans(10).trafienieProcentoweDystans(0.2).build(), ItemGenre.RANGE_1H, ItemType.TOPOREKDORZUCANIA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(25).maxDpsDystans1h(33).atakiDystans1h(6).ignoreObrony(0.14).critChanceDystans(0.21).critMultiDystans1h(0.41).trafienieDystans(7).trafienieProcentoweDystans(0.14).build(), ItemGenre.RANGE_1H, ItemType.TOPOREKDORZUCANIA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(37).maxDpsDystans1h(49).atakiDystans1h(9).ignoreObrony(0.21).critChanceDystans(0.32).critMultiDystans1h(0.61).trafienieDystans(11).trafienieProcentoweDystans(0.21).build(), ItemGenre.RANGE_1H, ItemType.TOPOREKDORZUCANIA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(49).maxDpsDystans1h(65).atakiDystans1h(11).ignoreObrony(0.27).critChanceDystans(0.41).critMultiDystans1h(0.81).trafienieDystans(14).trafienieProcentoweDystans(0.27).build(), ItemGenre.RANGE_1H, ItemType.TOPOREKDORZUCANIA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(61).maxDpsDystans1h(81).atakiDystans1h(14).ignoreObrony(0.34).critChanceDystans(0.52).critMultiDystans1h(1.02).trafienieDystans(18).trafienieProcentoweDystans(0.34).build(), ItemGenre.RANGE_1H, ItemType.TOPOREKDORZUCANIA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(25).maxDpsDystans1h(28).atakiDystans1h(5).critChanceDystans(0.18).critMultiDystans1h(0.30).trafienieDystans(7).trafienieProcentoweDystans(0.10).build(), ItemGenre.RANGE_1H, ItemType.SHURIKEN, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(38).maxDpsDystans1h(43).atakiDystans1h(8).critChanceDystans(0.27).critMultiDystans1h(0.45).trafienieDystans(11).trafienieProcentoweDystans(0.15).build(), ItemGenre.RANGE_1H, ItemType.SHURIKEN, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(50).maxDpsDystans1h(56).atakiDystans1h(10).critChanceDystans(0.36).critMultiDystans1h(0.60).trafienieDystans(14).trafienieProcentoweDystans(0.2).build(), ItemGenre.RANGE_1H, ItemType.SHURIKEN, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(35).maxDpsDystans1h(39).atakiDystans1h(7).critChanceDystans(0.14).critMultiDystans1h(0.51).trafienieDystans(10).trafienieProcentoweDystans(0.14).build(), ItemGenre.RANGE_1H, ItemType.SHURIKEN, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(53).maxDpsDystans1h(59).atakiDystans1h(11).critChanceDystans(0.21).critMultiDystans1h(0.61).trafienieDystans(15).trafienieProcentoweDystans(0.21).build(), ItemGenre.RANGE_1H, ItemType.SHURIKEN, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(68).maxDpsDystans1h(77).atakiDystans1h(14).critChanceDystans(0.27).critMultiDystans1h(0.81).trafienieDystans(19).trafienieProcentoweDystans(0.27).build(), ItemGenre.RANGE_1H, ItemType.SHURIKEN, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans1h(86).maxDpsDystans1h(97).atakiDystans1h(18).critChanceDystans(0.34).critMultiDystans1h(1.02).trafienieDystans(25).trafienieProcentoweDystans(0.34).build(), ItemGenre.RANGE_1H, ItemType.SHURIKEN, ItemRarity.EPICKI));
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(8).bazaDpsMin(7).bazaDpsMax(8).atakiNaRunde(1).build(), ItemGenre.WHITE_1H, ItemType.SZTYLET));
 
-    bases.push(new Base(Stats.builder().minDpsDystans2h(27).maxDpsDystans2h(42).atakiDystans2h(2).build(), ItemGenre.RANGE_2H, ItemType.DLUGILUK, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(41).maxDpsDystans2h(63).atakiDystans2h(3).build(), ItemGenre.RANGE_2H, ItemType.DLUGILUK, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(54).maxDpsDystans2h(84).atakiDystans2h(4).build(), ItemGenre.RANGE_2H, ItemType.DLUGILUK, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(37).maxDpsDystans2h(57).atakiDystans2h(3).build(), ItemGenre.RANGE_2H, ItemType.DLUGILUK, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(56).maxDpsDystans2h(86).atakiDystans2h(5).build(), ItemGenre.RANGE_2H, ItemType.DLUGILUK, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(73).maxDpsDystans2h(114).atakiDystans2h(6).build(), ItemGenre.RANGE_2H, ItemType.DLUGILUK, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(92).maxDpsDystans2h(142).atakiDystans2h(7).build(), ItemGenre.RANGE_2H, ItemType.DLUGILUK, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(30).maxDpsDystans2h(50).atakiDystans2h(2).build(), ItemGenre.RANGE_2H, ItemType.OSZCZEP, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(45).maxDpsDystans2h(75).atakiDystans2h(3).build(), ItemGenre.RANGE_2H, ItemType.OSZCZEP, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(60).maxDpsDystans2h(100).atakiDystans2h(4).build(), ItemGenre.RANGE_2H, ItemType.OSZCZEP, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(41).maxDpsDystans2h(68).atakiDystans2h(3).build(), ItemGenre.RANGE_2H, ItemType.OSZCZEP, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(61).maxDpsDystans2h(102).atakiDystans2h(5).build(), ItemGenre.RANGE_2H, ItemType.OSZCZEP, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(81).maxDpsDystans2h(135).atakiDystans2h(6).build(), ItemGenre.RANGE_2H, ItemType.OSZCZEP, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(102).maxDpsDystans2h(169).atakiDystans2h(7).build(), ItemGenre.RANGE_2H, ItemType.OSZCZEP, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(45).maxDpsDystans2h(60).atakiDystans2h(2).trafienieProcentoweDystans(0.05).build(), ItemGenre.RANGE_2H, ItemType.PILUM, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(68).maxDpsDystans2h(90).atakiDystans2h(3).trafienieProcentoweDystans(0.08).build(), ItemGenre.RANGE_2H, ItemType.PILUM, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(90).maxDpsDystans2h(120).atakiDystans2h(4).trafienieProcentoweDystans(0.10).build(), ItemGenre.RANGE_2H, ItemType.PILUM, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(61).maxDpsDystans2h(81).atakiDystans2h(3).trafienieProcentoweDystans(0.07).build(), ItemGenre.RANGE_2H, ItemType.PILUM, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(92).maxDpsDystans2h(122).atakiDystans2h(5).trafienieProcentoweDystans(0.11).build(), ItemGenre.RANGE_2H, ItemType.PILUM, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(122).maxDpsDystans2h(162).atakiDystans2h(6).trafienieProcentoweDystans(0.14).build(), ItemGenre.RANGE_2H, ItemType.PILUM, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(153).maxDpsDystans2h(203).atakiDystans2h(7).trafienieProcentoweDystans(0.18).build(), ItemGenre.RANGE_2H, ItemType.PILUM, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(20).maxDpsDystans2h(40).atakiDystans2h(2).ignoreObrony(0.15).critChanceDystans(0.18).critMultiDystans2h(0.25).trafienieProcentoweDystans(0.05).build(), ItemGenre.RANGE_2H, ItemType.KUSZA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(30).maxDpsDystans2h(60).atakiDystans2h(3).ignoreObrony(0.23).critChanceDystans(0.27).critMultiDystans2h(0.38).trafienieProcentoweDystans(0.08).build(), ItemGenre.RANGE_2H, ItemType.KUSZA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(40).maxDpsDystans2h(80).atakiDystans2h(4).ignoreObrony(0.30).critChanceDystans(0.36).critMultiDystans2h(0.50).trafienieProcentoweDystans(0.10).build(), ItemGenre.RANGE_2H, ItemType.KUSZA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(27).maxDpsDystans2h(54).atakiDystans2h(3).ignoreObrony(0.21).critChanceDystans(0.25).critMultiDystans2h(0.34).trafienieProcentoweDystans(0.07).build(), ItemGenre.RANGE_2H, ItemType.KUSZA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(41).maxDpsDystans2h(81).atakiDystans2h(5).ignoreObrony(0.32).critChanceDystans(0.38).critMultiDystans2h(0.52).trafienieProcentoweDystans(0.11).build(), ItemGenre.RANGE_2H, ItemType.KUSZA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(54).maxDpsDystans2h(108).atakiDystans2h(6).ignoreObrony(0.51).critChanceDystans(0.49).critMultiDystans2h(0.68).trafienieProcentoweDystans(0.14).build(), ItemGenre.RANGE_2H, ItemType.KUSZA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(68).maxDpsDystans2h(135).atakiDystans2h(7).ignoreObrony(0.52).critChanceDystans(0.61).critMultiDystans2h(0.86).trafienieProcentoweDystans(0.18).build(), ItemGenre.RANGE_2H, ItemType.KUSZA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(30).maxDpsDystans2h(70).atakiDystans2h(2).ignoreObrony(0.20).critChanceDystans(0.22).critMultiDystans2h(0.50).trafienieDystans(-10).trafienieProcentoweDystans(0.05).build(), ItemGenre.RANGE_2H, ItemType.CIEZKAKUSZA, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(45).maxDpsDystans2h(105).atakiDystans2h(3).ignoreObrony(0.30).critChanceDystans(0.33).critMultiDystans2h(0.75).trafienieDystans(-10).trafienieProcentoweDystans(0.08).build(), ItemGenre.RANGE_2H, ItemType.CIEZKAKUSZA, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(60).maxDpsDystans2h(140).atakiDystans2h(4).ignoreObrony(0.40).critChanceDystans(0.44).critMultiDystans2h(1.00).trafienieDystans(-10).trafienieProcentoweDystans(0.10).build(), ItemGenre.RANGE_2H, ItemType.CIEZKAKUSZA, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(41).maxDpsDystans2h(95).atakiDystans2h(3).ignoreObrony(0.27).critChanceDystans(0.31).critMultiDystans2h(0.68).trafienieDystans(-10).trafienieProcentoweDystans(0.07).build(), ItemGenre.RANGE_2H, ItemType.CIEZKAKUSZA, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(61).maxDpsDystans2h(142).atakiDystans2h(5).ignoreObrony(0.41).critChanceDystans(0.46).critMultiDystans2h(1.02).trafienieDystans(-10).trafienieProcentoweDystans(0.11).build(), ItemGenre.RANGE_2H, ItemType.CIEZKAKUSZA, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(81).maxDpsDystans2h(189).atakiDystans2h(6).ignoreObrony(0.54).critChanceDystans(0.60).critMultiDystans2h(1.35).trafienieDystans(-10).trafienieProcentoweDystans(0.14).build(), ItemGenre.RANGE_2H, ItemType.CIEZKAKUSZA, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(102).maxDpsDystans2h(237).atakiDystans2h(7).ignoreObrony(0.68).critChanceDystans(0.75).critMultiDystans2h(1.69).trafienieDystans(-10).trafienieProcentoweDystans(0.18).build(), ItemGenre.RANGE_2H, ItemType.CIEZKAKUSZA, ItemRarity.EPICKI));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(45).maxDpsDystans2h(55).atakiDystans2h(5).critMultiDystans2h(0.35).trafienieProcentoweDystans(0.05).build(), ItemGenre.RANGE_2H, ItemType.LUKREFLEKSYJNY, ItemRarity.ZWYKLY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(68).maxDpsDystans2h(83).atakiDystans2h(8).critMultiDystans2h(0.53).trafienieProcentoweDystans(0.08).build(), ItemGenre.RANGE_2H, ItemType.LUKREFLEKSYJNY, ItemRarity.DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(90).maxDpsDystans2h(110).atakiDystans2h(10).critMultiDystans2h(0.70).trafienieProcentoweDystans(0.10).build(), ItemGenre.RANGE_2H, ItemType.LUKREFLEKSYJNY, ItemRarity.DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(61).maxDpsDystans2h(75).atakiDystans2h(7).critMultiDystans2h(0.48).trafienieProcentoweDystans(0.07).build(), ItemGenre.RANGE_2H, ItemType.LUKREFLEKSYJNY, ItemRarity.LEGENDARNY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(92).maxDpsDystans2h(113).atakiDystans2h(11).critMultiDystans2h(0.72).trafienieProcentoweDystans(0.11).build(), ItemGenre.RANGE_2H, ItemType.LUKREFLEKSYJNY, ItemRarity.LEGENDARNY_DOBRY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(122).maxDpsDystans2h(149).atakiDystans2h(14).critMultiDystans2h(0.95).trafienieProcentoweDystans(0.14).build(), ItemGenre.RANGE_2H, ItemType.LUKREFLEKSYJNY, ItemRarity.LEGENDARNY_DOSKONALY));
-    bases.push(new Base(Stats.builder().minDpsDystans2h(153).maxDpsDystans2h(187).atakiDystans2h(18).critMultiDystans2h(1.19).trafienieProcentoweDystans(0.18).build(), ItemGenre.RANGE_2H, ItemType.LUKREFLEKSYJNY, ItemRarity.EPICKI));
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(10).bazaDpsMin(7).bazaDpsMax(10).atakiNaRunde(1).build(), ItemGenre.WHITE_1H, ItemType.RAPIER));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(6).bazaDpsMin(9).bazaDpsMax(12).atakiNaRunde(1).build(), ItemGenre.WHITE_1H, ItemType.MIECZ));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(8).bazaDpsMin(6).bazaDpsMax(25).critMulti(0.10).trafienieProcentowe(0.05).ignoreVsPotwory(0.20).atakiNaRunde(1).build(), ItemGenre.WHITE_1H, ItemType.TOPOR));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-4).bazaDpsMin(2).bazaDpsMax(3).trafienieProcentowe(0.10).atakiNaRunde(2).build(), ItemGenre.WHITE_1H, ItemType.KASTET));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(14).bazaDpsMax(32).critMulti(0.10).atakiNaRunde(1).atakiVsPotwory(2).trafienieProcentowe(0.05).build(), ItemGenre.WHITE_1H, ItemType.KAMA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-4).bazaDpsMin(10).bazaDpsMax(18).critChanceVsPotwory(0.05).atakiNaRunde(2).ignoreVsPotwory(0.15).build(), ItemGenre.WHITE_1H, ItemType.PIESCNIEBIOS));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(10).bazaDpsMin(22).bazaDpsMax(45).critMulti(0.20).atakiNaRunde(1).atakiVsPotwory(2).trafienieProcentowe(0.05).build(), ItemGenre.WHITE_1H, ItemType.WAKIZASHI));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-4).bazaDpsMin(15).bazaDpsMax(30).critChance(0.07).atakiNaRunde(1).build(), ItemGenre.WHITE_2H, ItemType.MACZUGA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-8).bazaDpsMin(20).bazaDpsMax(35).critChance(0.08).atakiNaRunde(1).build(), ItemGenre.WHITE_2H, ItemType.LOM));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-12).bazaDpsMin(5).bazaDpsMax(40).critChance(0.09).atakiNaRunde(1).build(), ItemGenre.WHITE_2H, ItemType.PIKA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-16).bazaDpsMin(20).bazaDpsMax(40).critChance(0.10).atakiNaRunde(1).build(), ItemGenre.WHITE_2H, ItemType.TOPORDWURECZNY));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(30).bazaDpsMax(40).critChance(0.11).atakiNaRunde(1).build(), ItemGenre.WHITE_2H, ItemType.MIECZDWURECZNY));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-24).bazaDpsMin(35).bazaDpsMax(50).critChance(0.12).atakiNaRunde(1).trafienieProcentowe(0.10).dpsVsPotwory(20).build(), ItemGenre.WHITE_2H, ItemType.KOSA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-22).bazaDpsMin(35).bazaDpsMax(65).critChance(0.13).atakiNaRunde(1).trafienieProcentowe(0.05).critMulti(0.15).build(), ItemGenre.WHITE_2H, ItemType.KORBACZ));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-28).bazaDpsMin(40).bazaDpsMax(55).critChance(0.13).atakiNaRunde(1).trafienieProcentowe(0.05).dpsVsPotwory(40).build(), ItemGenre.WHITE_2H, ItemType.HALABARDA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-34).bazaDpsMin(40).bazaDpsMax(65).critChance(0.14).atakiNaRunde(1).trafienieProcentowe(0.10).critMulti(0.20).build(), ItemGenre.WHITE_2H, ItemType.KATANA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaTrafienie(-40).bazaDpsMin(50).bazaDpsMax(70).critChance(0.15).atakiNaRunde(1).critMulti(0.25).dpsVsPotwory(40).build(), ItemGenre.WHITE_2H, ItemType.PILALANCUCHOWA));
+
+
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(6).bazaDpsMax(12).atakiNaRunde(2).build(), ItemGenre.GUN_1H, ItemType.GLOCK));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(10).bazaDpsMax(16).atakiNaRunde(2).build(), ItemGenre.GUN_1H, ItemType.MAGNUM));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(12).bazaDpsMax(18).atakiNaRunde(2).critChanceGlobal(0.01).critMultiVsPotwory(0.25).trafienieProcentowe(0.05).build(), ItemGenre.GUN_1H, ItemType.DESERT_EAGLE));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(4).bazaDpsMax(9).atakiNaRunde(3).build(), ItemGenre.GUN_1H, ItemType.BERETTA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(1).bazaDpsMax(15).atakiNaRunde(3).build(), ItemGenre.GUN_1H, ItemType.UZI));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(6).bazaDpsMax(18).atakiNaRunde(3).atakiVsPotwory(2).critChanceGlobal(0.02).trafienieProcentowe(0.10).build(), ItemGenre.GUN_1H, ItemType.MP5K));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(3).bazaDpsMax(12).atakiNaRunde(4).atakiVsPotwory(2).critChance(0.05).trafienieProcentowe(0.05).build(), ItemGenre.GUN_1H, ItemType.SKORPION));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(10).bazaDpsMax(20).atakiNaRunde(2).critChance(0.20).ignore(0.40).spostrzegawczosc(2).build(), ItemGenre.GUN_2H, ItemType.KARABINMYSLIWSKI));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(20).bazaDpsMax(60).atakiNaRunde(3).critChance(0.25).ignoreFlat(0.50).dodatkoweTrafienie(10).build(), ItemGenre.GUN_2H, ItemType.STRZELBA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(15).bazaDpsMax(25).atakiNaRunde(5).critChance(0.05).build(), ItemGenre.GUN_2H, ItemType.AK47));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(15).bazaDpsMax(50).atakiNaRunde(1).critChance(0.50).critMulti(0.25).ignoreFlat(1.00).bazaTrafienie(-10).twardosc(0.05).build(), ItemGenre.GUN_2H, ItemType.MIOTACZPLOMIENI));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(30).bazaDpsMax(45).obrazeniaPerLevel(1).atakiNaRunde(3).trafienieProcentowe(0.05).critChance(0.05).build(), ItemGenre.GUN_2H, ItemType.FN_FAL));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(15).bazaDpsMax(25).atakiNaRunde(2).atakiVsPotwory(2).critChance(0.25).ignore(0.30).trafienieProcentowe(0.05).build(), ItemGenre.GUN_2H, ItemType.POLAUTOMATSNAJPERSKI));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(80).bazaDpsMax(80).atakiNaRunde(1).atakiVsPotwory(2).critChance(0.50).ignoreFlat(1.00).trafienieProcentowe(0.05).spostrzegawczosc(4).zwinnosc(-5).build(), ItemGenre.GUN_2H, ItemType.KARABINSNAJPERSKI));
+
+
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(18).bazaDpsMax(22).atakiNaRunde(2).bazaTrafienie(3).build(), ItemGenre.RANGE_1H, ItemType.KROTKILUK));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(22).bazaDpsMax(26).atakiNaRunde(3).bazaTrafienie(-5).build(), ItemGenre.RANGE_1H, ItemType.LUK));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(27).bazaDpsMax(42).atakiNaRunde(2).build(), ItemGenre.RANGE_2H, ItemType.DLUGILUK));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(30).bazaDpsMax(50).atakiNaRunde(2).build(), ItemGenre.RANGE_2H, ItemType.OSZCZEP));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(45).bazaDpsMax(60).atakiNaRunde(2).trafienieProcentowe(0.05).build(), ItemGenre.RANGE_2H, ItemType.PILUM));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(14).bazaDpsMax(18).atakiNaRunde(3).ignoreVsPotwory(0.15).critChanceVsPotwory(0.15).critMultiVsPotwory(0.20).bazaTrafienie(5).trafienieProcentowe(0.10).build(), ItemGenre.RANGE_1H, ItemType.NOZDORZUCANIA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(18).bazaDpsMax(24).atakiNaRunde(4).ignoreVsPotwory(0.10).critChanceVsPotwory(0.15).critMultiVsPotwory(0.30).trafienieProcentowe(0.10).build(), ItemGenre.RANGE_1H, ItemType.TOPOREKDORZUCANIA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(20).bazaDpsMax(40).atakiNaRunde(2).ignore(0.15).critChance(0.08).critChanceVsPotwory(0.10).critMultiVsPotwory(0.25).trafienieProcentowe(0.05).build(), ItemGenre.RANGE_2H, ItemType.KUSZA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(10).bazaDpsMax(13).dpsVsPotwory(15).atakiNaRunde(5).critChanceVsPotwory(0.18).critMultiVsPotwory(0.30).bazaTrafienie(7).trafienieProcentowe(0.10).build(), ItemGenre.RANGE_1H, ItemType.SHURIKEN));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(30).bazaDpsMax(70).atakiNaRunde(2).critChance(0.12).ignore(0.20).critChanceVsPotwory(0.10).critMultiVsPotwory(0.50).bazaTrafienie(-10).trafienieProcentowe(0.05).build(), ItemGenre.RANGE_2H, ItemType.CIEZKAKUSZA));
+
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(45).bazaDpsMax(55).atakiNaRunde(3).atakiVsPotwory(2).critMultiVsPotwory(0.35).trafienieProcentowe(0.05).build(), ItemGenre.RANGE_2H, ItemType.LUKREFLEKSYJNY));
   }
 }

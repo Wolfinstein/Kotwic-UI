@@ -140,7 +140,7 @@ export class DashboardService {
       if (!item || item.rarity === null || !item.base) continue;
       const itemType = item.base as ItemType;
       const genre = this.getGenreForItemType(itemType);
-      const base = BaseDictionary.getBase(genre, itemType, item.rarity, c.poziom);
+      const base = BaseDictionary.getBase(genre, itemType);
       const builder = new ItemBuilder().setBase(base).setRarity(item.rarity);
       if (item.prefix) {
         const prefixType = this.getPrefixTypeByName(item.prefix);
@@ -148,7 +148,7 @@ export class DashboardService {
         let prefix: Prefix;
         switch (dictionaryType) {
           case 'weapon':
-            prefix = WeaponDictionary.getWeaponPrefix(genre, prefixType, item.rarity, c.poziom);
+            prefix = WeaponDictionary.getWeaponPrefix(genre, prefixType);
             break;
           case 'armour':
             if (genre == 'legs') {
@@ -169,7 +169,7 @@ export class DashboardService {
         let suffix: Suffix;
         switch (dictionaryType) {
           case 'weapon':
-            suffix = WeaponDictionary.getWeaponSuffix(genre, suffixType, item.rarity, c.poziom);
+            suffix = WeaponDictionary.getWeaponSuffix(genre, suffixType);
             break;
           case 'armour':
             suffix = ArmourDictionary.getArmourSuffix(genre, suffixType, c.poziom);
@@ -1018,7 +1018,7 @@ export class DashboardService {
       let trafienieProcentowe = 1;
       let critChance = 0;
       let critMulti = 1;
-      player.resolveWeaponItem(weapon);
+      player.resolveWeaponItem(weapon, player.lvl);
       const bonusResults = this.resolveBonuses(player.bonuses, player, weapon, genre);
       minDmg += bonusResults.minDmg;
       maxDmg += bonusResults.maxDmg;
