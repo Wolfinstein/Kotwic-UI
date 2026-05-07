@@ -49,9 +49,9 @@ export class WeaponDictionary {
     prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.ZATRUTY, new WeaponStatsBuilder().critChance(0.05).build()));
     prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.ANTYCZNY, new WeaponStatsBuilder().dpsBroniMin(5).dpsBroniMax(5).zwinnosc(10).build()));
     prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.ZABOJCZY, new WeaponStatsBuilder().dpsBroniMin(12).dpsBroniMax(12).build()));
-    prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.ZWINNY, new WeaponStatsBuilder().atakiNaRunde(1).build()));
+    prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.ZWINNY, new WeaponStatsBuilder().atakiVsPotwory(1).build()));
     prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.PRZEKLETY, new WeaponStatsBuilder().dpsBroniMin(30).dpsBroniMax(30).obrazeniaPerLevel(2).bazoweHp(-0.10).build()));
-    prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.SZYBKI, new WeaponStatsBuilder().atakiNaRunde(2).build()));
+    prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.SZYBKI, new WeaponStatsBuilder().atakiVsPotwory(2).build()));
     prefixes.push(new Prefix(ItemGenre.WHITE_1H, PrefixType.DEMONICZNY, new WeaponStatsBuilder().obrazeniaPerLevel(2).zwinnosc(10).build()));
 
     prefixes.push(new Prefix(ItemGenre.WHITE_2H, PrefixType.OSTRY, new WeaponStatsBuilder().dpsBroniMin(2).dpsBroniMax(2).build()));
@@ -73,7 +73,7 @@ export class WeaponDictionary {
     prefixes.push(new Prefix(ItemGenre.WHITE_2H, PrefixType.ZATRUTY, new WeaponStatsBuilder().critChance(0.15).build()));
     prefixes.push(new Prefix(ItemGenre.WHITE_2H, PrefixType.ZABOJCZY, new WeaponStatsBuilder().critChance(0.05).ignore(0.20).dpsBroniMin(17).dpsBroniMax(17).build()));
     prefixes.push(new Prefix(ItemGenre.WHITE_2H, PrefixType.PRZEKLETY, new WeaponStatsBuilder().dpsBroniMin(2).obrazeniaPerLevel(2).ignore(0.07).build()));
-    prefixes.push(new Prefix(ItemGenre.WHITE_2H, PrefixType.ZWINNY, new WeaponStatsBuilder().atakiNaRunde(3).build()));
+    prefixes.push(new Prefix(ItemGenre.WHITE_2H, PrefixType.ZWINNY, new WeaponStatsBuilder().atakiVsPotwory(3).build()));
     prefixes.push(new Prefix(ItemGenre.WHITE_2H, PrefixType.DEMONICZNY, new WeaponStatsBuilder().obrazeniaPerLevel(2).zwinnosc(13).ignore(0.10).build()));
     return prefixes;
   }

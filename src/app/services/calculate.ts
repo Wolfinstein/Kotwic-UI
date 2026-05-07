@@ -59,7 +59,7 @@ export class DashboardService {
     this.calculateOneTimeBonus(c, player);
     this.calculateEventBonus(c, player);
     this.calculateStrateg(c, player);
-    let dashboard: DashboardValues = this.buildDashboardValues(player);
+    const dashboard: DashboardValues = this.buildDashboardValues(player);
     return dashboard;
   }
   calculateStrateg(c: Character, p: Player): void {
@@ -856,9 +856,10 @@ export class DashboardService {
       }
     }
   }
-  buildDashboardValues(player: Player): DashboardValues {
+
+  buildDashboardValues(p: Player): DashboardValues {
     try {
-      const weapons = player.items.filter(item =>
+      const weapons = p.items.filter(item =>
         item.base && (
           item.base.genre === ItemGenre.WHITE_1H ||
           item.base.genre === ItemGenre.WHITE_2H ||
@@ -868,13 +869,25 @@ export class DashboardService {
           item.base.genre === ItemGenre.RANGE_2H
         )
       );
+
       const obrazenia: WeaponDamage[] = [];
+
+      const pSnapshot = p.clone();
+
       for (const weapon of weapons) {
-        const damage = this.calculateWeaponDamage(weapon, player);
+        const weaponStats = p.resolveWeaponItem(weapon, p.lvl);
+        const tmpPlayer = pSnapshot.clone();
+        tmpPlayer.stats.addAgnosticStats(weaponStats);
+        const damage = this.calculateWeaponDamage(weapon, weaponStats, tmpPlayer);
         if (damage) {
           obrazenia.push(damage);
         }
+        p.stats.addAgnosticStats(weaponStats);
       }
+
+
+      const player = p.clone();
+
       const attributes: Attributes = {
         sila: player.stats.sila,
         zwinnosc: player.stats.zwinnosc,
@@ -890,7 +903,7 @@ export class DashboardService {
       const cappedRedukcja = Math.min(player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01, 0.30);
       const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
       return {
-        punktyZycia: player.life + player.baseLife,
+        punktyZycia: player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife),
         effectiveHp: effectiveHp,
         punktyKrwi: 0,
         szczescie: player.stats.szczescie,
@@ -927,6 +940,7 @@ export class DashboardService {
       ...otherBonuses,
       ...ambitjaBonuses
     ];
+    console.log(allBonusesToProcess)
     for (const b of allBonusesToProcess) {
       switch (b.type) {
         case 'SKRZYDLA':
@@ -936,10 +950,12 @@ export class DashboardService {
           player.addWyglad(Math.floor(player.stats.zwinnosc * (b.licznik / b.mianownik * b.mnoznik)));
           break;
         case 'MIESNIE':
+          console.log(minDmg);
           if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
             minDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
             maxDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
           }
+          console.log(minDmg);
           break;
         case 'BEHE':
           player.addZwinnosc(Math.floor(player.stats.sila * (b.licznik / b.mianownik * b.mnoznik)));
@@ -1008,8 +1024,9 @@ export class DashboardService {
     }
     return parts.join(' ');
   }
-  private calculateWeaponDamage(weapon: Item, player: Player): WeaponDamage | null {
+  private calculateWeaponDamage(weapon: Item, stats: Stats, p: Player): WeaponDamage | null {
     try {
+      let player = p.clone();
       const genre = weapon.base?.genre;
       let minDmg = 0;
       let maxDmg = 0;
@@ -1018,57 +1035,58 @@ export class DashboardService {
       let trafienieProcentowe = 1;
       let critChance = 0;
       let critMulti = 1;
-      player.resolveWeaponItem(weapon, player.lvl);
+      player.stats.addNonAgnosticStats(stats)
       const bonusResults = this.resolveBonuses(player.bonuses, player, weapon, genre);
+      console.log(bonusResults);
       minDmg += bonusResults.minDmg;
       maxDmg += bonusResults.maxDmg;
       if (genre === ItemGenre.WHITE_2H) {
-        minDmg = player.stats.minDpsBiala2h + player.stats.sila;
-        maxDmg = player.stats.maxDpsBiala2h + player.stats.sila;
-        ataki = player.stats.atakiBiala;
-        trafienie = (player.stats.trafienieBiala + player.stats.zwinnosc * 2) * (1 + player.stats.trafienieProcentoweBiala);
-        critChance = player.stats.critChanceBiala2h;
-        critMulti = player.stats.critMultiBiala2h + 4;
+        minDmg += player.stats.minDpsBiala2h + player.stats.sila;
+        maxDmg += player.stats.maxDpsBiala2h + player.stats.sila;
+        ataki += player.stats.atakiBiala;
+        trafienie += (player.stats.trafienieBiala + player.stats.zwinnosc * 2) * (1 + player.stats.trafienieProcentoweBiala);
+        critChance += player.stats.critChanceBiala2h;
+        critMulti += player.stats.critMultiBiala2h + 4;
         trafienieProcentowe += player.stats.trafienieProcentoweBiala;
       } else if (genre === ItemGenre.WHITE_1H) {
-        minDmg = player.stats.minDpsBiala1h + player.stats.sila;
-        maxDmg = player.stats.maxDpsBiala1h + player.stats.sila;
-        ataki = player.stats.atakiBiala;
-        trafienie = (player.stats.trafienieBiala + player.stats.zwinnosc * 2) * (1 + player.stats.trafienieProcentoweBiala);
-        critChance = player.stats.critChanceBiala1h;
-        critMulti = player.stats.critMultiBiala1h + 2;
+        minDmg += player.stats.minDpsBiala1h + player.stats.sila;
+        maxDmg += player.stats.maxDpsBiala1h + player.stats.sila;
+        ataki += player.stats.atakiBiala;
+        trafienie += (player.stats.trafienieBiala + player.stats.zwinnosc * 2) * (1 + player.stats.trafienieProcentoweBiala);
+        critChance += player.stats.critChanceBiala1h;
+        critMulti += player.stats.critMultiBiala1h + 2;
         trafienieProcentowe += player.stats.trafienieProcentoweBiala;
       } else if (genre === ItemGenre.GUN_1H) {
-        minDmg = player.stats.minDpsPalna1h + Math.floor(player.stats.wiedza / 3);
-        maxDmg = player.stats.maxDpsPalna1h + Math.floor(player.stats.wiedza / 3);
-        ataki = player.stats.atakiPalna;
-        trafienie = (player.stats.trafieniePalna + player.stats.spostrzegawczosc * 2) * (1 + player.stats.trafienieProcentowePalna);
-        critChance = player.stats.critChancePalna1h;
-        critMulti = player.stats.critMultiPalna1h + 1.5;
+        minDmg += player.stats.minDpsPalna1h + Math.floor(player.stats.wiedza / 3);
+        maxDmg += player.stats.maxDpsPalna1h + Math.floor(player.stats.wiedza / 3);
+        ataki += player.stats.atakiPalna;
+        trafienie += (player.stats.trafieniePalna + player.stats.spostrzegawczosc * 2) * (1 + player.stats.trafienieProcentowePalna);
+        critChance += player.stats.critChancePalna1h;
+        critMulti += player.stats.critMultiPalna1h + 1.5;
         trafienieProcentowe += player.stats.trafienieProcentowePalna;
       } else if (genre === ItemGenre.GUN_2H) {
-        minDmg = player.stats.minDpsPalna2h + Math.floor(player.stats.wiedza / 3);
-        maxDmg = player.stats.maxDpsPalna2h + Math.floor(player.stats.wiedza / 3);
-        ataki = player.stats.atakiPalna;
-        trafienie = (player.stats.trafieniePalna + player.stats.spostrzegawczosc * 2) * (1 + player.stats.trafienieProcentowePalna);
-        critChance = player.stats.critChancePalna2h;
-        critMulti = player.stats.critMultiPalna2h + 2.0;
+        minDmg += player.stats.minDpsPalna2h + Math.floor(player.stats.wiedza / 3);
+        maxDmg += player.stats.maxDpsPalna2h + Math.floor(player.stats.wiedza / 3);
+        ataki += player.stats.atakiPalna;
+        trafienie += (player.stats.trafieniePalna + player.stats.spostrzegawczosc * 2) * (1 + player.stats.trafienieProcentowePalna);
+        critChance += player.stats.critChancePalna2h;
+        critMulti += player.stats.critMultiPalna2h + 2.0;
         trafienieProcentowe += player.stats.trafienieProcentowePalna;
       } else if (genre === ItemGenre.RANGE_1H) {
-        minDmg = player.stats.minDpsDystans1h + Math.floor(player.stats.sila / 4);
-        maxDmg = player.stats.maxDpsDystans1h + Math.floor(player.stats.sila / 4);
-        ataki = player.stats.atakiDystans1h;
-        trafienie = (player.stats.trafienieDystans + player.stats.sila + Math.floor(player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * (1 + player.stats.trafienieProcentoweDystans);
-        critChance = player.stats.critChanceDystans;
-        critMulti = player.stats.critMultiDystans1h + 3.5;
+        minDmg += player.stats.minDpsDystans1h + Math.floor(player.stats.sila / 4);
+        maxDmg += player.stats.maxDpsDystans1h + Math.floor(player.stats.sila / 4);
+        ataki += player.stats.atakiDystans1h;
+        trafienie += (player.stats.trafienieDystans + player.stats.sila + Math.floor(player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * (1 + player.stats.trafienieProcentoweDystans);
+        critChance += player.stats.critChanceDystans;
+        critMulti += player.stats.critMultiDystans1h + 3.5;
         trafienieProcentowe += player.stats.trafienieProcentoweDystans;
       } else if (genre === ItemGenre.RANGE_2H) {
-        minDmg = player.stats.minDpsDystans2h + Math.floor(player.stats.sila / 2);
-        maxDmg = player.stats.maxDpsDystans2h + Math.floor(player.stats.sila / 2);
-        ataki = player.stats.atakiDystans2h;
-        trafienie = (player.stats.trafienieDystans + Math.floor(player.stats.sila / 2) + (player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * (1 + player.stats.trafienieProcentoweDystans);
-        critChance = player.stats.critChanceDystans;
-        critMulti = player.stats.critMultiDystans2h + 3.5;
+        minDmg += player.stats.minDpsDystans2h + Math.floor(player.stats.sila / 2);
+        maxDmg += player.stats.maxDpsDystans2h + Math.floor(player.stats.sila / 2);
+        ataki += player.stats.atakiDystans2h;
+        trafienie += (player.stats.trafienieDystans + Math.floor(player.stats.sila / 2) + (player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * (1 + player.stats.trafienieProcentoweDystans);
+        critChance += player.stats.critChanceDystans;
+        critMulti += player.stats.critMultiDystans2h + 3.5;
         trafienieProcentowe += player.stats.trafienieProcentoweDystans;
       }
       if (critChance > 0.85) {

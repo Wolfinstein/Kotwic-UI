@@ -51,27 +51,28 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
   const result = stats.clone() as WeaponStats;
 
   if (genre == ItemGenre.GUN_1H || genre == ItemGenre.GUN_2H) {
-    result.atakiPalna += calcValue(result.atakiNaRunde, rarity);
-    result.atakiPalna += calcValue(result.atakiVsPotwory, rarity);
     result.spostrzegawczosc = calcValue(result.spostrzegawczosc, rarity);
     result.zwinnosc = calcValue(result.zwinnosc, rarity);
-    result.trafienieProcentowePalna += calcValue(result.trafienieProcentowe, rarity);
-    result.ignoreObrony += result.ignoreFlat;
-    result.ignoreObrony += calcValue(result.ignore, rarity);
     result.twardosc = calcValue(result.twardosc, rarity);
     result.trafieniePalna = calcValue(result.dodatkoweTrafienie, rarity);
     result.trafieniePalna += result.bazaTrafienie;
+    //
+    result.atakiPalna += calcValue(result.atakiNaRunde, rarity);
+    result.atakiPalna += calcValue(result.atakiVsPotwory, rarity);
+    result.trafienieProcentowePalna += calcValue(result.trafienieProcentowe, rarity);
+    result.ignoreObrony += result.ignoreFlat;
+    result.ignoreObrony += calcValue(result.ignore, rarity);
+
     if (genre == ItemGenre.GUN_1H) {
       result.minDpsPalna1h = calcValue(result.bazaDpsMin, rarity);
       result.maxDpsPalna1h = calcValue(result.bazaDpsMax, rarity);
       result.critMultiPalna1h += calcValue(result.critMulti, rarity);
-      result.critChancePalna1h += calcValue(result.critChanceGlobal, rarity);
+      result.setAllCritChance(calcValue(result.critChanceGlobal, rarity)); /// TODO fix for one melee one gun
       result.critChancePalna1h += calcValue(result.critChance, rarity);
     } else {
       result.minDpsPalna2h = calcValue(result.bazaDpsMin, rarity) + (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
       result.maxDpsPalna2h = calcValue(result.bazaDpsMax, rarity) + (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
       result.critMultiPalna2h += calcValue(result.critMulti, rarity);
-      result.critChancePalna2h += calcValue(result.critChanceGlobal, rarity);
       result.critChancePalna2h += calcValue(result.critChance, rarity);
     }
 
@@ -112,7 +113,62 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
       result.minDpsDystans2h += calcValue(result.dpsBroniMin, rarity);
       result.maxDpsDystans2h += calcValue(result.dpsBroniMax, rarity);
     }
+  } else {
+    result.spostrzegawczosc = calcValue(result.spostrzegawczosc, rarity);
+    result.zwinnosc = calcValue(result.zwinnosc, rarity);
+    result.odpornosc = calcValue(result.odpornosc, rarity);
+    result.sila = calcValue(result.sila, rarity);
+    result.wplywy = calcValue(result.wplywy, rarity);
+    result.wyglad = calcValue(result.wyglad, rarity);
+    result.charyzma = calcValue(result.charyzma, rarity);
+    result.inteligencja = calcValue(result.inteligencja, rarity);
+    result.wiedza = calcValue(result.wiedza, rarity);
+    result.punktyKrwi = calcValue(result.pktKrwi, rarity);
+    result.punktyZycia = calcValue(result.bazoweHp, rarity);
+
+    result.szczescie = calcValue(result.szczescie, rarity);
+    result.trafienieProcentoweBiala += calcValue(result.trafienieProcentowe, rarity);
+    result.ignoreObrony += calcValue(result.ignore, rarity);
+    result.ignoreObrony += calcValue(result.ignoreVsPotwory, rarity);
+    result.trafienieBiala = calcValue(result.dodatkoweTrafienie, rarity);
+    result.trafienieBiala += result.bazaTrafienie;
+
+    result.atakiBiala += result.atakiNaRunde == 1 ? 1 : calcValue(result.atakiNaRunde, rarity);
+    result.atakiBiala += calcValue(result.atakiVsPotwory, rarity);
+
+    result.obronaPrzedmiotow = calcValue(result.dodatkowaObrona, rarity);
+
+    if (genre == ItemGenre.WHITE_1H) {
+      result.setAllDps(calcValue(result.dpsAll, rarity));
+      result.critChanceBiala1h = calcValue(result.critChanceVsPotwory, rarity);
+      result.critChanceBiala1h += calcValue(result.critChance, rarity);
+      result.minDpsBiala1h = calcValue(result.bazaDpsMin, rarity);
+      result.maxDpsBiala1h = calcValue(result.bazaDpsMax, rarity);
+      result.minDpsBiala1h += calcValue(result.dpsVsPotwory, rarity);
+      result.maxDpsBiala1h += calcValue(result.dpsVsPotwory, rarity);
+      result.critMultiBiala1h += calcValue(result.critMulti, rarity);
+      result.critMultiBiala1h += calcValue(result.critMultiVsPotwory, rarity);
+      result.minDpsBiala1h += calcValue(result.dpsBroniMin, rarity);
+      result.maxDpsBiala1h += calcValue(result.dpsBroniMax, rarity);
+      result.minDpsBiala1h += (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
+      result.maxDpsBiala1h += (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
+
+    } else {
+      result.critChanceBiala2h = calcValue(result.critChanceVsPotwory, rarity);
+      result.critChanceBiala2h += calcValue(result.critChance, rarity);
+      result.minDpsBiala2h = calcValue(result.bazaDpsMin, rarity);
+      result.maxDpsBiala2h = calcValue(result.bazaDpsMax, rarity);
+      result.minDpsBiala2h += calcValue(result.dpsVsPotwory, rarity);
+      result.maxDpsBiala2h += calcValue(result.dpsVsPotwory, rarity);
+      result.critMultiBiala2h += calcValue(result.critMulti, rarity);
+      result.critMultiBiala2h += calcValue(result.critMultiVsPotwory, rarity);
+      result.minDpsBiala2h += calcValue(result.dpsBroniMin, rarity);
+      result.maxDpsBiala2h += calcValue(result.dpsBroniMax, rarity);
+      result.minDpsBiala2h += (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
+      result.maxDpsBiala2h += (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
+    }
   }
+
   return result as Stats;
 }
 

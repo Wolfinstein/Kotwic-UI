@@ -15,6 +15,14 @@ export enum PlayerRasa {
   KULTEK = 'KULTEK',
 }
 export class Player {
+
+  clone(): Player {
+    const cloned = new Player();
+    Object.assign(cloned, this);
+    cloned.stats = this.stats.clone();
+    return cloned;
+  }
+
   lvl: number;
   life: number;
   baseLife: number;
@@ -232,8 +240,7 @@ export class Player {
     this.stats = itemStats;
   }
 
-  resolveWeaponItem(a: Item, playerLvl: number): void {
-    let itemStats = this.stats;
+  resolveWeaponItem(a: Item, playerLvl: number): Stats {
     const temp = new WeaponStats();
 
     if (a.base?.stats) {
@@ -249,12 +256,7 @@ export class Player {
     }
 
     const multiplied = applyQualityWeaponMultiplier(temp, a.getRarity(), a.getGenre(), playerLvl);
-    itemStats.addStats(multiplied);
-
-    if (this.stats.isObronaZero) {
-      itemStats.obronaPrzedmiotow = 0;
-    }
-    this.stats = itemStats;
+    return multiplied;
   }
 
   resolveSetBonuses(): void {

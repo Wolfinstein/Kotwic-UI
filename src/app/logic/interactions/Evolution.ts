@@ -393,6 +393,7 @@ export class Evolution {
     if (this.wzmocnioneMiesnie === 14) player.addTrafienieProcentoweBiala(0.04);
     if (this.wzmocnioneMiesnie === 15) player.addTrafienieProcentoweBiala(0.10);
   }
+
   private miesnieSila(level: number): number {
     if (level <= 10) return level * 2;
     if (level === 11) return 24;
@@ -401,6 +402,7 @@ export class Evolution {
     if (level === 14) return 36;
     return 40;
   }
+
   private miesnieDmg1h(level: number): number {
     if (level <= 3) return level * 2;
     if (level === 4) return 5;
@@ -416,6 +418,7 @@ export class Evolution {
     if (level === 14) return 19;
     return 21;
   }
+
   private miesnieDmg2h(level: number): number {
     if (level <= 3) return 0;
     if (level === 4) return 5;

@@ -190,6 +190,67 @@ export class Stats {
   setObrazeniaProcentoweRuny(value: number): void {
     this.obrazeniaProcentoweRuny += value;
   }
+
+  addAgnosticStats(newStats: Stats): this {
+    this.sila += newStats.sila;
+    this.zwinnosc += newStats.zwinnosc;
+    this.odpornosc += newStats.odpornosc;
+    this.wyglad += newStats.wyglad;
+    this.charyzma += newStats.charyzma;
+    this.wplywy += newStats.wplywy;
+    this.spostrzegawczosc += newStats.spostrzegawczosc;
+    this.inteligencja += newStats.inteligencja;
+    this.wiedza += newStats.wiedza;
+    this.szczescie += newStats.szczescie;
+    this.punktyZycia += newStats.punktyZycia;
+    this.twardosc += newStats.twardosc;
+    this.trafienieDystans += newStats.trafienieDystans;
+    this.trafieniePalna += newStats.trafieniePalna;
+    this.trafienieBiala += newStats.trafienieBiala;
+    this.obronaPrzedmiotow += newStats.obronaPrzedmiotow;
+    this.punktyKrwi += newStats.punktyKrwi;
+
+    return this;
+  }
+
+  addNonAgnosticStats(newStats: Stats): this {
+    this.atakiPalna += newStats.atakiPalna;
+    this.trafienieProcentowePalna += newStats.trafienieProcentowePalna;
+    this.ignoreObrony += newStats.ignoreObrony;
+    this.minDpsPalna1h += newStats.minDpsPalna1h;
+    this.maxDpsPalna1h += newStats.maxDpsPalna1h;
+    this.critMultiPalna1h += newStats.critMultiPalna1h;
+    this.minDpsPalna2h += newStats.minDpsPalna2h;
+    this.maxDpsPalna2h += newStats.maxDpsPalna2h;
+    this.critMultiPalna2h += newStats.critMultiPalna2h;
+    this.critChancePalna2h += newStats.critChancePalna2h;
+
+    this.critChanceDystans += newStats.critChanceDystans;
+    this.trafienieProcentoweDystans += newStats.trafienieProcentoweDystans;
+    this.atakiDystans1h += newStats.atakiDystans1h;
+    this.minDpsDystans1h += newStats.minDpsDystans1h;
+    this.maxDpsDystans1h += newStats.maxDpsDystans1h;
+    this.critMultiDystans1h += newStats.critMultiDystans1h;
+    this.atakiDystans2h += newStats.atakiDystans2h;
+    this.minDpsDystans2h += newStats.minDpsDystans2h;
+    this.maxDpsDystans2h += newStats.maxDpsDystans2h;
+    this.critMultiDystans2h += newStats.critMultiDystans2h;
+
+    this.trafienieProcentoweBiala += newStats.trafienieProcentoweBiala;
+    this.atakiBiala += newStats.atakiBiala;
+    this.critChanceBiala1h += newStats.critChanceBiala1h;
+    this.minDpsBiala1h += newStats.minDpsBiala1h;
+    this.maxDpsBiala1h += newStats.maxDpsBiala1h;
+    this.critMultiBiala1h += newStats.critMultiBiala1h;
+    this.critChanceBiala2h += newStats.critChanceBiala2h;
+    this.minDpsBiala2h += newStats.minDpsBiala2h;
+    this.maxDpsBiala2h += newStats.maxDpsBiala2h;
+    this.critMultiBiala2h += newStats.critMultiBiala2h;
+
+    return this;
+  }
+
+
   addStats(newStats: Stats): this {
     this.sila += newStats.sila;
     this.zwinnosc += newStats.zwinnosc;
