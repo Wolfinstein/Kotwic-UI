@@ -177,7 +177,7 @@ export class CharacterInputComponent implements OnInit {
     { key: 'oswiecony', label: 'Oświecony' },
     { key: 'szostyZmysl', label: 'Szósty zmysl' },
     { key: 'absorpcja', label: 'Absorpcja' },
-    { key: 'harmonijnyRozwo', label: 'Harmonijny rozwój' },
+    { key: 'harmonijnyRozwoj', label: 'Harmonijny rozwój' },
     { key: 'pietnoDemona', label: 'Piętno demona' },
     { key: 'wzmocnioneMiesnie', label: 'Wzmocnione mięsnie' },
   ];
