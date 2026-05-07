@@ -214,7 +214,7 @@ export class BaseDictionary {
 
     bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(20).bazaDpsMax(40).atakiNaRunde(2).ignore(0.15).critChance(0.08).critChanceVsPotwory(0.10).critMultiVsPotwory(0.25).trafienieProcentowe(0.05).build(), ItemGenre.RANGE_2H, ItemType.KUSZA));
 
-    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(10).bazaDpsMax(13).dpsVsPotwory(15).atakiNaRunde(5).critChanceVsPotwory(0.18).critMultiVsPotwory(0.30).bazaTrafienie(7).trafienieProcentowe(0.10).build(), ItemGenre.RANGE_1H, ItemType.SHURIKEN));
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(10).bazaDpsMax(13).dpsVsPotwory(15).atakiNaRunde(5).critChanceVsPotwory(0.10).critMultiVsPotwory(0.30).bazaTrafienie(7).trafienieProcentowe(0.10).build(), ItemGenre.RANGE_1H, ItemType.SHURIKEN));
 
     bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(30).bazaDpsMax(70).atakiNaRunde(2).critChance(0.12).ignore(0.20).critChanceVsPotwory(0.10).critMultiVsPotwory(0.50).bazaTrafienie(-10).trafienieProcentowe(0.05).build(), ItemGenre.RANGE_2H, ItemType.CIEZKAKUSZA));
 

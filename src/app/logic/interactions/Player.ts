@@ -221,8 +221,10 @@ export class Player {
       if (a.base) temp.addStats(a.base.stats);
       if (a.prefix) temp.addStats(a.prefix.stats);
       if (a.suffix) temp.addStats(a.suffix.stats);
+
       const multipliedStats = applyQualityMultiplier(temp, a.getRarity(), playerLvl.valueOf());
       itemStats.addStats(multipliedStats);
+
     }
     if (this.stats.isObronaZero) {
       itemStats.obronaPrzedmiotow = 0;

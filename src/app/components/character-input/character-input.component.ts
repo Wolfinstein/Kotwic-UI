@@ -5,6 +5,7 @@ import { CharacterService } from '../../services/character.service';
 import { Character, EquipmentItem } from '../../models/character';
 import { WeaponDictionary, ArmourDictionary, JewelsDictionary, BaseDictionary } from '../../logic/dictionaries';
 import { ItemGenre, PrefixType, SuffixType, ItemType, ItemRarity, Stats } from '../../logic/item';
+import { WeaponStats } from '../../logic/item/WeaponStats';
 import { applyQualityMultiplier } from '../../logic/item/qualityMultiplier';
 import { applyQualityWeaponMultiplier } from '../../logic/item/qualityWeaponMultiplier';
 
@@ -327,10 +328,15 @@ export class CharacterInputComponent implements OnInit {
       const playerLvl = this.character?.poziom || 1;
       const rarity = (item.rarity || 'ZWYKLY') as ItemRarity;
       const genre = this.getGenreForItemType(itemType);
-      let combinedStats = new Stats();
+      const isWeapon = [ItemGenre.RANGE_1H, ItemGenre.RANGE_2H, ItemGenre.WHITE_1H, ItemGenre.WHITE_2H, ItemGenre.GUN_1H, ItemGenre.GUN_2H].includes(genre);
+      let combinedStats: Stats = isWeapon ? new WeaponStats() : new Stats();
       try {
         const base = BaseDictionary.getBase(genre, itemType);
-        combinedStats.addStats(base.stats);
+        if (isWeapon) {
+          (combinedStats as WeaponStats).addWeaponStats(base.stats as WeaponStats);
+        } else {
+          combinedStats.addStats(base.stats);
+        }
       } catch (e) {
       }
       if (item.prefix && item.prefix.trim()) {
@@ -354,7 +360,11 @@ export class CharacterInputComponent implements OnInit {
               break;
           }
           if (prefixStats) {
-            combinedStats.addStats(prefixStats.stats);
+            if (isWeapon) {
+              (combinedStats as WeaponStats).addWeaponStats(prefixStats.stats as WeaponStats);
+            } else {
+              combinedStats.addStats(prefixStats.stats);
+            }
           }
         } catch (e) {
         }
@@ -376,7 +386,11 @@ export class CharacterInputComponent implements OnInit {
               break;
           }
           if (suffixStats) {
-            combinedStats.addStats(suffixStats.stats);
+            if (isWeapon) {
+              (combinedStats as WeaponStats).addWeaponStats(suffixStats.stats as WeaponStats);
+            } else {
+              combinedStats.addStats(suffixStats.stats);
+            }
           }
         } catch (e) {
         }
@@ -451,7 +465,7 @@ export class CharacterInputComponent implements OnInit {
       'atakiPalna', 'trafieniePalna', 'minDpsPalna1h', 'maxDpsPalna1h', 'minDpsPalna2h', 'maxDpsPalna2h',
       'critChancePalna1h', 'critChancePalna2h', 'ignoreObrony',
       'atakiDystans1h', 'atakiDystans2h', 'trafienieDystans', 'minDpsDystans1h', 'maxDpsDystans1h', 'minDpsDystans2h', 'maxDpsDystans2h',
-      'critChanceDystans1h', 'critChanceDystans2h', 'unikDystans',
+      'critChanceDystans', 'critChanceDystans', 'unikDystans',
       'obronaPrzedmiotow', 'obronaDodatkowa', 'twardosc', 'redukcjaObrazen', 'mnoznikObrony', 'odpornosc',
       'sila', 'zwinnosc', 'spostrzegawczosc', 'inteligencja', 'wiedza', 'wyglad', 'charyzma', 'wplywy',
       'punktyZycia', 'punktyKrwi', 'szczescie',
@@ -460,7 +474,10 @@ export class CharacterInputComponent implements OnInit {
       'critMultiPalna1h',
       'critMultiPalna2h',
       'critMultiBiala1h',
-      'critMultiBiala2h'
+      'critMultiBiala2h',
+      'trafienieProcentoweDystans',
+      'trafienieProcentowePalna',
+      'trafienieProcentoweBiala',
     ];
     statProps.forEach(prop => {
       if (stats[prop] !== undefined && stats[prop] !== null && stats[prop] !== 0) {
