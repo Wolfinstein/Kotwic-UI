@@ -594,13 +594,32 @@ label {
   background: #00192d;
   border-color: #6A87AB;
   color: #f6e8ea;
-  border-radius: 3px;
+  border-radius: 0;
+  text-align: center;
 }
 
 :host ::ng-deep p-inputnumber .p-inputtext:focus {
   border-color: #f6e8ea;
   background: #072944;
   box-shadow: none;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button {
+  width: 24px;
+  min-height: 24px;
+  background: rgba(106, 135, 171, 0.15);
+  border-color: #6A87AB;
+  color: #6A87AB;
+  padding: 0;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button:hover {
+  background: #6A87AB !important;
+  color: #00192d !important;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button .pi {
+  font-size: 9px;
 }
 
 /* Select (Rasa dropdown) */

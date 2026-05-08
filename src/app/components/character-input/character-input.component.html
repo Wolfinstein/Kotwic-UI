@@ -8,7 +8,7 @@
             <label>
               <div class="horizontal-h3">Poziom</div>
             </label>
-            <p-inputnumber [ngModel]="character!.poziom" [min]="1" [showButtons]="false"
+            <p-inputnumber [ngModel]="character!.poziom" [min]="1" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
               (ngModelChange)="updateCharacterField('poziom', $event)" />
           </div>
           <div class="compact-item">
@@ -27,7 +27,7 @@
         <div class="compact-grid">
           <div *ngFor="let attr of attributes" class="compact-item">
             <label>{{ attr.label }}</label>
-            <p-inputnumber [min]="0" [showButtons]="false" [ngModel]="getAttrValue(attr.key)"
+            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getAttrValue(attr.key)"
               (ngModelChange)="setAttrValue(attr.key, $event)" />
           </div>
         </div>
@@ -38,7 +38,7 @@
         <div class="compact-grid">
           <div *ngFor="let tal of talizmanAttributes" class="compact-item">
             <label>{{ tal.label }}</label>
-            <p-inputnumber [min]="0" [max]="4" [showButtons]="false" [ngModel]="getTalizmanValue(tal.key)"
+            <p-inputnumber [min]="0" [max]="4" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getTalizmanValue(tal.key)"
               (ngModelChange)="setTalizmanValue(tal.key, $event)" />
           </div>
         </div>
@@ -52,28 +52,28 @@
             <label>
               <div class="horizontal-h3">Obrona Przeciwnika</div>
             </label>
-            <p-inputnumber [min]="0" [showButtons]="false" [ngModel]="character!.obronaPrzeciwnika"
+            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.obronaPrzeciwnika"
               (ngModelChange)="updateCharacterField('obronaPrzeciwnika', $event)" />
           </div>
           <div class="compact-item">
             <label>
               <div class="horizontal-h3">Odpornosc Przeciwnika</div>
             </label>
-            <p-inputnumber [min]="0" [showButtons]="false" [ngModel]="character!.odpornoscPrzeciwnika"
+            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.odpornoscPrzeciwnika"
               (ngModelChange)="updateCharacterField('odpornoscPrzeciwnika', $event)" />
           </div>
           <div class="compact-item">
             <label>
               <div class="horizontal-h3">Trafienie Przeciwnika</div>
             </label>
-            <p-inputnumber [min]="0" [showButtons]="false" [ngModel]="character!.trafieniePrzeciwnika"
+            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.trafieniePrzeciwnika"
               (ngModelChange)="updateCharacterField('trafieniePrzeciwnika', $event)" />
           </div>
           <div class="compact-item">
             <label>
               <div class="horizontal-h3">Szczescie Przeciwnika</div>
             </label>
-            <p-inputnumber [min]="0" [showButtons]="false" [ngModel]="character!.szczesciePrzeciwnika"
+            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.szczesciePrzeciwnika"
               (ngModelChange)="updateCharacterField('szczesciePrzeciwnika', $event)" />
           </div>
         </div>
@@ -188,7 +188,7 @@
           <div *ngFor="let arcane of arcaneAttributes" class="compact-item">
             <label>{{ arcane.label }}</label>
             <ng-container [ngSwitch]="arcane.type">
-              <p-inputnumber *ngSwitchCase="'int'" [min]="0" [showButtons]="false"
+              <p-inputnumber *ngSwitchCase="'int'" [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
                 [ngModel]="getArcaneValue(arcane.key)"
                 (ngModelChange)="setArcaneValue(arcane.key, $event)" />
               <p-checkbox *ngSwitchCase="'boolean'" [binary]="true"
@@ -229,22 +229,22 @@
           <div *ngIf="expandedBonuses['inne']" class="compact-grid">
             <div class="compact-item">
               <label><div class="horizontal-h3">Ninja</div></label>
-              <p-inputnumber [min]="0" [max]="5" [showButtons]="false" [ngModel]="character!.ninja"
+              <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.ninja"
                 (ngModelChange)="updateCharacterField('ninja', $event)" />
             </div>
             <div class="compact-item">
               <label><div class="horizontal-h3">Mysliwy</div></label>
-              <p-inputnumber [min]="0" [max]="5" [showButtons]="false" [ngModel]="character!.mysliwy"
+              <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.mysliwy"
                 (ngModelChange)="updateCharacterField('mysliwy', $event)" />
             </div>
             <div class="compact-item">
               <label><div class="horizontal-h3">Strateg</div></label>
-              <p-inputnumber [min]="0" [max]="5" [showButtons]="false" [ngModel]="character!.strateg"
+              <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.strateg"
                 (ngModelChange)="updateCharacterField('strateg', $event)" />
             </div>
             <div class="compact-item">
               <label><div class="horizontal-h3">Kaplica</div></label>
-              <p-inputnumber [min]="0" [max]="6" [showButtons]="false" [ngModel]="character!.kaplica"
+              <p-inputnumber [min]="0" [max]="6" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.kaplica"
                 (ngModelChange)="updateCharacterField('kaplica', $event)" />
             </div>
           </div>
@@ -313,7 +313,7 @@
         <div class="compact-grid">
           <div *ngFor="let evo of evolutions" class="compact-item">
             <label>{{ evo.label }}</label>
-            <p-inputnumber [min]="0" [max]="15" [showButtons]="false" [ngModel]="getEvoValue(evo.key)"
+            <p-inputnumber [min]="0" [max]="15" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getEvoValue(evo.key)"
               (ngModelChange)="setEvoValue(evo.key, $event)" />
           </div>
         </div>
