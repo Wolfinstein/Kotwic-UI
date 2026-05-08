@@ -10,17 +10,19 @@
             <input type="number" min="1" [ngModel]="character!.poziom"
               (ngModelChange)="updateCharacterField('poziom', $event)" />
           </div>
+          <div class="compact-item">
+            <label>
+              <div class="horizontal-h3">Rasa</div>
+            </label>
+            <select [(ngModel)]="character!.rasa" (change)="updateCharacterField('rasa', character!.rasa)">
+              <option value="Potepiony">Potępiony</option>
+              <option value="LapaczMysli">Łapacz Myśli</option>
+              <option value="WladcaZwierzat">Władca Zwierząt</option>
+              <option value="Kultysta">Kultysta</option>
+              <option value="Ssak">Ssak</option>
+            </select>
+          </div>
         </div>
-      </div>
-      <div class="section">
-        <h3>Rasa</h3>
-        <select [(ngModel)]="character!.rasa" (change)="updateCharacterField('rasa', character!.rasa)">
-          <option value="Potepiony">Potępiony</option>
-          <option value="LapaczMysli">Łapacz Myśli</option>
-          <option value="WladcaZwierzat">Władca Zwierząt</option>
-          <option value="Kultysta">Kultysta</option>
-          <option value="Ssak">Ssak</option>
-        </select>
       </div>
       <div class="section">
         <h3>Trening</h3>
@@ -43,7 +45,10 @@
         </div>
       </div>
       <div class="section">
-        <div class="compact-grid">
+        <button class="bonus-toggle" (click)="toggleBonusExpand('przeciwnik')">
+          <h3>Przeciwnik {{ expandedBonuses['przeciwnik'] ? '▼' : '▶' }}</h3>
+        </button>
+        <div *ngIf="expandedBonuses['przeciwnik']" class="compact-grid">
           <div class="compact-item">
             <label>
               <div class="horizontal-h3">Obrona Przeciwnika</div>
@@ -51,10 +56,6 @@
             <input type="number" min="0" [ngModel]="character!.obronaPrzeciwnika"
               (ngModelChange)="updateCharacterField('obronaPrzeciwnika', $event)" />
           </div>
-        </div>
-      </div>
-      <div class="section">
-        <div class="compact-grid">
           <div class="compact-item">
             <label>
               <div class="horizontal-h3">Odpornosc Przeciwnika</div>
@@ -62,10 +63,6 @@
             <input type="number" min="0" [ngModel]="character!.odpornoscPrzeciwnika"
               (ngModelChange)="updateCharacterField('odpornoscPrzeciwnika', $event)" />
           </div>
-        </div>
-      </div>
-      <div class="section">
-        <div class="compact-grid">
           <div class="compact-item">
             <label>
               <div class="horizontal-h3">Trafienie Przeciwnika</div>
@@ -73,10 +70,6 @@
             <input type="number" min="0" [ngModel]="character!.trafieniePrzeciwnika"
               (ngModelChange)="updateCharacterField('trafieniePrzeciwnika', $event)" />
           </div>
-        </div>
-      </div>
-      <div class="section">
-        <div class="compact-grid">
           <div class="compact-item">
             <label>
               <div class="horizontal-h3">Szczescie Przeciwnika</div>
@@ -229,48 +222,37 @@
     <div class="column">
       <div class="bonuses-container">
         <div class="section column-bonus">
-          <div class="section">
-            <div class="compact-grid">
-              <div class="compact-item">
-                <label>
-                  <div class="horizontal-h3">Ninja</div>
-                </label>
-                <input type="number" min="0" max="5" [ngModel]="character!.ninja"
-                  (ngModelChange)="updateCharacterField('ninja', $event)" />
-              </div>
+          <button class="bonus-toggle" (click)="toggleBonusExpand('inne')">
+            <h3>Inne {{ expandedBonuses['inne'] ? '▼' : '▶' }}</h3>
+          </button>
+          <div *ngIf="expandedBonuses['inne']" class="compact-grid">
+            <div class="compact-item">
+              <label>
+                <div class="horizontal-h3">Ninja</div>
+              </label>
+              <input type="number" min="0" max="5" [ngModel]="character!.ninja"
+                (ngModelChange)="updateCharacterField('ninja', $event)" />
             </div>
-          </div>
-          <div class="section">
-            <div class="compact-grid">
-              <div class="compact-item">
-                <label>
-                  <div class="horizontal-h3">Mysliwy</div>
-                </label>
-                <input type="number" min="0" max="5" [ngModel]="character!.mysliwy"
-                  (ngModelChange)="updateCharacterField('mysliwy', $event)" />
-              </div>
+            <div class="compact-item">
+              <label>
+                <div class="horizontal-h3">Mysliwy</div>
+              </label>
+              <input type="number" min="0" max="5" [ngModel]="character!.mysliwy"
+                (ngModelChange)="updateCharacterField('mysliwy', $event)" />
             </div>
-          </div>
-          <div class="section">
-            <div class="compact-grid">
-              <div class="compact-item">
-                <label>
-                  <div class="horizontal-h3">Strateg</div>
-                </label>
-                <input type="number" min="0" max="5" [ngModel]="character!.strateg"
-                  (ngModelChange)="updateCharacterField('strateg', $event)" />
-              </div>
+            <div class="compact-item">
+              <label>
+                <div class="horizontal-h3">Strateg</div>
+              </label>
+              <input type="number" min="0" max="5" [ngModel]="character!.strateg"
+                (ngModelChange)="updateCharacterField('strateg', $event)" />
             </div>
-          </div>
-          <div class="section">
-            <div class="compact-grid">
-              <div class="compact-item">
-                <label>
-                  <div class="horizontal-h3">Kaplica</div>
-                </label>
-                <input type="number" min="0" max="6" [ngModel]="character!.kaplica"
-                  (ngModelChange)="updateCharacterField('kaplica', $event)" />
-              </div>
+            <div class="compact-item">
+              <label>
+                <div class="horizontal-h3">Kaplica</div>
+              </label>
+              <input type="number" min="0" max="6" [ngModel]="character!.kaplica"
+                (ngModelChange)="updateCharacterField('kaplica', $event)" />
             </div>
           </div>
         </div>
