@@ -247,7 +247,7 @@ h4 {
 }
 
 .value-badge {
-  background: #5F2E2F;
+  background: rgba(106, 135, 171, 0.15);
   border: 1px solid #6A87AB;
   color: #f6e8ea;
   padding: 6px 12px;
@@ -271,11 +271,17 @@ h4 {
   font-style: italic;
 }
 
+.damage-row {
+  display: flex;
+  gap: 10px;
+  margin: 6px 0;
+}
+
 .damage-display {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  margin: 6px 0;
+  flex: 1;
 }
 
 .damage-range {
@@ -339,6 +345,11 @@ h4 {
 .combat-stats-header {
   border-color: #eabb77;
   color: #eabb77;
+}
+
+.attributes-header {
+  border-color: #a78bfa;
+  color: #a78bfa;
 }
 
 /* Stat Category Color-Coding (Phase 2) */

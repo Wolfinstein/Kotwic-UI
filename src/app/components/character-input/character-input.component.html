@@ -339,7 +339,8 @@
      EQUIPMENT MODAL
 ════════════════════════════════════════════════════ -->
 <p-dialog [(visible)]="showEquipmentModal" [modal]="true" [closable]="true"
-  styleClass="eq-modal-content" [header]="selectedEquipmentSlot === 'weapon1' && weaponMode === '2h' ? 'Broń dwuręczna' : defaultSlotLabel(selectedEquipmentSlot)">
+  styleClass="eq-modal-content" [header]="selectedEquipmentSlot === 'weapon1' && weaponMode === '2h' ? 'Broń dwuręczna' : defaultSlotLabel(selectedEquipmentSlot)"
+  [style]="{'width': 'min(780px, 95vw)'}" [resizable]="false">
   <!-- Item preview -->
   <div class="eq-preview" [class.eq-preview-empty]="!draftItem.base">
     <span *ngIf="draftItem.base; else emptyPreview" class="eq-preview-name" [attr.data-rarity]="draftItem.rarity">
@@ -450,14 +451,7 @@
           [class.rune-highlighted]="selectedRuneIndex === i" (click)="selectedRuneIndex = i">
           <span class="rune-slot-num">{{ i + 1 }}</span>
           <span class="rune-name">{{ rune }}</span>
-          <div class="rune-actions">
-            <p-button icon="pi pi-arrow-up" [text]="true" severity="secondary" size="small"
-              (onClick)="moveRuneUp(i); $event.stopPropagation()" [disabled]="i === 0" />
-            <p-button icon="pi pi-arrow-down" [text]="true" severity="secondary" size="small"
-              (onClick)="moveRuneDown(i); $event.stopPropagation()" [disabled]="i === selectedRunes.length - 1" />
-            <p-button icon="pi pi-times" [text]="true" severity="danger" size="small"
-              (onClick)="removeRuneAt(i); $event.stopPropagation()" />
-          </div>
+          <button class="rune-remove-btn" (click)="removeRuneAt(i); $event.stopPropagation()">✕</button>
         </div>
       </div>
     </div>
@@ -511,12 +505,7 @@
           <span class="rune-slot-num">{{ i + 1 }}</span>
           <span class="rune-name">{{ umag }}</span>
           <div class="rune-actions">
-            <p-button icon="pi pi-arrow-up" [text]="true" severity="secondary" size="small"
-              (onClick)="moveUmagiUp(i); $event.stopPropagation()" [disabled]="i === 0" />
-            <p-button icon="pi pi-arrow-down" [text]="true" severity="secondary" size="small"
-              (onClick)="moveUmagiDown(i); $event.stopPropagation()" [disabled]="i === selectedUmagi.length - 1" />
-            <p-button icon="pi pi-times" [text]="true" severity="danger" size="small"
-              (onClick)="removeUmagiAt(i); $event.stopPropagation()" />
+            <button class="rune-remove-btn" (click)="removeUmagiAt(i); $event.stopPropagation()">✕</button>
           </div>
         </div>
       </div>

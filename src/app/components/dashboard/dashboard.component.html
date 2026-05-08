@@ -6,11 +6,11 @@
         <span class="section-icon">❤</span>
       </div>
       <div class="attr-grid attr-grid--2col">
-        <div class="attr-item stat-critical">
+        <div class="attr-item">
           <span class="attr-label">Punkty Zycia</span>
           <span class="attr-value">{{ dashboardValues?.punktyZycia | number:'1.0-2' }}</span>
         </div>
-        <div class="attr-item stat-critical">
+        <div class="attr-item">
           <span class="attr-label">Punkty krwi</span>
           <span class="attr-value">{{ dashboardValues?.punktyKrwi | number:'1.0-2' }}</span>
         </div>
@@ -42,24 +42,24 @@
         <span class="section-icon">↔</span>
       </div>
       <div class="attr-grid attr-grid--3col">
-        <div class="attr-item stat-important">
+        <div class="attr-item">
           <span class="attr-label">Unik Biała</span>
           <span class="attr-value">{{ dashboardValues?.unikBiala | number:'1.0-2' }}</span>
         </div>
-        <div class="attr-item stat-important">
+        <div class="attr-item">
           <span class="attr-label">Unik Palna</span>
           <span class="attr-value">{{ dashboardValues?.unikPalna | number:'1.0-2' }}</span>
         </div>
-        <div class="attr-item stat-important">
+        <div class="attr-item">
           <span class="attr-label">Unik Dystans</span>
           <span class="attr-value">{{ dashboardValues?.unikDystans | number:'1.0-2'}}</span>
         </div>
       </div>
     </div>
-    <!-- Evasion Stats Section -->
+    <!-- Trafienie Stats Section -->
     <div class="attr-section">
       <div class="attr-section-header hit-header">
-        <span class="section-icon">↔</span>
+        <span class="section-icon">🎯</span>
       </div>
       <div class="attr-grid attr-grid--3col">
         <div class="attr-item">
@@ -82,15 +82,15 @@
         <span class="section-icon">⚔</span>
       </div>
       <div class="attr-grid attr-grid--3col">
-        <div class="attr-item stat-combat">
+        <div class="attr-item">
           <span class="attr-label">Szczescie</span>
           <span class="attr-value">{{ dashboardValues?.szczescie | number:'1.0-2' }}</span>
         </div>
-        <div class="attr-item stat-combat">
+        <div class="attr-item">
           <span class="attr-label">Inicjatywa</span>
           <span class="attr-value">{{ dashboardValues?.inicjatywa | number:'1.0-2' }}</span>
         </div>
-        <div class="attr-item stat-combat">
+        <div class="attr-item">
           <span class="attr-label">Regeneracja</span>
           <span class="attr-value">{{ dashboardValues?.regeneracja | number:'1.0-2' }}</span>
         </div>
@@ -147,13 +147,15 @@
     <div class="combat-row" *ngFor="let weapon of dashboardValues?.obrazenia; let i = index">
       <h4 class="weapon-header">⚔ Broń {{ i + 1 }}: {{ weapon.name}}</h4>
       <div class="combat-box">
-        <div class="damage-display">
-          <span class="sub-text damage-label">⚔ Obrażenia Broni</span>
-          <div class="damage-range">{{ weapon.minDmg }} – {{ weapon.maxDmg }}</div>
-        </div>
-        <div class="damage-display">
-          <span class="sub-text damage-label">✨ Obrażenia Krtytyczne Broni</span>
-          <div class="damage-range">{{ weapon.critDmgMin }} – {{ weapon.critDmgMax }}</div>
+        <div class="damage-row">
+          <div class="damage-display">
+            <span class="sub-text damage-label">⚔ Obrażenia Broni</span>
+            <div class="damage-range">{{ weapon.minDmg }} – {{ weapon.maxDmg }}</div>
+          </div>
+          <div class="damage-display">
+            <span class="sub-text damage-label">✨ Obrażenia Krtytyczne Broni</span>
+            <div class="damage-range">{{ weapon.critDmgMin }} – {{ weapon.critDmgMax }}</div>
+          </div>
         </div>
         <div class="combat-values">
           <div class="value-badge">
