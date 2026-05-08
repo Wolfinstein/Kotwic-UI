@@ -1,5 +1,8 @@
 import { Stats } from './Stats';
 import { ItemRarity } from './constants/itemRarity';
+import { LEGENDARY_BONUS, getQualityMultiplier, isLegendary, getEpicMultiplier, scaleValue } from './qualityMultiplierUtils';
+
+export { getQualityMultiplier } from './qualityMultiplierUtils';
 
 const MULTIPLIED_STAT_PROPERTIES: (keyof Stats)[] = [
   'sila', 'zwinnosc', 'odpornosc', 'wyglad', 'charyzma', 'wplywy',
@@ -26,62 +29,6 @@ const MULTIPLIED_STAT_PROPERTIES: (keyof Stats)[] = [
   'regen', 'additionalIni'
 ];
 
-export function getQualityMultiplier(rarity: ItemRarity): number {
-  switch (rarity) {
-    case ItemRarity.ZWYKLY:
-      return 1.0;
-    case ItemRarity.DOBRY:
-    case ItemRarity.LEGENDARNY_DOBRY:
-      return 1.5;
-    case ItemRarity.DOSKONALY:
-    case ItemRarity.LEGENDARNY_DOSKONALY:
-    case ItemRarity.EPICKI:
-      return 2.0;
-    case ItemRarity.LEGENDARNY:
-      return 1.0;
-    default:
-      return 1.0;
-  }
-}
-
-function isLegendary(rarity: ItemRarity): boolean {
-  return rarity.startsWith('LEGENDARNY') || rarity === ItemRarity.EPICKI;
-}
-
-function getEpicMultiplier(rarity: ItemRarity): number {
-  if (rarity === ItemRarity.EPICKI) {
-    return 2.5;
-  }
-  return 1.0;
-}
-
-function scaleAndApply(value: number, multipliers: number[], name: string): number {
-  if (value >= 1) {
-    let result = value;
-    for (const multiplier of multipliers) {
-      result = Math.ceil(result * multiplier);
-    }
-    return result;
-  }
-  const valueStr = value.toString();
-  const decimalPart = valueStr.split('.')[1];
-  if (!decimalPart) {
-    return value;
-  }
-  const scaleFactor = Math.pow(10, decimalPart.length);
-  let scaled = parseInt(decimalPart, 10);
-  for (const multiplier of multipliers) {
-    if (name === 'mnoznikObrony') {
-      scaled = scaled * multiplier;
-    } else {
-      scaled = Math.ceil(scaled * multiplier);
-    }
-  }
-  if (name === 'mnoznikObrony') {
-    scaled = Math.ceil(scaled);
-  }
-  return scaled / scaleFactor;
-}
 
 export function applyQualityMultiplier(stats: Stats, rarity: ItemRarity, playerLvl: number): Stats {
   const result = stats.clone();
@@ -89,7 +36,7 @@ export function applyQualityMultiplier(stats: Stats, rarity: ItemRarity, playerL
   const isEpic = rarity === ItemRarity.EPICKI;
   const epicMult = getEpicMultiplier(rarity);
   const isLeg = isLegendary(rarity);
-  const legendaryBonus = 1.35;
+  const legendaryBonus = LEGENDARY_BONUS;
   let tempObrona = 0;
   let tempObrazenia = 0;
   let tempMultiPalna2h = 0;
@@ -115,24 +62,24 @@ export function applyQualityMultiplier(stats: Stats, rarity: ItemRarity, playerL
     if (value > 0 && prop != 'dps' && prop != 'critMultiSpeed') {
       let multipliedValue: number;
       if (isEpic) {
-        multipliedValue = scaleAndApply(value, [epicMult, legendaryBonus], prop);
+        multipliedValue = scaleValue(value, [epicMult, legendaryBonus], prop);
       } else if (isLeg) {
-        multipliedValue = scaleAndApply(value, [qualityMult, legendaryBonus], prop);
+        multipliedValue = scaleValue(value, [qualityMult, legendaryBonus], prop);
       } else {
-        multipliedValue = scaleAndApply(value, [qualityMult], prop);
+        multipliedValue = scaleValue(value, [qualityMult], prop);
       }
       (result as any)[prop] = multipliedValue;
     }
   }
   if (result.mnoznikObrony !== null && result.mnoznikObrony > 0) {
-    result.setObronaPrzedmiotow((Math.round(result.obronaAffixu) + result.obronaBazy) + Math.ceil((Math.round(result.obronaAffixu) + result.obronaBazy) * result.mnoznikObrony));
+    result.obronaPrzedmiotow += (Math.round(result.obronaAffixu) + result.obronaBazy) + Math.ceil((Math.round(result.obronaAffixu) + result.obronaBazy) * result.mnoznikObrony);
   } else {
-    result.setObronaPrzedmiotow(Math.round(result.obronaAffixu + result.obronaBazy));
+    result.obronaPrzedmiotow += Math.round(result.obronaAffixu + result.obronaBazy);
   }
-  result.setCritMultiPalna2h(tempMultiPalna2h);
+  result.critMultiPalna2h += tempMultiPalna2h;
   result.setAllMinDps(tempObrazenia);
   result.setAllMaxDps(tempObrazenia);
-  result.setObronaPrzedmiotow(tempObrona);
+  result.obronaPrzedmiotow += tempObrona;
   return result;
 }
 
@@ -141,14 +88,14 @@ function calcValue(value: number, rarity: ItemRarity, prop: string): number {
   const isEpic = rarity === ItemRarity.EPICKI;
   const epicMult = getEpicMultiplier(rarity);
   const isLeg = isLegendary(rarity);
-  const legendaryBonus = 1.35;
+  const legendaryBonus = LEGENDARY_BONUS;
   let multipliedValue: number;
   if (isEpic) {
-    multipliedValue = scaleAndApply(value, [epicMult, legendaryBonus], prop);
+    multipliedValue = scaleValue(value, [epicMult, legendaryBonus], prop);
   } else if (isLeg) {
-    multipliedValue = scaleAndApply(value, [qualityMult, legendaryBonus], prop);
+    multipliedValue = scaleValue(value, [qualityMult, legendaryBonus], prop);
   } else {
-    multipliedValue = scaleAndApply(value, [qualityMult], prop);
+    multipliedValue = scaleValue(value, [qualityMult], prop);
   }
   return multipliedValue;
 }

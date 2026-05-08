@@ -188,7 +188,7 @@ export class CharacterInputComponent implements OnInit {
     { key: 'kamienDobra', label: 'Kamień Dobra' },
     { key: 'kamienPrzestrzeni', label: 'Kamień Przestrzeni' },
     { key: 'kamienCzasu', label: 'Kamień Czasu' },
-    { key: 'spaonNocy', label: 'Szpony Nocy' },
+    { key: 'szponyNocy', label: 'Szpony Nocy' },
     { key: 'zycieISmierc', label: 'Życie i Śmierć' },
     { key: 'otchlaniCiszy', label: 'Otchlań Ciszy' },
     { key: 'potegaMocy', label: 'Potęga Mocy' },

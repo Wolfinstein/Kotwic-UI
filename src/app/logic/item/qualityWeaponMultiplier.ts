@@ -2,50 +2,10 @@ import { Stats } from './Stats';
 import { ItemGenre } from './constants';
 import { ItemRarity } from './constants/itemRarity';
 import { WeaponStats } from './WeaponStats';
+import { LEGENDARY_BONUS, getQualityMultiplier, isLegendary, getEpicMultiplier, scaleValue } from './qualityMultiplierUtils';
 
-export function getQualityMultiplier(rarity: ItemRarity): number {
-  switch (rarity) {
-    case ItemRarity.ZWYKLY:
-      return 1.0;
-    case ItemRarity.DOBRY:
-    case ItemRarity.LEGENDARNY_DOBRY:
-      return 1.5;
-    case ItemRarity.DOSKONALY:
-    case ItemRarity.LEGENDARNY_DOSKONALY:
-    case ItemRarity.EPICKI:
-      return 2.0;
-    case ItemRarity.LEGENDARNY:
-      return 1.0;
-    default:
-      return 1.0;
-  }
-}
+export { getQualityMultiplier } from './qualityMultiplierUtils';
 
-function isLegendary(rarity: ItemRarity): boolean {
-  return rarity.startsWith('LEGENDARNY') || rarity === ItemRarity.EPICKI;
-}
-
-function getEpicMultiplier(rarity: ItemRarity): number {
-  if (rarity === ItemRarity.EPICKI) {
-    return 2.5;
-  }
-  return 1.0;
-}
-
-function scaleAndApply(value: number, multipliers: number[]): number {
-  if (value >= 1) {
-    let result = value;
-    for (const multiplier of multipliers) {
-      result = Math.ceil(result * multiplier);
-    }
-    return result;
-  }
-  let result = value;
-  for (const multiplier of multipliers) {
-    result = result * multiplier;
-  }
-  return Math.ceil(result * 100) / 100;
-}
 
 export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, genre: ItemGenre, playerLvl: number): Stats {
   const result = stats.clone() as WeaponStats;
@@ -177,15 +137,15 @@ function calcValue(value: number, rarity: ItemRarity): number {
   const isEpic = rarity === ItemRarity.EPICKI;
   const epicMult = getEpicMultiplier(rarity);
   const isLeg = isLegendary(rarity);
-  const legendaryBonus = 1.35;
+  const legendaryBonus = LEGENDARY_BONUS;
   let multipliedValue: number;
 
   if (isEpic) {
-    multipliedValue = scaleAndApply(value, [epicMult, legendaryBonus]);
+    multipliedValue = scaleValue(value, [epicMult, legendaryBonus]);
   } else if (isLeg) {
-    multipliedValue = scaleAndApply(value, [qualityMult, legendaryBonus]);
+    multipliedValue = scaleValue(value, [qualityMult, legendaryBonus]);
   } else {
-    multipliedValue = scaleAndApply(value, [qualityMult]);
+    multipliedValue = scaleValue(value, [qualityMult]);
   }
 
   return multipliedValue;

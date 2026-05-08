@@ -76,7 +76,7 @@ export class CharacterService {
         kamienDobra: 0,
         kamienPrzestrzeni: 0,
         kamienCzasu: 0,
-        spaonNocy: 0,
+        szponyNocy: 0,
         zycieISmierc: 0,
         otchlaniCiszy: 0,
         potegaMocy: 0,

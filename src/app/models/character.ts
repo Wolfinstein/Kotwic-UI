@@ -17,7 +17,7 @@ export interface TalizmanLevels {
     kamienDobra: number;
     kamienPrzestrzeni: number;
     kamienCzasu: number;
-    spaonNocy: number;
+    szponyNocy: number;
     zycieISmierc: number;
     otchlaniCiszy: number;
     potegaMocy: number;

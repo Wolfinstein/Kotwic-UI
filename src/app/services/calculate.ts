@@ -19,6 +19,7 @@ import { SuffixType, PrefixType } from '../logic/item/constants/affixType';
 import { ItemRarity } from '../logic/item/constants/itemRarity';
 import { ItemGenre } from '../logic/item/constants/itemGenre';
 import { ItemType } from '../logic/item/constants/itemType';
+import { MultiplicativeBonus, MultiplicativeBonusType } from '../logic/interactions/MultiplicativeBonus';
 @Injectable({
   providedIn: 'root'
 })
@@ -81,7 +82,7 @@ export class DashboardService {
         p.addLaczneObrazeniaWszystkichBroni(0.15);
         break;
       default:
-        console.log("Unknown status");
+        break;
     }
   }
   private getPrefixTypeByName(name: string): PrefixType {
@@ -151,7 +152,7 @@ export class DashboardService {
             prefix = WeaponDictionary.getWeaponPrefix(genre, prefixType);
             break;
           case 'armour':
-            if (genre == 'legs') {
+            if (genre == ItemGenre.LEGS) {
               prefix = ArmourDictionary.getLegsPrefix(genre, item.base, prefixType);
             } else {
               prefix = ArmourDictionary.getArmourPrefix(genre, prefixType);
@@ -368,7 +369,7 @@ export class DashboardService {
         .ziz(p.ziz4 ? 1 : 0)
         .kamienSpota(c.talizmanLevels?.kamienPrzestrzeni ?? 0)
         .kamienZwinki(c.talizmanLevels?.kamienCzasu ?? 0)
-        .szpony(c.talizmanLevels?.spaonNocy ?? 0)
+        .szpony(c.talizmanLevels?.szponyNocy ?? 0)
         .zycieSmierc(c.talizmanLevels?.zycieISmierc ?? 0)
         .otchlan(c.talizmanLevels?.otchlaniCiszy ?? 0)
         .potega(c.talizmanLevels?.potegaMocy ?? 0)
@@ -932,65 +933,62 @@ export class DashboardService {
   private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: ItemGenre | undefined): { minDmg: number, maxDmg: number } {
     let minDmg = 0;
     let maxDmg = 0;
-    const beheBonuses = bonuses.filter(b => b.type === 'BEHE');
-    const otherBonuses = bonuses.filter(b => b.type !== 'BEHE' && b.type !== 'AMBICJA');
-    const ambitjaBonuses = bonuses.filter(b => b.type === 'AMBICJA');
+    const beheBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.BEHE);
+    const otherBonuses = bonuses.filter(b => b.type !== MultiplicativeBonusType.BEHE && b.type !== MultiplicativeBonusType.AMBICJA);
+    const ambitjaBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.AMBICJA);
     const allBonusesToProcess = [
       ...beheBonuses,
       ...otherBonuses,
       ...ambitjaBonuses
     ];
-    console.log(allBonusesToProcess)
     for (const b of allBonusesToProcess) {
       switch (b.type) {
-        case 'SKRZYDLA':
+        case MultiplicativeBonusType.SKRZYDLA:
           player.addWyglad(Math.floor(player.stats.spostrzegawczosc * (b.licznik / b.mianownik * b.mnoznik)));
           break;
-        case 'SCIEGNA':
+        case MultiplicativeBonusType.SCIEGNA:
           player.addWyglad(Math.floor(player.stats.zwinnosc * (b.licznik / b.mianownik * b.mnoznik)));
           break;
-        case 'MIESNIE':
-          console.log(minDmg);
+        case MultiplicativeBonusType.MIESNIE:
           if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
             minDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
             maxDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
           }
-          console.log(minDmg);
           break;
-        case 'BEHE':
+        case MultiplicativeBonusType.BEHE:
           player.addZwinnosc(Math.floor(player.stats.sila * (b.licznik / b.mianownik * b.mnoznik)));
           let suma = player.stats.wiedza + player.stats.inteligencja;
           player.addSpostrzegawczosc(Math.floor(suma * (b.licznik / b.mianownik) * b.mnoznik));
           break;
-        case 'OSWIECONY':
+        case MultiplicativeBonusType.OSWIECONY:
           if (genre === ItemGenre.GUN_1H || genre === ItemGenre.GUN_2H) {
             minDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
             maxDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
           }
           break;
-        case 'AMBICJA':
+        case MultiplicativeBonusType.AMBICJA:
           minDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
           maxDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
           break;
-        case 'CZARNY':
+        case MultiplicativeBonusType.CZARNY:
           if (genre === ItemGenre.WHITE_2H) {
             minDmg += Math.floor(player.stats.sila / b.mianownik);
             maxDmg += Math.floor(player.stats.sila / b.mianownik);
           }
           break;
-        case 'TYTAN':
+        case MultiplicativeBonusType.TYTAN:
           if (genre === ItemGenre.WHITE_1H) {
             minDmg += Math.floor(player.stats.sila / b.mianownik);
             maxDmg += Math.floor(player.stats.sila / b.mianownik);
           }
           break;
-        case 'SLONECZNY':
+        case MultiplicativeBonusType.SLONECZNY:
           if (genre === ItemGenre.GUN_2H) {
             minDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
             maxDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
           }
           break;
-        case 'JASTRZEBI':
+        case MultiplicativeBonusType.JASTRZEBI:
           if (genre === ItemGenre.GUN_1H) {
             minDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.mnoznik;
             maxDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.mnoznik;
@@ -1037,7 +1035,6 @@ export class DashboardService {
       let critMulti = 1;
       player.stats.addNonAgnosticStats(stats)
       const bonusResults = this.resolveBonuses(player.bonuses, player, weapon, genre);
-      console.log(bonusResults);
       minDmg += bonusResults.minDmg;
       maxDmg += bonusResults.maxDmg;
       if (genre === ItemGenre.WHITE_2H) {

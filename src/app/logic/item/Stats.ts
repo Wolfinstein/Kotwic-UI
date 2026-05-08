@@ -83,15 +83,6 @@ export class Stats {
     this.minDpsBiala1h += dps;
     this.maxDpsBiala1h += dps;
   }
-  setRegeneration(regen: number): void {
-    this.regen += regen;
-  }
-  setObronaPrzedmiotow(obrona: number): void {
-    this.obronaPrzedmiotow += obrona;
-  }
-  setCritMultiPalna2h(crit: number): void {
-    this.critMultiPalna2h += crit;
-  }
   setAllDps2h(dps: number): void {
     this.minDpsDystans2h += dps;
     this.maxDpsDystans2h += dps;
@@ -163,34 +154,7 @@ export class Stats {
     this.atakiDystans2h += ataki;
     this.atakiPalna += ataki;
   }
-  setAdditionalIni(value: number): void {
-    this.additionalIni += value;
-  }
-  setObronaBazy(value: number): void {
-    this.obronaBazy += value;
-  }
-  setObronaAffixu(value: number): void {
-    this.obronaAffixu += value;
-  }
-  setPunktyKrwi(value: number): void {
-    this.punktyKrwi += value;
-  }
-  setTrafienieProcentowePalna(value: number): void {
-    this.trafienieProcentowePalna += value;
-  }
-  setTrafienieProcentoweBiala(value: number): void {
-    this.trafienieProcentoweBiala += value;
-  }
-  setTrafienieProcentoweDystans(value: number): void {
-    this.trafienieProcentoweDystans += value;
-  }
-  setLaczneObrazeniaWszystkichBroni(value: number): void {
-    this.laczneObrazeniaWszystkichBroni += value;
-  }
-  setObrazeniaProcentoweRuny(value: number): void {
-    this.obrazeniaProcentoweRuny += value;
-  }
-
+  /** Merges weapon-agnostic stats only (attributes, defence, trafienie). Used when combining weapons that share class stats but not damage types. */
   addAgnosticStats(newStats: Stats): this {
     this.sila += newStats.sila;
     this.zwinnosc += newStats.zwinnosc;
@@ -250,8 +214,7 @@ export class Stats {
     return this;
   }
 
-
-  addStats(newStats: Stats): this {
+ addStats(newStats: Stats): this {
     this.sila += newStats.sila;
     this.zwinnosc += newStats.zwinnosc;
     this.odpornosc += newStats.odpornosc;

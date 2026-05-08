@@ -1,6 +1,11 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable, fromEvent, debounceTime, map, startWith } from 'rxjs';
+
 export type Breakpoint = 'mobile-sm' | 'mobile-lg' | 'tablet' | 'desktop';
+
+const BREAKPOINT_MOBILE_SM_MAX = 480;
+const BREAKPOINT_MOBILE_LG_MAX = 768;
+const BREAKPOINT_TABLET_MAX   = 1024;
 @Injectable({
   providedIn: 'root'
 })
@@ -40,9 +45,9 @@ export class ViewportService {
     return window.innerWidth;
   }
   private getBreakpoint(width: number): Breakpoint {
-    if (width <= 480) return 'mobile-sm';
-    if (width <= 768) return 'mobile-lg';
-    if (width <= 1024) return 'tablet';
+    if (width <= BREAKPOINT_MOBILE_SM_MAX) return 'mobile-sm';
+    if (width <= BREAKPOINT_MOBILE_LG_MAX) return 'mobile-lg';
+    if (width <= BREAKPOINT_TABLET_MAX) return 'tablet';
     return 'desktop';
   }
   getCurrentBreakpoint(): Breakpoint {

@@ -149,6 +149,7 @@ export class Player {
   addItem(item: Item): void {
     this.items.push(item);
   }
+
   addSpostrzegawczosc(value: number): void {
     this.stats.spostrzegawczosc += value;
   }
@@ -176,6 +177,7 @@ export class Player {
   addWyglad(value: number): void {
     this.stats.wyglad += value;
   }
+
   addUnikBiala(value: number): void {
     this.stats.unikBiala += value;
   }
@@ -344,26 +346,12 @@ export class Player {
     }
     return null;
   }
+
   addAllCrit(value: number): void {
     this.stats.setAllCritChance(value);
   }
   addCritChancePalna(value: number): void {
     this.stats.setCritChancePalna(value);
-  }
-  addPunktyKrwi(value: number): void {
-    this.stats.setPunktyKrwi(value);
-  }
-  addAllTrafienie(value: number): void {
-    this.stats.setAllTrafienie(value);
-  }
-  addAllAtaki(value: number): void {
-    this.stats.setAllAtaki(value);
-  }
-  addAllDps(value: number): void {
-    this.stats.setAllDps(value);
-  }
-  addSzczescie(value: number): void {
-    this.stats.szczescie += value;
   }
   addCritMultiBiala1h(value: number): void {
     this.stats.critMultiBiala1h += value;
@@ -383,6 +371,13 @@ export class Player {
   addCritMultiPalna1h(value: number): void {
     this.stats.critMultiPalna1h += value;
   }
+  addAllCritMulti1h(value: number): void {
+    this.stats.setAllCritMulti1h(value);
+  }
+  addAllCritMulti2h(value: number): void {
+    this.stats.setAllCritMulti2h(value);
+  }
+
   addMinDpsBiala1h(value: number): void {
     this.stats.minDpsBiala1h += value;
   }
@@ -419,8 +414,27 @@ export class Player {
   addMaxDpsDystans2h(value: number): void {
     this.stats.maxDpsDystans2h += value;
   }
-  addRegen(value: number): void {
-    this.stats.regen += value;
+  addMinDmg(value: number): void {
+    this.stats.setAllMinDps(value);
+  }
+  addMaxDmg(value: number): void {
+    this.stats.setAllMaxDps(value);
+  }
+  addAllDps(value: number): void {
+    this.stats.setAllDps(value);
+  }
+  setAllDps1h(dps: number): void {
+    this.stats.setAllDps1h(dps);
+  }
+  setAllDps2h(dps: number): void {
+    this.stats.setAllDps2h(dps);
+  }
+
+  addAllTrafienie(value: number): void {
+    this.stats.setAllTrafienie(value);
+  }
+  addAllAtaki(value: number): void {
+    this.stats.setAllAtaki(value);
   }
   addAtakiBiala(value: number): void {
     this.stats.atakiBiala += value;
@@ -431,24 +445,6 @@ export class Player {
   addAtakiDystans2h(value: number): void {
     this.stats.atakiDystans2h += value;
   }
-  addAllCritMulti1h(value: number): void {
-    this.stats.setAllCritMulti1h(value);
-  }
-  addAllCritMulti2h(value: number): void {
-    this.stats.setAllCritMulti2h(value);
-  }
-  setAllDps1h(dps: number): void {
-    this.stats.setAllDps1h(dps);
-  }
-  setAllDps2h(dps: number): void {
-    this.stats.setAllDps2h(dps);
-  }
-  addTwardosc(t: number): void {
-    this.stats.twardosc += t;
-  }
-  addAdditionalIni(value: number): void {
-    this.stats.additionalIni += value;
-  }
   addTrafienieProcentowePalna(value: number): void {
     this.stats.trafienieProcentowePalna += value;
   }
@@ -458,20 +454,30 @@ export class Player {
   addTrafienieProcentoweDystans(value: number): void {
     this.stats.trafienieProcentoweDystans += value;
   }
+
+  addSzczescie(value: number): void {
+    this.stats.szczescie += value;
+  }
+  addPunktyKrwi(value: number): void {
+    this.stats.punktyKrwi += value;
+  }
+  addRegen(value: number): void {
+    this.stats.regen += value;
+  }
+  addRegeneration(value: number): void {
+    this.stats.regen += value;
+  }
   addLaczneObrazeniaWszystkichBroni(value: number): void {
     this.stats.laczneObrazeniaWszystkichBroni += value;
   }
   addObrazeniaProcentoweRuny(value: number): void {
     this.stats.obrazeniaProcentoweRuny += value;
   }
-  addMinDmg(value: number): void {
-    this.stats.setAllMinDps(value);
+  addTwardosc(t: number): void {
+    this.stats.twardosc += t;
   }
-  addMaxDmg(value: number): void {
-    this.stats.setAllMaxDps(value);
-  }
-  addRegeneration(value: number): void {
-    this.stats.setRegeneration(value);
+  addAdditionalIni(value: number): void {
+    this.stats.additionalIni += value;
   }
   setLife(life: number): void {
     this.life = life;

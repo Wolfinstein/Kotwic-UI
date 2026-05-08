@@ -30,67 +30,6 @@ export class TalismanyAndArkany {
   lowca: number = 0;
   piesnKrwi: number = 0;
   cichyLowca: number = 0;
-  constructor(
-    aMajestat: number = 0,
-    aMaskaOff: number = 0,
-    aMaskaDef: number = 0,
-    aKrewZycia: number = 0,
-    aKocieSciezki: number = 0,
-    aZar: number = 0,
-    aCisza: number = 0,
-    aWyssanie: number = 0,
-    aMocKrwi: number = 0,
-    aSkora: number = 0,
-    aDziki: number = 0,
-    aCienBestii: number = 0,
-    aNocny: number = 0,
-    aTchnienie: number = 0,
-    ambicja: number = 0,
-    behemot: number = 0,
-    ziz: number = 0,
-    kamienSpota: number = 0,
-    kamienZwinki: number = 0,
-    szpony: number = 0,
-    zycieSmierc: number = 0,
-    otchlan: number = 0,
-    potega: number = 0,
-    aura: number = 0,
-    maskaStrachu: number = 0,
-    maskaWladzy: number = 0,
-    lowca: number = 0,
-    piesnKrwi: number = 0,
-    cichyLowca: number = 0
-  ) {
-    this.aMajestat = aMajestat;
-    this.aMaskaOff = aMaskaOff;
-    this.aMaskaDef = aMaskaDef;
-    this.aKrewZycia = aKrewZycia;
-    this.aKocieSciezki = aKocieSciezki;
-    this.aZar = aZar;
-    this.aCisza = aCisza;
-    this.aWyssanie = aWyssanie;
-    this.aMocKrwi = aMocKrwi;
-    this.aSkora = aSkora;
-    this.aDziki = aDziki;
-    this.aCienBestii = aCienBestii;
-    this.aNocny = aNocny;
-    this.aTchnienie = aTchnienie;
-    this.ambicja = ambicja;
-    this.behemot = behemot;
-    this.ziz = ziz;
-    this.kamienSpota = kamienSpota;
-    this.kamienZwinki = kamienZwinki;
-    this.szpony = szpony;
-    this.zycieSmierc = zycieSmierc;
-    this.otchlan = otchlan;
-    this.potega = potega;
-    this.aura = aura;
-    this.maskaStrachu = maskaStrachu;
-    this.maskaWladzy = maskaWladzy;
-    this.lowca = lowca;
-    this.piesnKrwi = piesnKrwi;
-    this.cichyLowca = cichyLowca;
-  }
   static builder() {
     return new TalismanyAndArkanyBuilder();
   }
@@ -559,6 +498,7 @@ class TalismanyAndArkanyBuilder {
   private _maskaWladzy: number = 0;
   private _lowca: number = 0;
   private _piesnKrwi: number = 0;
+  private _cichyLowca: number = 0;
   aMajestat(aMajestat: number): TalismanyAndArkanyBuilder {
     this._aMajestat = aMajestat;
     return this;
@@ -671,36 +611,41 @@ class TalismanyAndArkanyBuilder {
     this._piesnKrwi = piesnKrwi;
     return this;
   }
+  cichyLowca(cichyLowca: number): TalismanyAndArkanyBuilder {
+    this._cichyLowca = cichyLowca;
+    return this;
+  }
   build(): TalismanyAndArkany {
-    return new TalismanyAndArkany(
-      this._aMajestat,
-      this._aMaskaOff,
-      this._aMaskaDef,
-      this._aKrewZycia,
-      this._aKocieSciezki,
-      this._aZar,
-      this._aCisza,
-      this._aWyssanie,
-      this._aMocKrwi,
-      this._aSkora,
-      this._aDziki,
-      this._aCienBestii,
-      this._aNocny,
-      this._aTchnienie,
-      this._ambicja,
-      this._behemot,
-      this._ziz,
-      this._kamienSpota,
-      this._kamienZwinki,
-      this._szpony,
-      this._zycieSmierc,
-      this._otchlan,
-      this._potega,
-      this._aura,
-      this._maskaStrachu,
-      this._maskaWladzy,
-      this._lowca,
-      this._piesnKrwi
-    );
+    const t = new TalismanyAndArkany();
+    t.aMajestat = this._aMajestat;
+    t.aMaskaOff = this._aMaskaOff;
+    t.aMaskaDef = this._aMaskaDef;
+    t.aKrewZycia = this._aKrewZycia;
+    t.aKocieSciezki = this._aKocieSciezki;
+    t.aZar = this._aZar;
+    t.aCisza = this._aCisza;
+    t.aWyssanie = this._aWyssanie;
+    t.aMocKrwi = this._aMocKrwi;
+    t.aSkora = this._aSkora;
+    t.aDziki = this._aDziki;
+    t.aCienBestii = this._aCienBestii;
+    t.aNocny = this._aNocny;
+    t.aTchnienie = this._aTchnienie;
+    t.ambicja = this._ambicja;
+    t.behemot = this._behemot;
+    t.ziz = this._ziz;
+    t.kamienSpota = this._kamienSpota;
+    t.kamienZwinki = this._kamienZwinki;
+    t.szpony = this._szpony;
+    t.zycieSmierc = this._zycieSmierc;
+    t.otchlan = this._otchlan;
+    t.potega = this._potega;
+    t.aura = this._aura;
+    t.maskaStrachu = this._maskaStrachu;
+    t.maskaWladzy = this._maskaWladzy;
+    t.lowca = this._lowca;
+    t.piesnKrwi = this._piesnKrwi;
+    t.cichyLowca = this._cichyLowca;
+    return t;
   }
 }
