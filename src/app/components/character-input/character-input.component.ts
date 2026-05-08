@@ -250,7 +250,9 @@ export class CharacterInputComponent implements OnInit {
   dailyBonuses = ['Brak', 'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień poszukiwaczy', 'Dzień Vlada', 'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina', 'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you', 'Dzień Przemiany', 'Dzień poszukiwaczy', 'Świąteczna wizja Kaina (deluxe)', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami', 'Pierwszy gol', 'Pierwszy serwis', 'Szczęście Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden'];
   oneTimeBonuses = ['Brak', 'Krew wilka', 'Jabłko żelaznego drzewa', 'Płetwa rekina', 'Eliksir zmysłów', 'Święcona woda', 'Łza feniksa', 'Magiczna pieczęć', 'Serce nietoperza', 'Kwiat lotosu', 'Jad Wielkopchły', 'Serum oświecenia', 'Wywar z czarnego kota', 'Węgiel', 'Sierść kreta', 'Saletra', 'Sok z żuka', 'Esencja młodości', 'Paznokieć trolla', 'Wilcza jagoda', 'Oko kota', 'Absynt', 'Łuski salamandry', 'Woda źródlana', 'Kość męczennika', 'Napój miłosny', 'Jad skorpiona', 'Korzeń mandragory', 'Gwiezdny pył', 'Fiolka kwasu', 'Siarka', 'Czarny diament', 'Oko topielca', 'Boska łza', 'Ząb ghula', 'Wywar z koralowca', 'Serce proroka', 'Pazur bazyliszka', 'Łuski demona', 'Skrzydła chrząszcza', 'Maska gargulca', 'Sok z modliszki', 'Oddech smoka', 'Ząb wiedźmy', 'Grimoire', 'Czarna żółć', 'Palec kowala', 'Kwiat bzu', 'Ogień z serca ziemi'];
   expandedBonuses: { [key: string]: boolean } = {
-    silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false
+    silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false,
+    trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: false, ewolucje: true,
+    przeciwnik: true, inne: false,
   };
   issues = [
     'brak liczenia punktow krwi punkty krwi',
@@ -485,72 +487,6 @@ export class CharacterInputComponent implements OnInit {
     if (jewelGenres.includes(genre)) return 'jewel';
     throw new Error(`Unknown genre: ${genre}`);
   }
-  private readonly statLabels: Record<string, string> = {
-    trafienieBiala: 'Trafienie Biała',
-    atakiBiala: 'Ataki Biała',
-    minDpsBiala1h: 'Min DMG Biała 1H',
-    maxDpsBiala1h: 'Max DMG Biała 1H',
-    minDpsBiala2h: 'Min DMG Biała 2H',
-    maxDpsBiala2h: 'Max DMG Biała 2H',
-    critChanceBiala1h: 'Kryt. szansa Biała 1H',
-    critChanceBiala2h: 'Kryt. szansa Biała 2H',
-    critMultiBiala1h: 'Kryt. mnożnik Biała 1H',
-    critMultiBiala2h: 'Kryt. mnożnik Biała 2H',
-    unikBiala: 'Unik Biała',
-    atakiPalna: 'Ataki Palna',
-    trafieniePalna: 'Trafienie Palna',
-    minDpsPalna1h: 'Min DMG Palna 1H',
-    maxDpsPalna1h: 'Max DMG Palna 1H',
-    minDpsPalna2h: 'Min DMG Palna 2H',
-    maxDpsPalna2h: 'Max DMG Palna 2H',
-    critChancePalna1h: 'Kryt. szansa Palna 1H',
-    critChancePalna2h: 'Kryt. szansa Palna 2H',
-    critMultiPalna1h: 'Kryt. mnożnik Palna 1H',
-    critMultiPalna2h: 'Kryt. mnożnik Palna 2H',
-    ignoreObrony: 'Ignore Obrony',
-    atakiDystans1h: 'Ataki Dystans 1H',
-    atakiDystans2h: 'Ataki Dystans 2H',
-    trafienieDystans: 'Trafienie Dystans',
-    minDpsDystans1h: 'Min DMG Dystans 1H',
-    maxDpsDystans1h: 'Max DMG Dystans 1H',
-    minDpsDystans2h: 'Min DMG Dystans 2H',
-    maxDpsDystans2h: 'Max DMG Dystans 2H',
-    critChanceDystans: 'Kryt. szansa Dystans',
-    critMultiDystans1h: 'Kryt. mnożnik Dystans 1H',
-    critMultiDystans2h: 'Kryt. mnożnik Dystans 2H',
-    trafienieProcentoweDystans: 'Trafienie % Dystans',
-    trafienieProcentowePalna: 'Trafienie % Palna',
-    trafienieProcentoweBiala: 'Trafienie % Biała',
-    unikDystans: 'Unik Dystans',
-    obronaPrzedmiotow: 'Obrona',
-    obronaDodatkowa: 'Obrona dodatkowa',
-    twardosc: 'Twardość',
-    redukcjaObrazen: 'Redukcja',
-    mnoznikObrony: 'Mnożnik obrony',
-    odpornosc: 'Odporność',
-    sila: 'Siła',
-    zwinnosc: 'Zwinność',
-    spostrzegawczosc: 'Spostrzegawczość',
-    inteligencja: 'Inteligencja',
-    wiedza: 'Wiedza',
-    wyglad: 'Wygląd',
-    charyzma: 'Charyzma',
-    wplywy: 'Wpływy',
-    punktyZycia: 'Punkty Życia',
-    punktyKrwi: 'Punkty Krwi',
-    szczescie: 'Szczęście',
-  };
-
-  private formatTooltip(stats: Record<string, any>): string {
-    return Object.entries(stats)
-      .map(([key, val]) => {
-        const label = this.statLabels[key] ?? key;
-        const formatted = typeof val === 'number' ? (Number.isInteger(val) ? val : val.toFixed(2)) : val;
-        return `<span style="color:#6A87AB">${label}:</span> ${formatted}`;
-      })
-      .join('<br>');
-  }
-
   private extractStats(stats: any): Record<string, any> {
     const result: Record<string, any> = {};
     if (!stats) return result;
@@ -560,7 +496,7 @@ export class CharacterInputComponent implements OnInit {
       'atakiPalna', 'trafieniePalna', 'minDpsPalna1h', 'maxDpsPalna1h', 'minDpsPalna2h', 'maxDpsPalna2h',
       'critChancePalna1h', 'critChancePalna2h', 'ignoreObrony',
       'atakiDystans1h', 'atakiDystans2h', 'trafienieDystans', 'minDpsDystans1h', 'maxDpsDystans1h', 'minDpsDystans2h', 'maxDpsDystans2h',
-      'critChanceDystans', 'critChanceDystans', 'unikDystans',
+      'critChanceDystans', 'unikDystans',
       'obronaPrzedmiotow', 'obronaDodatkowa', 'twardosc', 'redukcjaObrazen', 'mnoznikObrony', 'odpornosc',
       'sila', 'zwinnosc', 'spostrzegawczosc', 'inteligencja', 'wiedza', 'wyglad', 'charyzma', 'wplywy',
       'punktyZycia', 'punktyKrwi', 'szczescie',
@@ -568,7 +504,6 @@ export class CharacterInputComponent implements OnInit {
       'critMultiDystans2h',
       'critMultiPalna1h',
       'critMultiPalna2h',
-      'critMultiBiala1h',
       'critMultiBiala2h',
       'trafienieProcentoweDystans',
       'trafienieProcentowePalna',

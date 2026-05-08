@@ -50,7 +50,6 @@ h4 {
   letter-spacing: 0.5px;
 }
 
-.character-info,
 .attributes-display,
 .combat-section {
   background: #072944;
@@ -65,44 +64,6 @@ h4 {
   overflow-y: auto;
 }
 
-.info-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 8px;
-  margin-bottom: 6px;
-  align-items: center;
-  font-size: 10px;
-}
-
-/* Desktop: 4 columns */
-@media (min-width: 1281px) {
-  .info-row {
-    grid-template-columns: auto 80px auto 80px;
-    gap: 10px;
-    font-size: 11px;
-  }
-}
-
-.info-row:last-child {
-  margin-bottom: 0;
-}
-
-.label {
-  font-weight: 600;
-  color: #6A87AB;
-  font-size: 10px;
-}
-
-.value {
-  padding: 4px 8px;
-  background: #00192d;
-  border: 1px solid #6A87AB;
-  border-radius: 4px;
-  font-weight: 600;
-  color: #f6e8ea;
-  text-align: center;
-  font-size: 10px;
-}
 
 .attr-grid {
   display: grid;
@@ -157,21 +118,6 @@ h4 {
   }
 }
 
-.attr-grid--4col {
-  grid-template-columns: 1fr;
-}
-
-@media (min-width: 769px) {
-  .attr-grid--4col {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (min-width: 1281px) {
-  .attr-grid--4col {
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-  }
-}
 
 .attr-item {
   display: flex;
@@ -352,51 +298,7 @@ h4 {
   color: #a78bfa;
 }
 
-/* Stat Category Color-Coding (Phase 2) */
-.stat-critical {
-  background: rgba(211, 47, 47, 0.08) !important;
-  border: 2px solid #d32f2f !important;
-}
-
-.stat-critical .attr-label {
-  color: #ff6b6b;
-  font-size: 11px;
-}
-
-.stat-critical .attr-value {
-  color: #ff8a80;
-  text-shadow: 0 0 8px rgba(211, 47, 47, 0.4);
-}
-
-.stat-important {
-  background: rgba(0, 188, 212, 0.08) !important;
-  border: 1px solid #00bcd4 !important;
-}
-
-.stat-important .attr-label {
-  color: #4dd0e1;
-  font-size: 11px;
-}
-
-.stat-important .attr-value {
-  color: #80deea;
-}
-
-.stat-combat {
-  background: rgba(255, 152, 0, 0.08) !important;
-  border: 1px solid #ff9800 !important;
-}
-
-.stat-combat .attr-label {
-  color: #ffb74d;
-  font-size: 11px;
-}
-
-.stat-combat .attr-value {
-  color: #ffb74d;
-}
-
-/* Weapon Section Enhancement (Phase 3) */
+/* Weapon Section Enhancement */
 .weapon-header {
   background: rgba(255, 152, 0, 0.08);
   border-left: 3px solid #ff9800;
@@ -408,35 +310,6 @@ h4 {
   font-size: 11px;
 }
 
-.combat-badge-attacks {
-  background: rgba(255, 152, 0, 0.2) !important;
-  border-color: #ff9800 !important;
-  color: #ffb74d !important;
-}
-
-.combat-badge-critical {
-  background: rgba(211, 47, 47, 0.2) !important;
-  border-color: #d32f2f !important;
-  color: #ff8a80 !important;
-}
-
-.combat-badge-multi {
-  background: rgba(156, 39, 176, 0.2) !important;
-  border-color: #9c27b0 !important;
-  color: #ce93d8 !important;
-}
-
-.combat-badge-hit {
-  background: rgba(0, 188, 212, 0.2) !important;
-  border-color: #00bcd4 !important;
-  color: #80deea !important;
-}
-
-.combat-badge-ignore {
-  background: rgba(251, 192, 45, 0.2) !important;
-  border-color: #fbc02d !important;
-  color: #fdd835 !important;
-}
 
 .average-dps {
   background: rgba(255, 152, 0, 0.08);

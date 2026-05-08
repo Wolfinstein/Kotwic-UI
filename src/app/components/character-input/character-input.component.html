@@ -23,8 +23,9 @@
       </div>
       <!-- Trening -->
       <div class="section">
-        <h3>Trening</h3>
-        <div class="compact-grid">
+        <p-button [label]="'Trening ' + (expandedBonuses['trening'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('trening')" [text]="true" styleClass="bonus-toggle-btn" />
+        <div *ngIf="expandedBonuses['trening']" class="compact-grid">
           <div *ngFor="let attr of attributes" class="compact-item">
             <label>{{ attr.label }}</label>
             <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getAttrValue(attr.key)"
@@ -34,8 +35,9 @@
       </div>
       <!-- Talizmany -->
       <div class="section">
-        <h3>Talizmany</h3>
-        <div class="compact-grid">
+        <p-button [label]="'Talizmany ' + (expandedBonuses['talizmany'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('talizmany')" [text]="true" styleClass="bonus-toggle-btn" />
+        <div *ngIf="expandedBonuses['talizmany']" class="compact-grid">
           <div *ngFor="let tal of talizmanAttributes" class="compact-item">
             <label>{{ tal.label }}</label>
             <p-inputnumber [min]="0" [max]="4" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getTalizmanValue(tal.key)"
@@ -183,8 +185,9 @@
       </div>
       <!-- Arkany -->
       <div class="section">
-        <h3>Arkany</h3>
-        <div class="compact-grid">
+        <p-button [label]="'Arkany ' + (expandedBonuses['arkany'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('arkany')" [text]="true" styleClass="bonus-toggle-btn" />
+        <div *ngIf="expandedBonuses['arkany']" class="compact-grid">
           <div *ngFor="let arcane of arcaneAttributes" class="compact-item">
             <label>{{ arcane.label }}</label>
             <ng-container [ngSwitch]="arcane.type">
@@ -200,23 +203,29 @@
       </div>
       <!-- Runy -->
       <div class="section column-bottom-section">
-        <h3>Runy</h3>
-        <div class="rune-summary" *ngIf="character?.runeValues?.length">
-          <span *ngFor="let rune of character!.runeValues" class="rune-chip">{{ rune }}</span>
-        </div>
-        <span *ngIf="!character?.runeValues?.length" class="rune-empty">Brak run</span>
-        <p-button [label]="'Zarządzaj runami (' + (character?.runeValues?.length || 0) + ')'"
-          (onClick)="openRunesModal()" severity="secondary" styleClass="action-btn-primeng" />
+        <p-button [label]="'Runy (' + (character?.runeValues?.length || 0) + ') ' + (expandedBonuses['runy'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('runy')" [text]="true" styleClass="bonus-toggle-btn" />
+        <ng-container *ngIf="expandedBonuses['runy']">
+          <div class="rune-summary" *ngIf="character?.runeValues?.length">
+            <span *ngFor="let rune of character!.runeValues" class="rune-chip">{{ rune }}</span>
+          </div>
+          <span *ngIf="!character?.runeValues?.length" class="rune-empty">Brak run</span>
+          <p-button label="Zarządzaj runami"
+            (onClick)="openRunesModal()" severity="secondary" styleClass="action-btn-primeng" />
+        </ng-container>
       </div>
       <!-- Umagi -->
       <div class="section column-bottom-section">
-        <h3>Umagi</h3>
-        <div class="rune-summary" *ngIf="character?.umagiValues?.length">
-          <span *ngFor="let umag of character!.umagiValues" class="rune-chip">{{ umag }}</span>
-        </div>
-        <span *ngIf="!character?.umagiValues?.length" class="rune-empty">Brak umagow</span>
-        <p-button [label]="'Zarządzaj umagami (' + (character?.umagiValues?.length || 0) + ')'"
-          (onClick)="openUmagiModal()" severity="secondary" styleClass="action-btn-primeng" />
+        <p-button [label]="'Umagi (' + (character?.umagiValues?.length || 0) + ') ' + (expandedBonuses['umagi'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('umagi')" [text]="true" styleClass="bonus-toggle-btn" />
+        <ng-container *ngIf="expandedBonuses['umagi']">
+          <div class="rune-summary" *ngIf="character?.umagiValues?.length">
+            <span *ngFor="let umag of character!.umagiValues" class="rune-chip">{{ umag }}</span>
+          </div>
+          <span *ngIf="!character?.umagiValues?.length" class="rune-empty">Brak umagow</span>
+          <p-button label="Zarządzaj umagami"
+            (onClick)="openUmagiModal()" severity="secondary" styleClass="action-btn-primeng" />
+        </ng-container>
       </div>
     </div>
     <!-- Column 3: Bonuses -->
@@ -289,28 +298,32 @@
         </div>
         <!-- Blaszka -->
         <div class="section">
-          <h3>Blaszka</h3>
-          <div class="bonus-item">
-            <p-checkbox [binary]="true" [ngModel]="!!character?.blaszkaZaMoba" inputId="blaszkaZaMoba"
-              (ngModelChange)="updateCharacterField('blaszkaZaMoba', $event)" />
-            <label for="blaszkaZaMoba">Blaszka za Moba</label>
-          </div>
-          <div class="bonus-item">
-            <p-checkbox [binary]="true" [ngModel]="!!character?.blaszkaZaKronosa" inputId="blaszkaZaKronosa"
-              (ngModelChange)="updateCharacterField('blaszkaZaKronosa', $event)" />
-            <label for="blaszkaZaKronosa">Blaszka za Kronosa</label>
-          </div>
-          <div class="bonus-item">
-            <p-checkbox [binary]="true" [ngModel]="!!character?.blaszkaZaHastura" inputId="blaszkaZaHastura"
-              (ngModelChange)="updateCharacterField('blaszkaZaHastura', $event)" />
-            <label for="blaszkaZaHastura">Blaszka za Hastura</label>
-          </div>
+          <p-button [label]="'Blaszka ' + (expandedBonuses['blaszka'] ? '▼' : '▶')"
+            (onClick)="toggleBonusExpand('blaszka')" [text]="true" styleClass="bonus-toggle-btn" />
+          <ng-container *ngIf="expandedBonuses['blaszka']">
+            <div class="bonus-item">
+              <p-checkbox [binary]="true" [ngModel]="!!character?.blaszkaZaMoba" inputId="blaszkaZaMoba"
+                (ngModelChange)="updateCharacterField('blaszkaZaMoba', $event)" />
+              <label for="blaszkaZaMoba">Blaszka za Moba</label>
+            </div>
+            <div class="bonus-item">
+              <p-checkbox [binary]="true" [ngModel]="!!character?.blaszkaZaKronosa" inputId="blaszkaZaKronosa"
+                (ngModelChange)="updateCharacterField('blaszkaZaKronosa', $event)" />
+              <label for="blaszkaZaKronosa">Blaszka za Kronosa</label>
+            </div>
+            <div class="bonus-item">
+              <p-checkbox [binary]="true" [ngModel]="!!character?.blaszkaZaHastura" inputId="blaszkaZaHastura"
+                (ngModelChange)="updateCharacterField('blaszkaZaHastura', $event)" />
+              <label for="blaszkaZaHastura">Blaszka za Hastura</label>
+            </div>
+          </ng-container>
         </div>
       </div>
       <!-- Ewolucje -->
       <div class="section">
-        <h3>Ewolucje</h3>
-        <div class="compact-grid">
+        <p-button [label]="'Ewolucje ' + (expandedBonuses['ewolucje'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('ewolucje')" [text]="true" styleClass="bonus-toggle-btn" />
+        <div *ngIf="expandedBonuses['ewolucje']" class="compact-grid">
           <div *ngFor="let evo of evolutions" class="compact-item">
             <label>{{ evo.label }}</label>
             <p-inputnumber [min]="0" [max]="15" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getEvoValue(evo.key)"

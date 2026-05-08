@@ -71,9 +71,9 @@
 .horizontal-h3 {
   font-size: 12px;
   font-weight: 700;
-  color: #6A87AB;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+  color: #f6e8ea;
+  text-transform: none;
+  letter-spacing: 0;
   margin: 0;
 }
 
@@ -147,7 +147,7 @@ label {
   background: #00192d;
   color: #6A87AB;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 13px;
   border-radius: 4px;
   transition: all 0.2s ease;
   text-align: left;
@@ -186,7 +186,7 @@ label {
 }
 
 .eq-slot-rarity {
-  font-size: 8px;
+  font-size: 11px;
   font-weight: 700;
   padding: 1px 5px;
   border-radius: 8px;
@@ -378,7 +378,7 @@ label {
 
 .eq-base-btn {
   padding: 5px 10px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   border: 1px solid #6A87AB;
   background: #00192d;
@@ -407,7 +407,7 @@ label {
 
 .eq-affix-btn {
   padding: 4px 9px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   border: 1px solid #6A87AB;
   background: #00192d;

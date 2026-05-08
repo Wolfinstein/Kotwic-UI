@@ -20,7 +20,7 @@
 @media (min-width: 769px) {
   .app-container {
     display: grid;
-    grid-template-columns: 1.5fr 1fr;
+    grid-template-columns: 7fr 3fr;
     flex-direction: row;
   }
 
@@ -33,6 +33,6 @@
 /* Desktop: 3fr 2fr ratio */
 @media (min-width: 1281px) {
   .app-container {
-    grid-template-columns: 3fr 2fr;
+    grid-template-columns: 7fr 3fr;
   }
 }
