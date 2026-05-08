@@ -1,6 +1,15 @@
 import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectModule } from 'primeng/select';
+import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { ButtonModule } from 'primeng/button';
+import { DialogModule } from 'primeng/dialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { CharacterService } from '../../services/character.service';
 import { Character, EquipmentItem } from '../../models/character';
 import { WeaponDictionary, ArmourDictionary, JewelsDictionary, BaseDictionary } from '../../logic/dictionaries';
@@ -129,7 +138,16 @@ const SLOT_TO_CATEGORY: Record<string, SlotCategory> = {
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule
+    FormsModule,
+    InputNumberModule,
+    SelectModule,
+    CheckboxModule,
+    RadioButtonModule,
+    ButtonModule,
+    DialogModule,
+    TooltipModule,
+    InputTextModule,
+    SelectButtonModule,
   ],
   templateUrl: './character-input.component.html',
   styleUrl: './character-input.component.css'
@@ -216,6 +234,17 @@ export class CharacterInputComponent implements OnInit {
     { key: 'nocnyLowca', label: 'Nocny Łowca', type: 'int' },
     { key: 'tchnienieSmierci', label: 'Tchnienie Śmierci', type: 'int' },
     { key: 'groza', label: 'Groza', type: 'boolean' },
+  ];
+  rasaOptions = [
+    { label: 'Potępiony', value: 'Potepiony' },
+    { label: 'Łapacz Myśli', value: 'LapaczMysli' },
+    { label: 'Władca Zwierząt', value: 'WladcaZwierzat' },
+    { label: 'Kultysta', value: 'Kultysta' },
+    { label: 'Ssak', value: 'Ssak' },
+  ];
+  weaponModeOptions = [
+    { label: '1H+1H', value: 'dual1h' },
+    { label: '2H', value: '2h' },
   ];
   huntBonuses = ['Juggernaut', 'Ronin', 'Adrenalina', 'SokoleOko', 'Rzeźnik'];
   dailyBonuses = ['Brak', 'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień poszukiwaczy', 'Dzień Vlada', 'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina', 'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you', 'Dzień Przemiany', 'Dzień poszukiwaczy', 'Świąteczna wizja Kaina (deluxe)', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami', 'Pierwszy gol', 'Pierwszy serwis', 'szczescie Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden'];
@@ -502,14 +531,15 @@ export class CharacterInputComponent implements OnInit {
   }
   toggleWeaponMode() {
     this.weaponMode = this.weaponMode === 'dual1h' ? '2h' : 'dual1h';
+    this.applyWeaponMode(this.weaponMode);
+  }
+  onWeaponModeChange(newMode: 'dual1h' | '2h') {
+    this.applyWeaponMode(newMode);
+  }
+  private applyWeaponMode(mode: 'dual1h' | '2h') {
     if (!this.character) return;
-    const updated: any = {
-      ...this.character.equipment,
-      weaponMode: this.weaponMode,
-    };
-    if (this.weaponMode === '2h') {
-      updated.weapon2 = undefined;
-    }
+    const updated: any = { ...this.character.equipment, weaponMode: mode };
+    if (mode === '2h') updated.weapon2 = undefined;
     this.characterService.updateCharacter({ ...this.character, equipment: updated });
   }
   saveEquipmentItem() {

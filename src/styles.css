@@ -117,3 +117,76 @@ select:focus-visible {
 ::-webkit-scrollbar-thumb:hover {
   background: #8aa5c7;
 }
+
+/* ─────────────────────────────────────────────────────── */
+/* PRIMENG COMPONENT OVERRIDES                            */
+/* ─────────────────────────────────────────────────────── */
+
+/* Select field (input area) */
+.p-select {
+  background: #00192d !important;
+  border-color: #6A87AB !important;
+  color: #f6e8ea !important;
+  width: 4vw !important;
+  min-width: 80px !important;
+}
+
+.p-select-label {
+  color: #f6e8ea !important;
+  font-size: 10px !important;
+}
+
+.p-select-dropdown {
+  color: #6A87AB !important;
+  background: transparent !important;
+}
+
+.p-select:hover,
+.p-select.p-focus {
+  border-color: #f6e8ea !important;
+  background: #072944 !important;
+  box-shadow: none !important;
+}
+
+/* InputNumber */
+.p-inputnumber-input {
+  background: #00192d !important;
+  border-color: #6A87AB !important;
+  color: #f6e8ea !important;
+  font-size: 10px !important;
+  width: 4vw !important;
+  min-width: 80px !important;
+}
+
+.p-inputnumber-input:focus {
+  border-color: #f6e8ea !important;
+  background: #072944 !important;
+  box-shadow: none !important;
+}
+
+/* ─────────────────────────────────────────────────────── */
+/* PRIMENG OVERLAY OVERRIDES (appended to body)           */
+/* ─────────────────────────────────────────────────────── */
+.p-select-overlay {
+  background: #00192d !important;
+  border: 1px solid #6A87AB !important;
+  border-radius: 4px !important;
+}
+
+.p-select-option {
+  background: transparent !important;
+  color: #f6e8ea !important;
+  font-size: 10px !important;
+  padding: 6px 10px !important;
+}
+
+.p-select-option:hover,
+.p-select-option.p-focus {
+  background: #0f3d63 !important;
+  color: #f6e8ea !important;
+}
+
+.p-select-option.p-select-option-selected {
+  background: #0f3d63 !important;
+  color: #6A87AB !important;
+}
