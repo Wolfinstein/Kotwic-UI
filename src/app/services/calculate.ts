@@ -366,7 +366,7 @@ export class DashboardService {
         .aTchnienie(c.arcaneLevels?.tchnienieSmierci ?? 0)
         .ambicja(c.talizmanLevels?.ambicja ?? 0)
         .behemot(c.talizmanLevels?.behemot ?? 0)
-        .ziz(p.ziz4 ? 1 : 0)
+        .ziz(c.talizmanLevels?.ziz ?? 0)
         .kamienSpota(c.talizmanLevels?.kamienPrzestrzeni ?? 0)
         .kamienZwinki(c.talizmanLevels?.kamienCzasu ?? 0)
         .szpony(c.talizmanLevels?.szponyNocy ?? 0)

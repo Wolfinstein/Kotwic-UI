@@ -27,6 +27,7 @@ export interface TalizmanLevels {
     maskaStachu: number;
     cichyLowca: number;
     piesnKrwi: number;
+    ziz: number;
 }
 export interface ArcaneLevels {
     maskaAdnisa: number,

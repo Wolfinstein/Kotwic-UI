@@ -85,7 +85,8 @@ export class CharacterService {
         maskaWladzy: 0,
         maskaStachu: 0,
         cichyLowca: 0,
-        piesnKrwi: 0
+        piesnKrwi: 0,
+        ziz: 0
       },
       arcaneLevels: {
         maskaAdnisa: 0,

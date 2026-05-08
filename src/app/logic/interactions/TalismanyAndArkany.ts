@@ -34,6 +34,7 @@ export class TalismanyAndArkany {
     return new TalismanyAndArkanyBuilder();
   }
   calculateTalisman(player: Player): Player {
+    console.log(player);
     const p1 = this.doAmbicja(player);
     this.doBehe(p1);
     this.doZiz(p1);

@@ -1,5 +1,3 @@
-/* To learn more about Typescript configuration file: https:
-/* To learn more about Angular compiler options: https:
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {

@@ -198,6 +198,7 @@ export class CharacterInputComponent implements OnInit {
     { key: 'maskaStachu', label: 'Maska Strachu' },
     { key: 'cichyLowca', label: 'Cichy Łowca' },
     { key: 'piesnKrwi', label: 'Pieśń Krwi' },
+    { key: 'ziz', label: 'Ziz'}
   ];
   arcaneAttributes = [
     { key: 'maskaAdonisa', label: 'Maska Adonisa', type: 'int' },
@@ -223,7 +224,6 @@ export class CharacterInputComponent implements OnInit {
     silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false
   };
   issues = [
-    'poprawic budowanie bonusow z broni',
     'brak liczenia punktow krwi punkty krwi',
     'szczescie i trafieni przeciwnika nie dziala'
   ];
