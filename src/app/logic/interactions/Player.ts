@@ -573,7 +573,9 @@ export class PlayerBuilder {
       this._ziz4,
       this._hasZar,
       this._obronaPrzeciwnika,
-      this._odpornoscPrzeciwnika
+      this._odpornoscPrzeciwnika,
+      this._szczesciePrzeciwnika,
+      this._trafieniePrzeciwnika
     );
   }
 }

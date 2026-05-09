@@ -119,6 +119,7 @@ export interface WeaponDamage {
     critDmgMin?: number;
     critDmgMax?: number;
     genre?: string;
+    estimatedHitChance?: number;
 }
 export interface DashboardValues {
     punktyKrwi?: number;

@@ -185,6 +185,7 @@
         </div>
         <div class="average-dps" *ngIf="weapon.obrazeniaNaRundeAvg !== undefined">
           <span class="modifier">⚔ Śr. obrażenia/rundę: {{ weapon.obrazeniaNaRundeAvg | number:'1.1-1' }}</span>
+          <span class="modifier" *ngIf="weapon.estimatedHitChance !== undefined">🎯 Szansa trafienia: {{ weapon.estimatedHitChance * 100 | number:'1.1-1' }}%</span>
         </div>
       </div>
     </div>

@@ -20,6 +20,7 @@ import { ItemRarity } from '../logic/item/constants/itemRarity';
 import { ItemGenre } from '../logic/item/constants/itemGenre';
 import { ItemType } from '../logic/item/constants/itemType';
 import { MultiplicativeBonus, MultiplicativeBonusType } from '../logic/interactions/MultiplicativeBonus';
+import { max } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
@@ -873,21 +874,24 @@ export class DashboardService {
 
       const obrazenia: WeaponDamage[] = [];
 
+      for (const weapon of weapons) {
+        const weaponStats = p.resolveWeaponItem(weapon, p.lvl);
+        p.stats.addAgnosticStats(weaponStats);
+      }
+
       const pSnapshot = p.clone();
 
       for (const weapon of weapons) {
         const weaponStats = p.resolveWeaponItem(weapon, p.lvl);
         const tmpPlayer = pSnapshot.clone();
-        tmpPlayer.stats.addAgnosticStats(weaponStats);
         const damage = this.calculateWeaponDamage(weapon, weaponStats, tmpPlayer);
         if (damage) {
           obrazenia.push(damage);
         }
-        p.stats.addAgnosticStats(weaponStats);
       }
 
-
       const player = p.clone();
+      this.resolveBonusesBehe(player.bonuses, player);
 
       const attributes: Attributes = {
         sila: player.stats.sila,
@@ -900,6 +904,7 @@ export class DashboardService {
         inteligencja: player.stats.inteligencja,
         wiedza: player.stats.wiedza
       };
+
       const regen = Math.floor(player.life * player.stats.regen);
       const cappedRedukcja = Math.min(player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01, 0.30);
       const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
@@ -930,6 +935,44 @@ export class DashboardService {
       };
     }
   }
+  private calculateHitChance(genre: ItemGenre, player: Player): number {
+    let y: number;
+    let z: number;
+    let p: number;
+
+    if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
+      y = player.stats.zwinnosc;
+      z = player.stats.trafienieBiala;
+      p = Math.floor((1 + player.stats.trafienieProcentoweBiala) * 100) / 100;
+    } else if (genre === ItemGenre.GUN_1H || genre === ItemGenre.GUN_2H) {
+      y = player.stats.spostrzegawczosc;
+      z = player.stats.trafieniePalna;
+      p = Math.floor((1 + player.stats.trafienieProcentowePalna) * 100) / 100;
+    } else {
+      y = player.stats.zwinnosc + player.stats.spostrzegawczosc;
+      z = player.stats.trafienieDystans;
+      p = Math.floor((1 + player.stats.trafienieProcentoweDystans) * 100) / 100;
+    }
+
+    const r = player.trafieniePrzeciwnika;
+    const luckDiff = player.stats.szczescie - player.szczesciePrzeciwnika;
+    let luckModifier = Math.floor(luckDiff / 5);
+
+    if (luckDiff < 0) {
+      const skillDiff = y - r;
+      if (skillDiff > 0) {
+        const reduction = Math.floor(skillDiff / 10);
+        luckModifier = Math.min(luckModifier + reduction, 0);
+      }
+    }
+
+    const maxHit = Math.min(Math.max(90 + luckModifier, 20), 99);
+    const minHit = Math.min(Math.max(10 + luckModifier, 1), 65);
+    const rawHit = (70 + 2 * y + z) * p - 2 * r;
+
+    return Math.min(Math.max(rawHit, minHit), maxHit) / 100;
+  }
+
   private simulateZiz4Rounds(damages: WeaponDamage[]): number[] {
     const ROUNDS = 10;
     const oneHandedGenres: string[] = [ItemGenre.WHITE_1H, ItemGenre.GUN_1H, ItemGenre.RANGE_1H];
@@ -944,11 +987,12 @@ export class DashboardService {
         if (!d.genre) continue;
         const delta = oneHandedGenres.includes(d.genre) ? 0.025 : 0.05;
         const cappedCrit = Math.min(d.critChance ?? 0, 0.85);
+        const hitChance = d.estimatedHitChance ?? 1;
         const effectiveMulti = (d.critMulti ?? 1) + accumulatedBonus;
         const avg = (d.minDmg + d.maxDmg) / 2;
         totalDmg += Math.floor(
-          cappedCrit * (d.iloscAtakow ?? 0) * avg * effectiveMulti
-          + (1 - cappedCrit) * (d.iloscAtakow ?? 0) * avg
+          hitChance * (cappedCrit * (d.iloscAtakow ?? 0) * avg * effectiveMulti
+            + (1 - cappedCrit) * (d.iloscAtakow ?? 0) * avg)
         );
         bonusGainedThisRound += cappedCrit * (d.iloscAtakow ?? 0) * delta;
       }
@@ -960,7 +1004,7 @@ export class DashboardService {
     return rounds;
   }
 
-  private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: ItemGenre | undefined): { minDmg: number, maxDmg: number } {
+  private resolveBonuses(bonuses: any[], player: Player, weapon: Item): { minDmg: number, maxDmg: number } {
     let minDmg = 0;
     let maxDmg = 0;
     const beheBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.BEHE);
@@ -980,7 +1024,7 @@ export class DashboardService {
           player.addWyglad(Math.floor(player.stats.zwinnosc * (b.licznik / b.mianownik * b.mnoznik)));
           break;
         case MultiplicativeBonusType.MIESNIE:
-          if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
+          if (weapon.getGenre() === ItemGenre.WHITE_1H || weapon.getGenre() === ItemGenre.WHITE_2H) {
             minDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
             maxDmg += Math.floor(player.stats.sila * (b.licznik / b.mianownik) * b.mnoznik);
           }
@@ -991,7 +1035,7 @@ export class DashboardService {
           player.addSpostrzegawczosc(Math.floor(suma * (b.licznik / b.mianownik) * b.mnoznik));
           break;
         case MultiplicativeBonusType.OSWIECONY:
-          if (genre === ItemGenre.GUN_1H || genre === ItemGenre.GUN_2H) {
+          if (weapon.getGenre() === ItemGenre.GUN_1H || weapon.getGenre() === ItemGenre.GUN_2H) {
             minDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
             maxDmg += Math.floor(player.stats.wiedza * (b.licznik / b.mianownik) * b.mnoznik);
           }
@@ -1001,25 +1045,25 @@ export class DashboardService {
           maxDmg += Math.floor(player.stats.wyglad * (b.licznik / b.mianownik) * b.mnoznik);
           break;
         case MultiplicativeBonusType.CZARNY:
-          if (genre === ItemGenre.WHITE_2H) {
+          if (weapon.getGenre() === ItemGenre.WHITE_2H) {
             minDmg += Math.floor(player.stats.sila / b.mianownik);
             maxDmg += Math.floor(player.stats.sila / b.mianownik);
           }
           break;
         case MultiplicativeBonusType.TYTAN:
-          if (genre === ItemGenre.WHITE_1H) {
+          if (weapon.getGenre() === ItemGenre.WHITE_1H) {
             minDmg += Math.floor(player.stats.sila / b.mianownik);
             maxDmg += Math.floor(player.stats.sila / b.mianownik);
           }
           break;
         case MultiplicativeBonusType.SLONECZNY:
-          if (genre === ItemGenre.GUN_2H) {
+          if (weapon.getGenre() === ItemGenre.GUN_2H) {
             minDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
             maxDmg += Math.floor((player.stats.inteligencja / b.mianownik)) * b.licznik;
           }
           break;
         case MultiplicativeBonusType.JASTRZEBI:
-          if (genre === ItemGenre.GUN_1H) {
+          if (weapon.getGenre() === ItemGenre.GUN_1H) {
             minDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.mnoznik;
             maxDmg += Math.floor(player.stats.inteligencja / b.mianownik) * b.mnoznik;
           }
@@ -1029,6 +1073,23 @@ export class DashboardService {
 
     return { minDmg, maxDmg };
   }
+
+  private resolveBonusesBehe(bonuses: any[], player: Player): void {
+    const beheBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.BEHE);
+    const allBonusesToProcess = [
+      ...beheBonuses,
+    ];
+    for (const b of allBonusesToProcess) {
+      switch (b.type) {
+        case MultiplicativeBonusType.BEHE:
+          player.addZwinnosc(Math.floor(player.stats.sila * (b.licznik / b.mianownik * b.mnoznik)));
+          let suma = player.stats.wiedza + player.stats.inteligencja;
+          player.addSpostrzegawczosc(Math.floor(suma * (b.licznik / b.mianownik) * b.mnoznik));
+          break;
+      }
+    }
+  }
+
   private constructWeaponName(weapon: Item): string {
     const parts: string[] = [];
     const rarity = weapon.getRarity();
@@ -1064,7 +1125,7 @@ export class DashboardService {
       let critChance = 0;
       let critMulti = 1;
       player.stats.addNonAgnosticStats(stats)
-      const bonusResults = this.resolveBonuses(player.bonuses, player, weapon, genre);
+      const bonusResults = this.resolveBonuses(player.bonuses, player, weapon);
       minDmg += bonusResults.minDmg;
       maxDmg += bonusResults.maxDmg;
       if (genre === ItemGenre.WHITE_2H) {
@@ -1144,7 +1205,8 @@ export class DashboardService {
       const critDmgMax = Math.floor(maxDmg * critMulti);
       const avgDmg = Math.floor((minDmg + maxDmg) / 2);
       const avgCritDmg = Math.floor((critDmgMin + critDmgMax) / 2);
-      const obrazeniaNaRundeAvg = Math.floor(critChance * ataki * avgCritDmg + (1 - critChance) * ataki * avgDmg);
+      const estimatedHitChance = genre ? this.calculateHitChance(genre, player) : 1;
+      const obrazeniaNaRundeAvg = Math.floor(estimatedHitChance * (critChance * ataki * avgCritDmg + (1 - critChance) * ataki * avgDmg));
       return {
         name: this.constructWeaponName(weapon),
         genre: genre,
@@ -1158,6 +1220,7 @@ export class DashboardService {
         critMulti,
         critDmgMin,
         critDmgMax,
+        estimatedHitChance,
         obrazeniaNaRundeAvg
       };
     } catch (error) {
