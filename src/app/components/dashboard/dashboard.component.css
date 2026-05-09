@@ -328,6 +328,59 @@ h4 {
   font-style: italic;
 }
 
+.ziz-rounds-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+}
+
+.ziz-round-row {
+  display: grid;
+  grid-template-columns: 2rem 1fr 3.5rem;
+  padding: 3px 8px;
+  font-size: 12px;
+  align-items: center;
+}
+
+.ziz-round-row:nth-child(odd) {
+  background: rgba(106, 135, 171, 0.08);
+}
+
+.ziz-round-label {
+  color: #6A87AB;
+  font-weight: 600;
+}
+
+.ziz-round-value {
+  color: #f6e8ea;
+  font-weight: 700;
+  text-align: right;
+  padding-right: 8px;
+}
+
+.ziz-growth {
+  text-align: right;
+}
+
+.ziz-round-total {
+  margin-top: 6px;
+  padding: 5px 8px;
+  border-top: 1px solid #6A87AB;
+  background: rgba(106, 135, 171, 0.15);
+}
+
+.ziz-round-total .ziz-round-label,
+.ziz-round-total .ziz-round-value {
+  color: #ffb74d;
+}
+
+.ziz-growth {
+  font-size: 10px;
+  color: #9bdfc5;
+  font-weight: 600;
+  text-align: right;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
 }

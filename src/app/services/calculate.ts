@@ -429,7 +429,7 @@ export class DashboardService {
         break;
       case 'jabłko żelaznego drzewa':
         p.addOdpornosc(3);
-        p.life += Math.floor(p.baseLife * 1.07);
+        p.life += Math.floor(p.baseLife * 0.07);
         break;
       case 'płetwa rekina':
         p.addMinDmg(2);
@@ -513,7 +513,7 @@ export class DashboardService {
         p.addZwinnosc(-2);
         p.addOdpornosc(4);
         p.addInteligencja(-1);
-        p.life += Math.floor(p.baseLife * 1.10);
+        p.life += Math.floor(p.baseLife * 0.10);
         break;
       case 'wilcza jagoda':
         p.addMinDmg(4);
@@ -921,7 +921,7 @@ export class DashboardService {
         inicjatywa: player.stats.spostrzegawczosc + player.stats.zwinnosc + player.stats.additionalIni,
         obrazenia: obrazenia,
         regeneracja: regen,
-        zizAverageRounds: []
+        zizAverageRounds: p.ziz4 ? this.simulateZiz4Rounds(obrazenia) : []
       };
     } catch (error) {
       return {
@@ -930,6 +930,36 @@ export class DashboardService {
       };
     }
   }
+  private simulateZiz4Rounds(damages: WeaponDamage[]): number[] {
+    const ROUNDS = 10;
+    const oneHandedGenres: string[] = [ItemGenre.WHITE_1H, ItemGenre.GUN_1H, ItemGenre.RANGE_1H];
+    const rounds: number[] = [];
+    let accumulatedBonus = 0;
+
+    for (let round = 0; round < ROUNDS; round++) {
+      let totalDmg = 0;
+      let bonusGainedThisRound = 0;
+
+      for (const d of damages) {
+        if (!d.genre) continue;
+        const delta = oneHandedGenres.includes(d.genre) ? 0.025 : 0.05;
+        const cappedCrit = Math.min(d.critChance ?? 0, 0.85);
+        const effectiveMulti = (d.critMulti ?? 1) + accumulatedBonus;
+        const avg = (d.minDmg + d.maxDmg) / 2;
+        totalDmg += Math.floor(
+          cappedCrit * (d.iloscAtakow ?? 0) * avg * effectiveMulti
+          + (1 - cappedCrit) * (d.iloscAtakow ?? 0) * avg
+        );
+        bonusGainedThisRound += cappedCrit * (d.iloscAtakow ?? 0) * delta;
+      }
+
+      rounds.push(totalDmg);
+      accumulatedBonus += bonusGainedThisRound;
+    }
+
+    return rounds;
+  }
+
   private resolveBonuses(bonuses: any[], player: Player, weapon: Item, genre: ItemGenre | undefined): { minDmg: number, maxDmg: number } {
     let minDmg = 0;
     let maxDmg = 0;
@@ -1086,7 +1116,12 @@ export class DashboardService {
         critMulti += player.stats.critMultiDystans2h + 3.5;
         trafienieProcentowe += player.stats.trafienieProcentoweDystans;
       }
-      if (critChance > 0.85) {
+
+      const toDecimal = (num: number | string): number => Number(num) / 100;
+
+      let finalCritChance = critChance + toDecimal(Math.floor(player.stats.szczescie / 5));
+
+      if (finalCritChance > 0.85) {
         critChance = 0.85;
       }
       minDmg = Math.floor((1 + player.stats.laczneObrazeniaWszystkichBroni) * Math.floor(minDmg));
@@ -1105,7 +1140,6 @@ export class DashboardService {
       }
       minDmg = Math.floor(minDmg + (2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
       maxDmg = Math.floor(maxDmg + (2 * minDmg * player.stats.obrazeniaProcentoweRuny / 100));
-      const toDecimal = (num: number | string): number => Number(num) / 100;
       const critDmgMin = Math.floor(minDmg * critMulti);
       const critDmgMax = Math.floor(maxDmg * critMulti);
       const avgDmg = Math.floor((minDmg + maxDmg) / 2);
@@ -1113,13 +1147,14 @@ export class DashboardService {
       const obrazeniaNaRundeAvg = Math.floor(critChance * ataki * avgCritDmg + (1 - critChance) * ataki * avgDmg);
       return {
         name: this.constructWeaponName(weapon),
+        genre: genre,
         minDmg,
         maxDmg,
         iloscAtakow: ataki,
         trafienie: Math.floor(trafienie / 2),
         trafienieProcentowe: trafienieProcentowe,
         ignore: player.stats.ignoreObrony,
-        critChance: critChance + toDecimal(Math.floor(player.stats.szczescie / 5)),
+        critChance: finalCritChance,
         critMulti,
         critDmgMin,
         critDmgMax,

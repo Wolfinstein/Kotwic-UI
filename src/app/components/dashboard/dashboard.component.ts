@@ -23,4 +23,13 @@ export class DashboardComponent implements OnInit {
     if (!this.character) return 0;
     return (this.character.attributes as any)[key] || 0;
   }
+  get zizTotal(): number {
+    return (this.dashboardValues?.zizAverageRounds ?? []).reduce((sum, v) => sum + v, 0);
+  }
+  zizGrowth(index: number): string {
+    const rounds = this.dashboardValues?.zizAverageRounds;
+    if (!rounds || index === 0 || rounds[index - 1] === 0) return '';
+    const pct = ((rounds[index] - rounds[index - 1]) / rounds[index - 1]) * 100;
+    return '+' + pct.toFixed(1) + '%';
+  }
 }

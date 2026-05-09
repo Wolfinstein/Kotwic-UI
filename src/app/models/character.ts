@@ -118,6 +118,7 @@ export interface WeaponDamage {
     trafienieProcentowe?: number;
     critDmgMin?: number;
     critDmgMax?: number;
+    genre?: string;
 }
 export interface DashboardValues {
     punktyKrwi?: number;
@@ -137,5 +138,5 @@ export interface DashboardValues {
     trafienieDodatkoweBiala?: number;
     obrazenia?: WeaponDamage[];
     regeneracja?: number;
-    zizAverageRounds?: []
+    zizAverageRounds?: number[]
 };

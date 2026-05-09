@@ -192,10 +192,16 @@
   <!-- ZIZ AVERAGE ROUNDS -->
   <div class="attributes-display" *ngIf="dashboardValues?.zizAverageRounds?.length">
     <h3>Śr. Rundy ZiZ</h3>
-    <div class="combat-values">
-      <div class="value-badge" *ngFor="let val of dashboardValues?.zizAverageRounds">
-        {{ val }}
+    <div class="ziz-rounds-list">
+      <div *ngFor="let val of dashboardValues?.zizAverageRounds; let i = index" class="ziz-round-row">
+        <span class="ziz-round-label">R{{ i + 1 }}</span>
+        <span class="ziz-round-value">{{ val }}</span>
+        <span class="ziz-growth">{{ zizGrowth(i) }}</span>
       </div>
+    </div>
+    <div class="ziz-round-row ziz-round-total">
+      <span class="ziz-round-label">Suma</span>
+      <span class="ziz-round-value">{{ zizTotal }}</span>
     </div>
   </div>
 </div>
