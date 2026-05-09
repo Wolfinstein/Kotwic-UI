@@ -100,6 +100,12 @@ label {
   display: flex;
   align-items: center;
   gap: 6px;
+  border-radius: 3px;
+  padding: 2px 4px;
+}
+
+.compact-item:nth-child(odd) {
+  background: rgba(106, 135, 171, 0.07);
 }
 
 .compact-item label {
