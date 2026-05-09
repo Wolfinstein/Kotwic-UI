@@ -1120,7 +1120,7 @@ export class DashboardService {
       let maxDmg = 0;
       let ataki = 0;
       let trafienie = 0;
-      let trafienieProcentowe = 1;
+      let trafienieProcentowe = 0;
       let critChance = 0;
       let critMulti = 1;
       console.log(stats);
@@ -1128,54 +1128,57 @@ export class DashboardService {
       const bonusResults = this.resolveBonuses(player.bonuses, player, weapon);
       minDmg += bonusResults.minDmg;
       maxDmg += bonusResults.maxDmg;
+
+
       if (genre === ItemGenre.WHITE_2H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentoweBiala) * 100) / 100;
         minDmg += player.stats.minDpsBiala2h + player.stats.sila;
         maxDmg += player.stats.maxDpsBiala2h + player.stats.sila;
         ataki += player.stats.atakiBiala;
-        trafienie += (player.stats.trafienieBiala + player.stats.zwinnosc * 2) * (1 + player.stats.trafienieProcentoweBiala);
+        trafienie += (player.stats.trafienieBiala + player.stats.zwinnosc * 2) * trafienieProcentowe;
         critChance += player.stats.critChanceBiala2h;
         critMulti += player.stats.critMultiBiala2h + 4;
-        trafienieProcentowe += player.stats.trafienieProcentoweBiala;
       } else if (genre === ItemGenre.WHITE_1H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentoweBiala) * 100) / 100;
         minDmg += player.stats.minDpsBiala1h + player.stats.sila;
         maxDmg += player.stats.maxDpsBiala1h + player.stats.sila;
         ataki += player.stats.atakiBiala;
-        trafienie += (player.stats.trafienieBiala + player.stats.zwinnosc * 2) * (1 + player.stats.trafienieProcentoweBiala);
+        trafienie += (player.stats.trafienieBiala + player.stats.zwinnosc * 2) * trafienieProcentowe;
         critChance += player.stats.critChanceBiala1h;
         critMulti += player.stats.critMultiBiala1h + 2;
-        trafienieProcentowe += player.stats.trafienieProcentoweBiala;
       } else if (genre === ItemGenre.GUN_1H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentowePalna) * 100) / 100;
         minDmg += player.stats.minDpsPalna1h + Math.floor(player.stats.wiedza / 3);
         maxDmg += player.stats.maxDpsPalna1h + Math.floor(player.stats.wiedza / 3);
         ataki += player.stats.atakiPalna;
-        trafienie += (player.stats.trafieniePalna + player.stats.spostrzegawczosc * 2) * (1 + player.stats.trafienieProcentowePalna);
+        trafienie += (player.stats.trafieniePalna + player.stats.spostrzegawczosc * 2) * trafienieProcentowe;
         critChance += player.stats.critChancePalna1h;
         critMulti += player.stats.critMultiPalna1h + 1.5;
-        trafienieProcentowe += player.stats.trafienieProcentowePalna;
       } else if (genre === ItemGenre.GUN_2H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentowePalna) * 100) / 100;
         minDmg += player.stats.minDpsPalna2h + Math.floor(player.stats.wiedza / 3);
         maxDmg += player.stats.maxDpsPalna2h + Math.floor(player.stats.wiedza / 3);
         ataki += player.stats.atakiPalna;
-        trafienie += (player.stats.trafieniePalna + player.stats.spostrzegawczosc * 2) * (1 + player.stats.trafienieProcentowePalna);
+        trafienie += (player.stats.trafieniePalna + player.stats.spostrzegawczosc * 2) * trafienieProcentowe;
         critChance += player.stats.critChancePalna2h;
         critMulti += player.stats.critMultiPalna2h + 2.0;
-        trafienieProcentowe += player.stats.trafienieProcentowePalna;
       } else if (genre === ItemGenre.RANGE_1H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentoweDystans) * 100) / 100;
         minDmg += player.stats.minDpsDystans1h + Math.floor(player.stats.sila / 4);
         maxDmg += player.stats.maxDpsDystans1h + Math.floor(player.stats.sila / 4);
         ataki += player.stats.atakiDystans1h;
-        trafienie += (player.stats.trafienieDystans + player.stats.sila + Math.floor(player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * (1 + player.stats.trafienieProcentoweDystans);
+        trafienie += (player.stats.trafienieDystans + player.stats.sila + Math.floor(player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * trafienieProcentowe;
         critChance += player.stats.critChanceDystans;
         critMulti += player.stats.critMultiDystans1h + 3.5;
-        trafienieProcentowe += player.stats.trafienieProcentoweDystans;
       } else if (genre === ItemGenre.RANGE_2H) {
+        trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentoweDystans) * 100) / 100;
         minDmg += player.stats.minDpsDystans2h + Math.floor(player.stats.sila / 2);
         maxDmg += player.stats.maxDpsDystans2h + Math.floor(player.stats.sila / 2);
         ataki += player.stats.atakiDystans2h;
-        trafienie += (player.stats.trafienieDystans + Math.floor(player.stats.sila / 2) + (player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * (1 + player.stats.trafienieProcentoweDystans);
+        console.log('trafienieDystans: ' + player.stats.trafienieDystans + ' fromSila: ' + Math.floor(player.stats.sila / 2) + ' spot: ' + (player.stats.spostrzegawczosc * 2) + ' zwin: ' + (player.stats.zwinnosc * 2) + ' %: ' + trafienieProcentowe);
+        trafienie += (player.stats.trafienieDystans + Math.floor(player.stats.sila / 2) + (player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * trafienieProcentowe;
         critChance += player.stats.critChanceDystans;
         critMulti += player.stats.critMultiDystans2h + 3.5;
-        trafienieProcentowe += player.stats.trafienieProcentoweDystans;
       }
 
       const toDecimal = (num: number | string): number => Number(num) / 100;
