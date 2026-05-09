@@ -45,7 +45,7 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
     result.sila = calcValue(result.sila, rarity);
     result.wplywy = calcValue(result.wplywy, rarity);
     result.szczescie = calcValue(result.szczescie, rarity);
-    result.trafienieProcentoweDystans += calcValue(result.trafienieProcentowe, rarity);
+    result.trafienieProcentoweDystans = calcValue(result.trafienieProcentowe, rarity);
     result.ignoreObrony += calcValue(result.ignore, rarity);
     result.ignoreObrony += calcValue(result.ignoreVsPotwory, rarity);
     result.trafienieDystans = calcValue(result.dodatkoweTrafienie, rarity);

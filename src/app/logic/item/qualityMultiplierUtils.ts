@@ -32,8 +32,6 @@ export function getEpicMultiplier(rarity: ItemRarity): number {
   return 1.0;
 }
 
-/** Scales a value by all multipliers, preserving decimal precision via digit-level arithmetic.
- *  Pass `name = 'mnoznikObrony'` to skip per-step ceil (armour defence ratio special case). */
 export function scaleValue(value: number, multipliers: number[], name: string = ''): number {
   if (value >= 1) {
     let result = value;
@@ -47,8 +45,9 @@ export function scaleValue(value: number, multipliers: number[], name: string = 
   if (!decimalPart) {
     return value;
   }
-  const scaleFactor = Math.pow(10, decimalPart.length);
-  let scaled = parseInt(decimalPart, 10);
+  const decimalPlaces = Math.max(decimalPart.length, 2);
+  const scaleFactor = Math.pow(10, decimalPlaces);
+  let scaled = Math.round(value * scaleFactor);
   for (const multiplier of multipliers) {
     if (name === 'mnoznikObrony') {
       scaled = scaled * multiplier;

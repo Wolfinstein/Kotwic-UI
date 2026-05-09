@@ -882,9 +882,8 @@ export class DashboardService {
       const pSnapshot = p.clone();
 
       for (const weapon of weapons) {
-        const weaponStats = p.resolveWeaponItem(weapon, p.lvl);
-        const tmpPlayer = pSnapshot.clone();
-        const damage = this.calculateWeaponDamage(weapon, weaponStats, tmpPlayer);
+        const stats = pSnapshot.resolveWeaponItem(weapon, p.lvl);
+        const damage = this.calculateWeaponDamage(weapon, stats, pSnapshot);
         if (damage) {
           obrazenia.push(damage);
         }
@@ -1124,6 +1123,7 @@ export class DashboardService {
       let trafienieProcentowe = 1;
       let critChance = 0;
       let critMulti = 1;
+      console.log(stats);
       player.stats.addNonAgnosticStats(stats)
       const bonusResults = this.resolveBonuses(player.bonuses, player, weapon);
       minDmg += bonusResults.minDmg;
