@@ -108,6 +108,13 @@ label {
   background: rgba(106, 135, 171, 0.07);
 }
 
+:host ::ng-deep .p-inputtext.input-active {
+  border-color: #8aa5c7 !important;
+  background: #0a3355 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
 .compact-item label {
   margin: 0;
   flex: 1;

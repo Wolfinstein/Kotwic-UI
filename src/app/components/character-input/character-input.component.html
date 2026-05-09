@@ -7,6 +7,7 @@
           <div class="compact-item">
             <label>Poziom</label>
             <p-inputnumber [ngModel]="character!.poziom" [min]="1" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
+              inputStyleClass="input-active"
               (ngModelChange)="updateCharacterField('poziom', $event)" />
           </div>
           <div class="compact-item">
@@ -25,6 +26,7 @@
           <div *ngFor="let attr of attributes" class="compact-item">
             <label>{{ attr.label }}</label>
             <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getAttrValue(attr.key)"
+              [inputStyleClass]="getAttrValue(attr.key) > 0 ? 'input-active' : ''"
               (ngModelChange)="setAttrValue(attr.key, $event)" />
           </div>
         </div>
@@ -37,6 +39,7 @@
           <div *ngFor="let tal of talizmanAttributes" class="compact-item">
             <label>{{ tal.label }}</label>
             <p-inputnumber [min]="0" [max]="4" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getTalizmanValue(tal.key)"
+              [inputStyleClass]="getTalizmanValue(tal.key) > 0 ? 'input-active' : ''"
               (ngModelChange)="setTalizmanValue(tal.key, $event)" />
           </div>
         </div>
@@ -49,21 +52,25 @@
           <div class="compact-item">
             <label>Obrona Przeciwnika</label>
             <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.obronaPrzeciwnika"
+              [inputStyleClass]="character!.obronaPrzeciwnika > 0 ? 'input-active' : ''"
               (ngModelChange)="updateCharacterField('obronaPrzeciwnika', $event)" />
           </div>
           <div class="compact-item">
             <label>Odpornosc Przeciwnika</label>
             <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.odpornoscPrzeciwnika"
+              [inputStyleClass]="character!.odpornoscPrzeciwnika > 0 ? 'input-active' : ''"
               (ngModelChange)="updateCharacterField('odpornoscPrzeciwnika', $event)" />
           </div>
           <div class="compact-item">
             <label>Trafienie Przeciwnika</label>
             <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.trafieniePrzeciwnika"
+              [inputStyleClass]="character!.trafieniePrzeciwnika > 0 ? 'input-active' : ''"
               (ngModelChange)="updateCharacterField('trafieniePrzeciwnika', $event)" />
           </div>
           <div class="compact-item">
             <label>Szczescie Przeciwnika</label>
             <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.szczesciePrzeciwnika"
+              [inputStyleClass]="character!.szczesciePrzeciwnika > 0 ? 'input-active' : ''"
               (ngModelChange)="updateCharacterField('szczesciePrzeciwnika', $event)" />
           </div>
         </div>
@@ -181,6 +188,7 @@
             <ng-container [ngSwitch]="arcane.type">
               <p-inputnumber *ngSwitchCase="'int'" [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
                 [ngModel]="getArcaneValue(arcane.key)"
+                [inputStyleClass]="getArcaneValue(arcane.key) > 0 ? 'input-active' : ''"
                 (ngModelChange)="setArcaneValue(arcane.key, $event)" />
               <p-checkbox *ngSwitchCase="'boolean'" [binary]="true"
                 [ngModel]="getArcaneValue(arcane.key)"
@@ -227,21 +235,25 @@
             <div class="compact-item">
               <label>Ninja</label>
               <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.ninja"
+                [inputStyleClass]="character!.ninja > 0 ? 'input-active' : ''"
                 (ngModelChange)="updateCharacterField('ninja', $event)" />
             </div>
             <div class="compact-item">
               <label>Mysliwy</label>
               <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.mysliwy"
+                [inputStyleClass]="character!.mysliwy > 0 ? 'input-active' : ''"
                 (ngModelChange)="updateCharacterField('mysliwy', $event)" />
             </div>
             <div class="compact-item">
               <label>Strateg</label>
               <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.strateg"
+                [inputStyleClass]="character!.strateg > 0 ? 'input-active' : ''"
                 (ngModelChange)="updateCharacterField('strateg', $event)" />
             </div>
             <div class="compact-item">
               <label>Kaplica</label>
               <p-inputnumber [min]="0" [max]="6" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.kaplica"
+                [inputStyleClass]="character!.kaplica > 0 ? 'input-active' : ''"
                 (ngModelChange)="updateCharacterField('kaplica', $event)" />
             </div>
           </div>
@@ -315,6 +327,7 @@
           <div *ngFor="let evo of evolutions" class="compact-item">
             <label>{{ evo.label }}</label>
             <p-inputnumber [min]="0" [max]="15" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getEvoValue(evo.key)"
+              [inputStyleClass]="getEvoValue(evo.key) > 0 ? 'input-active' : ''"
               (ngModelChange)="setEvoValue(evo.key, $event)" />
           </div>
         </div>
