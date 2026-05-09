@@ -127,13 +127,14 @@ select:focus-visible {
   background: #00192d !important;
   border-color: #6A87AB !important;
   color: #f6e8ea !important;
-  width: 4vw !important;
-  min-width: 80px !important;
+  width: calc(4vw + 48px) !important;
+  min-width: 128px !important;
 }
 
 .p-select-label {
   color: #f6e8ea !important;
-  font-size: 10px !important;
+  font-size: 13px !important;
+  text-align: center !important;
 }
 
 .p-select-dropdown {
@@ -239,6 +240,19 @@ select:focus-visible {
 
 .p-inputnumber-button .pi {
   font-size: 13px !important;
+}
+
+.p-selectbutton {
+  background: #00192d !important;
+}
+
+.p-selectbutton .p-togglebutton {
+  background: #00192d !important;
+  border: none !important;
+}
+
+.p-selectbutton .p-togglebutton.p-togglebutton-checked {
+  background: #6A87AB !important;
 }
 
 .p-tooltip {

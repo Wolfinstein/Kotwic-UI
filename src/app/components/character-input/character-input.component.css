@@ -631,16 +631,44 @@ label {
   min-height: 24px;
 }
 
-:host ::ng-deep p-select .p-select-label { font-size: 10px; color: #f6e8ea; padding: 3px 6px; }
+:host ::ng-deep p-select .p-select-label { font-size: 13px; color: #f6e8ea; padding: 3px 6px; }
 :host ::ng-deep p-select .p-select-dropdown { color: #6A87AB; }
 :host ::ng-deep .p-select-overlay { background: #00192d; border-color: #6A87AB; }
 :host ::ng-deep .p-select-option { color: #f6e8ea; font-size: 10px; }
 :host ::ng-deep .p-select-option:hover, :host ::ng-deep .p-select-option.p-select-option-selected { background: #0f3d63; color: #f6e8ea; }
 
 /* SelectButton (weapon mode) */
-:host ::ng-deep p-selectbutton .p-selectbutton { background: #00192d; border-color: #6A87AB; border-radius: 4px; }
-:host ::ng-deep p-selectbutton .p-togglebutton { font-size: 9px; font-weight: 700; color: #6A87AB; padding: 3px 8px; }
-:host ::ng-deep p-selectbutton .p-togglebutton.p-togglebutton-checked { background: #6A87AB; color: #00192d; }
+:host ::ng-deep p-selectbutton .p-selectbutton {
+  background: #00192d !important;
+  border: 1px solid #6A87AB !important;
+  border-radius: 4px !important;
+  overflow: hidden;
+  gap: 0;
+}
+
+:host ::ng-deep p-selectbutton .p-togglebutton,
+:host ::ng-deep p-selectbutton .p-togglebutton *:not(.p-togglebutton-checked) {
+  font-size: 10px;
+  font-weight: 700;
+  color: #6A87AB !important;
+  padding: 2px 7px;
+  background: #00192d !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep p-selectbutton .p-togglebutton:hover {
+  background: #0f3d63 !important;
+  color: #f6e8ea !important;
+}
+
+:host ::ng-deep p-selectbutton .p-togglebutton.p-togglebutton-checked,
+:host ::ng-deep p-selectbutton .p-togglebutton.p-togglebutton-checked * {
+  background: #6A87AB !important;
+  color: #00192d !important;
+  border: none !important;
+}
 
 /* Checkbox */
 :host ::ng-deep p-checkbox .p-checkbox-box {
