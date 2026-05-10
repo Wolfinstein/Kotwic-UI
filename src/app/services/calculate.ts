@@ -934,7 +934,7 @@ export class DashboardService {
       };
     }
   }
-  private calculateHitChance(genre: ItemGenre, player: Player): number {
+  private calculateHitChance(genre: ItemGenre, player: Player, trafienieLegDystans: number): number {
     let y: number;
     let z: number;
     let p: number;
@@ -949,7 +949,7 @@ export class DashboardService {
       p = Math.floor((1 + player.stats.trafienieProcentowePalna) * 100) / 100;
     } else {
       y = player.stats.zwinnosc + player.stats.spostrzegawczosc;
-      z = player.stats.trafienieDystans;
+      z = player.stats.trafienieDystans + trafienieLegDystans;
       p = Math.floor((1 + player.stats.trafienieProcentoweDystans) * 100) / 100;
     }
 
@@ -1126,6 +1126,7 @@ export class DashboardService {
       console.log(stats);
       player.stats.addNonAgnosticStats(stats)
       const bonusResults = this.resolveBonuses(player.bonuses, player, weapon);
+      let trafienieLegDystans = 0;
       minDmg += bonusResults.minDmg;
       maxDmg += bonusResults.maxDmg;
 
@@ -1170,15 +1171,16 @@ export class DashboardService {
         trafienie += (player.stats.trafienieDystans + player.stats.sila + Math.floor(player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * trafienieProcentowe;
         critChance += player.stats.critChanceDystans;
         critMulti += player.stats.critMultiDystans1h + 3.5;
+        trafienieLegDystans += player.stats.sila;
       } else if (genre === ItemGenre.RANGE_2H) {
         trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentoweDystans) * 100) / 100;
         minDmg += player.stats.minDpsDystans2h + Math.floor(player.stats.sila / 2);
         maxDmg += player.stats.maxDpsDystans2h + Math.floor(player.stats.sila / 2);
         ataki += player.stats.atakiDystans2h;
-        console.log('trafienieDystans: ' + player.stats.trafienieDystans + ' fromSila: ' + Math.floor(player.stats.sila / 2) + ' spot: ' + (player.stats.spostrzegawczosc * 2) + ' zwin: ' + (player.stats.zwinnosc * 2) + ' %: ' + trafienieProcentowe);
         trafienie += (player.stats.trafienieDystans + Math.floor(player.stats.sila / 2) + (player.stats.spostrzegawczosc * 2) + (player.stats.zwinnosc * 2)) * trafienieProcentowe;
         critChance += player.stats.critChanceDystans;
         critMulti += player.stats.critMultiDystans2h + 3.5;
+        trafienieLegDystans += player.stats.sila / 2;
       }
 
       const toDecimal = (num: number | string): number => Number(num) / 100;
@@ -1208,7 +1210,7 @@ export class DashboardService {
       const critDmgMax = Math.floor(maxDmg * critMulti);
       const avgDmg = Math.floor((minDmg + maxDmg) / 2);
       const avgCritDmg = Math.floor((critDmgMin + critDmgMax) / 2);
-      const estimatedHitChance = genre ? this.calculateHitChance(genre, player) : 1;
+      const estimatedHitChance = genre ? this.calculateHitChance(genre, player, trafienieLegDystans) : 1;
       const obrazeniaNaRundeAvg = Math.floor(estimatedHitChance * (critChance * ataki * avgCritDmg + (1 - critChance) * ataki * avgDmg));
       return {
         name: this.constructWeaponName(weapon),
