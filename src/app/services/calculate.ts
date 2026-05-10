@@ -1122,7 +1122,7 @@ export class DashboardService {
       let trafienie = 0;
       let trafienieProcentowe = 0;
       let critChance = 0;
-      let critMulti = 1;
+      let critMulti = 0;
       console.log(stats);
       player.stats.addNonAgnosticStats(stats)
       const bonusResults = this.resolveBonuses(player.bonuses, player, weapon);
