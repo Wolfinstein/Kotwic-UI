@@ -1,3 +1,10 @@
+.trening-presets {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 6px;
+}
+
 .arcane-cost-total {
   text-align: right;
   padding-top: 6px;

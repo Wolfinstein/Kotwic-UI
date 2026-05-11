@@ -30,6 +30,11 @@
               (ngModelChange)="setAttrValue(attr.key, $event)" />
           </div>
         </div>
+        <div *ngIf="expandedBonuses['trening']" class="trening-presets">
+          <p-button label="Biała" severity="secondary" size="small" (onClick)="applyTreningPreset('biala')" />
+          <p-button label="Palna" severity="secondary" size="small" (onClick)="applyTreningPreset('palna')" />
+          <p-button label="Dystans" severity="secondary" size="small" (onClick)="applyTreningPreset('dystans')" />
+        </div>
       </div>
       <!-- Talizmany -->
       <div class="section">

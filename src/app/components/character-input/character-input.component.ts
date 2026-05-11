@@ -171,6 +171,43 @@ export class CharacterInputComponent implements OnInit {
   umagiFilter = '';
   selectedUmagiIndex: number | null = null;
 
+  private treningPresets: Record<string, { maxLevel: number; attrs: Record<string, number> }[]> = {
+    biala: [
+      { maxLevel: 24, attrs: { sila: 25, zwinnosc: 25, odpornosc: 15, wyglad: 15, charyzma: 15, wplywy: 15, spostrzegawczosc: 20, inteligencja: 17, wiedza: 17 } },
+      { maxLevel: 49, attrs: { sila: 35, zwinnosc: 40, odpornosc: 25, wyglad: 25, charyzma: 25, wplywy: 25, spostrzegawczosc: 30, inteligencja: 25, wiedza: 25 } },
+      { maxLevel: 99, attrs: { sila: 75, zwinnosc: 75, odpornosc: 50, wyglad: 50, charyzma: 50, wplywy: 50, spostrzegawczosc: 60, inteligencja: 55, wiedza: 55 } },
+      { maxLevel: 199, attrs: { sila: 135, zwinnosc: 135, odpornosc: 70, wyglad: 70, charyzma: 70, wplywy: 70, spostrzegawczosc: 95, inteligencja: 95, wiedza: 95 } },
+      { maxLevel: 399, attrs: { sila: 150, zwinnosc: 175, odpornosc: 90, wyglad: 90, charyzma: 90, wplywy: 90, spostrzegawczosc: 130, inteligencja: 120, wiedza: 120 } },
+      { maxLevel: 699, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+      { maxLevel: Infinity, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+    ],
+    palna: [
+      { maxLevel: 24, attrs: { sila: 20, zwinnosc: 20, odpornosc: 15, wyglad: 15, charyzma: 15, wplywy: 15, spostrzegawczosc: 25, inteligencja: 20, wiedza: 20 } },
+      { maxLevel: 49, attrs: { sila: 25, zwinnosc: 30, odpornosc: 25, wyglad: 25, charyzma: 25, wplywy: 25, spostrzegawczosc: 40, inteligencja: 35, wiedza: 35 } },
+      { maxLevel: 99, attrs: { sila: 55, zwinnosc: 60, odpornosc: 50, wyglad: 50, charyzma: 50, wplywy: 50, spostrzegawczosc: 75, inteligencja: 65, wiedza: 65 } },
+      { maxLevel: 199, attrs: { sila: 95, zwinnosc: 95, odpornosc: 70, wyglad: 70, charyzma: 70, wplywy: 70, spostrzegawczosc: 135, inteligencja: 120, wiedza: 120 } },
+      { maxLevel: 399, attrs: { sila: 90, zwinnosc: 130, odpornosc: 90, wyglad: 90, charyzma: 90, wplywy: 90, spostrzegawczosc: 175, inteligencja: 150, wiedza: 150 } },
+      { maxLevel: 699, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+      { maxLevel: Infinity, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+    ],
+    dystans: [
+      { maxLevel: 24, attrs: { sila: 17, zwinnosc: 25, odpornosc: 15, wyglad: 15, charyzma: 15, wplywy: 15, spostrzegawczosc: 25, inteligencja: 17, wiedza: 17 } },
+      { maxLevel: 49, attrs: { sila: 30, zwinnosc: 35, odpornosc: 25, wyglad: 25, charyzma: 25, wplywy: 25, spostrzegawczosc: 35, inteligencja: 30, wiedza: 30 } },
+      { maxLevel: 99, attrs: { sila: 60, zwinnosc: 70, odpornosc: 50, wyglad: 50, charyzma: 50, wplywy: 50, spostrzegawczosc: 70, inteligencja: 60, wiedza: 60 } },
+      { maxLevel: 199, attrs: { sila: 100, zwinnosc: 135, odpornosc: 70, wyglad: 70, charyzma: 70, wplywy: 70, spostrzegawczosc: 135, inteligencja: 95, wiedza: 95 } },
+      { maxLevel: 399, attrs: { sila: 120, zwinnosc: 160, odpornosc: 90, wyglad: 90, charyzma: 90, wplywy: 90, spostrzegawczosc: 160, inteligencja: 100, wiedza: 100 } },
+      { maxLevel: 699, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+      { maxLevel: Infinity, attrs: { sila: 0, zwinnosc: 0, odpornosc: 0, wyglad: 0, charyzma: 0, wplywy: 0, spostrzegawczosc: 0, inteligencja: 0, wiedza: 0 } },
+    ],
+  };
+
+  applyTreningPreset(type: string) {
+    if (!this.character) return;
+    const brackets = this.treningPresets[type];
+    const match = brackets.find(b => this.character!.poziom <= b.maxLevel) ?? brackets[brackets.length - 1];
+    this.characterService.updateAttributes(match.attrs as any);
+  }
+
   attributes = [
     { key: 'sila', label: 'Siła' },
     { key: 'zwinnosc', label: 'Zwinność' },
@@ -216,7 +253,7 @@ export class CharacterInputComponent implements OnInit {
     { key: 'maskaStachu', label: 'Maska Strachu' },
     { key: 'cichyLowca', label: 'Cichy Łowca' },
     { key: 'piesnKrwi', label: 'Pieśń Krwi' },
-    { key: 'ziz', label: 'Ziz'}
+    { key: 'ziz', label: 'Ziz' }
   ];
   arcaneAttributes = [
     { key: 'maskaAdonisa', label: 'Maska Adonisa', type: 'int', cost: 10 },
