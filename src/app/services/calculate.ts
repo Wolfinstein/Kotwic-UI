@@ -459,7 +459,7 @@ export class DashboardService {
         break;
       case 'łza feniksa':
         p.addWplywy(-2);
-        p.addRegeneration(15);
+        p.addRegenerationFlat(15);
         break;
       case 'magiczna pieczęć':
         p.addSila(2);
@@ -543,7 +543,7 @@ export class DashboardService {
         break;
       case 'łuski salamandry':
         p.addWplywy(-4);
-        p.addRegeneration(80);
+        p.addRegenerationFlat(80);
         break;
       case 'woda źródlana':
         p.addSila(2);
@@ -626,7 +626,7 @@ export class DashboardService {
       case 'łuski demona':
         p.addWplywy(4);
         p.addOdpornosc(-4);
-        p.addRegeneration(140);
+        p.addRegenerationFlat(140);
         break;
       case 'skrzydła chrząszcza':
         p.addSila(4);
@@ -910,7 +910,7 @@ export class DashboardService {
         wiedza: player.stats.wiedza
       };
 
-      const regen = Math.floor(player.life * player.stats.regen);
+      const regen = Math.floor((player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife)) * player.stats.regen) + player.stats.regenFlat;
       const cappedRedukcja = Math.min(player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01, 0.30);
       const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
       return {

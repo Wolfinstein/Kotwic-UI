@@ -62,6 +62,7 @@ export class Stats {
   laczneObrazeniaWszystkichBroni: number = 0;
   obrazeniaProcentoweRuny: number = 0;
   regen: number = 0;
+  regenFlat: number = 0;
   additionalIni: number = 0;
   setAllDps(dps: number): void {
     this.minDpsDystans1h += dps;
@@ -214,7 +215,7 @@ export class Stats {
     return this;
   }
 
- addStats(newStats: Stats): this {
+  addStats(newStats: Stats): this {
     this.sila += newStats.sila;
     this.zwinnosc += newStats.zwinnosc;
     this.odpornosc += newStats.odpornosc;
@@ -262,6 +263,7 @@ export class Stats {
     this.minDpsBiala2h += newStats.minDpsBiala2h;
     this.maxDpsBiala2h += newStats.maxDpsBiala2h;
     this.regen += newStats.regen;
+    this.regenFlat += newStats.regenFlat;
     this.twardosc += newStats.twardosc;
     this.trafienieProcentowePalna += newStats.trafienieProcentowePalna;
     this.trafienieProcentoweBiala += newStats.trafienieProcentoweBiala;

@@ -464,8 +464,8 @@ export class Player {
   addRegen(value: number): void {
     this.stats.regen += value;
   }
-  addRegeneration(value: number): void {
-    this.stats.regen += value;
+  addRegenerationFlat(value: number): void {
+    this.stats.regenFlat += value;
   }
   addLaczneObrazeniaWszystkichBroni(value: number): void {
     this.stats.laczneObrazeniaWszystkichBroni += value;
