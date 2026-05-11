@@ -414,8 +414,6 @@
   <!-- Footer -->
   <ng-template pTemplate="footer">
     <div class="eq-modal-footer">
-      <p-button label="Wyczyść" severity="danger" [text]="true"
-        (onClick)="clearEquipmentSlot(selectedEquipmentSlot); showEquipmentModal = false" />
       <p-button label="Anuluj" severity="secondary" (onClick)="showEquipmentModal = false" />
       <p-button label="Zapisz" [disabled]="!draftItem.base || !draftItem.rarity"
         (onClick)="saveEquipmentItem()" />

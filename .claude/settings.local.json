@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat)",
+      "Bash(bash /tmp/check_unused.sh)",
+      "Bash(bash /tmp/check_char_input.sh)"
+    ]
+  }
+}

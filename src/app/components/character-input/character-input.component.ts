@@ -553,12 +553,6 @@ export class CharacterInputComponent implements OnInit {
     this.characterService.updateCharacter({ ...this.character, equipment: updated });
     this.showEquipmentModal = false;
   }
-  clearEquipmentSlot(slot: string) {
-    if (!this.character) return;
-    const updated: any = { ...this.character.equipment };
-    updated[slot] = undefined;
-    this.characterService.updateCharacter({ ...this.character, equipment: updated });
-  }
 
   getAttrValue(key: string): number {
     if (!this.character) return 0;
