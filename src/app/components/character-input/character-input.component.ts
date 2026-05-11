@@ -17,6 +17,7 @@ import { ItemGenre, PrefixType, SuffixType, ItemType, ItemRarity, Stats } from '
 import { WeaponStats } from '../../logic/item/WeaponStats';
 import { applyQualityMultiplier } from '../../logic/item/qualityMultiplier';
 import { applyQualityWeaponMultiplier } from '../../logic/item/qualityWeaponMultiplier';
+import { CHARACTER_PRESETS, CharacterPreset } from '../../data/presets';
 
 export type SlotCategory = 'head' | 'chest' | 'legs' | 'neck' | 'finger' | 'weapon1h' | 'weapon2h';
 export interface BaseItemDef {
@@ -157,6 +158,8 @@ export class CharacterInputComponent implements OnInit {
   showEquipmentModal = false;
   showRunesModal = false;
   showUmagiModal = false;
+  showPresetsModal = false;
+  presets = CHARACTER_PRESETS;
   selectedEquipmentSlot = '';
   weaponMode: 'dual1h' | '2h' = 'dual1h';
   draftItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
@@ -683,6 +686,11 @@ export class CharacterInputComponent implements OnInit {
   clearSession() {
     if (!confirm('Czy na pewno chcesz zresetować postać?')) return;
     this.characterService.clearCharacter();
+  }
+  loadPreset(preset: CharacterPreset) {
+    this.characterService.updateCharacter(preset.character);
+    this.weaponMode = preset.character.equipment?.weaponMode ?? 'dual1h';
+    this.showPresetsModal = false;
   }
   async exportCharacter() {
     if (!this.character) return;
