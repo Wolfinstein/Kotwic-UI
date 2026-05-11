@@ -256,7 +256,7 @@ export class CharacterInputComponent implements OnInit {
   };
   issues = [
     'brak liczenia punktow krwi punkty krwi',
-    'dips troche za duzy musze popatrzec dlaczego'
+    'testowanie na waskim zakresie lv'
   ];
   showIssuesDropdown = false;
   selectedHuntBonuses: string[] = [];
