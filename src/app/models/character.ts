@@ -104,6 +104,9 @@ export interface Character {
     ninja: number;
     strateg: number;
     kaplica: number;
+    posredniak: number;
+    domPubliczny: number;
+    rzeznia: number;
 }
 export interface WeaponDamage {
     name: string;

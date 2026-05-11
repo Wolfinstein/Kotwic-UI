@@ -50,6 +50,7 @@ export class DashboardService {
     player.doMysliwy(c.mysliwy);
     player.doNinja(c.ninja);
     this.calculateKaplica(c, player);
+    this.calculateBudynki(c, player);
     this.calculateBlaszki(c, player);
     this.calculateRunyZTalkow(c, player);
     player.resolveNonWeaponItems(c.poziom);
@@ -63,6 +64,11 @@ export class DashboardService {
     this.calculateStrateg(c, player);
     const dashboard: DashboardValues = this.buildDashboardValues(player);
     return dashboard;
+  }
+  calculateBudynki(c: Character, p: Player): void {
+    p.addCharyzma(c.posredniak);
+    p.addWiedza(c.domPubliczny);
+    p.addWplywy(c.rzeznia);
   }
   calculateStrateg(c: Character, p: Player): void {
     const strateg = c.strateg;

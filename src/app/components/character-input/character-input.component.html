@@ -258,6 +258,31 @@
             </div>
           </div>
         </div>
+        <!-- Budynki (collapsible) -->
+        <div class="section column-bonus">
+          <p-button [label]="'Budynki ' + (expandedBonuses['budynki'] ? '▼' : '▶')"
+            (onClick)="toggleBonusExpand('budynki')" [text]="true" styleClass="bonus-toggle-btn" />
+          <div *ngIf="expandedBonuses['budynki']" class="compact-grid">
+            <div class="compact-item">
+              <label>Pośredniak</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.posredniak"
+                [inputStyleClass]="character!.posredniak > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('posredniak', $event)" />
+            </div>
+            <div class="compact-item">
+              <label>Dom Publiczny</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.domPubliczny"
+                [inputStyleClass]="character!.domPubliczny > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('domPubliczny', $event)" />
+            </div>
+            <div class="compact-item">
+              <label>Rzeźnia</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.rzeznia"
+                [inputStyleClass]="character!.rzeznia > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('rzeznia', $event)" />
+            </div>
+          </div>
+        </div>
         <!-- Polowanie (collapsible) -->
         <div class="section column-bonus">
           <p-button [label]="'Polowanie ' + (expandedBonuses['hunt'] ? '▼' : '▶')"

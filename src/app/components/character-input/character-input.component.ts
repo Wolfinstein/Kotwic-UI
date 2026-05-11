@@ -252,7 +252,7 @@ export class CharacterInputComponent implements OnInit {
   expandedBonuses: { [key: string]: boolean } = {
     silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false,
     trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: false, ewolucje: true,
-    przeciwnik: true, inne: false,
+    przeciwnik: true, inne: false, budynki: false,
   };
   issues = [
     'brak liczenia punktow krwi punkty krwi',
