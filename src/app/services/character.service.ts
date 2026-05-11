@@ -2,12 +2,17 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions } from '../models/character';
 import { DashboardService } from './calculate'
+
+const STORAGE_KEY = 'kotwic_character';
+
 @Injectable({
   providedIn: 'root'
 })
 export class CharacterService {
-  private character$ = new BehaviorSubject<Character>(this.createEmptyCharacter());
-  constructor(private dashboardService: DashboardService) { }
+  private character$ = new BehaviorSubject<Character>(this.loadCharacter());
+  constructor(private dashboardService: DashboardService) {
+    this.character$.subscribe(c => localStorage.setItem(STORAGE_KEY, JSON.stringify(c)));
+  }
   getCharacter$ = () => this.character$.asObservable();
   updateCharacter(character: Partial<Character>) {
     const current = this.character$.value;
@@ -49,6 +54,13 @@ export class CharacterService {
       ...current,
       arcaneLevels: { ...current.arcaneLevels, ...levels }
     });
+  }
+  private loadCharacter(): Character {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) return { ...this.createEmptyCharacter(), ...JSON.parse(saved) };
+    } catch { }
+    return this.createEmptyCharacter();
   }
   private createEmptyCharacter(): Character {
     return {
@@ -139,6 +151,10 @@ export class CharacterService {
       umagiValues: [],
       equipment: {}
     };
+  }
+  clearCharacter() {
+    localStorage.removeItem(STORAGE_KEY);
+    this.character$.next(this.createEmptyCharacter());
   }
   calculateDashboard(): DashboardValues {
     const char = this.character$.value

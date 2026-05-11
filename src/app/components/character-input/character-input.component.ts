@@ -680,16 +680,34 @@ export class CharacterInputComponent implements OnInit {
     };
     input.click();
   }
-  exportCharacter() {
+  clearSession() {
+    if (!confirm('Czy na pewno chcesz zresetować postać?')) return;
+    this.characterService.clearCharacter();
+  }
+  async exportCharacter() {
     if (!this.character) return;
     const dataStr = JSON.stringify(this.character, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(dataBlob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `character-${Date.now()}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
+    if ('showSaveFilePicker' in window) {
+      try {
+        const handle = await (window as any).showSaveFilePicker({
+          suggestedName: `character-${Date.now()}.json`,
+          types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(dataBlob);
+        await writable.close();
+      } catch (e: any) {
+        if (e.name !== 'AbortError') throw e;
+      }
+    } else {
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `character-${Date.now()}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }
   }
   toggleBonusExpand(bonusType: string) {
     this.expandedBonuses[bonusType] = !this.expandedBonuses[bonusType];
