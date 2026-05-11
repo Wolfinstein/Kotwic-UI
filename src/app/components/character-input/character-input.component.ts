@@ -219,22 +219,31 @@ export class CharacterInputComponent implements OnInit {
     { key: 'ziz', label: 'Ziz'}
   ];
   arcaneAttributes = [
-    { key: 'maskaAdonisa', label: 'Maska Adonisa', type: 'int' },
-    { key: 'maskaKaliguli', label: 'Maska Kaliguli', type: 'int' },
-    { key: 'majestat', label: 'Majestat', type: 'int' },
-    { key: 'krewZycia', label: 'Krew Życia', type: 'int' },
-    { key: 'kocieSciezki', label: 'Kocie Ścieżki', type: 'int' },
-    { key: 'zarKrwi', label: 'Żar Krwi', type: 'boolean' },
-    { key: 'ciszaKrwi', label: 'Cisza Krwi', type: 'int' },
-    { key: 'wyssanieMocy', label: 'Wyssanie Mocy', type: 'int' },
-    { key: 'mocKrwi', label: 'Moc Krwi', type: 'int' },
-    { key: 'dzikiSzal', label: 'Dziki Szal', type: 'int' },
-    { key: 'skoraBestii', label: 'Skóra Bestii', type: 'int' },
-    { key: 'cienBestii', label: 'Cień Bestii', type: 'boolean' },
-    { key: 'nocnyLowca', label: 'Nocny Łowca', type: 'int' },
-    { key: 'tchnienieSmierci', label: 'Tchnienie Śmierci', type: 'int' },
-    { key: 'groza', label: 'Groza', type: 'boolean' },
+    { key: 'maskaAdonisa', label: 'Maska Adonisa', type: 'int', cost: 10 },
+    { key: 'maskaKaliguli', label: 'Maska Kaliguli', type: 'int', cost: 10 },
+    { key: 'majestat', label: 'Majestat', type: 'int', cost: 50 },
+    { key: 'krewZycia', label: 'Krew Życia', type: 'int', cost: 20 },
+    { key: 'kocieSciezki', label: 'Kocie Ścieżki', type: 'int', cost: 15 },
+    { key: 'zarKrwi', label: 'Żar Krwi', type: 'boolean', cost: 210 },
+    { key: 'ciszaKrwi', label: 'Cisza Krwi', type: 'int', cost: 15 },
+    { key: 'wyssanieMocy', label: 'Wyssanie Mocy', type: 'int', cost: 30 },
+    { key: 'mocKrwi', label: 'Moc Krwi', type: 'int', cost: 30 },
+    { key: 'dzikiSzal', label: 'Dziki Szal', type: 'int', cost: 13 },
+    { key: 'skoraBestii', label: 'Skóra Bestii', type: 'int', cost: 14 },
+    { key: 'cienBestii', label: 'Cień Bestii', type: 'boolean', cost: 200 },
+    { key: 'nocnyLowca', label: 'Nocny Łowca', type: 'int', cost: 20 },
+    { key: 'tchnienieSmierci', label: 'Tchnienie Śmierci', type: 'int', cost: 40 },
+    { key: 'groza', label: 'Groza', type: 'boolean', cost: 225 },
   ];
+
+  get arcaneTotalCost(): number {
+    if (!this.character) return 0;
+    return this.arcaneAttributes.reduce((sum, arcane) => {
+      const value = this.getArcaneValue(arcane.key);
+      const levels = typeof value === 'boolean' ? (value ? 1 : 0) : (value ?? 0);
+      return sum + levels * arcane.cost;
+    }, 0);
+  }
   rasaOptions = [
     { label: 'Potępiony', value: 'Potepiony' },
     { label: 'Łapacz Myśli', value: 'LapaczMysli' },

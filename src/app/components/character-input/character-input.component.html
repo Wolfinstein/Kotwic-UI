@@ -196,6 +196,14 @@
             </ng-container>
           </div>
         </div>
+        <div *ngIf="expandedBonuses['arkany']" class="arcane-cost-total">
+          <span class="koszt-hover-wrapper">
+            <span class="koszt-label">Koszt</span>
+            <div class="koszt-image-popup">
+              <img src="/arkany.png" />
+            </div>
+          </span>: <strong>{{ arcaneTotalCost }}</strong>
+        </div>
       </div>
       <!-- Runy -->
       <div class="section column-bottom-section">

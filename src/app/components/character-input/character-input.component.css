@@ -1,3 +1,26 @@
+.arcane-cost-total {
+  text-align: right;
+  padding-top: 6px;
+}
+
+.koszt-hover-wrapper {
+  position: relative;
+  cursor: default;
+}
+
+.koszt-image-popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+}
+
+.koszt-hover-wrapper:hover .koszt-image-popup {
+  display: block;
+}
+
 /* ─── Panel Layout ─────────────────────────────────────── */
 .input-panel {
   padding: 8px;
