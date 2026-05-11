@@ -154,5 +154,173 @@ export const CHARACTER_PRESETS: CharacterPreset[] = [
         weapon1: { rarity: 'EPICKI', prefix: '', base: 'Shuriken', suffix: 'DalekiegoZasiegu' },
       },
     }
+  },
+  {
+    name: 'WZ 210 Opiekuncze Kastety',
+    description: '',
+    character: {
+      "rasa": "WladcaZwierzat",
+      "poziom": 210,
+      "blaszkaZaMoba": true,
+      "blaszkaZaKronosa": true,
+      "blaszkaZaHastura": false,
+      "attributes": {
+        "sila": 150,
+        "zwinnosc": 175,
+        "odpornosc": 90,
+        "wyglad": 90,
+        "charyzma": 90,
+        "wplywy": 90,
+        "spostrzegawczosc": 130,
+        "inteligencja": 120,
+        "wiedza": 120
+      },
+      "talizmanLevels": {
+        "ambicja": 0,
+        "lewiatan": 0,
+        "behemot": 4,
+        "kamienZla": 0,
+        "kamienDobra": 0,
+        "kamienPrzestrzeni": 0,
+        "kamienCzasu": 0,
+        "szponyNocy": 0,
+        "zycieISmierc": 0,
+        "otchlaniCiszy": 0,
+        "potegaMocy": 0,
+        "furiaBestii": 0,
+        "auraBestii": 0,
+        "maskaWladzy": 0,
+        "maskaStachu": 0,
+        "cichyLowca": 0,
+        "piesnKrwi": 4,
+        "ziz": 4
+      },
+      "arcaneLevels": {
+        "maskaAdnisa": 0,
+        "maskaKaliguli": 0,
+        "majestat": 0,
+        "krewZycia": 150,
+        "kocieSciezki": 0,
+        "zarKrwi": false,
+        "ciszaKrwi": 0,
+        "wyssanieMocy": 0,
+        "mocKrwi": 0,
+        "dzikiSzal": 0,
+        "skoraBestii": 100,
+        "cienBestii": true,
+        "nocnyLowca": 0,
+        "tchnienieSmierci": 0,
+        "groza": false
+      },
+      "evolutions": {
+        "skrzydla": 0,
+        "pancerz": 10,
+        "klyPazuryKolce": 5,
+        "gruczolyJadowe": 11,
+        "wzmocnioneSciegna": 10,
+        "dodatkowaKomora": 13,
+        "krewDemona": 5,
+        "mutacjaDna": 0,
+        "oswiecony": 0,
+        "szostyZmysl": 0,
+        "absorpcja": 10,
+        "harmonijnyRozwoj": 0,
+        "pietnoDemona": 5,
+        "wzmocnioneMiesnie": 9
+      },
+      "mysliwy": 5,
+      "ninja": 5,
+      "strateg": 5,
+      "kaplica": 6,
+      "posredniak": 0,
+      "domPubliczny": 0,
+      "rzeznia": 0,
+      "obronaPrzeciwnika": 0,
+      "odpornoscPrzeciwnika": 0,
+      "huntBonuses": [],
+      "eventBonus": "",
+      "oneTimeBonus": "",
+      "szczesciePrzeciwnika": 0,
+      "trafieniePrzeciwnika": 0,
+      "runeValues": [
+        "obrazenia 5",
+        "kryt 12",
+        "ignore 10",
+        "sila 4",
+        "zwinnosc 4",
+        "spostrzegawczosc 4",
+        "inteligencja 4",
+        "obrona 4",
+        "zycie 250",
+        "odpornosc 4",
+        "twardosc 4",
+        "szczescie 12",
+        "multi 10",
+        "szczescie 12"
+      ],
+      "umagiValues": [
+        "obrazenia 1/4",
+        "obrazenia 1/4",
+        "dodatkowyAtak",
+        "zycie 1000",
+        "zycie 1000",
+        "zycie 1000",
+        "zycie 1000",
+        "zycie 1000",
+        "zycie 1000",
+        "obrona 6/4"
+      ],
+      "equipment": {
+        "head": {
+          "rarity": "EPICKI",
+          "prefix": "Tygrysi",
+          "base": "Helm",
+          "suffix": "Magii"
+        },
+        "weaponMode": "dual1h",
+        "chest": {
+          "rarity": "EPICKI",
+          "prefix": "Tygrysi",
+          "base": "Peleryna",
+          "suffix": "Orchidei"
+        },
+        "legs": {
+          "rarity": "EPICKI",
+          "prefix": "Tygrysi",
+          "base": "Szorty",
+          "suffix": "Nocy"
+        },
+        "neck": {
+          "rarity": "EPICKI",
+          "prefix": "Tytanowy",
+          "base": "Lancuch",
+          "suffix": "Wilkolaka"
+        },
+        "finger1": {
+          "rarity": "EPICKI",
+          "prefix": "Tytanowy",
+          "base": "Pierscien",
+          "suffix": "Lewitacji"
+        },
+        "finger2": {
+          "rarity": "EPICKI",
+          "prefix": "Tytanowy",
+          "base": "Pierscien",
+          "suffix": ""
+        },
+        "weapon1": {
+          "rarity": "EPICKI",
+          "prefix": "Szybki",
+          "base": "Kastet",
+          "suffix": ""
+        },
+        "weapon2": {
+          "rarity": "EPICKI",
+          "prefix": "Opiekunczy",
+          "base": "Kastet",
+          "suffix": "Podkowy"
+        }
+      }
+    }
   }
 ];
