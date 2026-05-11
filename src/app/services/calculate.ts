@@ -931,7 +931,8 @@ export class DashboardService {
         inicjatywa: player.stats.spostrzegawczosc + player.stats.zwinnosc + player.stats.additionalIni,
         obrazenia: obrazenia,
         regeneracja: regen,
-        zizAverageRounds: p.ziz4 ? this.simulateZiz4Rounds(obrazenia) : []
+        zizAverageRounds: p.ziz4 ? this.simulateZiz4Rounds(obrazenia) : [],
+        roundsPerWeapon: this.simulateRoundsPerWeapon(obrazenia, 10, !!p.ziz4)
       };
     } catch (error) {
       return {
@@ -976,6 +977,28 @@ export class DashboardService {
     const rawHit = (70 + 2 * y + z) * p - 2 * r;
 
     return Math.min(Math.max(rawHit, minHit), maxHit) / 100;
+  }
+
+  private simulateRoundsPerWeapon(damages: WeaponDamage[], rounds: number, ziz: boolean): { name: string; rounds: number[] }[] {
+    const oneHandedGenres: string[] = [ItemGenre.WHITE_1H, ItemGenre.GUN_1H, ItemGenre.RANGE_1H];
+    return damages.map(d => {
+      let accumulatedBonus = 0;
+      const roundValues: number[] = [];
+      for (let round = 0; round < rounds; round++) {
+        const delta = d.genre && oneHandedGenres.includes(d.genre) ? 0.025 : 0.05;
+        const cappedCrit = Math.min(d.critChance ?? 0, 0.85);
+        const hitChance = d.estimatedHitChance ?? 1;
+        const effectiveMulti = (d.critMulti ?? 1) + (ziz ? accumulatedBonus : 0);
+        const avg = (d.minDmg + d.maxDmg) / 2;
+        const dmg = Math.floor(
+          hitChance * (cappedCrit * (d.iloscAtakow ?? 0) * avg * effectiveMulti
+            + (1 - cappedCrit) * (d.iloscAtakow ?? 0) * avg)
+        );
+        roundValues.push(dmg);
+        if (ziz) accumulatedBonus += cappedCrit * (d.iloscAtakow ?? 0) * delta;
+      }
+      return { name: d.name, rounds: roundValues };
+    });
   }
 
   private simulateZiz4Rounds(damages: WeaponDamage[]): number[] {

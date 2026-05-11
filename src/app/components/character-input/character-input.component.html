@@ -377,7 +377,7 @@
         <p-button label="Clear" icon="pi pi-trash" severity="danger" (onClick)="clearSession()" styleClass="action-io-btn" />
       </div>
       <div class="section action-buttons">
-        <p-button label="Presety" icon="pi pi-list" severity="secondary" (onClick)="showPresetsModal = true" styleClass="action-io-btn" />
+        <p-button label="Presety" icon="pi pi-list" severity="secondary" (onClick)="openPresetsModal()" styleClass="action-io-btn" />
       </div>
       <!-- Problemy -->
       <div class="section issues-section">
@@ -467,16 +467,28 @@
      PRESETS MODAL
 ════════════════════════════════════════════════════ -->
 <p-dialog [(visible)]="showPresetsModal" [modal]="true" [closable]="true"
-  header="Presety postaci" [style]="{'width': 'min(480px, 95vw)'}" [resizable]="false">
-  <div class="presets-list">
-    <div *ngFor="let preset of presets" class="preset-item">
-      <div class="preset-info">
-        <span class="preset-name">{{ preset.name }}</span>
-        <span class="preset-desc">{{ preset.description }}</span>
+  header="Presety postaci" [style]="{'width': 'min(1200px, 95vw)', 'height': '640px'}" [resizable]="false">
+  <div class="presets-modal-layout">
+    <!-- Left: list -->
+    <div class="presets-list">
+      <div *ngFor="let preset of presets; let i = index"
+        class="preset-item" [class.preset-item--inactive]="!presetSelections[i]"
+        (click)="togglePresetSelection(i)">
+        <span class="preset-color-dot" [style.background]="CHART_COLORS[i % CHART_COLORS.length]"></span>
+        <div class="preset-info">
+          <span class="preset-name">{{ preset.name }}</span>
+          <span class="preset-desc">{{ preset.description }}</span>
+        </div>
+        <p-button label="Wczytaj" size="small" (onClick)="loadPreset(preset); $event.stopPropagation()" />
       </div>
-      <p-button label="Wczytaj" size="small" (onClick)="loadPreset(preset)" />
+      <div *ngIf="presets.length === 0" class="preset-empty">Brak presetów</div>
     </div>
-    <div *ngIf="presets.length === 0" class="preset-empty">Brak presetów</div>
+    <!-- Right: chart -->
+    <div class="presets-chart-panel">
+      <div class="preset-chart-wrapper">
+        <p-chart type="line" [data]="presetChartData ?? emptyChartData" [options]="presetChartOptions" [style]="{'width':'100%','height':'480px'}" />
+      </div>
+    </div>
   </div>
 </p-dialog>
 

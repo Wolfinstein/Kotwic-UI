@@ -18,6 +18,8 @@ import { WeaponStats } from '../../logic/item/WeaponStats';
 import { applyQualityMultiplier } from '../../logic/item/qualityMultiplier';
 import { applyQualityWeaponMultiplier } from '../../logic/item/qualityWeaponMultiplier';
 import { CHARACTER_PRESETS, CharacterPreset } from '../../data/presets';
+import { DashboardService } from '../../services/calculate';
+import { ChartModule } from 'primeng/chart';
 
 export type SlotCategory = 'head' | 'chest' | 'legs' | 'neck' | 'finger' | 'weapon1h' | 'weapon2h';
 export interface BaseItemDef {
@@ -149,6 +151,7 @@ const SLOT_TO_CATEGORY: Record<string, SlotCategory> = {
     TooltipModule,
     InputTextModule,
     SelectButtonModule,
+    ChartModule,
   ],
   templateUrl: './character-input.component.html',
   styleUrl: './character-input.component.css'
@@ -311,7 +314,62 @@ export class CharacterInputComponent implements OnInit {
   selectedHuntBonuses: string[] = [];
   selectedEventBonus: string | null = null;
   selectedOneTimeBonus: string | null = null;
-  constructor(private characterService: CharacterService, private ngZone: NgZone, private cdr: ChangeDetectorRef) { }
+  presetChartData: any = null;
+  presetChartOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: '#ccc' } } },
+    scales: {
+      x: { title: { display: true, text: 'Runda', color: '#aaa' }, ticks: { color: '#aaa' }, grid: { color: 'rgba(255,255,255,0.08)' } },
+      y: { title: { display: true, text: 'Obrażenia', color: '#aaa' }, ticks: { color: '#aaa', stepSize: 50000 }, grid: { color: 'rgba(255,255,255,0.08)' } },
+    },
+  };
+  readonly CHART_COLORS = ['#4fc3f7','#81c784','#ffb74d','#f06292','#ce93d8','#80cbc4'];
+  presetSelections: boolean[] = [];
+  readonly emptyChartData = { labels: Array.from({ length: 10 }, (_, i) => `R${i + 1}`), datasets: [] };
+
+  constructor(private characterService: CharacterService, private ngZone: NgZone, private cdr: ChangeDetectorRef, private dashboardService: DashboardService) { }
+
+  openPresetsModal() {
+    if (!this.presetSelections.length) {
+      this.presetSelections = this.presets.map(() => true);
+    }
+    this.buildAllPresetsChart();
+    this.showPresetsModal = true;
+  }
+
+  togglePresetSelection(index: number) {
+    this.presetSelections[index] = !this.presetSelections[index];
+    this.buildAllPresetsChart();
+  }
+
+  private buildAllPresetsChart() {
+    const datasets = this.presets
+      .map((preset, i) => {
+        const perWeapon = this.dashboardService.calculateStuff(preset.character).roundsPerWeapon ?? [];
+        const rounds = perWeapon.length
+          ? perWeapon[0].rounds.map((_, r) => perWeapon.reduce((sum, w) => sum + (w.rounds[r] ?? 0), 0))
+          : [];
+        return { preset, i, rounds };
+      })
+      .filter(({ i, rounds }) => this.presetSelections[i] && rounds.length > 0)
+      .map(({ preset, i, rounds }) => ({
+        label: preset.name,
+        data: rounds,
+        borderColor: this.CHART_COLORS[i % this.CHART_COLORS.length],
+        backgroundColor: this.CHART_COLORS[i % this.CHART_COLORS.length] + '33',
+        tension: 0.3,
+        fill: false,
+        pointRadius: 4,
+      }));
+
+    if (!datasets.length) { this.presetChartData = null; return; }
+    const roundCount = datasets[0].data.length;
+    this.presetChartData = {
+      labels: Array.from({ length: roundCount }, (_, i) => `R${i + 1}`),
+      datasets,
+    };
+  }
   ngOnInit() {
     this.characterService.getCharacter$().subscribe(char => {
       this.character = char;

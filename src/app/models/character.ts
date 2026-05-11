@@ -142,5 +142,6 @@ export interface DashboardValues {
     trafienieDodatkoweBiala?: number;
     obrazenia?: WeaponDamage[];
     regeneracja?: number;
-    zizAverageRounds?: number[]
+    zizAverageRounds?: number[];
+    roundsPerWeapon?: { name: string; rounds: number[] }[];
 };
