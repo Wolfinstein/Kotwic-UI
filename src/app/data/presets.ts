@@ -235,7 +235,7 @@ export const CHARACTER_PRESETS: CharacterPreset[] = [
       "posredniak": 0,
       "domPubliczny": 0,
       "rzeznia": 0,
-      "obronaPrzeciwnika": 0,
+      "obronaPrzeciwnika": 1716,
       "odpornoscPrzeciwnika": 0,
       "huntBonuses": [],
       "eventBonus": "",
