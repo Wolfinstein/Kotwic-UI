@@ -131,8 +131,8 @@ export class Evolution {
     if (this.klyPauzryKolce < 1) return;
     this.applyKlyDamage(player, this.klyPauzryKolce);
     player.addAllTrafienie(this.klyTrafienie(this.klyPauzryKolce));
-    if (this.klyPauzryKolce === 14) player.addObrazeniaProcentoweRuny(0.04);
-    if (this.klyPauzryKolce === 15) player.addObrazeniaProcentoweRuny(0.10);
+    if (this.klyPauzryKolce === 14) player.addObrazeniaProcentoweRuny(4);
+    if (this.klyPauzryKolce === 15) player.addObrazeniaProcentoweRuny(10);
   }
   private applyKlyDamage(player: Player, level: number): void {
     player.addMinDpsBiala1h(level * 4);
