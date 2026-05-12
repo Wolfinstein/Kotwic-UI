@@ -1037,11 +1037,11 @@ export class DashboardService {
     let maxDmg = 0;
     const beheBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.BEHE);
     const otherBonuses = bonuses.filter(b => b.type !== MultiplicativeBonusType.BEHE && b.type !== MultiplicativeBonusType.AMBICJA);
-    const ambitjaBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.AMBICJA);
+    const ambicjaBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.AMBICJA);
     const allBonusesToProcess = [
       ...beheBonuses,
       ...otherBonuses,
-      ...ambitjaBonuses
+      ...ambicjaBonuses
     ];
     for (const b of allBonusesToProcess) {
       switch (b.type) {
@@ -1104,8 +1104,10 @@ export class DashboardService {
 
   private resolveBonusesBehe(bonuses: any[], player: Player): void {
     const beheBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.BEHE);
+    const wygladBonuses = bonuses.filter(b => b.type === MultiplicativeBonusType.SKRZYDLA || b.type === MultiplicativeBonusType.SCIEGNA);
     const allBonusesToProcess = [
       ...beheBonuses,
+      ...wygladBonuses
     ];
     for (const b of allBonusesToProcess) {
       switch (b.type) {
@@ -1113,6 +1115,12 @@ export class DashboardService {
           player.addZwinnosc(Math.floor(player.stats.sila * (b.licznik / b.mianownik * b.mnoznik)));
           let suma = player.stats.wiedza + player.stats.inteligencja;
           player.addSpostrzegawczosc(Math.floor(suma * (b.licznik / b.mianownik) * b.mnoznik));
+          break;
+        case MultiplicativeBonusType.SKRZYDLA:
+          player.addWyglad(Math.floor(player.stats.spostrzegawczosc * (b.licznik / b.mianownik * b.mnoznik)));
+          break;
+        case MultiplicativeBonusType.SCIEGNA:
+          player.addWyglad(Math.floor(player.stats.zwinnosc * (b.licznik / b.mianownik * b.mnoznik)));
           break;
       }
     }
@@ -1152,13 +1160,12 @@ export class DashboardService {
       let trafienieProcentowe = 0;
       let critChance = 0;
       let critMulti = 0;
-      console.log(stats);
       player.stats.addNonAgnosticStats(stats)
       const bonusResults = this.resolveBonuses(player.bonuses, player, weapon);
       let trafienieLegDystans = 0;
       minDmg += bonusResults.minDmg;
-      maxDmg += bonusResults.maxDmg;
 
+      maxDmg += bonusResults.maxDmg;
 
       if (genre === ItemGenre.WHITE_2H) {
         trafienieProcentowe = Math.floor((1 + player.stats.trafienieProcentoweBiala) * 100) / 100;
