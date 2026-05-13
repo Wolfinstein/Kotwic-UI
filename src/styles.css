@@ -256,7 +256,7 @@ select:focus-visible {
 }
 
 .p-tooltip {
-  max-width: 320px !important;
+  max-width: 420px !important;
 }
 
 .p-tooltip .p-tooltip-text {
