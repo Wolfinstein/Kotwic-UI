@@ -378,6 +378,7 @@
       </div>
       <div class="section action-buttons">
         <p-button label="Presety" icon="pi pi-list" severity="secondary" (onClick)="openPresetsModal()" styleClass="action-io-btn" />
+        <p-button [label]="currentThemeLabel" icon="pi pi-palette" severity="secondary" (onClick)="cycleTheme()" styleClass="action-io-btn" />
       </div>
 
     </div>

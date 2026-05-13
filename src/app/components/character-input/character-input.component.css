@@ -120,14 +120,14 @@
 /* ─── Panel Layout ─────────────────────────────────────── */
 .input-panel {
   padding: 8px;
-  background: #5F2E2F;
+  background: var(--bg-main);
   overflow: hidden;
   height: 100vh;
-  color: #f6e8ea;
+  color: var(--color-text);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   display: flex;
   flex-direction: column;
-  border-right: 3px solid #6A87AB;
+  border-right: 3px solid var(--color-accent);
 }
 
 .panel-grid {
@@ -168,8 +168,8 @@
 /* ─── Section ──────────────────────────────────────────── */
 .section {
   padding: 10px;
-  background: #072944;
-  border: 1px solid #6A87AB;
+  background: var(--bg-panel);
+  border: 1px solid var(--color-accent);
   border-radius: 6px;
   flex-shrink: 0;
 }
@@ -184,13 +184,13 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: #6A87AB;
+  color: var(--color-accent);
 }
 
 .horizontal-h3 {
   font-size: 12px;
   font-weight: 700;
-  color: #f6e8ea;
+  color: var(--color-text);
   text-transform: none;
   letter-spacing: 0;
   margin: 0;
@@ -200,7 +200,7 @@ label {
   display: block;
   margin: 0 0 3px 0;
   font-size: 10px;
-  color: #f6e8ea;
+  color: var(--color-text);
   font-weight: 500;
 }
 
@@ -224,13 +224,13 @@ label {
 }
 
 .compact-item:nth-child(odd) {
-  background: rgba(106, 135, 171, 0.07);
+  background: var(--accent-low);
 }
 
 :host ::ng-deep .p-inputtext.input-active {
-  border-color: #8aa5c7 !important;
-  background: #0a3355 !important;
-  color: #ffffff !important;
+  border-color: var(--input-active-border) !important;
+  background: var(--input-active-bg) !important;
+  color: var(--color-text) !important;
   font-weight: 700;
 }
 
@@ -240,7 +240,7 @@ label {
   font-size: 14px;
   white-space: nowrap;
   min-width: 60px;
-  color: #f6e8ea;
+  color: var(--color-text);
 }
 
 /* ─── Equipment ────────────────────────────────────────── */
@@ -275,9 +275,9 @@ label {
   gap: 7px;
   width: 100%;
   padding: 7px 10px;
-  border: 1px solid #6A87AB;
-  background: #00192d;
-  color: #6A87AB;
+  border: 1px solid var(--color-accent);
+  background: var(--bg-deep);
+  color: var(--color-accent);
   cursor: pointer;
   font-size: 13px;
   border-radius: 4px;
@@ -294,15 +294,15 @@ label {
 }
 
 .eq-slot-btn:hover:not([disabled]) {
-  background: #0f3d63;
-  border-color: #6A87AB;
-  color: #f6e8ea;
+  background: var(--bg-hover);
+  border-color: var(--color-accent);
+  color: var(--color-text);
 }
 
 .eq-slot-btn.eq-slot-filled {
-  border-color: #6A87AB;
-  background: #072944;
-  color: #f6e8ea;
+  border-color: var(--color-accent);
+  background: var(--bg-panel);
+  color: var(--color-text);
 }
 
 .eq-slot-btn.eq-slot-locked { opacity: 0.4; cursor: not-allowed; }
@@ -358,7 +358,7 @@ label {
   align-items: center;
   gap: 7px;
   font-size: 11px;
-  color: #f6e8ea;
+  color: var(--color-text);
   cursor: pointer;
   padding: 4px 6px;
   border-radius: 3px;
@@ -371,7 +371,7 @@ label {
   margin: 0;
   cursor: pointer;
   font-size: 11px;
-  color: #f6e8ea;
+  color: var(--color-text);
   font-weight: 400;
 }
 
@@ -396,18 +396,18 @@ label {
 .rune-chip {
   display: inline-block;
   padding: 2px 6px;
-  background: rgba(106, 135, 171, 0.15);
-  border: 1px solid #6A87AB;
+  background: var(--accent-hi);
+  border: 1px solid var(--color-accent);
   border-radius: 10px;
   font-size: 9px;
-  color: #f6e8ea;
+  color: var(--color-text);
   white-space: nowrap;
 }
 
 .rune-empty {
   display: block;
   font-size: 9px;
-  color: #6A87AB;
+  color: var(--color-accent);
   font-style: italic;
   margin-bottom: 6px;
 }
@@ -423,8 +423,8 @@ label {
 .issues-list {
   display: flex;
   flex-direction: column;
-  background: #072944;
-  border: 1px solid #6A87AB;
+  background: var(--bg-panel);
+  border: 1px solid var(--color-accent);
   border-top: none;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
@@ -435,22 +435,22 @@ label {
 
 .issue-item {
   padding: 8px 10px;
-  border-bottom: 1px solid #6A87AB;
-  color: #f6e8ea;
+  border-bottom: 1px solid var(--color-accent);
+  color: var(--color-text);
   font-size: 9px;
   line-height: 1.4;
 }
 
 .issue-item:last-child { border-bottom: none; }
-.issue-item:hover { background: #0f3d63; }
+.issue-item:hover { background: var(--bg-hover); }
 
 /* ═══════════════════════════════════════════════════
    EQUIPMENT MODAL (inside p-dialog)
 ═══════════════════════════════════════════════════ */
 .eq-preview {
   padding: 8px 12px;
-  background: #00192d;
-  border: 1px solid #6A87AB;
+  background: var(--bg-deep);
+  border: 1px solid var(--color-accent);
   border-radius: 4px;
   min-height: 32px;
   display: flex;
@@ -462,20 +462,20 @@ label {
 .eq-preview-name[data-rarity="ZWYKLY"], .eq-preview-name[data-rarity="DOBRY"], .eq-preview-name[data-rarity="DOSKONALY"] { color: #ddd0d2; }
 .eq-preview-name[data-rarity="LEGENDARNY"], .eq-preview-name[data-rarity="LEGENDARNY_DOBRY"], .eq-preview-name[data-rarity="LEGENDARNY_DOSKONALY"] { color: #c97ef5; }
 .eq-preview-name[data-rarity="EPICKI"] { color: #f5a623; }
-.eq-preview-placeholder { font-size: 10px; color: #6A87AB; font-style: italic; }
+.eq-preview-placeholder { font-size: 10px; color: var(--color-accent); font-style: italic; }
 
 .eq-section { flex-shrink: 0; margin-bottom: 12px; }
 
 .eq-section-label {
   font-size: 9px;
   font-weight: 700;
-  color: #6A87AB;
+  color: var(--color-accent);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   margin-bottom: 6px;
 }
 
-.eq-optional { font-weight: 400; text-transform: none; letter-spacing: 0; color: #6A87AB; opacity: 0.7; }
+.eq-optional { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--color-accent); opacity: 0.7; }
 
 .eq-rarity-row { display: flex; gap: 5px; flex-wrap: wrap; }
 
@@ -485,8 +485,8 @@ label {
   font-weight: 700;
   border-radius: 12px;
   border: 1px solid transparent;
-  background: #00192d;
-  color: #6A87AB;
+  background: var(--bg-deep);
+  color: var(--color-accent);
   cursor: pointer;
   transition: all 0.15s;
   text-transform: uppercase;
@@ -504,7 +504,7 @@ label {
 .eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOBRY"],
 .eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOSKONALY"] { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
 .eq-rarity-btn.eq-rarity-selected[data-rarity="EPICKI"] { background: #4a2d10; color: #f5a623; border-color: #fff; }
-.eq-rarity-btn:hover:not(.eq-rarity-selected) { background: #0f3d63; }
+.eq-rarity-btn:hover:not(.eq-rarity-selected) { background: var(--bg-hover); }
 
 .eq-base-grid { display: flex; flex-wrap: wrap; gap: 5px; }
 
@@ -512,8 +512,8 @@ label {
   padding: 5px 10px;
   font-size: 13px;
   font-weight: 600;
-  border: 1px solid #6A87AB;
-  background: #00192d;
+  border: 1px solid var(--color-accent);
+  background: var(--bg-deep);
   color: #aabdd1;
   border-radius: 4px;
   cursor: pointer;
@@ -523,9 +523,9 @@ label {
   gap: 4px;
 }
 
-.eq-base-btn:hover:not(.eq-base-selected) { background: #0f3d63; color: #f6e8ea; }
-.eq-base-btn.eq-base-selected { background: #0f3d63; border-color: #f6e8ea; color: #f6e8ea; }
-.eq-no-affix-badge { font-size: 8px; color: #6A87AB; font-weight: 400; }
+.eq-base-btn:hover:not(.eq-base-selected) { background: var(--bg-hover); color: var(--color-text); }
+.eq-base-btn.eq-base-selected { background: var(--bg-hover); border-color: var(--color-text); color: var(--color-text); }
+.eq-no-affix-badge { font-size: 8px; color: var(--color-accent); font-weight: 400; }
 
 .eq-affix-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
@@ -541,16 +541,16 @@ label {
   padding: 4px 9px;
   font-size: 13px;
   font-weight: 600;
-  border: 1px solid #6A87AB;
-  background: #00192d;
+  border: 1px solid var(--color-accent);
+  background: var(--bg-deep);
   color: #aabdd1;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.15s;
 }
 
-.eq-affix-btn:hover:not(.eq-affix-selected) { background: #0f3d63; color: #f6e8ea; }
-.eq-affix-btn.eq-affix-selected { background: #5F2E2F; border-color: #c14953; color: #f6e8ea; }
+.eq-affix-btn:hover:not(.eq-affix-selected) { background: var(--bg-hover); color: var(--color-text); }
+.eq-affix-btn.eq-affix-selected { background: var(--bg-main); border-color: #c14953; color: var(--color-text); }
 
 .eq-modal-footer { display: flex; gap: 8px; margin-top: 4px; }
 
@@ -579,24 +579,24 @@ label {
   flex-shrink: 0;
 }
 
-.rune-panel-title { font-size: 10px; font-weight: 700; color: #6A87AB; text-transform: uppercase; letter-spacing: 0.8px; }
-.rune-panel-count { background: #6A87AB; border-radius: 8px; padding: 1px 7px; font-size: 9px; color: #f6e8ea; }
+.rune-panel-title { font-size: 10px; font-weight: 700; color: var(--color-accent); text-transform: uppercase; letter-spacing: 0.8px; }
+.rune-panel-count { background: var(--color-accent); border-radius: 8px; padding: 1px 7px; font-size: 9px; color: var(--color-text); }
 
 .rune-search {
   width: 100%;
   padding: 5px 8px;
   margin-bottom: 6px;
-  border: 1px solid #6A87AB !important;
-  background: #00192d !important;
-  color: #f6e8ea !important;
+  border: 1px solid var(--color-accent) !important;
+  background: var(--bg-deep) !important;
+  color: var(--color-text) !important;
   border-radius: 4px;
   font-size: 10px;
   box-sizing: border-box;
   flex-shrink: 0;
 }
 
-.rune-search:focus { outline: none; border-color: #6A87AB; background: #5F2E2F !important; }
-.rune-search::placeholder { color: #6A87AB; }
+.rune-search:focus { outline: none; border-color: var(--color-accent); background: var(--bg-main) !important; }
+.rune-search::placeholder { color: var(--color-accent); }
 
 .rune-list {
   flex: 1;
@@ -610,8 +610,8 @@ label {
 }
 
 .rune-list-selected {
-  background: #072944;
-  border: 1px solid #6A87AB;
+  background: var(--bg-panel);
+  border: 1px solid var(--color-accent);
   border-radius: 4px;
   padding: 4px;
   flex: 1;
@@ -626,24 +626,24 @@ label {
   border-radius: 4px;
   font-size: 10px;
   transition: background 0.15s ease;
-  border: 1px solid #6A87AB;
+  border: 1px solid var(--color-accent);
 }
 
 .available-rune { cursor: pointer; }
-.available-rune:hover { background: #5F2E2F; border-color: #6A87AB; }
-.available-rune:hover .rune-plus { opacity: 1; color: #6A87AB; }
-.selected-rune { cursor: pointer; background: #00192d; border-color: #0f3d63; }
-.selected-rune:hover { background: #5F2E2F; }
-.rune-highlighted { background: #0f3d63 !important; border-color: #5F2E2F !important; }
+.available-rune:hover { background: var(--bg-main); border-color: var(--color-accent); }
+.available-rune:hover .rune-plus { opacity: 1; color: var(--color-accent); }
+.selected-rune { cursor: pointer; background: var(--bg-deep); border-color: var(--bg-hover); }
+.selected-rune:hover { background: var(--bg-main); }
+.rune-highlighted { background: var(--bg-hover) !important; border-color: var(--bg-main) !important; }
 .rune-name { flex: 1; color: #DDD0D2FF; }
 
 .rune-add-indicator { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
-.rune-existing-count { font-size: 9px; color: #6A87AB; font-weight: 700; }
-.rune-plus { font-size: 13px; color: #6A87AB; font-weight: 700; transition: all 0.15s ease; line-height: 1; }
-.rune-slot-num { font-size: 9px; color: #6A87AB; font-weight: 700; min-width: 14px; text-align: center; flex-shrink: 0; }
+.rune-existing-count { font-size: 9px; color: var(--color-accent); font-weight: 700; }
+.rune-plus { font-size: 13px; color: var(--color-accent); font-weight: 700; transition: all 0.15s ease; line-height: 1; }
+.rune-slot-num { font-size: 9px; color: var(--color-accent); font-weight: 700; min-width: 14px; text-align: center; flex-shrink: 0; }
 .rune-actions { display: flex; gap: 2px; flex-shrink: 0; }
 
-.rune-empty-state { padding: 20px 10px; text-align: center; font-size: 10px; color: #6A87AB; font-style: italic; }
+.rune-empty-state { padding: 20px 10px; text-align: center; font-size: 10px; color: var(--color-accent); font-style: italic; }
 
 .rune-divider { display: none; }
 
@@ -659,16 +659,16 @@ label {
   }
 }
 
-.rune-divider-line { flex: 1; width: 1px; background: #6A87AB; }
-.rune-divider-icon { font-size: 12px; color: #6A87AB; flex-shrink: 0; }
+.rune-divider-line { flex: 1; width: 1px; background: var(--color-accent); }
+.rune-divider-icon { font-size: 12px; color: var(--color-accent); flex-shrink: 0; }
 
 .rune-modal-footer { display: flex; gap: 8px; margin-top: 14px; flex-shrink: 0; }
 
 /* ─── Scrollbar ─────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #5F2E2F; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #0f3d63; }
+::-webkit-scrollbar-thumb { background: var(--bg-main); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--bg-hover); }
 
 /* ═══════════════════════════════════════════════════
    PRIMENG OVERRIDES (dark theme)
@@ -679,14 +679,14 @@ label {
   width: 100%;
   justify-content: flex-start;
   padding: 4px 2px;
-  color: #6A87AB;
+  color: var(--color-accent);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-:host ::ng-deep .bonus-toggle-btn.p-button:hover { color: #f6e8ea; }
+:host ::ng-deep .bonus-toggle-btn.p-button:hover { color: var(--color-text); }
 
 /* Action buttons */
 :host ::ng-deep .action-btn-primeng.p-button {
@@ -701,9 +701,9 @@ label {
 :host ::ng-deep .action-io-btn.p-button {
   width: 100%;
   justify-content: center;
-  background: #0f3d63 !important;
-  border-color: #6A87AB !important;
-  color: #f6e8ea !important;
+  background: var(--bg-hover) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -713,8 +713,8 @@ label {
 }
 
 :host ::ng-deep .action-io-btn.p-button:hover {
-  background: #6A87AB !important;
-  color: #00192d !important;
+  background: var(--color-accent) !important;
+  color: var(--bg-deep) !important;
 }
 
 /* InputNumber */
@@ -723,31 +723,31 @@ label {
   min-height: 24px;
   padding: 3px 6px;
   font-size: 13px;
-  background: #00192d;
-  border-color: #6A87AB;
-  color: #f6e8ea;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
   border-radius: 0;
   text-align: center;
 }
 
 :host ::ng-deep p-inputnumber .p-inputtext:focus {
-  border-color: #f6e8ea;
-  background: #072944;
+  border-color: var(--color-text);
+  background: var(--bg-panel);
   box-shadow: none;
 }
 
 :host ::ng-deep p-inputnumber .p-inputnumber-button {
   width: 24px;
   min-height: 24px;
-  background: rgba(106, 135, 171, 0.15);
-  border-color: #6A87AB;
-  color: #6A87AB;
+  background: var(--accent-hi);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
   padding: 0;
 }
 
 :host ::ng-deep p-inputnumber .p-inputnumber-button:hover {
-  background: #6A87AB !important;
-  color: #00192d !important;
+  background: var(--color-accent) !important;
+  color: var(--bg-deep) !important;
 }
 
 :host ::ng-deep p-inputnumber .p-inputnumber-button .pi {
@@ -756,23 +756,23 @@ label {
 
 /* Select (Rasa dropdown) */
 :host ::ng-deep p-select .p-select {
-  background: #00192d;
-  border-color: #6A87AB;
-  color: #f6e8ea;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
   font-size: 10px;
   min-height: 24px;
 }
 
-:host ::ng-deep p-select .p-select-label { font-size: 13px; color: #f6e8ea; padding: 3px 6px; }
-:host ::ng-deep p-select .p-select-dropdown { color: #6A87AB; }
-:host ::ng-deep .p-select-overlay { background: #00192d; border-color: #6A87AB; }
-:host ::ng-deep .p-select-option { color: #f6e8ea; font-size: 10px; }
-:host ::ng-deep .p-select-option:hover, :host ::ng-deep .p-select-option.p-select-option-selected { background: #0f3d63; color: #f6e8ea; }
+:host ::ng-deep p-select .p-select-label { font-size: 13px; color: var(--color-text); padding: 3px 6px; }
+:host ::ng-deep p-select .p-select-dropdown { color: var(--color-accent); }
+:host ::ng-deep .p-select-overlay { background: var(--bg-deep); border-color: var(--color-accent); }
+:host ::ng-deep .p-select-option { color: var(--color-text); font-size: 10px; }
+:host ::ng-deep .p-select-option:hover, :host ::ng-deep .p-select-option.p-select-option-selected { background: var(--bg-hover); color: var(--color-text); }
 
 /* SelectButton (weapon mode) */
 :host ::ng-deep p-selectbutton .p-selectbutton {
-  background: #00192d !important;
-  border: 1px solid #6A87AB !important;
+  background: var(--bg-deep) !important;
+  border: 1px solid var(--color-accent) !important;
   border-radius: 4px !important;
   overflow: hidden;
   gap: 0;
@@ -782,23 +782,23 @@ label {
 :host ::ng-deep p-selectbutton .p-togglebutton *:not(.p-togglebutton-checked) {
   font-size: 10px;
   font-weight: 700;
-  color: #6A87AB !important;
+  color: var(--color-accent) !important;
   padding: 2px 7px;
-  background: #00192d !important;
+  background: var(--bg-deep) !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }
 
 :host ::ng-deep p-selectbutton .p-togglebutton:hover {
-  background: #0f3d63 !important;
-  color: #f6e8ea !important;
+  background: var(--bg-hover) !important;
+  color: var(--color-text) !important;
 }
 
 :host ::ng-deep p-selectbutton .p-togglebutton.p-togglebutton-checked,
 :host ::ng-deep p-selectbutton .p-togglebutton.p-togglebutton-checked * {
-  background: #6A87AB !important;
-  color: #00192d !important;
+  background: var(--color-accent) !important;
+  color: var(--bg-deep) !important;
   border: none !important;
 }
 
@@ -806,8 +806,8 @@ label {
 :host ::ng-deep p-checkbox .p-checkbox-box {
   width: 14px;
   height: 14px;
-  background: #00192d;
-  border-color: #6A87AB;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
   border-radius: 3px;
 }
 
@@ -820,8 +820,8 @@ label {
 :host ::ng-deep p-radiobutton .p-radiobutton-box {
   width: 14px;
   height: 14px;
-  background: #00192d;
-  border-color: #6A87AB;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
 }
 
 :host ::ng-deep p-radiobutton .p-radiobutton-box.p-checked { border-color: #c14953; }
@@ -829,46 +829,46 @@ label {
 
 /* p-button defaults */
 :host ::ng-deep .p-button:not(.p-button-text):not(.p-button-outlined) {
-  background: #00192d;
-  border-color: #6A87AB;
-  color: #f6e8ea;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
   font-size: 10px;
   font-weight: 600;
   padding: 6px 10px;
 }
 
 :host ::ng-deep .p-button:not(.p-button-text):not(.p-button-outlined):hover {
-  background: #0f3d63;
-  border-color: #6A87AB;
+  background: var(--bg-hover);
+  border-color: var(--color-accent);
 }
 
 :host ::ng-deep .p-button-secondary:not(.p-button-text) {
-  border-color: #6A87AB;
-  background: #00192d;
-  color: #f6e8ea;
+  border-color: var(--color-accent);
+  background: var(--bg-deep);
+  color: var(--color-text);
 }
 
 :host ::ng-deep .p-button-danger.p-button-text { color: #c14953; }
 
 /* p-dialog */
-:host ::ng-deep .p-dialog { background: #072944; border: 1px solid #6A87AB; border-radius: 8px; color: #f6e8ea; }
-:host ::ng-deep .p-dialog-header { background: #072944; color: #f6e8ea; border-bottom: 1px solid #6A87AB; padding: 12px 16px; }
-:host ::ng-deep .p-dialog-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #f6e8ea; }
-:host ::ng-deep .p-dialog-header-action { color: #6A87AB; }
-:host ::ng-deep .p-dialog-header-action:hover { color: #f6e8ea; background: transparent; }
-:host ::ng-deep .p-dialog-content { background: #072944; color: #f6e8ea; padding: 16px; }
-:host ::ng-deep .p-dialog-footer { background: #072944; border-top: 1px solid #6A87AB; padding: 10px 16px; }
+:host ::ng-deep .p-dialog { background: var(--bg-panel); border: 1px solid var(--color-accent); border-radius: 8px; color: var(--color-text); }
+:host ::ng-deep .p-dialog-header { background: var(--bg-panel); color: var(--color-text); border-bottom: 1px solid var(--color-accent); padding: 12px 16px; }
+:host ::ng-deep .p-dialog-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--color-text); }
+:host ::ng-deep .p-dialog-header-action { color: var(--color-accent); }
+:host ::ng-deep .p-dialog-header-action:hover { color: var(--color-text); background: transparent; }
+:host ::ng-deep .p-dialog-content { background: var(--bg-panel); color: var(--color-text); padding: 16px; }
+:host ::ng-deep .p-dialog-footer { background: var(--bg-panel); border-top: 1px solid var(--color-accent); padding: 10px 16px; }
 
 /* pInputText override for rune search */
 :host ::ng-deep input.p-inputtext {
-  background: #00192d;
-  border-color: #6A87AB;
-  color: #f6e8ea;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
   font-size: 10px;
 }
 
 :host ::ng-deep input.p-inputtext:focus {
-  border-color: #f6e8ea;
-  background: #072944;
+  border-color: var(--color-text);
+  background: var(--bg-panel);
   box-shadow: none;
 }

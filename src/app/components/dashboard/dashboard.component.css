@@ -1,10 +1,10 @@
 .dashboard-panel {
   padding: 8px;
-  background: #5F2E2F;
+  background: var(--bg-main);
   overflow: hidden;
   height: auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #f6e8ea;
+  color: var(--color-text);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -27,7 +27,7 @@ h2 {
   margin: 0 0 10px 0;
   font-size: 14px;
   font-weight: 700;
-  color: #6A87AB;
+  color: var(--color-accent);
   text-transform: uppercase;
   letter-spacing: 1.5px;
 }
@@ -36,7 +36,7 @@ h3 {
   font-size: 13px;
   font-weight: 700;
   margin: 0;
-  color: #6A87AB;
+  color: var(--color-accent);
   text-transform: uppercase;
   letter-spacing: 0.8px;
 }
@@ -52,10 +52,10 @@ h4 {
 
 .attributes-display,
 .combat-section {
-  background: #072944;
+  background: var(--bg-panel);
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid #6A87AB;
+  border: 1px solid var(--color-accent);
   flex-shrink: 0;
 }
 
@@ -124,8 +124,8 @@ h4 {
   flex-direction: column;
   gap: 4px;
   padding: 8px 10px;
-  background: #00192d;
-  border: 1px solid #6A87AB;
+  background: var(--bg-deep);
+  border: 1px solid var(--color-accent);
   border-radius: 4px;
   font-size: 10px;
   transition: all 0.2s ease;
@@ -160,13 +160,13 @@ h4 {
 
 .attr-label {
   font-weight: 600;
-  color: #6A87AB;
+  color: var(--label-color);
   font-size: 11px;
 }
 
 .attr-value {
   font-weight: 700;
-  color: #f6e8ea;
+  color: var(--color-text);
   font-size: 14px;
 }
 
@@ -179,10 +179,10 @@ h4 {
 }
 
 .combat-box {
-  background: #00192d;
+  background: var(--bg-deep);
   padding: 8px;
   border-radius: 4px;
-  border: 1px solid #6A87AB;
+  border: 1px solid var(--color-accent);
 }
 
 .combat-values {
@@ -193,9 +193,9 @@ h4 {
 }
 
 .value-badge {
-  background: rgba(106, 135, 171, 0.15);
-  border: 1px solid #6A87AB;
-  color: #f6e8ea;
+  background: var(--accent-hi);
+  border: 1px solid var(--color-accent);
+  color: var(--color-text);
   padding: 6px 12px;
   border-radius: 4px;
   font-size: 12px;
@@ -211,7 +211,7 @@ h4 {
 
 .sub-text {
   font-size: 10px;
-  color: #6A87AB;
+  color: var(--color-accent);
   display: block;
   margin-top: 4px;
   font-style: italic;
@@ -234,9 +234,9 @@ h4 {
   font-size: 14px;
   font-weight: 700;
   padding: 8px;
-  background: #00192d;
-  border: 1px solid #6A87AB;
-  color: #f6e8ea;
+  background: var(--bg-deep);
+  border: 1px solid var(--color-accent);
+  color: var(--color-text);
   border-radius: 4px;
   text-align: center;
 }
@@ -268,34 +268,14 @@ h4 {
   display: block;
 }
 
-.health-header {
-  border-color: #d32f2f;
-  color: #ff6b6b;
-}
-
-.defense-header {
-  border-color: #abd2ff;
-  color: #abd2ff;
-}
-
-.evasion-header {
-  border-color: #9bdfc5;
-  color: #9bdfc5;
-}
-
-.hit-header {
-  border-color: #7b56f6;
-  color: #7b56f6;
-}
-
-.combat-stats-header {
-  border-color: #eabb77;
-  color: #eabb77;
-}
-
+.health-header,
+.defense-header,
+.evasion-header,
+.hit-header,
+.combat-stats-header,
 .attributes-header {
-  border-color: #a78bfa;
-  color: #a78bfa;
+  border-color: var(--section-line);
+  color: var(--section-icon);
 }
 
 /* Weapon Section Enhancement */
@@ -322,7 +302,7 @@ h4 {
   font-size: 11px;
   color: #ffb74d;
   padding: 6px;
-  background: #00192d;
+  background: var(--bg-deep);
   border-left: 2px solid #ff9800;
   border-radius: 0;
   font-style: italic;
@@ -343,16 +323,16 @@ h4 {
 }
 
 .ziz-round-row:nth-child(odd) {
-  background: rgba(106, 135, 171, 0.08);
+  background: var(--accent-mid);
 }
 
 .ziz-round-label {
-  color: #6A87AB;
+  color: var(--color-accent);
   font-weight: 600;
 }
 
 .ziz-round-value {
-  color: #f6e8ea;
+  color: var(--color-text);
   font-weight: 700;
   text-align: right;
   padding-right: 8px;
@@ -365,8 +345,8 @@ h4 {
 .ziz-round-total {
   margin-top: 6px;
   padding: 5px 8px;
-  border-top: 1px solid #6A87AB;
-  background: rgba(106, 135, 171, 0.15);
+  border-top: 1px solid var(--color-accent);
+  background: var(--accent-hi);
 }
 
 .ziz-round-total .ziz-round-label,
@@ -390,11 +370,11 @@ h4 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #5F2E2F;
+  background: var(--bg-main);
   border-radius: 3px;
-  border: 1px solid #6A87AB;
+  border: 1px solid var(--color-accent);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #0f3d63;
+  background: var(--bg-hover);
 }
