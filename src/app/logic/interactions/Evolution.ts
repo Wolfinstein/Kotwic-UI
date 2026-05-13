@@ -124,7 +124,7 @@ export class Evolution {
   private pancerzLifePct(level: number): number {
     if (level <= 3) return 0.00;
     if (level == 4) return 0.10;
-    if (level <= 8) return 0.15;
+    if (level >= 5 && level <= 8) return 0.15;
     if (level === 9) return 0.25;
     return 0.30;
   }
@@ -297,7 +297,7 @@ export class Evolution {
       player.baseLife += this.absoBaseLifeBonus(this.absorpcja);
     }
     if (this.absorpcja === 14) {
-      player.life += player.baseLife *  1.3;
+      player.life += player.baseLife * 1.3;
     }
     if (this.absorpcja === 15) {
       player.life += player.baseLife * 1.5;
