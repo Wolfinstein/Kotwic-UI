@@ -123,6 +123,7 @@ export class Evolution {
   }
   private pancerzLifePct(level: number): number {
     if (level <= 3) return 0.00;
+    if (level == 4) return 0.10;
     if (level <= 8) return 0.15;
     if (level === 9) return 0.25;
     return 0.30;
