@@ -301,11 +301,13 @@ export class CharacterInputComponent implements OnInit {
   huntBonuses = ['Juggernaut', 'Ronin', 'Adrenalina', 'SokoleOko', 'Rzeźnik'];
   dailyBonuses = ['Brak', 'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień poszukiwaczy', 'Dzień Vlada', 'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina', 'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you', 'Dzień Przemiany', 'Dzień poszukiwaczy', 'Świąteczna wizja Kaina (deluxe)', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami', 'Pierwszy gol', 'Pierwszy serwis', 'Szczęście Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden'];
   oneTimeBonuses = ['Brak', 'Krew wilka', 'Jabłko żelaznego drzewa', 'Płetwa rekina', 'Eliksir zmysłów', 'Święcona woda', 'Łza feniksa', 'Magiczna pieczęć', 'Serce nietoperza', 'Kwiat lotosu', 'Jad Wielkopchły', 'Serum oświecenia', 'Wywar z czarnego kota', 'Węgiel', 'Sierść kreta', 'Saletra', 'Sok z żuka', 'Esencja młodości', 'Paznokieć trolla', 'Wilcza jagoda', 'Oko kota', 'Absynt', 'Łuski salamandry', 'Woda źródlana', 'Kość męczennika', 'Napój miłosny', 'Jad skorpiona', 'Korzeń mandragory', 'Gwiezdny pył', 'Fiolka kwasu', 'Siarka', 'Czarny diament', 'Oko topielca', 'Boska łza', 'Ząb ghula', 'Wywar z koralowca', 'Serce proroka', 'Pazur bazyliszka', 'Łuski demona', 'Skrzydła chrząszcza', 'Maska gargulca', 'Sok z modliszki', 'Oddech smoka', 'Ząb wiedźmy', 'Grimoire', 'Czarna żółć', 'Palec kowala', 'Kwiat bzu', 'Ogień z serca ziemi'];
-  expandedBonuses: { [key: string]: boolean } = {
+  private static readonly EXPANDED_STORAGE_KEY = 'expandedBonuses';
+  private static readonly EXPANDED_DEFAULTS: { [key: string]: boolean } = {
     silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false,
     trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: false, ewolucje: true,
     przeciwnik: true, inne: false, budynki: false,
   };
+  expandedBonuses: { [key: string]: boolean } = { ...CharacterInputComponent.EXPANDED_DEFAULTS };
   issues = [
     'brak liczenia punktow krwi punkty krwi',
     'testowanie na waskim zakresie lv'
@@ -371,6 +373,12 @@ export class CharacterInputComponent implements OnInit {
     };
   }
   ngOnInit() {
+    try {
+      const saved = localStorage.getItem(CharacterInputComponent.EXPANDED_STORAGE_KEY);
+      if (saved) {
+        this.expandedBonuses = { ...CharacterInputComponent.EXPANDED_DEFAULTS, ...JSON.parse(saved) };
+      }
+    } catch { }
     this.characterService.getCharacter$().subscribe(char => {
       this.character = char;
       if (char) {
@@ -777,6 +785,7 @@ export class CharacterInputComponent implements OnInit {
   }
   toggleBonusExpand(bonusType: string) {
     this.expandedBonuses[bonusType] = !this.expandedBonuses[bonusType];
+    localStorage.setItem(CharacterInputComponent.EXPANDED_STORAGE_KEY, JSON.stringify(this.expandedBonuses));
   }
   toggleBonusSelection(bonusType: string, bonus: string, isSingleSelect = false) {
     if (bonusType === 'hunt') {
