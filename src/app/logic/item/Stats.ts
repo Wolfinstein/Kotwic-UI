@@ -64,6 +64,7 @@ export class Stats {
   regen: number = 0;
   regenFlat: number = 0;
   additionalIni: number = 0;
+  halvedRegen: boolean = false;
   setAllDps(dps: number): void {
     this.minDpsDystans1h += dps;
     this.maxDpsDystans1h += dps;
@@ -155,6 +156,11 @@ export class Stats {
     this.atakiDystans2h += ataki;
     this.atakiPalna += ataki;
   }
+
+  setHalvedRegen(b: boolean): void {
+    this.halvedRegen = b;
+  }
+
   /** Merges weapon-agnostic stats only (attributes, defence, trafienie). Used when combining weapons that share class stats but not damage types. */
   addAgnosticStats(newStats: Stats): this {
     this.sila += newStats.sila;

@@ -910,7 +910,12 @@ export class DashboardService {
         wiedza: player.stats.wiedza
       };
 
-      const regen = Math.floor((player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife)) * player.stats.regen) + player.stats.regenFlat;
+      let regen = Math.floor((player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife)) * player.stats.regen) + player.stats.regenFlat;
+
+      if (p.stats.halvedRegen) {
+        console.log('halved');
+        regen = Math.floor(regen / 2);
+      }
       const cappedRedukcja = Math.min(player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01, 0.30);
       const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
       return {

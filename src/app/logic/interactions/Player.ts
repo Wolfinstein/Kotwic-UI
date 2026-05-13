@@ -211,6 +211,10 @@ export class Player {
     this.stats.setAllCritMulti(value);
   }
 
+  setHalvedRegen(value: boolean): void {
+    this.stats.setHalvedRegen(value);
+  }
+
   resolveNonWeaponItems(playerLvl: Number): void {
     const nonWeapon = this.items.filter(
       (a) =>

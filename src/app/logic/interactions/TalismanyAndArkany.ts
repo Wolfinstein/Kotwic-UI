@@ -409,6 +409,9 @@ export class TalismanyAndArkany {
   private doMajestat(player: Player): Player {
     player.addAllDps(this.aMajestat);
     player.setLife(Math.floor(player.life + player.baseLife * (this.aMajestat * 0.07)));
+    if (this.aMajestat > 0) {
+      player.setHalvedRegen(true);
+    }
     return player;
   }
   private doKocieSciezki(player: Player): Player {
@@ -462,6 +465,9 @@ export class TalismanyAndArkany {
     player.addUnikPalna(0.02 * this.aTchnienie);
     player.addAllTrafienie(-1 * this.aTchnienie);
     player.addAllDps(5 * this.aTchnienie);
+    if (this.aTchnienie > 0) {
+      player.setHalvedRegen(true);
+    }
     return player;
   }
   private doKrewZycia(player: Player): Player {
