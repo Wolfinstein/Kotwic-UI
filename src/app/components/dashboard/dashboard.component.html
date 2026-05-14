@@ -11,8 +11,8 @@
           <span class="attr-value">{{ dashboardValues?.punktyZycia | number:'1.0-2' }}</span>
         </div>
         <div class="attr-item">
-          <span class="attr-label">Punkty krwi</span>
-          <span class="attr-value">{{ dashboardValues?.punktyKrwi | number:'1.0-2' }}</span>
+          <span class="attr-label">Regeneracja</span>
+          <span class="attr-value">{{ dashboardValues?.regeneracja | number:'1.0-2' }}</span>
         </div>
       </div>
     </div>
@@ -36,7 +36,7 @@
         </div>
       </div>
     </div>
-    <!-- Evasion Stats Section -->
+    <!-- Unik & Trafienie Section -->
     <div class="attr-section">
       <div class="attr-section-header evasion-header">
         <span class="section-icon">↔</span>
@@ -54,14 +54,6 @@
           <span class="attr-label">Unik Dystans</span>
           <span class="attr-value">{{ dashboardValues?.unikDystans | number:'1.0-2'}}</span>
         </div>
-      </div>
-    </div>
-    <!-- Trafienie Stats Section -->
-    <div class="attr-section">
-      <div class="attr-section-header hit-header">
-        <span class="section-icon">⊕</span>
-      </div>
-      <div class="attr-grid attr-grid--3col">
         <div class="attr-item">
           <span class="attr-label">Trafienie Biała</span>
           <span class="attr-value">{{ dashboardValues?.trafienieDodatkoweBiala | number:'1.0-2' }}</span>
@@ -81,7 +73,7 @@
       <div class="attr-section-header combat-stats-header">
         <span class="section-icon">⚔</span>
       </div>
-      <div class="attr-grid attr-grid--3col">
+      <div class="attr-grid attr-grid--2col">
         <div class="attr-item">
           <span class="attr-label">Szczescie</span>
           <span class="attr-value">{{ dashboardValues?.szczescie | number:'1.0-2' }}</span>
@@ -89,10 +81,6 @@
         <div class="attr-item">
           <span class="attr-label">Inicjatywa</span>
           <span class="attr-value">{{ dashboardValues?.inicjatywa | number:'1.0-2' }}</span>
-        </div>
-        <div class="attr-item">
-          <span class="attr-label">Regeneracja</span>
-          <span class="attr-value">{{ dashboardValues?.regeneracja | number:'1.0-2' }}</span>
         </div>
       </div>
     </div>
@@ -159,23 +147,23 @@
         <div class="combat-values">
           <div class="value-badge">
             <div>{{ weapon.iloscAtakow }}</div>
-            <span class="sub-text">Ataki</span>
+            <span class="sub-text">ataki</span>
           </div>
           <div class="value-badge" *ngIf="weapon.critChance !== undefined">
-            <div>{{ weapon.critChance | number:'1.1-2' }}</div>
-            <span class="sub-text">Kryt. szansa</span>
+            <div>{{ weapon.critChance * 100 | number:'1.1-1' }}%</div>
+            <span class="sub-text">crit chance</span>
           </div>
           <div class="value-badge" *ngIf="weapon.critMulti !== undefined">
-            <div>×{{ weapon.critMulti | number:'1.0-2' }}</div>
-            <span class="sub-text">Kryt. mnożnik</span>
+            <div>{{ weapon.critMulti * 100 | number:'1.1-1' }}%</div>
+            <span class="sub-text">crit multi</span>
           </div>
           <div class="value-badge " *ngIf="weapon.trafienieProcentowe !== undefined">
             <div>{{ weapon.trafienieProcentowe | number:'1.0-2' }}</div>
-            <span class="sub-text">Mnoznik %</span>
+            <span class="sub-text">trafienie %</span>
           </div>
           <div class="value-badge " *ngIf="weapon.trafienie !== undefined">
             <div>{{ weapon.trafienie | number:'1.0-2' }}</div>
-            <span class="sub-text">Sumaryczny zasięg</span>
+            <span class="sub-text">zasięg</span>
           </div>
           <div class="value-badge" *ngIf="weapon.ignore !== undefined">
             <div>{{ weapon.ignore | number:'1.0-2' }}</div>
@@ -183,7 +171,7 @@
           </div>
         </div>
         <div class="average-dps" *ngIf="weapon.obrazeniaNaRundeAvg !== undefined">
-          <span class="modifier">⚔ Śr. obrażenia/rundę: {{ weapon.obrazeniaNaRundeAvg | number:'1.1-1' }}</span>
+          <span class="modifier">⚔ Śr. obrażenia/rundę: {{ floor(weapon.obrazeniaNaRundeAvg) | number:'1.0-0' }}</span>
           <span class="modifier" *ngIf="weapon.estimatedHitChance !== undefined">🎯 Szansa trafienia: {{ weapon.estimatedHitChance * 100 | number:'1.1-1' }}%</span>
         </div>
       </div>
@@ -191,13 +179,9 @@
   </div>
   <!-- ZIZ AVERAGE ROUNDS -->
   <div class="attributes-display" *ngIf="dashboardValues?.zizAverageRounds?.length">
-    <h3>Śr. Rundy ZiZ</h3>
-    <div class="ziz-rounds-list">
-      <div *ngFor="let val of dashboardValues?.zizAverageRounds; let i = index" class="ziz-round-row">
-        <span class="ziz-round-label">R{{ i + 1 }}</span>
-        <span class="ziz-round-value">{{ val }}</span>
-        <span class="ziz-growth">{{ zizGrowth(i) }}</span>
-      </div>
+    <h3>ZIZ</h3>
+    <div class="ziz-chart-wrapper">
+      <p-chart type="line" [data]="zizChartData" [options]="zizChartOptions" />
     </div>
     <div class="ziz-round-row ziz-round-total">
       <span class="ziz-round-label">Suma</span>

@@ -196,12 +196,12 @@ h4 {
   background: var(--accent-hi);
   border: 1px solid var(--color-accent);
   color: var(--value-color);
-  padding: 6px 12px;
+  padding: 3px 12px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 700;
   text-align: center;
-  min-width: 40px;
+  flex: 1 1 0;
   transition: all 0.2s ease;
 }
 
@@ -299,9 +299,9 @@ h4 {
 
 
 .average-dps {
-  background: rgba(255, 152, 0, 0.08);
-  border-left: 3px solid #ff9800;
-  padding-left: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
   margin-top: 6px;
 }
 
@@ -313,6 +313,24 @@ h4 {
   border-left: 2px solid #ff9800;
   border-radius: 0;
   font-style: italic;
+  text-align: center;
+}
+
+.modifier:last-child {
+  border-right: 2px solid #ff9800;
+}
+
+.ziz-chart-wrapper {
+  height: 220px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.ziz-chart-wrapper p-chart,
+.ziz-chart-wrapper canvas {
+  width: 100% !important;
+  height: 190px !important;
 }
 
 .ziz-rounds-list {

@@ -306,7 +306,6 @@ export class CharacterInputComponent implements OnInit {
   private static readonly THEMES = [
     { id: 'klasyczny', label: 'Klasyczny' },
     { id: 'nanorobot', label: 'Nanorobot' },
-    { id: 'inny', label: 'Inny' },
   ];
   currentThemeLabel = 'Klasyczny';
   private static readonly EXPANDED_DEFAULTS: { [key: string]: boolean } = {
