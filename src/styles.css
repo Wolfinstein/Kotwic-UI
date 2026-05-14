@@ -22,7 +22,30 @@
   --input-active-border: #8aa5c7;
   --section-line:     #6A87AB;
   --section-icon:     #abd2ff;
+  --section-title-color: #f6e8ea;
   --label-color:      #abd2ffb7;
+  --value-color:      #f6e8ea;
+  --tooltip-bg:       #5F2E2F;
+}
+
+[data-theme="inny"] {
+  --bg-main:          #0a0a0a;
+  --bg-panel:         #141414;
+  --bg-deep:          #000000;
+  --bg-hover:         #222222;
+  --color-text:       #ffffff;
+  --color-accent:     #888888;
+  --accent-low:       rgba(255, 255, 255, 0.04);
+  --accent-mid:       rgba(255, 255, 255, 0.06);
+  --accent-hi:        rgba(255, 255, 255, 0.10);
+  --input-active-bg:  rgba(255, 255, 255, 0.07);
+  --input-active-border: #cccccc;
+  --section-line:     #444444;
+  --section-icon:     #ffffff;
+  --section-title-color: #ffffff;
+  --label-color:      #777777;
+  --value-color:      #ffffff;
+  --tooltip-bg:       #1a1a1a;
 }
 
 [data-theme="nanorobot"] {
@@ -30,8 +53,8 @@
   --bg-panel:         #281600;
   --bg-deep:          #120000;
   --bg-hover:         #222C02;
-  --color-text:       #DDE16A;
-  --color-accent:     #dde16a60;
+  --color-text:       lime;
+  --color-accent:     #804000;
   --accent-low:       rgba(0, 0, 0, 0.253);
   --accent-mid:       rgba(33, 115, 70, 0.08);
   --accent-hi:        rgba(33, 115, 70, 0.15);
@@ -39,7 +62,10 @@
   --input-active-border: #dde16a67;
   --section-line:     #dde16a60;
   --section-icon:     #DDE16A;
+  --section-title-color: #DDE16A;
   --label-color:      #98822F;
+  --value-color:      lime;
+  --tooltip-bg:       #1a0800;
 }
 
 html,
@@ -79,6 +105,16 @@ select {
   font-family: inherit;
   font-size: inherit;
   color: inherit;
+}
+
+label {
+  color: var(--label-color);
+}
+
+input,
+textarea,
+select {
+  color: var(--value-color);
 }
 
 button {
@@ -169,7 +205,7 @@ select:focus-visible {
 }
 
 .p-select-label {
-  color: var(--color-text) !important;
+  color: var(--value-color) !important;
   font-size: 13px !important;
   text-align: center !important;
 }
@@ -190,7 +226,7 @@ select:focus-visible {
 .p-inputnumber-input {
   background: var(--bg-deep) !important;
   border-color: var(--color-accent) !important;
-  color: var(--color-text) !important;
+  color: var(--value-color) !important;
   font-size: 13px !important;
   width: 4vw !important;
   min-width: 80px !important;
@@ -213,7 +249,7 @@ select:focus-visible {
 
 .p-select-option {
   background: transparent !important;
-  color: var(--color-text) !important;
+  color: var(--value-color) !important;
   font-size: 10px !important;
   padding: 6px 10px !important;
 }
@@ -221,7 +257,7 @@ select:focus-visible {
 .p-select-option:hover,
 .p-select-option.p-focus {
   background: var(--bg-hover) !important;
-  color: var(--color-text) !important;
+  color: var(--value-color) !important;
 }
 
 .p-select-option.p-select-option-selected {
@@ -297,6 +333,8 @@ select:focus-visible {
 }
 
 .p-tooltip .p-tooltip-text {
+  background: var(--tooltip-bg) !important;
+  color: var(--color-text) !important;
   font-size: 13px !important;
   line-height: 1.6 !important;
   white-space: pre-wrap !important;

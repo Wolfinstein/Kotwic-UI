@@ -161,12 +161,12 @@ h4 {
 .attr-label {
   font-weight: 600;
   color: var(--label-color);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .attr-value {
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--value-color);
   font-size: 14px;
 }
 
@@ -195,7 +195,7 @@ h4 {
 .value-badge {
   background: var(--accent-hi);
   border: 1px solid var(--color-accent);
-  color: var(--color-text);
+  color: var(--value-color);
   padding: 6px 12px;
   border-radius: 4px;
   font-size: 12px;
@@ -211,7 +211,7 @@ h4 {
 
 .sub-text {
   font-size: 10px;
-  color: var(--color-accent);
+  color: var(--label-color);
   display: block;
   margin-top: 4px;
   font-style: italic;
@@ -236,7 +236,7 @@ h4 {
   padding: 8px;
   background: var(--bg-deep);
   border: 1px solid var(--color-accent);
-  color: var(--color-text);
+  color: var(--value-color);
   border-radius: 4px;
   text-align: center;
 }
@@ -275,7 +275,7 @@ h4 {
 .combat-stats-header,
 .attributes-header {
   border-color: var(--section-line);
-  color: var(--section-icon);
+  color: var(--section-title-color);
 }
 
 /* Weapon Section Enhancement */
@@ -283,11 +283,18 @@ h4 {
   background: rgba(255, 152, 0, 0.08);
   border-left: 3px solid #ff9800;
   padding-left: 8px;
-  color: #ffb74d;
+  color: var(--section-title-color);
 }
 
 .damage-label {
   font-size: 11px;
+  color: var(--label-color);
+}
+
+.combat-section h3,
+.attributes-display h3 {
+  color: var(--section-title-color);
+  margin: 0 0 8px 0;
 }
 
 
@@ -327,12 +334,12 @@ h4 {
 }
 
 .ziz-round-label {
-  color: var(--color-accent);
+  color: var(--label-color);
   font-weight: 600;
 }
 
 .ziz-round-value {
-  color: var(--color-text);
+  color: var(--value-color);
   font-weight: 700;
   text-align: right;
   padding-right: 8px;

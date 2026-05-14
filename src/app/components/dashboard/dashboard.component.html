@@ -143,8 +143,7 @@
   </div>
   <!-- WEAPON DAMAGE -->
   <div class="combat-section" *ngIf="dashboardValues?.obrazenia?.length">
-    <h3>Obrażenia</h3>
-    <div class="combat-row" *ngFor="let weapon of dashboardValues?.obrazenia; let i = index">
+<div class="combat-row" *ngFor="let weapon of dashboardValues?.obrazenia; let i = index">
       <h4 class="weapon-header">⚔ Broń {{ i + 1 }}: {{ weapon.name}}</h4>
       <div class="combat-box">
         <div class="damage-row">

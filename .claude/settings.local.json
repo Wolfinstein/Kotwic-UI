@@ -3,7 +3,10 @@
     "allow": [
       "Bash(cat)",
       "Bash(bash /tmp/check_unused.sh)",
-      "Bash(bash /tmp/check_char_input.sh)"
+      "Bash(bash /tmp/check_char_input.sh)",
+      "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Ola\\\\Desktop\\\\KotwicUI\\\\src\" -Recurse -Include \"*.css\", \"*.scss\")",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(findstr /R /N \"section-title\\\\|section-header\\\\|section-label\\\\|section-icon\\\\|panel-title\\\\|rune-panel-title\\\\|eq-section-label\\\\|attr-section-header\\\\|\\\\..*header\" *.css app\\\\*.css app\\\\components\\\\*\\\\*.css)"
     ]
   }
 }
