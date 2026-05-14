@@ -104,7 +104,7 @@ export class JewelsDictionary {
     suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.CELNOSCI, Stats.builder().zwinnosc(3).build()));
     suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.PRZEBIEGLOSCI, Stats.builder().charyzma(4).wplywy(2).build()));
     suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.SZTUKI, Stats.builder().wplywy(-9).inteligencja(3).szczescie(8).build()));
-    suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.WILKOLAKA, Stats.builder().redukcjaObrazen(0.03).build()));
+    suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.WILKOLAKA, Stats.builder().redukcjaObrazen(0.04).build()));
     suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.SZALENCA, Stats.builder().wplywy(3).wiedza(2).build()));
     suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.KONCENTRACJI, Stats.builder().wiedza(4).inteligencja(4).build()));
     suffixes.push(new Suffix(ItemGenre.NECK, SuffixType.LEWITACJI, Stats.builder().sila(4).zwinnosc(4).build()));
