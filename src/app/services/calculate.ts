@@ -54,8 +54,8 @@ export class DashboardService {
     this.calculateBlaszki(c, player);
     this.calculateRunyZTalkow(c, player);
     player.resolveNonWeaponItems(c.poziom);
-    player.resolveSetBonuses();
     this.calculateEwolucje(c, player);
+    player.resolveSetBonuses();
     this.calculateRasa(c, player);
     this.calculateTalizmanyAndArkany(c, player);
     this.calculateHuntBonuses(c, player);
@@ -404,7 +404,7 @@ export class DashboardService {
           p.addIgnore(0.75);
           break;
         case 'Adrenalina':
-          p.life += p.baseLife * 1.25;
+          p.life += Math.floor(p.baseLife * 0.25);
           break;
         case 'SokoleOko':
           p.addTrafienieProcentowePalna(0.2);
