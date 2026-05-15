@@ -297,10 +297,10 @@ export class Evolution {
       player.baseLife += this.absoBaseLifeBonus(this.absorpcja);
     }
     if (this.absorpcja === 14) {
-      player.life += player.baseLife * 1.3;
+      player.life += player.baseLife * 0.3;
     }
     if (this.absorpcja === 15) {
-      player.life += player.baseLife * 1.5;
+      player.life += player.baseLife * 0.5;
     }
   }
   private absoFlatLife(level: number): number {
