@@ -83,11 +83,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       datasets: [{
         data: rounds,
         growthLabels,
+        backgroundColor: color + '99',
         borderColor: color,
-        backgroundColor: color + '26',
-        pointBackgroundColor: color,
-        tension: 0.3,
-        fill: true
+        borderWidth: 1
       }]
     };
   }
@@ -99,6 +97,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   get zizTotal(): number {
     return (this.dashboardValues?.zizAverageRounds ?? []).reduce((sum, v) => sum + v, 0);
+  }
+
+  get zizTotal5(): number {
+    return (this.dashboardValues?.zizAverageRounds ?? []).slice(0, 5).reduce((sum, v) => sum + v, 0);
   }
 
   zizGrowth(index: number): string {

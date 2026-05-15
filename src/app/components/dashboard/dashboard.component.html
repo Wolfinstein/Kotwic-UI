@@ -176,10 +176,14 @@
   <div class="attributes-display" *ngIf="dashboardValues?.zizAverageRounds?.length">
     <h3>ZIZ</h3>
     <div class="ziz-chart-wrapper">
-      <p-chart type="line" [data]="zizChartData" [options]="zizChartOptions" />
+      <p-chart type="bar" [data]="zizChartData" [options]="zizChartOptions" />
     </div>
     <div class="ziz-round-row ziz-round-total">
-      <span class="ziz-round-label">Suma</span>
+      <span class="ziz-round-label">R1-5</span>
+      <span class="ziz-round-value">{{ zizTotal5 }}</span>
+    </div>
+    <div class="ziz-round-row ziz-round-total">
+      <span class="ziz-round-label">R10</span>
       <span class="ziz-round-value">{{ zizTotal }}</span>
     </div>
   </div>
