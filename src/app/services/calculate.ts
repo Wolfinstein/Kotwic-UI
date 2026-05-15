@@ -404,7 +404,7 @@ export class DashboardService {
           p.addIgnore(0.75);
           break;
         case 'Adrenalina':
-          p.baseLife = p.baseLife * 1.25;
+          p.life += p.baseLife * 1.25;
           break;
         case 'SokoleOko':
           p.addTrafienieProcentowePalna(0.2);
