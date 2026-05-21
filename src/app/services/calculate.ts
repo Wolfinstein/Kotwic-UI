@@ -355,11 +355,12 @@ export class DashboardService {
     return rasaValue ? (rasaValue as PlayerRasa) : null;
   }
   calculateTalizmanyAndArkany(c: Character, p: Player): void {
+    console.log(c);
     try {
       const talizmanyArkany = TalismanyAndArkany.builder()
         .aMajestat(c.arcaneLevels?.majestat ?? 0)
-        .aMaskaOff(c.arcaneLevels?.maskaAdnisa ?? 0)
-        .aMaskaDef(c.arcaneLevels?.maskaKaliguli ?? 0)
+        .aMaskaOff(c.arcaneLevels?.maskaKaliguli ?? 0)
+        .aMaskaDef(c.arcaneLevels?.maskaAdnisa ?? 0)
         .aKrewZycia(c.arcaneLevels?.krewZycia ?? 0)
         .aKocieSciezki(c.arcaneLevels?.kocieSciezki ?? 0)
         .aZar(c.arcaneLevels?.zarKrwi ? 1 : 0)
