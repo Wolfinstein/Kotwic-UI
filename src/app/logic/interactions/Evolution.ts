@@ -87,8 +87,8 @@ export class Evolution {
     if (this.wzmocnioneSciegna >= 5) {
       player.addBonus(this.bonus(this.sciegnaBonusTier(this.wzmocnioneSciegna), 100, MultiplicativeBonusType.SCIEGNA));
     }
-    if (this.wzmocnioneSciegna >= 11) {
-      player.addCritMulti(this.wzmocnioneSciegna === 14 ? 0.25 : 0.4);
+    if (this.wzmocnioneSciegna >= 14) {
+      player.addCritMulti(this.wzmocnioneSciegna === 15 ? 0.40 : 0.25);
     }
   }
   private sciegnaZwinnosc(level: number): number {
