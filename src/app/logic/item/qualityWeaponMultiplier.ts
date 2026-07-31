@@ -2,13 +2,18 @@ import { Stats } from './Stats';
 import { ItemGenre } from './constants';
 import { ItemRarity } from './constants/itemRarity';
 import { WeaponStats } from './WeaponStats';
-import { LEGENDARY_BONUS, getQualityMultiplier, isLegendary, getEpicMultiplier, scaleValue } from './qualityMultiplierUtils';
+import { LEGENDARY_BONUS, getQualityMultiplier, isLegendary, isEpicTier, getEpicMultiplier, scaleValue } from './qualityMultiplierUtils';
 
 export { getQualityMultiplier } from './qualityMultiplierUtils';
 
 
 export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, genre: ItemGenre, playerLvl: number): Stats {
   const result = stats.clone() as WeaponStats;
+
+  // STAROZYTNY: bazowe obrażenia ×2 (jednoręczne) / ×3 (dwuręczne) — mnożone PO skalowaniu rzadkości.
+  const twoHanded = genre == ItemGenre.WHITE_2H || genre == ItemGenre.GUN_2H || genre == ItemGenre.RANGE_2H;
+  const bazaMult = rarity === ItemRarity.STAROZYTNY ? (twoHanded ? 3 : 2) : 1;
+  const bazaDps = (value: number): number => calcValue(value, rarity) * bazaMult;
 
   if (genre == ItemGenre.GUN_1H || genre == ItemGenre.GUN_2H) {
     result.spostrzegawczosc = calcValue(result.spostrzegawczosc, rarity);
@@ -24,14 +29,14 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
     result.ignoreObrony += calcValue(result.ignore, rarity);
 
     if (genre == ItemGenre.GUN_1H) {
-      result.minDpsPalna1h = calcValue(result.bazaDpsMin, rarity);
-      result.maxDpsPalna1h = calcValue(result.bazaDpsMax, rarity);
+      result.minDpsPalna1h = bazaDps(result.bazaDpsMin);
+      result.maxDpsPalna1h = bazaDps(result.bazaDpsMax);
       result.critMultiPalna1h += calcValue(result.critMulti, rarity);
       result.setAllCritChance(calcValue(result.critChanceGlobal, rarity)); /// TODO fix for one melee one gun
       result.critChancePalna1h += calcValue(result.critChance, rarity);
     } else {
-      result.minDpsPalna2h = calcValue(result.bazaDpsMin, rarity) + (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
-      result.maxDpsPalna2h = calcValue(result.bazaDpsMax, rarity) + (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
+      result.minDpsPalna2h = bazaDps(result.bazaDpsMin) + (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
+      result.maxDpsPalna2h = bazaDps(result.bazaDpsMax) + (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
       result.critMultiPalna2h += calcValue(result.critMulti, rarity);
       result.critChancePalna2h += calcValue(result.critChance, rarity);
     }
@@ -53,8 +58,8 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
     if (genre == ItemGenre.RANGE_1H) {
       result.atakiDystans1h += calcValue(result.atakiNaRunde, rarity);
       result.atakiDystans1h += calcValue(result.atakiVsPotwory, rarity);
-      result.minDpsDystans1h = calcValue(result.bazaDpsMin, rarity);
-      result.maxDpsDystans1h = calcValue(result.bazaDpsMax, rarity);
+      result.minDpsDystans1h = bazaDps(result.bazaDpsMin);
+      result.maxDpsDystans1h = bazaDps(result.bazaDpsMax);
       result.minDpsDystans1h += calcValue(result.dpsVsPotwory, rarity);
       result.maxDpsDystans1h += calcValue(result.dpsVsPotwory, rarity);
       result.critMultiDystans1h += calcValue(result.critMulti, rarity);
@@ -64,8 +69,8 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
     } else {
       result.atakiDystans2h += calcValue(result.atakiNaRunde, rarity);
       result.atakiDystans2h += calcValue(result.atakiVsPotwory, rarity);
-      result.minDpsDystans2h = calcValue(result.bazaDpsMin, rarity);
-      result.maxDpsDystans2h = calcValue(result.bazaDpsMax, rarity);
+      result.minDpsDystans2h = bazaDps(result.bazaDpsMin);
+      result.maxDpsDystans2h = bazaDps(result.bazaDpsMax);
       result.minDpsDystans2h += calcValue(result.dpsVsPotwory, rarity);
       result.maxDpsDystans2h += calcValue(result.dpsVsPotwory, rarity);
       result.critMultiDystans2h += calcValue(result.critMulti, rarity);
@@ -102,8 +107,8 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
       result.setAllDps(calcValue(result.dpsAll, rarity));
       result.critChanceBiala1h = calcValue(result.critChanceVsPotwory, rarity);
       result.critChanceBiala1h += calcValue(result.critChance, rarity);
-      result.minDpsBiala1h = calcValue(result.bazaDpsMin, rarity);
-      result.maxDpsBiala1h = calcValue(result.bazaDpsMax, rarity);
+      result.minDpsBiala1h = bazaDps(result.bazaDpsMin);
+      result.maxDpsBiala1h = bazaDps(result.bazaDpsMax);
       result.minDpsBiala1h += calcValue(result.dpsVsPotwory, rarity);
       result.maxDpsBiala1h += calcValue(result.dpsVsPotwory, rarity);
       result.critMultiBiala1h += calcValue(result.critMulti, rarity);
@@ -116,8 +121,8 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
     } else {
       result.critChanceBiala2h = calcValue(result.critChanceVsPotwory, rarity);
       result.critChanceBiala2h += calcValue(result.critChance, rarity);
-      result.minDpsBiala2h = calcValue(result.bazaDpsMin, rarity);
-      result.maxDpsBiala2h = calcValue(result.bazaDpsMax, rarity);
+      result.minDpsBiala2h = bazaDps(result.bazaDpsMin);
+      result.maxDpsBiala2h = bazaDps(result.bazaDpsMax);
       result.minDpsBiala2h += calcValue(result.dpsVsPotwory, rarity);
       result.maxDpsBiala2h += calcValue(result.dpsVsPotwory, rarity);
       result.critMultiBiala2h += calcValue(result.critMulti, rarity);
@@ -128,12 +133,13 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
       result.maxDpsBiala2h += (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
     }
   }
+
   return result as Stats;
 }
 
 function calcValue(value: number, rarity: ItemRarity): number {
   const qualityMult = getQualityMultiplier(rarity);
-  const isEpic = rarity === ItemRarity.EPICKI;
+  const isEpic = isEpicTier(rarity);
   const epicMult = getEpicMultiplier(rarity);
   const isLeg = isLegendary(rarity);
   const legendaryBonus = LEGENDARY_BONUS;

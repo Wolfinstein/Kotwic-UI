@@ -331,6 +331,7 @@ label {
 [data-rarity="ZWYKLY"], [data-rarity="DOBRY"], [data-rarity="DOSKONALY"] { background: #444; color: #ccc; }
 [data-rarity="LEGENDARNY"], [data-rarity="LEGENDARNY_DOBRY"], [data-rarity="LEGENDARNY_DOSKONALY"] { background: #3a1a4a; color: #c97ef5; }
 [data-rarity="EPICKI"] { background: #4a2d10; color: #f5a623; }
+[data-rarity="STAROZYTNY"] { background: #0d3a3a; color: #35e0d0; }
 
 .column-bottom-section { flex-shrink: 0; }
 
@@ -462,6 +463,7 @@ label {
 .eq-preview-name[data-rarity="ZWYKLY"], .eq-preview-name[data-rarity="DOBRY"], .eq-preview-name[data-rarity="DOSKONALY"] { color: #ddd0d2; }
 .eq-preview-name[data-rarity="LEGENDARNY"], .eq-preview-name[data-rarity="LEGENDARNY_DOBRY"], .eq-preview-name[data-rarity="LEGENDARNY_DOSKONALY"] { color: #c97ef5; }
 .eq-preview-name[data-rarity="EPICKI"] { color: #f5a623; }
+.eq-preview-name[data-rarity="STAROZYTNY"] { color: #35e0d0; }
 .eq-preview-placeholder { font-size: 10px; color: var(--color-accent); font-style: italic; }
 
 .eq-section { flex-shrink: 0; margin-bottom: 12px; }
@@ -496,6 +498,7 @@ label {
 .eq-rarity-btn[data-rarity="ZWYKLY"], .eq-rarity-btn[data-rarity="DOBRY"], .eq-rarity-btn[data-rarity="DOSKONALY"] { border-color: #555; color: #aaa; }
 .eq-rarity-btn[data-rarity="LEGENDARNY"], .eq-rarity-btn[data-rarity="LEGENDARNY_DOBRY"], .eq-rarity-btn[data-rarity="LEGENDARNY_DOSKONALY"] { border-color: #6b3090; color: #c97ef5; }
 .eq-rarity-btn[data-rarity="EPICKI"] { border-color: #8a5000; color: #f5a623; }
+.eq-rarity-btn[data-rarity="STAROZYTNY"] { border-color: #1a7a72; color: #35e0d0; }
 
 .eq-rarity-btn.eq-rarity-selected[data-rarity="ZWYKLY"],
 .eq-rarity-btn.eq-rarity-selected[data-rarity="DOBRY"],
@@ -504,6 +507,7 @@ label {
 .eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOBRY"],
 .eq-rarity-btn.eq-rarity-selected[data-rarity="LEGENDARNY_DOSKONALY"] { background: #3a1a4a; color: #c97ef5; border-color: #fff; }
 .eq-rarity-btn.eq-rarity-selected[data-rarity="EPICKI"] { background: #4a2d10; color: #f5a623; border-color: #fff; }
+.eq-rarity-btn.eq-rarity-selected[data-rarity="STAROZYTNY"] { background: #0d3a3a; color: #35e0d0; border-color: #fff; }
 .eq-rarity-btn:hover:not(.eq-rarity-selected) { background: var(--bg-hover); }
 
 .eq-base-grid { display: flex; flex-wrap: wrap; gap: 5px; }

@@ -359,7 +359,7 @@ export class DashboardService {
       const talizmanyArkany = TalismanyAndArkany.builder()
         .aMajestat(c.arcaneLevels?.majestat ?? 0)
         .aMaskaOff(c.arcaneLevels?.maskaKaliguli ?? 0)
-        .aMaskaDef(c.arcaneLevels?.maskaAdnisa ?? 0)
+        .aMaskaDef(c.arcaneLevels?.maskaAdonisa ?? 0)
         .aKrewZycia(c.arcaneLevels?.krewZycia ?? 0)
         .aKocieSciezki(c.arcaneLevels?.kocieSciezki ?? 0)
         .aZar(c.arcaneLevels?.zarKrwi ? 1 : 0)

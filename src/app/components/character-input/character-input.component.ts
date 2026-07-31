@@ -13,7 +13,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { CharacterService } from '../../services/character.service';
 import { Character, EquipmentItem } from '../../models/character';
 import { WeaponDictionary, ArmourDictionary, JewelsDictionary, BaseDictionary } from '../../logic/dictionaries';
-import { ItemGenre, PrefixType, SuffixType, ItemType, ItemRarity, Stats } from '../../logic/item';
+import { ItemGenre, PrefixType, SuffixType, ItemType, ItemRarity, Stats, Base } from '../../logic/item';
 import { WeaponStats } from '../../logic/item/WeaponStats';
 import { applyQualityMultiplier } from '../../logic/item/qualityMultiplier';
 import { applyQualityWeaponMultiplier } from '../../logic/item/qualityWeaponMultiplier';
@@ -28,7 +28,7 @@ export interface BaseItemDef {
   hasPrefix: boolean;
   hasSuffix: boolean;
 }
-export const RARITIES = ['ZWYKLY', 'DOBRY', 'DOSKONALY', 'LEGENDARNY', 'LEGENDARNY_DOBRY', 'LEGENDARNY_DOSKONALY', 'EPICKI'] as const;
+export const RARITIES = ['ZWYKLY', 'DOBRY', 'DOSKONALY', 'LEGENDARNY', 'LEGENDARNY_DOBRY', 'LEGENDARNY_DOSKONALY', 'EPICKI', 'STAROZYTNY'] as const;
 export const BASE_ITEMS: BaseItemDef[] = [
   { name: 'Czapka', category: 'head', hasPrefix: true, hasSuffix: true },
   { name: 'Kask', category: 'head', hasPrefix: true, hasSuffix: true },
@@ -490,8 +490,9 @@ export class CharacterInputComponent implements OnInit {
       const genre = this.getGenreForItemType(itemType);
       const isWeapon = [ItemGenre.RANGE_1H, ItemGenre.RANGE_2H, ItemGenre.WHITE_1H, ItemGenre.WHITE_2H, ItemGenre.GUN_1H, ItemGenre.GUN_2H].includes(genre);
       let combinedStats: Stats = isWeapon ? new WeaponStats() : new Stats();
+      let base: Base | undefined;
       try {
-        const base = BaseDictionary.getBase(genre, itemType);
+        base = BaseDictionary.getBase(genre, itemType);
         if (isWeapon) {
           (combinedStats as WeaponStats).addWeaponStats(base.stats as WeaponStats);
         } else {
@@ -559,7 +560,7 @@ export class CharacterInputComponent implements OnInit {
         const multipliedStats = applyQualityWeaponMultiplier(combinedStats, rarity, genre, playerLvl);
         return JSON.stringify(this.extractStats(multipliedStats), null, 2);
       } else {
-        const multipliedStats = applyQualityMultiplier(combinedStats, rarity, playerLvl);
+        const multipliedStats = applyQualityMultiplier(combinedStats, rarity, playerLvl, base);
         return JSON.stringify(this.extractStats(multipliedStats), null, 2);
       }
     } catch (error) {

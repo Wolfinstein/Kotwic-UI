@@ -101,7 +101,7 @@ export class CharacterService {
         ziz: 0
       },
       arcaneLevels: {
-        maskaAdnisa: 0,
+        maskaAdonisa: 0,
         maskaKaliguli: 0,
         majestat: 0,
         krewZycia: 0,

@@ -30,7 +30,7 @@ export interface TalizmanLevels {
     ziz: number;
 }
 export interface ArcaneLevels {
-    maskaAdnisa: number,
+    maskaAdonisa: number,
     maskaKaliguli: number,
     majestat: number,
     krewZycia: number,
@@ -62,7 +62,7 @@ export interface Evolutions {
     pietnoDemona: number,
     wzmocnioneMiesnie: number
 }
-export type ItemRarity = 'ZWYKLY' | 'DOBRY' | 'DOSKONALY' | 'LEGENDARNY' | 'LEGENDARNY_DOBRY' | 'LEGENDARNY_DOSKONALY' | 'EPICKI';
+export type ItemRarity = 'ZWYKLY' | 'DOBRY' | 'DOSKONALY' | 'LEGENDARNY' | 'LEGENDARNY_DOBRY' | 'LEGENDARNY_DOSKONALY' | 'EPICKI' | 'STAROZYTNY';
 export interface EquipmentItem {
     rarity: ItemRarity | null;
     prefix: string | null;

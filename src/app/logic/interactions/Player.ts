@@ -1,4 +1,4 @@
-import { Item, Stats, SetType } from '../item';
+import { Item, Stats, SetType, ItemRarity } from '../item';
 import { MultiplicativeBonus, MultiplicativeBonusType } from './MultiplicativeBonus';
 import { ItemGenre } from '../item/constants/itemGenre';
 import { SetsDictionary } from '../dictionaries/SetsDictionary';
@@ -240,7 +240,7 @@ export class Player {
       if (a.prefix) temp.addStats(a.prefix.stats);
       if (a.suffix) temp.addStats(a.suffix.stats);
 
-      const multipliedStats = applyQualityMultiplier(temp, a.getRarity(), playerLvl.valueOf());
+      const multipliedStats = applyQualityMultiplier(temp, a.getRarity(), playerLvl.valueOf(), a.base);
       itemStats.addStats(multipliedStats);
 
     }
@@ -310,7 +310,8 @@ export class Player {
       'LEGENDARNY',
       'LEGENDARNY_DOBRY',
       'LEGENDARNY_DOSKONALY',
-      'EPICKI'
+      'EPICKI',
+      'STAROZYTNY'
     ];
     for (const [prefixType, items] of prefixTypeMap.entries()) {
       if (items.length < 3) {
@@ -331,7 +332,9 @@ export class Player {
         }
       }
       try {
-        const set = getSetFn(setType, minRarity);
+        // Sety nie mają osobnego wariantu STAROZYTNY — użyj bonusu setowego jak dla EPICKI.
+        const setRarity = (minRarity as string) === 'STAROZYTNY' ? ItemRarity.EPICKI : minRarity;
+        const set = getSetFn(setType, setRarity);
         if (set) {
           this.stats.addStats(set.stats);
           if (set.bonusList && set.bonusList.length > 0) {

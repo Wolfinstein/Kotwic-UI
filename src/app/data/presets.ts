@@ -34,7 +34,7 @@ export const CHARACTER_PRESETS: CharacterPreset[] = [
         maskaWladzy: 0, maskaStachu: 0, cichyLowca: 0, piesnKrwi: 0, ziz: 4,
       },
       arcaneLevels: {
-        maskaAdnisa: 0, maskaKaliguli: 0, majestat: 0, krewZycia: 0,
+        maskaAdonisa: 0, maskaKaliguli: 0, majestat: 0, krewZycia: 0,
         kocieSciezki: 0, zarKrwi: false, ciszaKrwi: 0, wyssanieMocy: 0,
         mocKrwi: 0, dzikiSzal: 0, skoraBestii: 56, cienBestii: false,
         nocnyLowca: 0, tchnienieSmierci: 60, groza: true,
@@ -108,7 +108,7 @@ export const CHARACTER_PRESETS: CharacterPreset[] = [
         maskaWladzy: 0, maskaStachu: 0, cichyLowca: 0, piesnKrwi: 0, ziz: 4,
       },
       arcaneLevels: {
-        maskaAdnisa: 0, maskaKaliguli: 0, majestat: 0, krewZycia: 0,
+        maskaAdonisa: 0, maskaKaliguli: 0, majestat: 0, krewZycia: 0,
         kocieSciezki: 0, zarKrwi: false, ciszaKrwi: 0, wyssanieMocy: 0,
         mocKrwi: 0, dzikiSzal: 0, skoraBestii: 56, cienBestii: false,
         nocnyLowca: 0, tchnienieSmierci: 60, groza: true,
@@ -196,7 +196,7 @@ export const CHARACTER_PRESETS: CharacterPreset[] = [
         "ziz": 4
       },
       "arcaneLevels": {
-        "maskaAdnisa": 0,
+        "maskaAdonisa": 0,
         "maskaKaliguli": 0,
         "majestat": 0,
         "krewZycia": 150,

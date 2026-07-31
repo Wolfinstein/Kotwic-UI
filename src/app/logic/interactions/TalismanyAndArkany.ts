@@ -303,21 +303,21 @@ export class TalismanyAndArkany {
   private doAura(player: Player): Player {
     switch (this.aura) {
       case 1:
-        player.setLife(player.life + this.aSkora * 5);
-        player.addIgnore(0.0015 * this.aSkora);
+        player.addBaseLife(this.aSkora * 5);
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0015 * this.aSkora, 0.15));
         break;
       case 2:
-        player.setLife(player.life + this.aSkora * 10);
-        player.addIgnore(0.0020 * this.aSkora);
+        player.addBaseLife(this.aSkora * 10);
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.002 * this.aSkora, 0.15));
         break;
       case 3:
-        player.setLife(player.life + this.aSkora * 20);
-        player.addIgnore(0.0025 * this.aSkora);
+        player.addBaseLife(this.aSkora * 20);
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0025 * this.aSkora, 0.15));
         break;
       case 4:
-        player.setLife(player.life + this.aSkora * 30);
-        player.setLife(player.life + this.aSkora * 10);
-        player.addIgnore(0.0035 * this.aSkora);
+        player.addBaseLife(this.aSkora * 30);
+        player.addBaseLife(this.aSkora * 10);
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0035 * this.aSkora, 0.15));
         break;
       default:
         break;
@@ -350,16 +350,16 @@ export class TalismanyAndArkany {
   private doMaskaDef(player: Player): Player {
     switch (this.maskaWladzy) {
       case 1:
-        player.setLife(player.life + this.aMaskaDef * 5);
+        player.addBaseLife(this.aMaskaDef * 5);
         break;
       case 2:
-        player.setLife(player.life + this.aMaskaDef * 10);
+        player.addBaseLife(this.aMaskaDef * 10);
         break;
       case 3:
-        player.setLife(player.life + this.aMaskaDef * 20);
+        player.addBaseLife(this.aMaskaDef * 20);
         break;
       case 4:
-        player.setLife(player.life + this.aMaskaDef * 30);
+        player.addBaseLife(this.aMaskaDef * 30);
         break;
       default:
         break;
