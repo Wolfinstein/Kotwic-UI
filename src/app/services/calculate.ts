@@ -1225,7 +1225,7 @@ export class DashboardService {
       let finalCritChance = critChance;
 
       if ((player.stats.szczescie - player.szczesciePrzeciwnika) >= 5) {
-        finalCritChance += toDecimal(Math.floor((player.stats.szczescie - player.szczesciePrzeciwnika) / 5))
+        finalCritChance += Math.min(toDecimal(Math.floor((player.stats.szczescie - player.szczesciePrzeciwnika) / 5)), 0.2)
       }
 
       if (finalCritChance > 0.85) {
