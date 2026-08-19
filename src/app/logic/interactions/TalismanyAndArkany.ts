@@ -304,15 +304,15 @@ export class TalismanyAndArkany {
     switch (this.aura) {
       case 1:
         player.addBaseLife(this.aSkora * 5);
-        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0015 * this.aSkora, 0.15));
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0015 * this.aSkora, 0.05));
         break;
       case 2:
         player.addBaseLife(this.aSkora * 10);
-        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.002 * this.aSkora, 0.15));
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.002 * this.aSkora, 0.07));
         break;
       case 3:
         player.addBaseLife(this.aSkora * 20);
-        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0025 * this.aSkora, 0.15));
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0025 * this.aSkora, 0.10));
         break;
       case 4:
         player.addBaseLife(this.aSkora * 30);
