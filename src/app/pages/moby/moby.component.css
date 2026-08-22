@@ -1,0 +1,281 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.moby-view {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+.feature-section {
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  background: var(--bg-panel);
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+}
+
+.feature-section:last-child {
+  margin-bottom: 0;
+}
+
+.exp-header h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--section-title-color);
+}
+
+.exp-header h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--section-title-color);
+}
+
+.exp-header p {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: var(--label-color);
+  line-height: 1.5;
+}
+
+/* ── Select overrides ── */
+:host ::ng-deep p-select .p-select {
+  background: var(--bg-deep) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-text);
+  font-size: 12px;
+  min-height: 28px;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+:host ::ng-deep p-select .p-select-label {
+  font-size: 12px;
+  color: var(--value-color);
+  padding: 5px 8px;
+}
+
+:host ::ng-deep p-select .p-select-dropdown { color: var(--color-accent); }
+:host ::ng-deep .p-select-overlay { background: var(--bg-deep); border-color: var(--color-accent); }
+:host ::ng-deep .p-select-option { color: var(--value-color); font-size: 12px; }
+:host ::ng-deep .p-select-option:hover,
+:host ::ng-deep .p-select-option.p-select-option-selected { background: var(--bg-hover); color: var(--value-color); }
+
+/* ── InputNumber overrides ── */
+:host ::ng-deep p-inputnumber .p-inputtext {
+  width: 100%;
+  min-height: 24px;
+  padding: 3px 6px;
+  font-size: 13px;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  border-radius: 0;
+  text-align: center;
+}
+
+:host ::ng-deep p-inputnumber .p-inputtext:focus {
+  border-color: var(--color-text);
+  background: var(--bg-panel);
+  box-shadow: none;
+}
+
+:host ::ng-deep .p-inputtext.input-active {
+  border-color: var(--input-active-border) !important;
+  background: var(--input-active-bg) !important;
+  color: var(--color-text) !important;
+  font-weight: 700;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button {
+  width: 24px;
+  min-height: 24px;
+  background: var(--accent-hi);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  padding: 0;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button:hover {
+  background: var(--color-accent) !important;
+  color: var(--bg-deep) !important;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button .pi {
+  font-size: 9px;
+}
+
+/* ── Picker row ── */
+.picker-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.picker-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.picker-field label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--label-color);
+}
+
+.mob-table-wrap {
+  background: var(--accent-low);
+  border-radius: 6px;
+  padding: 14px;
+  overflow-x: auto;
+}
+
+.mob-table-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--value-color);
+  margin-bottom: 10px;
+}
+
+.mob-table-hint {
+  font-size: 11px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--label-color);
+}
+
+.mob-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.mob-table th {
+  text-align: right;
+  padding: 6px 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  font-size: 10px;
+  color: var(--section-icon);
+  border-bottom: 1px solid var(--accent-hi);
+}
+
+.mob-table th:first-child {
+  text-align: left;
+}
+
+.mob-table td {
+  text-align: right;
+  padding: 6px 10px;
+  color: var(--label-color);
+  border-bottom: 1px solid var(--accent-hi);
+  font-variant-numeric: tabular-nums;
+}
+
+.mob-table tr:last-child td {
+  border-bottom: none;
+}
+
+.mob-table td.row-label {
+  text-align: left;
+  font-weight: 700;
+  color: var(--value-color);
+}
+
+.mob-table tbody tr:hover td {
+  background: var(--accent-hi);
+}
+
+.mob-table.selectable tbody tr {
+  cursor: pointer;
+}
+
+.mob-table.selectable tbody tr.selected td {
+  background: color-mix(in srgb, var(--bg-hover), var(--color-accent) 25%);
+  color: var(--section-icon);
+}
+
+.mob-table.selectable tbody tr.selected td.row-label {
+  color: var(--section-icon);
+}
+
+.moby-empty {
+  padding: 14px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--label-color);
+  font-style: italic;
+}
+
+/* ── Formula & result ── */
+.formula-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  background: var(--bg-deep);
+  border: 1px solid var(--accent-hi);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--label-color);
+  overflow-x: auto;
+}
+
+.formula-line {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.formula-tag {
+  display: inline-block;
+  min-width: 34px;
+  margin-right: 8px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 3px;
+  background: var(--accent-hi);
+  color: var(--section-icon);
+}
+
+.result-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.result-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--accent-low);
+  border-radius: 6px;
+}
+
+.result-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--label-color);
+}
+
+.result-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--section-icon);
+  font-variant-numeric: tabular-nums;
+}

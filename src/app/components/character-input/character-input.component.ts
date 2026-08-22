@@ -20,6 +20,8 @@ import { applyQualityWeaponMultiplier } from '../../logic/item/qualityWeaponMult
 import { CHARACTER_PRESETS, CharacterPreset } from '../../data/presets';
 import { DashboardService } from '../../services/calculate';
 import { ChartModule } from 'primeng/chart';
+import { ACT_MOBS, STAR_MOBS, ActMob, StarMob, MobStats, StatRange } from '../../data/mobsData';
+import { scaledRangeForStar, formatMobRange } from '../../data/mobStatUtils';
 
 export type SlotCategory = 'head' | 'chest' | 'legs' | 'neck' | 'finger' | 'weapon1h' | 'weapon2h';
 export interface BaseItemDef {
@@ -177,6 +179,28 @@ export class CharacterInputComponent implements OnInit {
   umagiFilter = '';
   selectedUmagiIndex: number | null = null;
 
+  // ── Przeciwnik reference lookup (Moby) — display only, filled in manually ──
+  readonly refMapOptions = [
+    { label: 'M1 — Akt 1-3', value: 'M1' },
+    { label: 'M2 — Gwiazdki', value: 'M2' },
+  ];
+  readonly refActMobOptions = ACT_MOBS.map(m => ({ label: m.name, value: m.name }));
+  readonly refStarMobOptions = STAR_MOBS.map(m => ({ label: m.name, value: m.name }));
+  readonly refStarOptions = Array.from({ length: 12 }, (_, i) => ({ label: `${i + 1}`, value: i + 1 }));
+  readonly refStatDefs: { key: keyof MobStats; label: string }[] = [
+    { key: 'obrona', label: 'Obrona' },
+    { key: 'odpornosc', label: 'Odporność' },
+    { key: 'zwinnosc', label: 'Zwinność' },
+    { key: 'spostrzegawczosc', label: 'Spostrzegawczość' },
+    { key: 'szczescie', label: 'Szczęście' },
+  ];
+
+  refMapMode: 'M1' | 'M2' | null = null;
+  refActMobName: string | null = null;
+  refStarMobName: string | null = null;
+  refAct: number | null = null;
+  refStar: number | null = null;
+
   private treningPresets: Record<string, { maxLevel: number; attrs: Record<string, number> }[]> = {
     biala: [
       { maxLevel: 24, attrs: { sila: 25, zwinnosc: 25, odpornosc: 15, wyglad: 15, charyzma: 15, wplywy: 15, spostrzegawczosc: 20, inteligencja: 17, wiedza: 17 } },
@@ -302,12 +326,6 @@ export class CharacterInputComponent implements OnInit {
   dailyBonuses = ['Brak', 'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień Vlada', 'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina', 'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you', 'Dzień Przemiany', 'Dzień poszukiwaczy', 'Świąteczna wizja Kaina (deluxe)', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami', 'Pierwszy gol', 'Pierwszy serwis', 'Szczęście Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden'];
   oneTimeBonuses = ['Brak', 'Krew wilka', 'Jabłko żelaznego drzewa', 'Płetwa rekina', 'Eliksir zmysłów', 'Święcona woda', 'Łza feniksa', 'Magiczna pieczęć', 'Serce nietoperza', 'Kwiat lotosu', 'Jad Wielkopchły', 'Serum oświecenia', 'Wywar z czarnego kota', 'Węgiel', 'Sierść kreta', 'Saletra', 'Sok z żuka', 'Esencja młodości', 'Paznokieć trolla', 'Wilcza jagoda', 'Oko kota', 'Absynt', 'Łuski salamandry', 'Woda źródlana', 'Kość męczennika', 'Napój miłosny', 'Jad skorpiona', 'Korzeń mandragory', 'Gwiezdny pył', 'Fiolka kwasu', 'Siarka', 'Czarny diament', 'Oko topielca', 'Boska łza', 'Ząb ghula', 'Wywar z koralowca', 'Serce proroka', 'Pazur bazyliszka', 'Łuski demona', 'Skrzydła chrząszcza', 'Maska gargulca', 'Sok z modliszki', 'Oddech smoka', 'Ząb wiedźmy', 'Grimoire', 'Czarna żółć', 'Palec kowala', 'Kwiat bzu', 'Ogień z serca ziemi'];
   private static readonly EXPANDED_STORAGE_KEY = 'expandedBonuses';
-  private static readonly THEME_STORAGE_KEY = 'colorTheme';
-  private static readonly THEMES = [
-    { id: 'klasyczny', label: 'Klasyczny' },
-    { id: 'nanorobot', label: 'Nanorobot' },
-  ];
-  currentThemeLabel = 'Klasyczny';
   private static readonly EXPANDED_DEFAULTS: { [key: string]: boolean } = {
     silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false,
     trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: false, ewolucje: true,
@@ -383,14 +401,6 @@ export class CharacterInputComponent implements OnInit {
       const saved = localStorage.getItem(CharacterInputComponent.EXPANDED_STORAGE_KEY);
       if (saved) {
         this.expandedBonuses = { ...CharacterInputComponent.EXPANDED_DEFAULTS, ...JSON.parse(saved) };
-      }
-    } catch { }
-    try {
-      const savedTheme = localStorage.getItem(CharacterInputComponent.THEME_STORAGE_KEY);
-      const match = CharacterInputComponent.THEMES.find(t => t.id === savedTheme);
-      if (match) {
-        document.documentElement.setAttribute('data-theme', match.id);
-        this.currentThemeLabel = match.label;
       }
     } catch { }
     this.characterService.getCharacter$().subscribe(char => {
@@ -798,15 +808,6 @@ export class CharacterInputComponent implements OnInit {
       URL.revokeObjectURL(url);
     }
   }
-  cycleTheme() {
-    const themes = CharacterInputComponent.THEMES;
-    const current = document.documentElement.getAttribute('data-theme') ?? 'klasyczny';
-    const idx = themes.findIndex(t => t.id === current);
-    const next = themes[(idx + 1) % themes.length];
-    document.documentElement.setAttribute('data-theme', next.id);
-    this.currentThemeLabel = next.label;
-    localStorage.setItem(CharacterInputComponent.THEME_STORAGE_KEY, next.id);
-  }
 
   toggleBonusExpand(bonusType: string) {
     this.expandedBonuses[bonusType] = !this.expandedBonuses[bonusType];
@@ -919,4 +920,58 @@ export class CharacterInputComponent implements OnInit {
     this.showUmagiModal = false;
   }
   getUmagiCount(umagi: string): number { return this.selectedUmagi.filter(u => u === umagi).length; }
+
+  // ── Przeciwnik reference lookup ──
+  onRefMapModeChange(): void {
+    this.refActMobName = null;
+    this.refStarMobName = null;
+    this.refAct = null;
+    this.refStar = null;
+  }
+
+  onRefMobChange(): void {
+    this.refAct = null;
+    this.refStar = null;
+  }
+
+  get refActMob(): ActMob | null {
+    return ACT_MOBS.find(m => m.name === this.refActMobName) ?? null;
+  }
+
+  get refStarMob(): StarMob | null {
+    return STAR_MOBS.find(m => m.name === this.refStarMobName) ?? null;
+  }
+
+  /** Acts the currently picked M1 mob actually has data for. */
+  get refActOptions(): { label: string; value: number }[] {
+    const mob = this.refActMob;
+    if (!mob) return [];
+    return mob.acts
+      .map((a, i) => (a ? { label: `Akt ${i + 1}`, value: i + 1 } : null))
+      .filter((o): o is { label: string; value: number } => o !== null);
+  }
+
+  /** The 5 reference stats for the currently selected mob + act/star, or null if nothing picked yet. */
+  get refStats(): MobStats | null {
+    if (this.refMapMode === 'M1' && this.refActMob && this.refAct) {
+      return this.refActMob.acts[this.refAct - 1] ?? null;
+    }
+    if (this.refMapMode === 'M2' && this.refStarMob && this.refStar) {
+      const star = this.refStar;
+      const mob = this.refStarMob;
+      return {
+        obrona: scaledRangeForStar(mob, 'obrona', star),
+        odpornosc: scaledRangeForStar(mob, 'odpornosc', star),
+        zwinnosc: scaledRangeForStar(mob, 'zwinnosc', star),
+        spostrzegawczosc: scaledRangeForStar(mob, 'spostrzegawczosc', star),
+        szczescie: scaledRangeForStar(mob, 'szczescie', star),
+        zycie: null,
+      };
+    }
+    return null;
+  }
+
+  formatRefRange(r: StatRange | null): string {
+    return formatMobRange(r);
+  }
 }

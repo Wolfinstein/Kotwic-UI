@@ -1,0 +1,82 @@
+<div class="exp-view">
+  <section class="feature-section">
+    <header class="exp-header">
+      <h1>Doświadczenie</h1>
+      <p>Wybierz poziom (1–{{ maxLevel }}), aby zobaczyć wymagane doświadczenie oraz zakres do następnego poziomu.</p>
+    </header>
+
+    <div class="exp-picker">
+      <label for="lvl">Poziom</label>
+      <p-inputNumber inputId="lvl" [(ngModel)]="selectedLevel" (ngModelChange)="onChange()"
+        [min]="1" [max]="maxLevel" [showButtons]="true" [step]="1"
+        buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
+        [inputStyleClass]="(selectedLevel ?? 0) > 0 ? 'input-active' : ''"></p-inputNumber>
+    </div>
+
+    <div class="exp-cards">
+      <div class="exp-card">
+        <span class="exp-card-label">Zakres tego poziomu</span>
+        <span class="exp-card-value">{{ format(current.requiredExp) }} – {{ format(current.nextExp) }}</span>
+      </div>
+      <div class="exp-card">
+        <span class="exp-card-label">Do następnego poziomu</span>
+        <span class="exp-card-value">+{{ format(current.toNext) }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature-section stat-section">
+    <header class="exp-header">
+      <h2>Koszt statystyk</h2>
+      <p>Podaj poziom każdej z 9 statystyk — obok zobaczysz sumę punktów doświadczenia potrzebnych do jego osiągnięcia.</p>
+    </header>
+
+    <div class="stat-grid">
+      @for (s of statDefs; track s.key; let i = $index) {
+        <div class="stat-row">
+          <label [for]="'stat-' + s.key" class="stat-label">
+            <i [class]="s.icon"></i>
+            <span>{{ s.label }}</span>
+          </label>
+          <p-inputNumber [inputId]="'stat-' + s.key" [(ngModel)]="statLevels[i]"
+            [min]="0" [max]="maxStatLevel" [showButtons]="true" [step]="1"
+            buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
+            [inputStyleClass]="(statLevels[i] ?? 0) > 0 ? 'input-active' : ''"></p-inputNumber>
+          <span class="stat-cost">{{ format(costForStat(statLevels[i])) }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="stat-total">
+      <span class="stat-total-label">Suma kosztów wszystkich statystyk</span>
+      <span class="stat-total-value">{{ format(totalStatCost) }}</span>
+    </div>
+  </section>
+
+  <section class="feature-section stat-section">
+    <header class="exp-header">
+      <h2>Koszt ewolucji</h2>
+      <p>Podaj poziom każdej ewolucji — obok zobaczysz sumę punktów doświadczenia potrzebnych do jego osiągnięcia.</p>
+    </header>
+
+    <div class="stat-grid">
+      @for (e of evolutionDefs; track e.key; let i = $index) {
+        <div class="stat-row">
+          <label [for]="'evo-' + e.key" class="stat-label">
+            <span>{{ e.label }}</span>
+          </label>
+          <p-inputNumber [inputId]="'evo-' + e.key" [(ngModel)]="evolutionLevels[i]"
+            [min]="0" [max]="e.costs.length" [showButtons]="true" [step]="1"
+            buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
+            [inputStyleClass]="(evolutionLevels[i] ?? 0) > 0 ? 'input-active' : ''"></p-inputNumber>
+          <span class="stat-cost">{{ format(costForEvolution(i, evolutionLevels[i])) }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="stat-total">
+      <span class="stat-total-label">Suma kosztów wszystkich ewolucji</span>
+      <span class="stat-total-value">{{ format(totalEvolutionCost) }}</span>
+    </div>
+  </section>
+</div>

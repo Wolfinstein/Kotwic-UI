@@ -1,0 +1,108 @@
+<div class="umagi-view">
+  <section class="feature-section">
+    <header class="exp-header">
+      <h1>Umagi</h1>
+      <p>Ustaw swoje LPC, aby zobaczyć listę umagów możliwych do zdobycia na tym poziomie.</p>
+    </header>
+
+    <div class="lpc-picker">
+      <label for="lpc">LPC: {{ format(lpc) }}</label>
+      <div class="lpc-controls">
+        <p-slider [(ngModel)]="lpc" [min]="0" [max]="maxLpc" [step]="50" (onChange)="onLpcChange()" class="lpc-slider"></p-slider>
+        <p-inputNumber inputId="lpc" [(ngModel)]="lpc" (ngModelChange)="onLpcChange()" [min]="0" [max]="maxLpc" [showButtons]="true" [step]="100"
+          buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
+          inputStyleClass="input-active"></p-inputNumber>
+      </div>
+    </div>
+
+    <div class="umagi-pool-header">
+      <span>Dostępne umagi</span>
+      <span class="umagi-pool-count">{{ availablePool.length }}</span>
+    </div>
+    <div class="umagi-pool">
+      @for (u of availablePool; track u.effect + u.value) {
+        <div class="umag-row">
+          <span class="umag-value">{{ format(u.value) }}</span>
+          <span class="umag-effect">{{ u.effect }}</span>
+        </div>
+      }
+      @if (availablePool.length === 0) {
+        <div class="umagi-empty">Brak dostępnych umagów przy tak wysokim LPC.</div>
+      }
+    </div>
+  </section>
+
+  <section class="feature-section">
+    <header class="exp-header">
+      <h2>Symulator umagów</h2>
+      <p>Pierwszy umag zawsze się trafia. Ustaw szansę na 2. i 3. umag, a potem losuj lub zbuduj kombinację ręcznie.</p>
+    </header>
+
+    <div class="chance-row">
+      <div class="chance-item">
+        <label for="p2">Szansa na 2. umag</label>
+        <p-inputNumber inputId="p2" [(ngModel)]="p2" [min]="0" [max]="100" [showButtons]="true" [step]="1" suffix=" %"
+          buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
+          [inputStyleClass]="(p2 ?? 0) > 0 ? 'input-active' : ''"></p-inputNumber>
+      </div>
+      <div class="chance-item">
+        <label for="p3">Szansa na 3. umag</label>
+        <p-inputNumber inputId="p3" [(ngModel)]="p3" [min]="0" [max]="100" [showButtons]="true" [step]="1" suffix=" %"
+          buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
+          [inputStyleClass]="(p3 ?? 0) > 0 ? 'input-active' : ''"></p-inputNumber>
+      </div>
+    </div>
+
+    <div class="roll-block">
+      <button pButton type="button" label="Losuj umagi" icon="pi pi-sparkles" class="roll-btn" (click)="rollUmagi()"></button>
+
+      @if (lastRoll) {
+        <div class="roll-result">
+          @for (u of lastRoll; track u.effect + u.value) {
+            <div class="umag-row result-row">
+              <span class="umag-value">{{ format(u.value) }}</span>
+              <span class="umag-effect">{{ u.effect }}</span>
+            </div>
+          }
+          <div class="roll-probability">
+            Szansa na dokładnie taki wynik przy obecnym LPC ({{ format(lpc) }}): <strong>{{ formatPercent(lastRollProbabilityPercent) }}</strong>
+          </div>
+        </div>
+      }
+      @if (rolledWithNoPool) {
+        <div class="umagi-empty">Brak dostępnych umagów przy tak wysokim LPC — nie można losować.</div>
+      }
+    </div>
+
+    <hr class="umagi-divider" />
+
+    <div class="manual-builder">
+      <h3>Zbuduj kombinację ręcznie</h3>
+      <div class="manual-slots">
+        <div class="manual-slot">
+          <label>1. umag</label>
+          <p-select [options]="slot1Options" [(ngModel)]="manualSlot1" (onChange)="onSlot1Change()"
+            optionLabel="label" optionValue="value" placeholder="Wybierz umag"></p-select>
+        </div>
+        <div class="manual-slot">
+          <label>2. umag (opcjonalnie)</label>
+          <p-select [options]="slot2Options" [(ngModel)]="manualSlot2" (onChange)="onSlot2Change()"
+            optionLabel="label" optionValue="value" [disabled]="!manualSlot1"
+            placeholder="— brak —" [showClear]="true"></p-select>
+        </div>
+        <div class="manual-slot">
+          <label>3. umag (opcjonalnie)</label>
+          <p-select [options]="slot3Options" [(ngModel)]="manualSlot3"
+            optionLabel="label" optionValue="value" [disabled]="!manualSlot2"
+            placeholder="— brak —" [showClear]="true"></p-select>
+        </div>
+      </div>
+
+      @if (manualSlot1) {
+        <div class="roll-probability">
+          Szansa na tę kombinację: <strong>{{ formatPercent(manualProbabilityPercent) }}</strong>
+        </div>
+      }
+    </div>
+  </section>
+</div>

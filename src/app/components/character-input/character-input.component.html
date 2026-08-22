@@ -212,32 +212,67 @@
       <div class="section">
         <p-button [label]="'Przeciwnik ' + (expandedBonuses['przeciwnik'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('przeciwnik')" [text]="true" styleClass="bonus-toggle-btn" />
-        <div *ngIf="expandedBonuses['przeciwnik']" class="compact-grid">
-          <div class="compact-item">
-            <label>Obrona Przeciwnika</label>
-            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.obronaPrzeciwnika"
-              [inputStyleClass]="character!.obronaPrzeciwnika > 0 ? 'input-active' : ''"
-              (ngModelChange)="updateCharacterField('obronaPrzeciwnika', $event)" />
+        <ng-container *ngIf="expandedBonuses['przeciwnik']">
+          <div class="ref-lookup">
+            <div class="ref-lookup-title">Podgląd staty moba <span class="ref-lookup-hint">(uzupełnij pola poniżej ręcznie)</span></div>
+            <div class="compact-item">
+              <label>Mapa</label>
+              <p-select [options]="refMapOptions" optionLabel="label" optionValue="value"
+                [(ngModel)]="refMapMode" (onChange)="onRefMapModeChange()" placeholder="-- mapa --" />
+            </div>
+            <div class="compact-item" *ngIf="refMapMode === 'M1'">
+              <label>Przeciwnik</label>
+              <p-select [options]="refActMobOptions" optionLabel="label" optionValue="value"
+                [(ngModel)]="refActMobName" (onChange)="onRefMobChange()" placeholder="-- przeciwnik --" [filter]="true" filterBy="label" />
+            </div>
+            <div class="compact-item" *ngIf="refMapMode === 'M1' && refActMobName">
+              <label>Akt</label>
+              <p-select [options]="refActOptions" optionLabel="label" optionValue="value"
+                [(ngModel)]="refAct" placeholder="-- akt --" />
+            </div>
+            <div class="compact-item" *ngIf="refMapMode === 'M2'">
+              <label>Przeciwnik</label>
+              <p-select [options]="refStarMobOptions" optionLabel="label" optionValue="value"
+                [(ngModel)]="refStarMobName" (onChange)="onRefMobChange()" placeholder="-- przeciwnik --" [filter]="true" filterBy="label" />
+            </div>
+            <div class="compact-item" *ngIf="refMapMode === 'M2' && refStarMobName">
+              <label>Gwiazdki</label>
+              <p-select [options]="refStarOptions" optionLabel="label" optionValue="value"
+                [(ngModel)]="refStar" placeholder="-- gwiazdki --" />
+            </div>
+            <div class="ref-stats" *ngIf="refStats">
+              <span class="ref-stat-chip" *ngFor="let s of refStatDefs">
+                <span class="ref-stat-label">{{ s.label }}</span>{{ formatRefRange(refStats[s.key]) }}
+              </span>
+            </div>
           </div>
-          <div class="compact-item">
-            <label>Odpornosc Przeciwnika</label>
-            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.odpornoscPrzeciwnika"
-              [inputStyleClass]="character!.odpornoscPrzeciwnika > 0 ? 'input-active' : ''"
-              (ngModelChange)="updateCharacterField('odpornoscPrzeciwnika', $event)" />
+          <div class="compact-grid">
+            <div class="compact-item">
+              <label>Obrona Przeciwnika</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.obronaPrzeciwnika"
+                [inputStyleClass]="character!.obronaPrzeciwnika > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('obronaPrzeciwnika', $event)" />
+            </div>
+            <div class="compact-item">
+              <label>Odpornosc Przeciwnika</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.odpornoscPrzeciwnika"
+                [inputStyleClass]="character!.odpornoscPrzeciwnika > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('odpornoscPrzeciwnika', $event)" />
+            </div>
+            <div class="compact-item">
+              <label>Trafienie Przeciwnika</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.trafieniePrzeciwnika"
+                [inputStyleClass]="character!.trafieniePrzeciwnika > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('trafieniePrzeciwnika', $event)" />
+            </div>
+            <div class="compact-item">
+              <label>Szczescie Przeciwnika</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.szczesciePrzeciwnika"
+                [inputStyleClass]="character!.szczesciePrzeciwnika > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('szczesciePrzeciwnika', $event)" />
+            </div>
           </div>
-          <div class="compact-item">
-            <label>Trafienie Przeciwnika</label>
-            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.trafieniePrzeciwnika"
-              [inputStyleClass]="character!.trafieniePrzeciwnika > 0 ? 'input-active' : ''"
-              (ngModelChange)="updateCharacterField('trafieniePrzeciwnika', $event)" />
-          </div>
-          <div class="compact-item">
-            <label>Szczescie Przeciwnika</label>
-            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.szczesciePrzeciwnika"
-              [inputStyleClass]="character!.szczesciePrzeciwnika > 0 ? 'input-active' : ''"
-              (ngModelChange)="updateCharacterField('szczesciePrzeciwnika', $event)" />
-          </div>
-        </div>
+        </ng-container>
       </div>
       <div class="bonuses-container">
         <!-- Inne (collapsible) -->
@@ -378,7 +413,6 @@
       </div>
       <div class="section action-buttons">
         <p-button label="Presety" icon="pi pi-list" severity="secondary" (onClick)="openPresetsModal()" styleClass="action-io-btn" />
-        <p-button [label]="currentThemeLabel" icon="pi pi-palette" severity="secondary" (onClick)="cycleTheme()" styleClass="action-io-btn" />
       </div>
 
     </div>

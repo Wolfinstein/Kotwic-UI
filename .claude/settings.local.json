@@ -7,7 +7,32 @@
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\Ola\\\\Desktop\\\\KotwicUI\\\\src\" -Recurse -Include \"*.css\", \"*.scss\")",
       "Bash(Select-Object -ExpandProperty FullName)",
       "Bash(findstr /R /N \"section-title\\\\|section-header\\\\|section-label\\\\|section-icon\\\\|panel-title\\\\|rune-panel-title\\\\|eq-section-label\\\\|attr-section-header\\\\|\\\\..*header\" *.css app\\\\*.css app\\\\components\\\\*\\\\*.css)",
-      "Bash(python3 -)"
+      "Bash(python3 -)",
+      "Bash(node -e ' *)",
+      "WebFetch(domain:docs.google.com)",
+      "WebFetch(domain:doc-0o-bc-sheets.googleusercontent.com)",
+      "Bash(curl -sL \"https://docs.google.com/spreadsheets/d/1_DT5zRGtFWU25ljnPC3SV83WX9zMKKorVUsTtqjZIBA/export?format=csv&gid=0\" -o /tmp/umagi_sheet.csv)",
+      "Read(//tmp/**)",
+      "Bash(cat /tmp/umagi_sheet.csv)",
+      "Bash(python3 \"/c/Users/Ola/AppData/Local/Temp/claude/C--Users-Ola-Desktop-KotwicUI/2eb4026f-b1b8-4550-8ffe-8df9056bf1e7/scratchpad/find_sheets.py\")",
+      "Bash(cp /tmp/umagi_sheet.csv \"/c/Users/Ola/AppData/Local/Temp/claude/C--Users-Ola-Desktop-KotwicUI/2eb4026f-b1b8-4550-8ffe-8df9056bf1e7/scratchpad/umagi_sheet.csv\")",
+      "Read(//c/Users/Ola/AppData/Local/Temp/claude/C--Users-Ola-Desktop-KotwicUI/2eb4026f-b1b8-4550-8ffe-8df9056bf1e7/scratchpad//**)",
+      "Bash(node parse.js)",
+      "Bash(node verify.js)",
+      "Bash(node genTs.js)",
+      "Bash(curl -sL \"https://docs.google.com/spreadsheets/d/1stTyBk4lm0k5bbu-BaXbnxL7HseY5Y05kZ_tXRHFNg4/export?format=csv&gid=0\" -o /tmp/quests_sheet.csv)",
+      "Bash(cat /tmp/quests_sheet.csv)",
+      "Bash(cp /tmp/quests_sheet.csv \"C:\\\\Users\\\\Ola\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Ola-Desktop-KotwicUI\\\\2eb4026f-b1b8-4550-8ffe-8df9056bf1e7\\\\scratchpad\\\\quests_sheet.csv\")",
+      "Bash(node parseQuests.js)",
+      "Bash(node genQuestsTs.js)",
+      "Bash(node extractForge.js)",
+      "Bash(node debug1.js)",
+      "Bash(node genForgeTs.js)",
+      "Bash(curl -sL \"https://docs.google.com/spreadsheets/d/1JFVdZtg9jnHwpYcVjXzk6sBV17_2Bxk4JXmrKQVIbFY/export?format=csv&gid=0\" -o /tmp/mobs_sheet.csv)",
+      "Bash(cat /tmp/mobs_sheet.csv | tail -10 *)",
+      "Bash(cp /tmp/mobs_sheet.csv \"C:\\\\Users\\\\Ola\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Ola-Desktop-KotwicUI\\\\2eb4026f-b1b8-4550-8ffe-8df9056bf1e7\\\\scratchpad\\\\mobs_sheet.csv\")",
+      "Bash(node parseMobs.js)",
+      "Bash(node genMobsTs.js)"
     ]
   }
 }

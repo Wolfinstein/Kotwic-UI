@@ -1,0 +1,49 @@
+<div class="quests-view">
+  <section class="feature-section">
+    <header class="exp-header">
+      <h1>Zadania</h1>
+      <p>Lista zadań pogrupowana według stref. Akt wskazuje, w którym akcie dane zadanie staje się możliwe do wykonania.</p>
+    </header>
+
+    <div class="quests-toolbar">
+      <input type="text" pInputText [(ngModel)]="filterText" placeholder="Szukaj w treści zadania…" class="quests-search" />
+    </div>
+  </section>
+
+  @for (z of zones; track z.zone) {
+    <section class="feature-section">
+      <div class="zone-header">
+        <h2>Strefa {{ z.zone }}</h2>
+        <span class="zone-count">{{ filteredQuests(z).length }} / {{ z.quests.length }}</span>
+      </div>
+
+      <div class="quest-list">
+        @for (q of filteredQuests(z); track q.lp) {
+          <div class="quest-card" [class.assigned]="q.act">
+            <div class="quest-card-header">
+              <span class="quest-reward"><i class="pi pi-star-fill"></i>{{ q.reward }}</span>
+            </div>
+            <p class="quest-task">{{ q.task }}</p>
+            <p class="quest-howto"><i class="pi pi-arrow-right"></i>{{ q.howTo }}</p>
+            @if (q.exampleLink) {
+              <a [href]="q.exampleLink" target="_blank" rel="noopener noreferrer" class="quest-example-link">
+                <i class="pi pi-external-link"></i>Przykładowe starcie
+              </a>
+            }
+            <div class="quest-act-row">
+              <span class="quest-act-label">Akt</span>
+              @if (q.act) {
+                <span class="quest-act-badge">{{ q.act }}</span>
+              } @else {
+                <span class="quest-act-badge unset">—</span>
+              }
+            </div>
+          </div>
+        }
+        @if (filteredQuests(z).length === 0) {
+          <div class="quests-empty">Brak zadań pasujących do filtra.</div>
+        }
+      </div>
+    </section>
+  }
+</div>

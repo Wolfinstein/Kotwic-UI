@@ -1,38 +1,17 @@
-.app-container {
+.hub-shell {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100vw;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: var(--bg-main);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.input-section,
-.dashboard-section {
+.hub-content {
   flex: 1;
   min-height: 0;
-  overflow: auto;
-}
-
-/* Tablet: side-by-side layout */
-@media (min-width: 769px) {
-  .app-container {
-    display: grid;
-    grid-template-columns: 7fr 3fr;
-    flex-direction: row;
-  }
-
-  .input-section,
-  .dashboard-section {
-    flex: auto;
-  }
-}
-
-/* Desktop: 3fr 2fr ratio */
-@media (min-width: 1281px) {
-  .app-container {
-    grid-template-columns: 7fr 3fr;
-  }
+  overflow: hidden;
+  position: relative;
 }

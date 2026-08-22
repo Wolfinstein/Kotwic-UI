@@ -1,0 +1,166 @@
+<div class="kuznia-view">
+  <section class="feature-section">
+    <header class="exp-header">
+      <h1>Kuźnia Kaina</h1>
+      <p>Wybierz docelowy epicki przedmiot (pref / bazę / suf), wklej swoją zbrojownię, a kalkulator znajdzie najtańszą drogę przekucia posiadanych przedmiotów do celu.</p>
+    </header>
+
+    <div class="target-grid">
+      <div class="target-field">
+        <label>Typ przedmiotu</label>
+        <p-select [options]="categories" optionLabel="label" optionValue="type"
+          [(ngModel)]="selectedType" (onChange)="onTypeChange()" placeholder="-- typ --"></p-select>
+      </div>
+      <div class="target-field">
+        <label>Prefiks</label>
+        <p-select [options]="prefOptions" optionLabel="name" optionValue="name"
+          [(ngModel)]="selectedPref" (onChange)="computeResults()" [disabled]="!selectedType || prefOptions.length === 0"
+          placeholder="-- pref --" [showClear]="true"></p-select>
+      </div>
+      <div class="target-field">
+        <label>Baza</label>
+        <p-select [options]="itemOptions" optionLabel="name" optionValue="name"
+          [(ngModel)]="selectedItem" (onChange)="computeResults()" [disabled]="!selectedType"
+          placeholder="-- baza --" [showClear]="true"></p-select>
+      </div>
+      <div class="target-field">
+        <label>Sufiks</label>
+        <p-select [options]="sufOptions" optionLabel="name" optionValue="name"
+          [(ngModel)]="selectedSuf" (onChange)="computeResults()" [disabled]="!selectedType || sufOptions.length === 0"
+          placeholder="-- suf --" [showClear]="true"></p-select>
+      </div>
+    </div>
+
+    <div class="target-preview">{{ targetName }}</div>
+  </section>
+
+  <section class="feature-section">
+    <header class="exp-header">
+      <h2>Twoja zbrojownia</h2>
+      <p>Wklej pełną listę swoich epickich przedmiotów skopiowaną z gry — kalkulator sam je rozpozna.</p>
+    </header>
+
+    <textarea class="armory-textarea" [(ngModel)]="armoryText" (input)="onArmoryInput()"
+      placeholder="Wklej tutaj zawartość zbrojowni..."></textarea>
+
+    <div class="armory-summary">
+      <i class="pi pi-box"></i> Rozpoznano <strong>{{ armory.length }}</strong> przedmiotów
+    </div>
+  </section>
+
+  <section class="feature-section">
+    <header class="exp-header">
+      <h2>Wynik</h2>
+    </header>
+
+    <div class="sort-toggle">
+      <button type="button" class="sort-btn" [class.active]="sortByCoins" (click)="setSortMode(true)">Sortuj wg monet</button>
+      <button type="button" class="sort-btn" [class.active]="!sortByCoins" (click)="setSortMode(false)">Sortuj wg evo</button>
+    </div>
+
+    @if (noMatchInfo) {
+      <div class="no-match">
+        Brak przedmiotu pasującego do szablonu:<br><br>
+        Pref: {{ noMatchInfo.pref ? '✔️' : '❌' }}
+        &nbsp;&nbsp;Typ: {{ noMatchInfo.typeLabel }}
+        &nbsp;&nbsp;Suf: {{ noMatchInfo.suf ? '✔️' : '❌' }}
+      </div>
+    }
+
+    @if (!noMatchInfo && results.length === 0) {
+      <div class="no-match">Wybierz szablon przedmiotu i wklej zbrojownię, aby zobaczyć wyniki.</div>
+    }
+
+    <div class="result-list">
+      @for (r of results; track r.candidate.name) {
+        <div class="result-card">
+          <div class="result-name">{{ r.candidate.name }}</div>
+          @if (r.coinPrice > 0) {
+            <div class="result-costs">
+              <span class="cost-chip evo">Evo: <strong>{{ format(r.evoPrice) }}</strong></span>
+              <span class="cost-chip coins">Monet: <strong>{{ format(r.coinPrice) }}</strong></span>
+              @if (runeIconFor) {
+                <span class="cost-chip rune">
+                  <img [src]="runeIconFor.url" class="rune-icon" />
+                  Run: <strong>{{ r.runePrice }}x lvl{{ runeIconFor.lvl }}</strong>
+                </span>
+              }
+            </div>
+            @if (r.upgPref || r.upgItem || r.upgSuf) {
+              <div class="delta-row upgrade">
+                <i class="pi pi-arrow-up"></i> Ulepszeń:
+                @if (r.upgPref) { <span>Pref: {{ r.upgPref }}</span> }
+                @if (r.upgItem) { <span>Baza: {{ r.upgItem }}</span> }
+                @if (r.upgSuf) { <span>Suf: {{ r.upgSuf }}</span> }
+              </div>
+            }
+            @if (r.degPref || r.degItem || r.degSuf) {
+              <div class="delta-row degrade">
+                <i class="pi pi-arrow-down"></i> Obniżeń:
+                @if (r.degPref) { <span>Pref: {{ r.degPref }}</span> }
+                @if (r.degItem) { <span>Baza: {{ r.degItem }}</span> }
+                @if (r.degSuf) { <span>Suf: {{ r.degSuf }}</span> }
+              </div>
+            }
+          } @else {
+            <div class="result-owned"><i class="pi pi-check"></i> Przedmiot posiadany</div>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="feature-section">
+    <header class="exp-header">
+      <h2>Drabinka</h2>
+      <p>Podejrzyj pełną ścieżkę przekuwania dla wybranej kategorii.</p>
+    </header>
+
+    <div class="target-grid ladder-grid">
+      <div class="target-field">
+        <label>Typ przedmiotu</label>
+        <p-select [options]="categories" optionLabel="label" optionValue="type"
+          [(ngModel)]="ladderType" (onChange)="onLadderTypeChange()" placeholder="-- typ --"></p-select>
+      </div>
+      <div class="target-field ladder-slot-buttons">
+        <label>Slot</label>
+        <div class="slot-btn-group">
+          <button type="button" class="slot-btn" [class.active]="ladderSlot === 'pref'"
+            [disabled]="!ladderCategory?.hasPref" (click)="setLadderSlot('pref')">Pref</button>
+          <button type="button" class="slot-btn" [class.active]="ladderSlot === 'item'" (click)="setLadderSlot('item')">Baza</button>
+          <button type="button" class="slot-btn" [class.active]="ladderSlot === 'suf'"
+            [disabled]="!ladderCategory?.hasSuf" (click)="setLadderSlot('suf')">Suf</button>
+        </div>
+      </div>
+    </div>
+
+    @if (!ladderType) {
+      <div class="no-match">Wybierz kategorię, aby zobaczyć drabinkę.</div>
+    }
+
+    <div class="ladder-list">
+      @for (step of ladderSteps; track step.name; let i = $index) {
+        <div class="ladder-row">
+          <img [src]="step.url" class="ladder-img" />
+          <div class="ladder-info">
+            <div class="ladder-index">{{ i + 1 }}. {{ step.name }}</div>
+            @if (step.evo) {
+              <div class="ladder-costs">
+                <span>Evo: <strong>{{ step.evo }}</strong></span>
+                <span>Monet: <strong>{{ step.coins }}</strong></span>
+                @if (step.rune_type) {
+                  <span class="cost-chip rune">
+                    <img [src]="runes[step.rune_type]" class="rune-icon" />
+                    {{ step.rune_amount }}x lvl{{ step.rune_lvl }}
+                  </span>
+                }
+              </div>
+            } @else {
+              <div class="ladder-costs base">Baza</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+</div>

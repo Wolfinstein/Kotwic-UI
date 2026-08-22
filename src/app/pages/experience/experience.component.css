@@ -1,0 +1,261 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+/* ═══════════════════════════════════════════════════
+   PRIMENG INPUTNUMBER — matches Kalkulator styling
+═══════════════════════════════════════════════════ */
+:host ::ng-deep p-inputnumber .p-inputtext {
+  width: 60px;
+  min-height: 24px;
+  padding: 3px 6px;
+  font-size: 13px;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  border-radius: 0;
+  text-align: center;
+}
+
+:host ::ng-deep p-inputnumber .p-inputtext:focus {
+  border-color: var(--color-text);
+  background: var(--bg-panel);
+  box-shadow: none;
+}
+
+:host ::ng-deep .p-inputtext.input-active {
+  border-color: var(--input-active-border) !important;
+  background: var(--input-active-bg) !important;
+  color: var(--color-text) !important;
+  font-weight: 700;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button {
+  width: 24px;
+  min-height: 24px;
+  background: var(--accent-hi);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  padding: 0;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button:hover {
+  background: var(--color-accent) !important;
+  color: var(--bg-deep) !important;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button .pi {
+  font-size: 9px;
+}
+
+.exp-view {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+/* Big tab per feature — same deep-blue "section" look as Kalkulator */
+.feature-section {
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  background: var(--bg-panel);
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+}
+
+.feature-section:last-child {
+  margin-bottom: 0;
+}
+
+.exp-header h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--section-title-color);
+}
+
+.exp-header p {
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: var(--label-color);
+  line-height: 1.5;
+}
+
+.exp-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.exp-picker label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--label-color);
+}
+
+/* Result cards — sit directly on the feature-section's deep blue, each card keeps a light-blue tint */
+.exp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.exp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  background: var(--accent-low);
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.exp-card:hover {
+  background: var(--accent-hi);
+}
+
+.exp-card.highlight {
+  background: var(--accent-mid);
+}
+
+.exp-card-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--label-color);
+}
+
+.exp-card-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--value-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.exp-card.highlight .exp-card-value {
+  color: var(--section-icon);
+}
+
+/* Surrounding-levels table */
+.exp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.exp-table th {
+  text-align: right;
+  padding: 8px 12px;
+  font-weight: 600;
+  color: var(--label-color);
+  border-bottom: 1px solid var(--section-line);
+}
+
+.exp-table th:first-child {
+  text-align: left;
+}
+
+.exp-table td {
+  text-align: right;
+  padding: 8px 12px;
+  color: var(--value-color);
+  border-bottom: 1px solid var(--accent-low);
+  font-variant-numeric: tabular-nums;
+}
+
+.exp-table td:first-child {
+  text-align: left;
+  font-weight: 600;
+}
+
+.exp-table tr.active td {
+  background: var(--bg-hover);
+  color: var(--section-icon);
+}
+
+/* ── Stat cost section ── */
+.stat-section .exp-header h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--section-title-color);
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  max-width: 420px;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: var(--accent-low);
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.stat-row:hover {
+  background: var(--accent-hi);
+}
+
+.stat-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 168px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: var(--label-color);
+}
+
+.stat-label .pi {
+  font-size: 14px;
+  color: var(--section-icon);
+  width: 16px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.stat-cost {
+  margin-left: auto;
+  min-width: 96px;
+  text-align: right;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--value-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  background: var(--bg-hover);
+  border: 1px solid var(--section-line);
+  border-radius: 6px;
+}
+
+.stat-total-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--label-color);
+}
+
+.stat-total-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--section-icon);
+  font-variant-numeric: tabular-nums;
+}

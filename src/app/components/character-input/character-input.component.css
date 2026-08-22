@@ -243,6 +243,55 @@ label {
   color: var(--label-color);
 }
 
+/* ─── Przeciwnik reference lookup ─────────────────────── */
+.ref-lookup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--color-accent);
+}
+
+.ref-lookup-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--section-title-color);
+  margin-bottom: 2px;
+}
+
+.ref-lookup-hint {
+  font-size: 9px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--label-color);
+}
+
+.ref-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.ref-stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: var(--accent-hi);
+  border: 1px solid var(--color-accent);
+  border-radius: 10px;
+  font-size: 9px;
+  color: var(--color-text);
+  white-space: nowrap;
+}
+
+.ref-stat-label {
+  color: var(--section-icon);
+  font-weight: 700;
+}
+
 /* ─── Equipment ────────────────────────────────────────── */
 .section-equipment {
   flex: 1;

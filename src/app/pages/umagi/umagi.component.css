@@ -1,0 +1,317 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+/* ═══════════════════════════════════════════════════
+   PRIMENG OVERRIDES — matches Kalkulator / Doświadczenie
+═══════════════════════════════════════════════════ */
+:host ::ng-deep p-inputnumber .p-inputtext {
+  width: 60px;
+  min-height: 24px;
+  padding: 3px 6px;
+  font-size: 13px;
+  background: var(--bg-deep);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+  border-radius: 0;
+  text-align: center;
+}
+
+:host ::ng-deep p-inputnumber .p-inputtext:focus {
+  border-color: var(--color-text);
+  background: var(--bg-panel);
+  box-shadow: none;
+}
+
+:host ::ng-deep .p-inputtext.input-active {
+  border-color: var(--input-active-border) !important;
+  background: var(--input-active-bg) !important;
+  color: var(--color-text) !important;
+  font-weight: 700;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button {
+  width: 24px;
+  min-height: 24px;
+  background: var(--accent-hi);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  padding: 0;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button:hover {
+  background: var(--color-accent) !important;
+  color: var(--bg-deep) !important;
+}
+
+:host ::ng-deep p-inputnumber .p-inputnumber-button .pi {
+  font-size: 9px;
+}
+
+:host ::ng-deep input#lpc {
+  width: 90px !important;
+}
+
+/* Select (umag pickers) */
+:host ::ng-deep p-select .p-select {
+  background: var(--bg-deep) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-text);
+  font-size: 12px;
+  min-height: 28px;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+:host ::ng-deep p-select .p-select-label {
+  font-size: 12px;
+  color: var(--value-color);
+  padding: 5px 8px;
+  text-align: left !important;
+}
+
+:host ::ng-deep p-select .p-select-dropdown { color: var(--color-accent); }
+:host ::ng-deep .p-select-overlay { background: var(--bg-deep); border-color: var(--color-accent); max-width: 460px; }
+:host ::ng-deep .p-select-option { color: var(--value-color); font-size: 12px; white-space: normal; }
+:host ::ng-deep .p-select-option:hover,
+:host ::ng-deep .p-select-option.p-select-option-selected { background: var(--bg-hover); color: var(--value-color); }
+
+/* Slider */
+:host ::ng-deep .p-slider {
+  background: var(--bg-deep);
+}
+
+:host ::ng-deep .p-slider .p-slider-range {
+  background: var(--color-accent);
+}
+
+:host ::ng-deep .p-slider .p-slider-handle {
+  background: var(--section-icon);
+  border: 2px solid var(--color-accent);
+}
+
+/* Button */
+:host ::ng-deep .roll-btn.p-button {
+  background: var(--bg-hover) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  padding: 10px 20px;
+}
+
+:host ::ng-deep .roll-btn.p-button:hover {
+  background: var(--color-accent) !important;
+  color: var(--bg-deep) !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════════════════ */
+.umagi-view {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+.feature-section {
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  background: var(--bg-panel);
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+}
+
+.feature-section:last-child {
+  margin-bottom: 0;
+}
+
+.exp-header h1 {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--section-title-color);
+}
+
+.exp-header h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--section-title-color);
+}
+
+.exp-header p {
+  margin: 0 0 20px;
+  font-size: 13px;
+  color: var(--label-color);
+  line-height: 1.5;
+}
+
+/* ── LPC picker ── */
+.lpc-picker {
+  margin-bottom: 20px;
+}
+
+.lpc-picker > label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--section-icon);
+}
+
+.lpc-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.lpc-slider {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* ── Umag pool list ── */
+.umagi-pool-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--label-color);
+}
+
+.umagi-pool-count {
+  color: var(--section-icon);
+  font-size: 13px;
+}
+
+.umagi-pool {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 6px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.umag-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  background: var(--accent-low);
+  border-radius: 5px;
+  transition: background 0.15s ease;
+}
+
+.umag-row:hover {
+  background: var(--accent-hi);
+}
+
+.umag-value {
+  flex-shrink: 0;
+  min-width: 52px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--section-icon);
+  font-variant-numeric: tabular-nums;
+}
+
+.umag-effect {
+  font-size: 12px;
+  color: var(--value-color);
+}
+
+.umagi-empty {
+  padding: 14px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--label-color);
+  font-style: italic;
+}
+
+/* ── Simulator ── */
+.chance-row {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.chance-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chance-item label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--label-color);
+}
+
+.roll-block {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.roll-result {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.result-row {
+  background: var(--accent-mid);
+}
+
+.roll-probability {
+  font-size: 13px;
+  color: var(--label-color);
+}
+
+.roll-probability strong {
+  color: var(--section-icon);
+  font-variant-numeric: tabular-nums;
+}
+
+.umagi-divider {
+  border: none;
+  border-top: 1px solid var(--accent-hi);
+  margin: 22px 0;
+}
+
+/* ── Manual builder ── */
+.manual-builder h3 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--section-title-color);
+}
+
+.manual-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.manual-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.manual-slot label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--label-color);
+}

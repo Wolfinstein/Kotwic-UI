@@ -1,0 +1,53 @@
+<nav class="hub-nav">
+  <button type="button" class="hub-brand" (click)="cycleTheme()" [title]="'Motyw: ' + currentThemeLabel + ' (kliknij, aby zmienić)'">
+    <i class="pi pi-anchor"></i>
+    <span>Kotwic-UI</span>
+    <i class="pi pi-palette brand-theme-icon"></i>
+  </button>
+
+  <ul class="hub-nav-items">
+    @for (item of items; track item.label) {
+      <li>
+        @if (item.route && !item.disabled) {
+          <a [routerLink]="item.route" routerLinkActive="active" class="hub-nav-link">
+            <i [class]="item.icon"></i>
+            <span>{{ item.label }}</span>
+          </a>
+        } @else {
+          <span class="hub-nav-link disabled" title="Wkrótce">
+            <i [class]="item.icon"></i>
+            <span>{{ item.label }}</span>
+          </span>
+        }
+      </li>
+    }
+  </ul>
+
+  @if (externalItems.length) {
+    <div class="hub-external" [class.open]="externalOpen">
+      <button type="button" class="hub-nav-link external hub-external-trigger"
+              (click)="toggleExternal()"
+              [attr.aria-expanded]="externalOpen" aria-haspopup="menu">
+        <i class="pi pi-external-link"></i>
+        <span>Zewnętrzne</span>
+        <i class="pi pi-chevron-down chevron"></i>
+      </button>
+
+      @if (externalOpen) {
+        <ul class="hub-external-menu" role="menu">
+          @for (item of externalItems; track item.label) {
+            <li role="none">
+              <a [href]="item.href" target="_blank" rel="noopener noreferrer"
+                 class="hub-external-item" role="menuitem"
+                 title="Otwiera się w nowej karcie" (click)="closeExternal()">
+                <i [class]="item.icon"></i>
+                <span>{{ item.label }}</span>
+                <i class="pi pi-external-link ext-indicator"></i>
+              </a>
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  }
+</nav>
