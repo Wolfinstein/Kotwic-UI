@@ -80,18 +80,18 @@
       <h3>Zbuduj kombinację ręcznie</h3>
       <div class="manual-slots">
         <div class="manual-slot">
-          <label>1. umag</label>
+          <label>Umag 1</label>
           <p-select [options]="slot1Options" [(ngModel)]="manualSlot1" (onChange)="onSlot1Change()"
             optionLabel="label" optionValue="value" placeholder="Wybierz umag"></p-select>
         </div>
         <div class="manual-slot">
-          <label>2. umag (opcjonalnie)</label>
+          <label>Umag 2</label>
           <p-select [options]="slot2Options" [(ngModel)]="manualSlot2" (onChange)="onSlot2Change()"
             optionLabel="label" optionValue="value" [disabled]="!manualSlot1"
             placeholder="— brak —" [showClear]="true"></p-select>
         </div>
         <div class="manual-slot">
-          <label>3. umag (opcjonalnie)</label>
+          <label>Umag 3</label>
           <p-select [options]="slot3Options" [(ngModel)]="manualSlot3"
             optionLabel="label" optionValue="value" [disabled]="!manualSlot2"
             placeholder="— brak —" [showClear]="true"></p-select>
