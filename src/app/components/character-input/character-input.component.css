@@ -427,6 +427,11 @@ label {
   color: var(--label-color);
 }
 
+.label-hint {
+  cursor: help;
+  border-bottom: 1px dashed var(--color-accent);
+}
+
 /* ─── Talizmany: two 9-column rows ─────────────────────── */
 .talizman-grid {
   display: grid;

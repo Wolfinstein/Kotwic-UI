@@ -338,7 +338,6 @@
           (onClick)="toggleBonusExpand('przeciwnik')" [text]="true" styleClass="bonus-toggle-btn" />
         <ng-container *ngIf="expandedBonuses['przeciwnik']">
           <div class="ref-lookup">
-            <div class="ref-lookup-title">Podgląd staty moba <span class="ref-lookup-hint">(uzupełnij pola poniżej ręcznie)</span></div>
             <div class="compact-item">
               <label>Mapa</label>
               <p-select [options]="refMapOptions" optionLabel="label" optionValue="value"
@@ -372,19 +371,19 @@
           </div>
           <div class="compact-grid">
             <div class="compact-item">
-              <label>Obrona Przeciwnika</label>
+              <label class="label-hint" pTooltip="Jeśli bijesz białą / dystansem" tooltipPosition="top">Obrona Przeciwnika</label>
               <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.obronaPrzeciwnika"
                 [inputStyleClass]="character!.obronaPrzeciwnika > 0 ? 'input-active' : ''"
                 (ngModelChange)="updateCharacterField('obronaPrzeciwnika', $event)" />
             </div>
             <div class="compact-item">
-              <label>Odpornosc Przeciwnika</label>
+              <label class="label-hint" pTooltip="Jeśli bijesz palną" tooltipPosition="top">Odpornosc Przeciwnika</label>
               <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.odpornoscPrzeciwnika"
                 [inputStyleClass]="character!.odpornoscPrzeciwnika > 0 ? 'input-active' : ''"
                 (ngModelChange)="updateCharacterField('odpornoscPrzeciwnika', $event)" />
             </div>
             <div class="compact-item">
-              <label>Trafienie Przeciwnika</label>
+              <label class="label-hint" pTooltip="Jeśli bijesz palną wpisz ilość spostrzegawczości przeciwnika, jeśli białą to zwinność, a jeśli dystansem to sumę" tooltipPosition="top">Trafienie Przeciwnika</label>
               <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.trafieniePrzeciwnika"
                 [inputStyleClass]="character!.trafieniePrzeciwnika > 0 ? 'input-active' : ''"
                 (ngModelChange)="updateCharacterField('trafieniePrzeciwnika', $event)" />
