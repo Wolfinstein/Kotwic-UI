@@ -27,6 +27,7 @@ export class HomeComponent {
     { label: 'Zadania', description: 'Lista zadań i wymagań do ich ukończenia.', icon: 'pi pi-book', route: '/zadania' },
     { label: 'Kuźnia Kaina', description: 'Plan i koszty tworzenia przedmiotów w Kuźni Kaina.', icon: 'pi pi-hammer', route: '/kuznia' },
     { label: 'Moby i exp', description: 'Statystyki przeciwników na mapach ekspedycji (M1/M2) wraz z kalkulatorem doświadczenia.', icon: 'pi pi-users', route: '/moby' },
+    { label: 'Podróże', description: 'Symulator podróży', icon: 'pi pi-map', route: '/podroze' },
   ];
 
   externalTools: HomeTool[] = [
