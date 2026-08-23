@@ -317,6 +317,22 @@
   min-width: 260px;
 }
 
+@media (max-width: 480px) {
+  .big-tab-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tab-row > .section {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+
+  .tab-col {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+}
+
 /* ─── Section ──────────────────────────────────────────── */
 .section {
   position: relative;
@@ -419,6 +435,10 @@ label {
   .talizman-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
+@media (max-width: 480px) {
+  .talizman-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 .compact-item-stacked {
   flex-direction: column;
   align-items: stretch;
@@ -495,6 +515,8 @@ label {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 8px;
 }
 
@@ -621,8 +643,15 @@ label {
 .action-buttons {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   gap: 8px;
   flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  :host .action-buttons p-button {
+    flex: 1 1 calc(50% - 4px);
+  }
 }
 
 /* ─── Rune/Umagi summary chips ─────────────────────────── */

@@ -188,6 +188,29 @@
   min-width: 120px;
 }
 
+@media (max-width: 480px) {
+  .lpc-controls {
+    gap: 8px;
+  }
+
+  .lpc-slider {
+    min-width: 80px;
+  }
+
+  :host ::ng-deep .lpc-controls p-inputnumber {
+    width: 64px;
+    flex-shrink: 0;
+  }
+
+  :host ::ng-deep .lpc-controls p-inputnumber .p-inputtext {
+    width: 100%;
+  }
+
+  :host ::ng-deep .lpc-controls .p-inputnumber-button {
+    display: none;
+  }
+}
+
 /* ── Umag pool list ── */
 .umagi-pool-header {
   display: flex;

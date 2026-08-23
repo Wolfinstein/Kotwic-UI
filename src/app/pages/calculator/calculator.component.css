@@ -23,6 +23,58 @@
   overflow: auto;
 }
 
+.mobile-tab-switch {
+  display: none;
+}
+
+/* Mobile: one panel at a time, switched via tabs */
+@media (max-width: 768px) {
+  .mobile-tab-switch {
+    display: flex;
+    gap: 8px;
+    padding: 8px;
+    flex-shrink: 0;
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--border-muted);
+  }
+
+  .mobile-tab-switch button {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-muted);
+    border-radius: 6px;
+    color: var(--label-color);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: var(--fs-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .mobile-tab-switch button.active {
+    background: var(--color-accent);
+    color: var(--bg-deep);
+    border-color: var(--color-accent);
+  }
+
+  .input-section,
+  .dashboard-section {
+    display: none;
+  }
+
+  .input-section.mobile-active,
+  .dashboard-section.mobile-active {
+    display: block;
+  }
+}
+
 /* Tablet: side-by-side layout */
 @media (min-width: 769px) {
   .app-container {

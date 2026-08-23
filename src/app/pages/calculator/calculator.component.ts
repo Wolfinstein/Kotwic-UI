@@ -10,4 +10,6 @@ import { DashboardComponent } from '../../components/dashboard/dashboard.compone
   templateUrl: './calculator.component.html',
   styleUrl: './calculator.component.css'
 })
-export class CalculatorComponent { }
+export class CalculatorComponent {
+  activeMobileTab: 'form' | 'results' = 'form';
+}

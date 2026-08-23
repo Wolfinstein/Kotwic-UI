@@ -41,7 +41,6 @@
         <button type="button" class="hub-nav-link external hub-external-trigger"
                 (click)="toggleExternal()"
                 [attr.aria-expanded]="externalOpen" aria-haspopup="menu">
-          <i class="pi pi-external-link"></i>
           <span>Zewnętrzne</span>
           <i class="pi pi-chevron-down chevron"></i>
         </button>
@@ -55,7 +54,6 @@
                    title="Otwiera się w nowej karcie" (click)="closeExternal(); closeMobile()">
                   <i [class]="item.icon"></i>
                   <span>{{ item.label }}</span>
-                  <i class="pi pi-external-link ext-indicator"></i>
                 </a>
               </li>
             }

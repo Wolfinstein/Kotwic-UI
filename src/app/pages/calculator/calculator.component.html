@@ -1,8 +1,16 @@
 <div class="app-container">
-  <div class="input-section">
+  <div class="mobile-tab-switch">
+    <button type="button" [class.active]="activeMobileTab === 'form'" (click)="activeMobileTab = 'form'">
+      <i class="pi pi-file-edit"></i> Formularz
+    </button>
+    <button type="button" [class.active]="activeMobileTab === 'results'" (click)="activeMobileTab = 'results'">
+      <i class="pi pi-chart-bar"></i> Wyniki
+    </button>
+  </div>
+  <div class="input-section" [class.mobile-active]="activeMobileTab === 'form'">
     <app-character-input></app-character-input>
   </div>
-  <div class="dashboard-section">
+  <div class="dashboard-section" [class.mobile-active]="activeMobileTab === 'results'">
     <app-dashboard></app-dashboard>
   </div>
 </div>

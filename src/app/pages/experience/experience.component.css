@@ -72,7 +72,7 @@
 /* Side-by-side stat / evolution cost panels */
 .exp-columns {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: start;
   gap: 24px;
 }
@@ -83,7 +83,7 @@
 
 @media (max-width: 860px) {
   .exp-columns {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -204,7 +204,7 @@
 
 .stat-grid {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   max-width: 420px;
   gap: 8px;
   margin-bottom: 22px;
@@ -213,11 +213,18 @@
 .stat-row {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
   padding: 8px 12px;
   background: var(--accent-low);
   border-radius: 6px;
   transition: background 0.15s ease;
+}
+
+@media (max-width: 480px) {
+  .stat-label {
+    flex-basis: 100%;
+  }
 }
 
 .stat-row:hover {

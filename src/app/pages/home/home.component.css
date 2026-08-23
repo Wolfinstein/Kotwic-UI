@@ -119,17 +119,8 @@
   color: var(--external-accent);
 }
 
-.external-strip-indicator {
-  font-size: var(--fs-xs);
-  opacity: 0.6;
-}
-
 .external-strip-link:hover {
   color: var(--external-accent);
-}
-
-.external-strip-link:hover .external-strip-indicator {
-  opacity: 1;
 }
 
 /* ── Known issues (floating speech-bubble, expandable) ── */
@@ -188,10 +179,12 @@
 }
 
 .tool-card {
+  position: relative;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
   padding: 16px;
+  padding-bottom: 32px;
   min-height: 140px;
   background: var(--bg-panel);
   border: 1px solid var(--border-muted);
@@ -211,7 +204,7 @@
   font-size: var(--fs-2xl);
   color: var(--section-icon);
   flex-shrink: 0;
-  margin-top: 2px;
+  align-self: center;
 }
 
 .tool-card-body {
@@ -234,14 +227,8 @@
   color: var(--label-color);
 }
 
-.tool-card.tool-size-lg {
-  flex-direction: column;
-  justify-content: space-between;
-}
-
 .tool-card.tool-size-lg > .pi:first-child {
   font-size: var(--fs-display);
-  margin-top: 0;
 }
 
 .tool-card.tool-size-lg .tool-card-body h2 {
@@ -253,14 +240,15 @@
 }
 
 .tool-card.tool-size-lg .tool-card-arrow {
-  align-self: flex-end;
   font-size: var(--fs-lg);
 }
 
 .tool-card-arrow {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
   font-size: var(--fs-base);
   color: var(--label-color);
-  align-self: center;
   flex-shrink: 0;
   opacity: 0.7;
 }
