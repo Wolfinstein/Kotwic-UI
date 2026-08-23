@@ -235,7 +235,7 @@ export class CharacterInputComponent implements OnInit {
   private static readonly EXPANDED_DEFAULTS: { [key: string]: boolean } = {
     silver: false, gold: false, hunt: true, daily: false, kaplica: false, oneTime: true,
     trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: true, ewolucje: true,
-    przeciwnik: true, inne: false, budynki: true,
+    przeciwnik: true, inne: true, budynki: true,
     importTab: true, manualTab: true,
   };
   expandedBonuses: { [key: string]: boolean } = { ...CharacterInputComponent.EXPANDED_DEFAULTS };
