@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AnchorIconComponent } from '../icons/anchor-icon.component';
@@ -18,19 +18,11 @@ export interface NavItem {
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.css'
 })
-export class NavBarComponent implements OnInit {
-  private static readonly THEME_STORAGE_KEY = 'colorTheme';
-  private static readonly THEMES = [
-    { id: 'klasyczny', label: 'Klasyczny' },
-    { id: 'nanorobot', label: 'Nanorobot' },
-  ];
-  currentThemeLabel = 'Klasyczny';
-
+export class NavBarComponent {
   // Internal tools — routed items get a working link,
   // items without a route (or disabled) render as "wkrótce".
   // icon: 'anchor' is a sentinel rendered via <app-anchor-icon> (PrimeIcons has no anchor glyph).
   items: NavItem[] = [
-    { label: 'Start', icon: '', route: '/home' },
     { label: 'Kalkulator Postaci', icon: 'pi pi-calculator', route: '/calculator' },
     { label: 'Poziom/Trening/Ewolucje', icon: 'pi pi-chart-line', route: '/doswiadczenie' },
     { label: 'Umagi', icon: 'pi pi-star-fill', route: '/umagi' },
@@ -44,34 +36,15 @@ export class NavBarComponent implements OnInit {
   // dropdown in a distinct accent colour, opening in a new tab. Add more here.
   externalItems: NavItem[] = [
     { label: 'Raporty z ekspedycji', icon: 'pi pi-chart-bar', href: 'https://bw-report-analyzer.42web.io' },
+    { label: 'Tabelka Matiego', icon: 'pi pi-table', href: 'https://docs.google.com/spreadsheets/d/1U5ju3HvKkieSBx0V1ZC5YE2cfrD1zOBaXsq_g1fUKBM/edit?gid=394641403&pli=1&authuser=0#gid=394641403' },
+    { label: 'Podróże Starego Nerda', icon: 'pi pi-file', href: 'https://docs.google.com/document/d/1jZtSvNYHQoS9i6bEJV1Wi1g6hnC2A-GhbKXx3ZLPH6M/edit?tab=t.0' },
+    { label: 'ZdrasTool', icon: 'pi pi-wrench', href: 'https://zdrastools.neocities.org/' },
   ];
 
   externalOpen = false;
+  mobileOpen = false;
 
   constructor(private el: ElementRef<HTMLElement>) { }
-
-  ngOnInit(): void {
-    try {
-      const savedTheme = localStorage.getItem(NavBarComponent.THEME_STORAGE_KEY);
-      const match = NavBarComponent.THEMES.find(t => t.id === savedTheme);
-      if (match) {
-        document.documentElement.setAttribute('data-theme', match.id);
-        this.currentThemeLabel = match.label;
-      }
-    } catch { }
-  }
-
-  cycleTheme(): void {
-    const themes = NavBarComponent.THEMES;
-    const current = document.documentElement.getAttribute('data-theme') ?? 'klasyczny';
-    const idx = themes.findIndex(t => t.id === current);
-    const next = themes[(idx + 1) % themes.length];
-    document.documentElement.setAttribute('data-theme', next.id);
-    this.currentThemeLabel = next.label;
-    try {
-      localStorage.setItem(NavBarComponent.THEME_STORAGE_KEY, next.id);
-    } catch { }
-  }
 
   toggleExternal(): void {
     this.externalOpen = !this.externalOpen;
@@ -81,15 +54,25 @@ export class NavBarComponent implements OnInit {
     this.externalOpen = false;
   }
 
+  toggleMobile(): void {
+    this.mobileOpen = !this.mobileOpen;
+  }
+
+  closeMobile(): void {
+    this.mobileOpen = false;
+  }
+
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    if (this.externalOpen && !this.el.nativeElement.contains(event.target as Node)) {
+    if (!this.el.nativeElement.contains(event.target as Node)) {
       this.externalOpen = false;
+      this.mobileOpen = false;
     }
   }
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.externalOpen = false;
+    this.mobileOpen = false;
   }
 }

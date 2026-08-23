@@ -11,7 +11,7 @@
   width: 60px;
   min-height: 24px;
   padding: 3px 6px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   background: var(--bg-deep);
   border-color: var(--color-accent);
   color: var(--color-text);
@@ -47,11 +47,11 @@
 }
 
 :host ::ng-deep p-inputnumber .p-inputnumber-button .pi {
-  font-size: 9px;
+  font-size: var(--fs-xs);
 }
 
 .exp-view {
-  max-width: 720px;
+  max-width: 1120px;
   margin: 0 auto;
   padding: 24px 20px 40px;
 }
@@ -61,7 +61,7 @@
   padding: 18px 20px;
   margin-bottom: 24px;
   background: var(--bg-panel);
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
   border-radius: 8px;
 }
 
@@ -69,16 +69,34 @@
   margin-bottom: 0;
 }
 
+/* Side-by-side stat / evolution cost panels */
+.exp-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  gap: 24px;
+}
+
+.exp-columns .feature-section {
+  margin-bottom: 0;
+}
+
+@media (max-width: 860px) {
+  .exp-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
 .exp-header h1 {
   margin: 0 0 4px;
-  font-size: 22px;
+  font-size: var(--fs-2xl);
   font-weight: 700;
   color: var(--section-title-color);
 }
 
 .exp-header p {
   margin: 0 0 20px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   color: var(--label-color);
   line-height: 1.5;
 }
@@ -91,7 +109,7 @@
 }
 
 .exp-picker label {
-  font-size: 14px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--label-color);
 }
@@ -122,14 +140,14 @@
 }
 
 .exp-card-label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--label-color);
 }
 
 .exp-card-value {
-  font-size: 20px;
+  font-size: var(--fs-2xl);
   font-weight: 700;
   color: var(--value-color);
   font-variant-numeric: tabular-nums;
@@ -143,7 +161,7 @@
 .exp-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 
 .exp-table th {
@@ -179,7 +197,7 @@
 /* ── Stat cost section ── */
 .stat-section .exp-header h2 {
   margin: 0 0 4px;
-  font-size: 18px;
+  font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--section-title-color);
 }
@@ -211,14 +229,14 @@
   align-items: center;
   gap: 10px;
   flex: 0 0 168px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   font-weight: 600;
   letter-spacing: 0.3px;
   color: var(--label-color);
 }
 
 .stat-label .pi {
-  font-size: 14px;
+  font-size: var(--fs-md);
   color: var(--section-icon);
   width: 16px;
   text-align: center;
@@ -229,7 +247,7 @@
   margin-left: auto;
   min-width: 96px;
   text-align: right;
-  font-size: 14px;
+  font-size: var(--fs-md);
   font-weight: 700;
   color: var(--value-color);
   font-variant-numeric: tabular-nums;
@@ -247,14 +265,15 @@
 }
 
 .stat-total-label {
-  font-size: 11px;
+  font-size: var(--fs-base);
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--label-color);
+  color: var(--section-title-color);
 }
 
 .stat-total-value {
-  font-size: 22px;
+  font-size: var(--fs-2xl);
   font-weight: 700;
   color: var(--section-icon);
   font-variant-numeric: tabular-nums;

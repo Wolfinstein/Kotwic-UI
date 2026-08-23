@@ -2,7 +2,7 @@
   display: block;
   height: 100%;
   overflow: auto;
-  --reward-gold: #E0A94F;
+  --reward-gold: var(--external-accent);
   --reward-gold-hi: rgba(224, 169, 79, 0.15);
 }
 
@@ -16,7 +16,7 @@
   padding: 18px 20px;
   margin-bottom: 24px;
   background: var(--bg-panel);
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
   border-radius: 8px;
 }
 
@@ -26,14 +26,14 @@
 
 .exp-header h1 {
   margin: 0 0 4px;
-  font-size: 22px;
+  font-size: var(--fs-2xl);
   font-weight: 700;
   color: var(--section-title-color);
 }
 
 .exp-header p {
   margin: 0 0 18px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   color: var(--label-color);
   line-height: 1.5;
 }
@@ -52,7 +52,7 @@
   background: var(--bg-deep);
   border-color: var(--color-accent);
   color: var(--color-text);
-  font-size: 13px;
+  font-size: var(--fs-base);
   padding: 7px 10px;
 }
 
@@ -65,28 +65,46 @@
 /* ── Zone section ── */
 .zone-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  gap: 10px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
 }
 
 .zone-header h2 {
   margin: 0;
-  font-size: 17px;
+  font-size: var(--fs-lg);
   font-weight: 700;
   color: var(--section-title-color);
 }
 
 .zone-count {
-  font-size: 12px;
+  margin-left: auto;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--label-color);
 }
 
+.zone-chevron {
+  font-size: var(--fs-base);
+  color: var(--label-color);
+  transition: transform 0.15s ease;
+}
+
+.zone-chevron.open {
+  transform: rotate(180deg);
+}
+
 .quest-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 10px;
+  margin-top: 14px;
 }
 
 .quest-card {
@@ -118,19 +136,19 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-weight: 700;
   color: var(--reward-gold);
   font-variant-numeric: tabular-nums;
 }
 
 .quest-reward .pi {
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 
 .quest-task {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--fs-base);
   line-height: 1.5;
   color: var(--value-color);
 }
@@ -140,14 +158,14 @@
   align-items: flex-start;
   gap: 6px;
   margin: 0;
-  font-size: 12px;
+  font-size: var(--fs-base);
   line-height: 1.5;
   color: var(--label-color);
   font-style: italic;
 }
 
 .quest-howto .pi {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   margin-top: 3px;
   flex-shrink: 0;
   color: var(--section-icon);
@@ -161,7 +179,7 @@
 }
 
 .quest-act-label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -175,7 +193,7 @@
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-weight: 700;
   color: var(--bg-deep);
   background: var(--section-icon);
@@ -193,7 +211,7 @@
   align-items: center;
   gap: 6px;
   width: fit-content;
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--external-accent);
   text-decoration: none;
@@ -204,13 +222,14 @@
 }
 
 .quest-example-link .pi {
-  font-size: 10px;
+  font-size: var(--fs-xs);
 }
 
 .quests-empty {
+  grid-column: 1 / -1;
   padding: 14px;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--label-color);
   font-style: italic;
 }

@@ -1,12 +1,17 @@
 .hub-nav {
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 24px;
-  height: 48px;
+  column-gap: 16px;
+  height: 72px;
   flex-shrink: 0;
-  padding: 0 16px;
-  background: var(--bg-deep);
-  border-bottom: 1px solid var(--section-line);
+  padding: 0 32px;
+  background: linear-gradient(180deg, rgba(106, 135, 171, 0.16), rgba(34, 28, 25, 0.55));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(106, 135, 171, 0.35);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
   /* overflow must stay visible so the external dropdown isn't clipped */
   overflow: visible;
 }
@@ -15,11 +20,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 15px;
+  font-size: var(--fs-lg);
   font-weight: 700;
   font-family: inherit;
   letter-spacing: 0.5px;
   color: var(--section-title-color);
+  text-decoration: none;
   white-space: nowrap;
   background: transparent;
   border: none;
@@ -37,12 +43,37 @@
 .hub-brand .pi,
 .hub-brand app-anchor-icon {
   color: var(--section-icon);
-  font-size: 16px;
+  font-size: var(--fs-xl);
+}
+
+.hub-mobile-trigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--section-icon);
+  font-size: var(--fs-xl);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.hub-mobile-trigger:hover {
+  background: var(--accent-hi);
+}
+
+.hub-nav-collapsible {
+  display: contents;
 }
 
 .hub-nav-items {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
   list-style: none;
   margin: 0;
@@ -59,19 +90,19 @@
   align-items: center;
   gap: 8px;
   height: 100%;
-  padding: 0 14px;
-  font-size: 13px;
+  padding: 0 16px;
+  font-size: var(--fs-md);
   font-weight: 600;
   text-decoration: none;
   color: var(--label-color);
-  border-bottom: 2px solid transparent;
+  border-bottom: 3px solid transparent;
   transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
 }
 
 .hub-nav-link .pi,
 .hub-nav-link app-anchor-icon {
-  font-size: 14px;
+  font-size: var(--fs-md);
 }
 
 .hub-nav-link:hover:not(.disabled) {
@@ -81,7 +112,7 @@
 
 .hub-nav-link.active {
   color: var(--section-icon);
-  border-bottom-color: var(--section-line);
+  border-bottom-color: var(--tool-orange-bg);
 }
 
 .hub-nav-link.disabled {
@@ -116,7 +147,7 @@
 }
 
 .hub-external-trigger .chevron {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   transition: transform 0.15s ease;
 }
 
@@ -145,7 +176,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   font-weight: 600;
   text-decoration: none;
   color: var(--external-accent);
@@ -159,8 +190,89 @@
 }
 
 .hub-external-item .ext-indicator {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   opacity: 0.7;
   margin-left: auto;
   padding-left: 12px;
+}
+
+/* ─────────────────────────────────────────────────────── */
+/* RESPONSIVE: collapse into a hamburger-triggered drawer  */
+/* ─────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hub-nav {
+    display: flex;
+  }
+
+  .hub-mobile-trigger {
+    display: flex;
+  }
+
+  .hub-nav-collapsible {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    background: var(--bg-deep);
+    border-bottom: 1px solid var(--section-line);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    z-index: 100;
+    max-height: calc(100vh - 72px);
+    overflow-y: auto;
+  }
+
+  .hub-nav-collapsible.open {
+    display: flex;
+  }
+
+  .hub-nav-items {
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    width: 100%;
+  }
+
+  .hub-nav-items li {
+    height: auto;
+    width: 100%;
+  }
+
+  .hub-nav-link {
+    height: auto;
+    padding: 12px 16px;
+    border-bottom: none;
+    border-left: 3px solid transparent;
+  }
+
+  .hub-nav-link.active {
+    border-bottom-color: transparent;
+    border-left-color: var(--tool-orange-bg);
+  }
+
+  .hub-external {
+    width: 100%;
+    height: auto;
+    margin-left: 0;
+    padding-left: 0;
+    padding-top: 4px;
+    border-left: none;
+    border-top: 1px solid var(--section-line);
+  }
+
+  .hub-external-trigger {
+    width: 100%;
+    height: auto;
+    padding: 12px 16px;
+  }
+
+  .hub-external-menu {
+    position: static;
+    min-width: 0;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+  }
 }

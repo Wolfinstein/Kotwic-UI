@@ -1,6 +1,8 @@
 .dashboard-panel {
   padding: 8px;
-  background: var(--bg-main);
+  background-color: var(--bg-main);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
   overflow: hidden;
   height: auto;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -25,7 +27,7 @@
 
 h2 {
   margin: 0 0 10px 0;
-  font-size: 14px;
+  font-size: var(--fs-md);
   font-weight: 700;
   color: var(--color-accent);
   text-transform: uppercase;
@@ -33,7 +35,7 @@ h2 {
 }
 
 h3 {
-  font-size: 13px;
+  font-size: var(--fs-base);
   font-weight: 700;
   margin: 0;
   color: var(--color-accent);
@@ -43,19 +45,21 @@ h3 {
 
 h4 {
   margin: 0 0 8px 0;
-  font-size: 13px;
+  font-size: var(--fs-base);
   font-weight: 700;
-  color: #ffb74d;
+  color: #c9954f;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .attributes-display,
 .combat-section {
-  background: var(--bg-panel);
+  background-color: var(--bg-panel);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
   padding: 10px;
   border-radius: 6px;
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
   flex-shrink: 0;
 }
 
@@ -125,9 +129,9 @@ h4 {
   gap: 4px;
   padding: 8px 10px;
   background: var(--bg-deep);
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
   border-radius: 4px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   transition: all 0.2s ease;
   cursor: pointer;
   min-height: 40px;
@@ -140,7 +144,7 @@ h4 {
     flex-direction: row;
     justify-content: space-between;
     padding: 10px 12px;
-    font-size: 11px;
+    font-size: var(--fs-sm);
     min-height: auto;
   }
 }
@@ -148,7 +152,7 @@ h4 {
 /* Desktop: same */
 @media (min-width: 1281px) {
   .attr-item {
-    font-size: 11px;
+    font-size: var(--fs-sm);
   }
 }
 
@@ -161,13 +165,13 @@ h4 {
 .attr-label {
   font-weight: 600;
   color: var(--label-color);
-  font-size: 12px;
+  font-size: var(--fs-base);
 }
 
 .attr-value {
   font-weight: 700;
   color: var(--value-color);
-  font-size: 14px;
+  font-size: var(--fs-md);
 }
 
 .combat-row {
@@ -182,7 +186,7 @@ h4 {
   background: var(--bg-deep);
   padding: 8px;
   border-radius: 4px;
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
 }
 
 .combat-values {
@@ -194,11 +198,11 @@ h4 {
 
 .value-badge {
   background: var(--accent-hi);
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
   color: var(--value-color);
   padding: 3px 12px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-weight: 700;
   text-align: center;
   flex: 1 1 0;
@@ -210,7 +214,7 @@ h4 {
 }
 
 .sub-text {
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--label-color);
   display: block;
   margin-top: 4px;
@@ -231,11 +235,11 @@ h4 {
 }
 
 .damage-range {
-  font-size: 14px;
+  font-size: var(--fs-md);
   font-weight: 700;
   padding: 8px;
   background: var(--bg-deep);
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
   color: var(--value-color);
   border-radius: 4px;
   text-align: center;
@@ -258,11 +262,11 @@ h4 {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  font-size: 13px;
+  font-size: var(--fs-base);
 }
 
 .section-icon {
-  font-size: 18px;
+  font-size: var(--fs-xl);
   width: 20px;
   text-align: center;
   display: block;
@@ -280,14 +284,14 @@ h4 {
 
 /* Weapon Section Enhancement */
 .weapon-header {
-  background: rgba(255, 152, 0, 0.08);
-  border-left: 3px solid #ff9800;
+  background: rgba(184, 114, 42, 0.08);
+  border-left: 3px solid #b8722a;
   padding-left: 8px;
   color: var(--section-title-color);
 }
 
 .damage-label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--label-color);
 }
 
@@ -306,18 +310,18 @@ h4 {
 }
 
 .modifier {
-  font-size: 11px;
-  color: #ffb74d;
+  font-size: var(--fs-sm);
+  color: #c9954f;
   padding: 6px;
   background: var(--bg-deep);
-  border-left: 2px solid #ff9800;
+  border-left: 2px solid #b8722a;
   border-radius: 0;
   font-style: italic;
   text-align: center;
 }
 
 .modifier:last-child {
-  border-right: 2px solid #ff9800;
+  border-right: 2px solid #b8722a;
 }
 
 .ziz-chart-wrapper {
@@ -344,7 +348,7 @@ h4 {
   display: grid;
   grid-template-columns: 3rem 1fr 3.5rem;
   padding: 3px 8px;
-  font-size: 12px;
+  font-size: var(--fs-base);
   align-items: center;
 }
 
@@ -372,18 +376,18 @@ h4 {
 .ziz-round-total {
   margin-top: 6px;
   padding: 5px 8px;
-  border-top: 1px solid var(--color-accent);
+  border-top: 1px solid var(--border-muted);
   background: var(--accent-hi);
 }
 
 .ziz-round-total .ziz-round-label,
 .ziz-round-total .ziz-round-value {
-  color: #ffb74d;
+  color: #c9954f;
 }
 
 .ziz-growth {
-  font-size: 10px;
-  color: #9bdfc5;
+  font-size: var(--fs-xs);
+  color: #6fae9c;
   font-weight: 600;
   text-align: right;
 }
@@ -399,7 +403,7 @@ h4 {
 ::-webkit-scrollbar-thumb {
   background: var(--bg-main);
   border-radius: 3px;
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
 }
 
 ::-webkit-scrollbar-thumb:hover {

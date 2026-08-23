@@ -6,53 +6,80 @@
 }
 
 /* ─────────────────────────────────────────────────────── */
+/* TYPE SCALE                                               */
+/* ─────────────────────────────────────────────────────── */
+:root {
+  --fs-xs:      10px;
+  --fs-sm:      11px;
+  --fs-base:    13px;
+  --fs-md:      14px;
+  --fs-lg:      16px;
+  --fs-xl:      18px;
+  --fs-2xl:     22px;
+  --fs-display: 44px;
+}
+
+/* ─────────────────────────────────────────────────────── */
 /* COLOUR THEMES                                           */
 /* ─────────────────────────────────────────────────────── */
-:root, [data-theme="klasyczny"] {
-  --bg-main:          #5F2E2F;
-  --bg-panel:         #072944;
-  --bg-deep:          #00192d;
-  --bg-hover:         #0f3d63;
-  --color-text:       #f6e8ea;
-  --color-accent:     #6A87AB;
-  --accent-low:       rgba(106, 135, 171, 0.07);
-  --accent-mid:       rgba(106, 135, 171, 0.08);
-  --accent-hi:        rgba(106, 135, 171, 0.15);
-  --input-active-bg:  #9b323477;
-  --input-active-border: #8aa5c7;
-  --section-line:     #6A87AB;
-  --section-icon:     #abd2ff;
-  --section-title-color: #f6e8ea;
-  --label-color:      #abd2ffb7;
-  --value-color:      #f6e8ea;
-  --tooltip-bg:       #5F2E2F;
-  --chart-color:      #f6e8ea;
-  --external-accent:  #E0A94F;
-  --external-accent-hi: rgba(224, 169, 79, 0.15);
+:root {
+  --bg-main:          #1b2021;
+  --bg-panel:         #242b2c;
+  --bg-deep:          #121617;
+  --bg-hover:         #313a3c;
+  --color-text:       #fbfbfb;
+  --color-accent:     #1b998b;
+  --accent-low:       rgba(27, 153, 139, 0.07);
+  --accent-mid:       rgba(27, 153, 139, 0.08);
+  --accent-hi:        rgba(27, 153, 139, 0.15);
+  --border-muted:     rgba(27, 153, 139, 0.32);
+  --input-active-bg:  rgba(27, 153, 139, 0.28);
+  --input-active-border: #62929e;
+  --section-line:     #1b998b;
+  --section-icon:     #6fe0cf;
+  --section-title-color: #fbfbfb;
+  --label-color:      #bcabaee0;
+  --value-color:      #fbfbfb;
+  --tooltip-bg:       #1b2021;
+  --chart-color:      #fbfbfb;
+  --external-accent:  #62929e;
+  --external-accent-hi: rgba(98, 146, 158, 0.15);
+  --danger-color:     #c14953;
 }
 
 
-[data-theme="nanorobot"] {
-  --bg-main:          #120B00;
-  --bg-panel:         #281600;
-  --bg-deep:          #120000;
-  --bg-hover:         #222C02;
-  --color-text:       lime;
-  --color-accent:     #804000;
-  --accent-low:       rgba(0, 0, 0, 0.253);
-  --accent-mid:       rgba(33, 115, 70, 0.08);
-  --accent-hi:        rgba(33, 115, 70, 0.15);
-  --input-active-bg:  #86562573;
-  --input-active-border: #dde16a67;
-  --section-line:     #dde16a60;
-  --section-icon:     #DDE16A;
-  --section-title-color: #DDE16A;
-  --label-color:      #98822F;
-  --value-color:      lime;
-  --tooltip-bg:       #1a0800;
-  --chart-color:      #DDE16A;
-  --external-accent:  #E08A2E;
-  --external-accent-hi: rgba(224, 138, 46, 0.15);
+/* ─────────────────────────────────────────────────────── */
+/* STATUS COLOURS (theme-independent semantics)            */
+/* ─────────────────────────────────────────────────────── */
+:root {
+  --success-color:    #4caf50;
+  --success-text:      #81c784;
+  --success-bg:        rgba(76, 175, 80, 0.15);
+  --warning-color:    #ffc107;
+  --warning-text:      #ffd54f;
+  --warning-bg:        rgba(255, 193, 7, 0.15);
+  --error-color:      #e57373;
+  --error-bg:          rgba(229, 115, 115, 0.15);
+}
+
+/* ─────────────────────────────────────────────────────── */
+/* TOOL CARD ACCENTS (theme-independent, landing page)      */
+/* ─────────────────────────────────────────────────────── */
+:root {
+  --tool-teal-bg:      #1b998b;
+  --tool-teal-text:    #062a25;
+  --tool-purple-bg:    #7fabb5;
+  --tool-purple-text:  #16292d;
+  --tool-rose-bg:      #b9d3d9;
+  --tool-rose-text:    #1c3236;
+  --tool-orange-bg:    #c98652;
+  --tool-orange-text:  #3d2210;
+  --tool-amber-bg:     #8f4a28;
+  --tool-amber-text:   #f5ded0;
+  --tool-slate-bg:     #2f4c53;
+  --tool-slate-text:   #cfe4e8;
+  --tool-ash-bg:       #bcabae;
+  --tool-ash-text:     #241c1e;
 }
 
 html,
@@ -175,7 +202,7 @@ select:focus-visible {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #8aa5c7;
+  background: var(--input-active-border);
 }
 
 /* ─────────────────────────────────────────────────────── */
@@ -193,7 +220,7 @@ select:focus-visible {
 
 .p-select-label {
   color: var(--value-color) !important;
-  font-size: 13px !important;
+  font-size: var(--fs-base) !important;
   text-align: center !important;
 }
 
@@ -214,7 +241,7 @@ select:focus-visible {
   background: var(--bg-deep) !important;
   border-color: var(--color-accent) !important;
   color: var(--value-color) !important;
-  font-size: 13px !important;
+  font-size: var(--fs-base) !important;
   width: 4vw !important;
   min-width: 80px !important;
 }
@@ -237,7 +264,7 @@ select:focus-visible {
 .p-select-option {
   background: transparent !important;
   color: var(--value-color) !important;
-  font-size: 10px !important;
+  font-size: var(--fs-base) !important;
   padding: 6px 10px !important;
 }
 
@@ -260,7 +287,7 @@ select:focus-visible {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   border: none !important;
   background: var(--accent-hi) !important;
@@ -279,7 +306,7 @@ select:focus-visible {
 
 .rune-actions .p-button {
   --p-button-text-secondary-color: var(--color-accent);
-  --p-button-text-danger-color: #c14953;
+  --p-button-text-danger-color: var(--danger-color);
   padding: 2px 5px !important;
 }
 
@@ -290,7 +317,7 @@ select:focus-visible {
 
 .rune-actions .p-button-danger .p-button-icon,
 .rune-actions .p-button-danger .pi {
-  color: #c14953 !important;
+  color: var(--danger-color) !important;
 }
 
 .rune-actions .p-button:hover:not(:disabled) .p-button-icon,
@@ -299,7 +326,7 @@ select:focus-visible {
 }
 
 .p-inputnumber-button .pi {
-  font-size: 13px !important;
+  font-size: var(--fs-base) !important;
 }
 
 .p-selectbutton {
@@ -322,7 +349,7 @@ select:focus-visible {
 .p-tooltip .p-tooltip-text {
   background: var(--tooltip-bg) !important;
   color: var(--color-text) !important;
-  font-size: 13px !important;
+  font-size: var(--fs-base) !important;
   line-height: 1.6 !important;
   white-space: pre-wrap !important;
   word-break: break-word !important;

@@ -1,6 +1,5 @@
 <div class="home-view">
   <section class="hero">
-    <app-anchor-icon class="hero-icon"></app-anchor-icon>
     <h1>Kotwic-UI</h1>
     <p>Zestaw narzędzi do Blood Wars — policz, zaplanuj, zdominuj.</p>
   </section>
@@ -8,7 +7,7 @@
   <section class="tool-grid">
     @for (tool of tools; track tool.label) {
       @if (tool.route && !tool.disabled) {
-        <a [routerLink]="tool.route" class="tool-card">
+        <a [routerLink]="tool.route" [class]="'tool-card tool-accent-' + tool.accent + (tool.size ? ' tool-size-' + tool.size : '')">
           <i [class]="tool.icon"></i>
           <div class="tool-card-body">
             <h2>{{ tool.label }}</h2>
@@ -17,7 +16,7 @@
           <i class="pi pi-chevron-right tool-card-arrow"></i>
         </a>
       } @else {
-        <span class="tool-card disabled" title="Wkrótce">
+        <span [class]="'tool-card disabled tool-accent-' + tool.accent + (tool.size ? ' tool-size-' + tool.size : '')" title="Wkrótce">
           <i [class]="tool.icon"></i>
           <div class="tool-card-body">
             <h2>{{ tool.label }}</h2>
@@ -29,34 +28,43 @@
   </section>
 
   @if (externalTools.length) {
-    <section class="tool-grid external">
-      @for (tool of externalTools; track tool.label) {
-        <a [href]="tool.href" target="_blank" rel="noopener noreferrer" class="tool-card external-card" title="Otwiera się w nowej karcie">
-          <i [class]="tool.icon"></i>
-          <div class="tool-card-body">
-            <h2>{{ tool.label }}</h2>
-            <p>{{ tool.description }}</p>
-          </div>
-          <i class="pi pi-external-link tool-card-arrow"></i>
-        </a>
-      }
+    <section class="external-strip">
+      <span class="external-strip-label">Zewnętrzne źródła</span>
+      <div class="external-strip-links">
+        @for (tool of externalTools; track tool.label) {
+          <a [href]="tool.href" target="_blank" rel="noopener noreferrer" class="external-strip-link" [title]="tool.description">
+            <i [class]="tool.icon"></i>
+            <span>{{ tool.label }}</span>
+            <i class="pi pi-external-link external-strip-indicator"></i>
+          </a>
+        }
+      </div>
     </section>
   }
 
   @if (knownIssues.length) {
     <section class="known-issues" id="znane-problemy">
-      <h2><i class="pi pi-exclamation-triangle"></i> Problemy wieku dziecięcego</h2>
-      <ul>
-        @for (issue of knownIssues; track issue) {
-          <li>{{ issue }}</li>
-        }
-      </ul>
+      <button type="button" class="known-issues-toggle" (click)="toggleIssues()" [attr.aria-expanded]="issuesOpen">
+        <i class="pi pi-exclamation-triangle"></i>
+        <span>Znane problemy</span>
+        <i class="pi pi-chevron-down known-issues-chevron" [class.open]="issuesOpen"></i>
+      </button>
+      @if (issuesOpen) {
+        <ul>
+          @for (issue of knownIssues; track issue) {
+            <li>{{ issue }}</li>
+          }
+        </ul>
+      }
     </section>
   }
 
   <footer class="home-footer">
-    <app-anchor-icon class="footer-icon"></app-anchor-icon>
-    <p>
+    <div class="home-footer-brand">
+      <app-anchor-icon></app-anchor-icon>
+      <span>Kotwic-UI</span>
+    </div>
+    <p class="home-footer-contact">
       W razie kontaktu zapraszam
       <a href="https://r20.bloodwars.pl/showmsg.php?a=profile&uid=8779" target="_blank" rel="noopener noreferrer" class="footer-link">w grze</a>
       lub na discordzie.

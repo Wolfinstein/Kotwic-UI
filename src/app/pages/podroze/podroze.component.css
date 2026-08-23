@@ -14,7 +14,7 @@
   padding: 18px 20px;
   margin-bottom: 24px;
   background: var(--bg-panel);
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
   border-radius: 8px;
 }
 
@@ -24,14 +24,14 @@
 
 .exp-header h1 {
   margin: 0 0 4px;
-  font-size: 22px;
+  font-size: var(--fs-2xl);
   font-weight: 700;
   color: var(--section-title-color);
 }
 
 .exp-header p {
   margin: 0 0 18px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   color: var(--label-color);
   line-height: 1.5;
 }
@@ -51,7 +51,7 @@
   color: var(--value-color);
   padding: 10px;
   font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 13px;
+  font-size: var(--fs-base);
   resize: vertical;
 }
 
@@ -67,7 +67,7 @@
   background: var(--accent-hi);
   border-left: 3px solid var(--external-accent);
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--label-color);
 }
 
@@ -89,7 +89,7 @@
 }
 
 .stat-preview-row label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--label-color);
 }
@@ -118,7 +118,7 @@
 }
 
 .selector-block label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   color: var(--label-color);
 }
@@ -136,7 +136,7 @@
   border-radius: 6px;
   padding: 9px 16px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--fs-base);
   transition: background 0.15s ease, opacity 0.15s ease;
 }
 
@@ -157,7 +157,7 @@
 .btn-start {
   background: var(--external-accent);
   color: var(--bg-deep);
-  font-size: 15px;
+  font-size: var(--fs-md);
   padding: 12px 24px;
 }
 
@@ -168,7 +168,7 @@
 .btn-restart {
   margin-top: 14px;
   width: 100%;
-  background: #c14953;
+  background: var(--danger-color);
   color: #fff;
 }
 
@@ -212,7 +212,7 @@
 .game-main h2,
 .log-panel h2 {
   margin: 0 0 12px;
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 700;
   color: var(--section-title-color);
 }
@@ -224,7 +224,7 @@
   gap: 8px;
   padding: 5px 8px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 
 .stat-name {
@@ -259,13 +259,13 @@
 
 .round-card h2 {
   margin: 0 0 8px;
-  font-size: 15px;
+  font-size: var(--fs-md);
   color: var(--section-title-color);
 }
 
 .round-card p {
   margin: 4px 0;
-  font-size: 13px;
+  font-size: var(--fs-base);
   color: var(--value-color);
 }
 
@@ -288,7 +288,7 @@
 }
 
 .opt-btn.blood {
-  border-color: #c14953;
+  border-color: var(--danger-color);
 }
 
 .opt-btn.opt-skip {
@@ -300,7 +300,7 @@
 }
 
 .opt-btn.opt-extra {
-  border-color: #81c784;
+  border-color: var(--success-text);
 }
 
 .opt-btn.opt-special {
@@ -316,12 +316,12 @@
 
 .waiting-card p {
   margin: 0 0 12px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   color: var(--label-color);
 }
 
 .waiting-countdown {
-  font-size: 40px;
+  font-size: var(--fs-display);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--external-accent);
@@ -335,13 +335,13 @@
 
 .victory-card h1 {
   color: var(--external-accent);
-  font-size: 36px;
+  font-size: var(--fs-display);
   margin: 0 0 12px;
 }
 
 .victory-card p {
   margin: 6px 0;
-  font-size: 14px;
+  font-size: var(--fs-md);
 }
 
 .victory-card .btn-start {
@@ -356,7 +356,7 @@
   border-radius: 6px;
   padding: 8px 10px;
   font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 12px;
+  font-size: var(--fs-base);
 }
 
 .log-line {

@@ -16,11 +16,25 @@ export class QuestsComponent {
 
   filterText = '';
 
+  private openZones = new Set<number>();
+
   filteredQuests(zone: QuestZone): Quest[] {
     const text = this.filterText.trim().toLowerCase();
     if (!text) return zone.quests;
     return zone.quests.filter(q =>
       q.task.toLowerCase().includes(text) || q.howTo.toLowerCase().includes(text)
     );
+  }
+
+  isZoneOpen(zone: QuestZone): boolean {
+    return this.filterText.trim() !== '' || this.openZones.has(zone.zone);
+  }
+
+  toggleZone(zone: QuestZone): void {
+    if (this.openZones.has(zone.zone)) {
+      this.openZones.delete(zone.zone);
+    } else {
+      this.openZones.add(zone.zone);
+    }
   }
 }

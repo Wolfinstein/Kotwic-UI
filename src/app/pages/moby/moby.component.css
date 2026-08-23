@@ -14,7 +14,7 @@
   padding: 18px 20px;
   margin-bottom: 24px;
   background: var(--bg-panel);
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
   border-radius: 8px;
 }
 
@@ -24,21 +24,21 @@
 
 .exp-header h1 {
   margin: 0 0 4px;
-  font-size: 22px;
+  font-size: var(--fs-2xl);
   font-weight: 700;
   color: var(--section-title-color);
 }
 
 .exp-header h2 {
   margin: 0 0 4px;
-  font-size: 18px;
+  font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--section-title-color);
 }
 
 .exp-header p {
   margin: 0 0 18px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   color: var(--label-color);
   line-height: 1.5;
 }
@@ -53,7 +53,7 @@
   background: var(--bg-deep) !important;
   border-color: var(--color-accent) !important;
   color: var(--color-text);
-  font-size: 12px;
+  font-size: var(--fs-base);
   min-height: 28px;
   width: 100% !important;
   min-width: 0 !important;
@@ -62,7 +62,7 @@
 :host ::ng-deep p-select .p-select-label {
   flex: 1 1 auto !important;
   width: auto !important;
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--value-color);
   padding: 5px 8px;
   overflow: hidden;
@@ -72,7 +72,7 @@
 
 :host ::ng-deep p-select .p-select-dropdown { color: var(--color-accent); }
 :host ::ng-deep .p-select-overlay { background: var(--bg-deep); border-color: var(--color-accent); }
-:host ::ng-deep .p-select-option { color: var(--value-color); font-size: 12px; }
+:host ::ng-deep .p-select-option { color: var(--value-color); font-size: var(--fs-base); }
 :host ::ng-deep .p-select-option:hover,
 :host ::ng-deep .p-select-option.p-select-option-selected { background: var(--bg-hover); color: var(--value-color); }
 
@@ -81,7 +81,7 @@
   width: 100%;
   min-height: 24px;
   padding: 3px 6px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   background: var(--bg-deep);
   border-color: var(--color-accent);
   color: var(--color-text);
@@ -117,7 +117,7 @@
 }
 
 :host ::ng-deep p-inputnumber .p-inputnumber-button .pi {
-  font-size: 9px;
+  font-size: var(--fs-xs);
 }
 
 /* ── Picker row ── */
@@ -140,7 +140,7 @@
 }
 
 .picker-field label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -155,14 +155,14 @@
 }
 
 .mob-table-title {
-  font-size: 14px;
+  font-size: var(--fs-md);
   font-weight: 700;
   color: var(--value-color);
   margin-bottom: 10px;
 }
 
 .mob-table-hint {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 400;
   font-style: italic;
   color: var(--label-color);
@@ -171,7 +171,7 @@
 .mob-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: var(--fs-base);
   white-space: nowrap;
 }
 
@@ -181,7 +181,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   color: var(--section-icon);
   border-bottom: 1px solid var(--accent-hi);
 }
@@ -228,7 +228,7 @@
 .moby-empty {
   padding: 14px;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--label-color);
   font-style: italic;
 }
@@ -243,7 +243,7 @@
   background: var(--bg-deep);
   border: 1px solid var(--accent-hi);
   border-radius: 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--label-color);
   overflow-x: auto;
 }
@@ -258,7 +258,7 @@
   min-width: 34px;
   margin-right: 8px;
   padding: 1px 6px;
-  font-size: 10px;
+  font-size: var(--fs-xs);
   font-weight: 700;
   text-align: center;
   border-radius: 3px;
@@ -282,14 +282,14 @@
 }
 
 .result-label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--label-color);
 }
 
 .result-value {
-  font-size: 22px;
+  font-size: var(--fs-2xl);
   font-weight: 700;
   color: var(--section-icon);
   font-variant-numeric: tabular-nums;

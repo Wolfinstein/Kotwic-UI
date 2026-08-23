@@ -14,7 +14,7 @@
   padding: 18px 20px;
   margin-bottom: 24px;
   background: var(--bg-panel);
-  border: 1px solid var(--color-accent);
+  border: 1px solid var(--border-muted);
   border-radius: 8px;
 }
 
@@ -24,21 +24,21 @@
 
 .exp-header h1 {
   margin: 0 0 4px;
-  font-size: 22px;
+  font-size: var(--fs-2xl);
   font-weight: 700;
   color: var(--section-title-color);
 }
 
 .exp-header h2 {
   margin: 0 0 4px;
-  font-size: 18px;
+  font-size: var(--fs-xl);
   font-weight: 700;
   color: var(--section-title-color);
 }
 
 .exp-header p {
   margin: 0 0 18px;
-  font-size: 13px;
+  font-size: var(--fs-base);
   color: var(--label-color);
   line-height: 1.5;
 }
@@ -58,7 +58,7 @@
 }
 
 .target-field label {
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -69,7 +69,7 @@
   padding: 12px 14px;
   background: var(--accent-low);
   border-radius: 6px;
-  font-size: 14px;
+  font-size: var(--fs-md);
   font-weight: 600;
   color: var(--section-icon);
 }
@@ -79,21 +79,21 @@
   background: var(--bg-deep) !important;
   border-color: var(--color-accent) !important;
   color: var(--color-text);
-  font-size: 12px;
+  font-size: var(--fs-base);
   min-height: 28px;
   width: 100% !important;
   min-width: 0 !important;
 }
 
 :host ::ng-deep p-select .p-select-label {
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--value-color);
   padding: 5px 8px;
 }
 
 :host ::ng-deep p-select .p-select-dropdown { color: var(--color-accent); }
 :host ::ng-deep .p-select-overlay { background: var(--bg-deep); border-color: var(--color-accent); }
-:host ::ng-deep .p-select-option { color: var(--value-color); font-size: 12px; }
+:host ::ng-deep .p-select-option { color: var(--value-color); font-size: var(--fs-base); }
 :host ::ng-deep .p-select-option:hover,
 :host ::ng-deep .p-select-option.p-select-option-selected { background: var(--bg-hover); color: var(--value-color); }
 
@@ -106,7 +106,7 @@
   border: 1px solid var(--color-accent);
   border-radius: 6px;
   color: var(--color-text);
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-family: inherit;
   resize: vertical;
   box-sizing: border-box;
@@ -123,7 +123,7 @@
   align-items: center;
   gap: 8px;
   margin-top: 10px;
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--label-color);
 }
 
@@ -140,7 +140,7 @@
 
 .sort-btn, .slot-btn {
   padding: 6px 14px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -171,7 +171,7 @@
 .no-match {
   padding: 16px;
   text-align: center;
-  font-size: 13px;
+  font-size: var(--fs-base);
   color: var(--label-color);
   line-height: 1.6;
 }
@@ -194,7 +194,7 @@
 }
 
 .result-name {
-  font-size: 13px;
+  font-size: var(--fs-base);
   font-weight: 700;
   color: var(--value-color);
   margin-bottom: 6px;
@@ -207,7 +207,7 @@
 }
 
 .cost-chip {
-  font-size: 12px;
+  font-size: var(--fs-base);
   color: var(--label-color);
 }
 
@@ -232,7 +232,7 @@
   gap: 8px;
   align-items: center;
   margin-top: 6px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
 }
 
 .delta-row.upgrade { color: #6fcf7a; }
@@ -242,7 +242,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--fs-base);
   font-style: italic;
   color: var(--label-color);
 }
@@ -299,7 +299,7 @@
 }
 
 .ladder-index {
-  font-size: 13px;
+  font-size: var(--fs-base);
   font-weight: 600;
   color: var(--value-color);
 }
@@ -309,7 +309,7 @@
   flex-wrap: wrap;
   gap: 10px;
   margin-top: 4px;
-  font-size: 11px;
+  font-size: var(--fs-sm);
   color: var(--label-color);
 }
 

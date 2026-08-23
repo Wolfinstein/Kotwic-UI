@@ -1,60 +1,67 @@
 <nav class="hub-nav">
-  <button type="button" class="hub-brand" (click)="cycleTheme()" [title]="'Motyw: ' + currentThemeLabel + ' (kliknij, aby zmienić)'">
+  <a routerLink="/home" routerLinkActive="active" class="hub-brand" (click)="closeMobile()">
     <app-anchor-icon></app-anchor-icon>
     <span>Kotwic-UI</span>
+  </a>
+
+  <button type="button" class="hub-mobile-trigger" (click)="toggleMobile()"
+          [attr.aria-expanded]="mobileOpen" aria-haspopup="menu" aria-label="Menu nawigacji">
+    <i class="pi" [class.pi-bars]="!mobileOpen" [class.pi-times]="mobileOpen"></i>
   </button>
 
-  <ul class="hub-nav-items">
-    @for (item of items; track item.label) {
-      <li>
-        @if (item.route && !item.disabled) {
-          <a [routerLink]="item.route" routerLinkActive="active" class="hub-nav-link">
-            @if (item.icon === 'anchor') {
-              <app-anchor-icon></app-anchor-icon>
-            } @else if (item.icon) {
-              <i [class]="item.icon"></i>
-            }
-            <span>{{ item.label }}</span>
-          </a>
-        } @else {
-          <span class="hub-nav-link disabled" title="Wkrótce">
-            @if (item.icon === 'anchor') {
-              <app-anchor-icon></app-anchor-icon>
-            } @else if (item.icon) {
-              <i [class]="item.icon"></i>
-            }
-            <span>{{ item.label }}</span>
-          </span>
-        }
-      </li>
-    }
-  </ul>
-
-  @if (externalItems.length) {
-    <div class="hub-external" [class.open]="externalOpen">
-      <button type="button" class="hub-nav-link external hub-external-trigger"
-              (click)="toggleExternal()"
-              [attr.aria-expanded]="externalOpen" aria-haspopup="menu">
-        <i class="pi pi-external-link"></i>
-        <span>Zewnętrzne</span>
-        <i class="pi pi-chevron-down chevron"></i>
-      </button>
-
-      @if (externalOpen) {
-        <ul class="hub-external-menu" role="menu">
-          @for (item of externalItems; track item.label) {
-            <li role="none">
-              <a [href]="item.href" target="_blank" rel="noopener noreferrer"
-                 class="hub-external-item" role="menuitem"
-                 title="Otwiera się w nowej karcie" (click)="closeExternal()">
+  <div class="hub-nav-collapsible" [class.open]="mobileOpen">
+    <ul class="hub-nav-items">
+      @for (item of items; track item.label) {
+        <li>
+          @if (item.route && !item.disabled) {
+            <a [routerLink]="item.route" routerLinkActive="active" class="hub-nav-link" (click)="closeMobile()">
+              @if (item.icon === 'anchor') {
+                <app-anchor-icon></app-anchor-icon>
+              } @else if (item.icon) {
                 <i [class]="item.icon"></i>
-                <span>{{ item.label }}</span>
-                <i class="pi pi-external-link ext-indicator"></i>
-              </a>
-            </li>
+              }
+              <span>{{ item.label }}</span>
+            </a>
+          } @else {
+            <span class="hub-nav-link disabled" title="Wkrótce">
+              @if (item.icon === 'anchor') {
+                <app-anchor-icon></app-anchor-icon>
+              } @else if (item.icon) {
+                <i [class]="item.icon"></i>
+              }
+              <span>{{ item.label }}</span>
+            </span>
           }
-        </ul>
+        </li>
       }
-    </div>
-  }
+    </ul>
+
+    @if (externalItems.length) {
+      <div class="hub-external" [class.open]="externalOpen">
+        <button type="button" class="hub-nav-link external hub-external-trigger"
+                (click)="toggleExternal()"
+                [attr.aria-expanded]="externalOpen" aria-haspopup="menu">
+          <i class="pi pi-external-link"></i>
+          <span>Zewnętrzne</span>
+          <i class="pi pi-chevron-down chevron"></i>
+        </button>
+
+        @if (externalOpen) {
+          <ul class="hub-external-menu" role="menu">
+            @for (item of externalItems; track item.label) {
+              <li role="none">
+                <a [href]="item.href" target="_blank" rel="noopener noreferrer"
+                   class="hub-external-item" role="menuitem"
+                   title="Otwiera się w nowej karcie" (click)="closeExternal(); closeMobile()">
+                  <i [class]="item.icon"></i>
+                  <span>{{ item.label }}</span>
+                  <i class="pi pi-external-link ext-indicator"></i>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    }
+  </div>
 </nav>

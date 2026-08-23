@@ -82,11 +82,6 @@
               (ngModelChange)="setAttrValue(attr.key, $event)" />
           </div>
         </div>
-        <div *ngIf="expandedBonuses['trening']" class="trening-presets">
-          <p-button label="Biała" severity="secondary" size="small" (onClick)="applyTreningPreset('biala')" />
-          <p-button label="Palna" severity="secondary" size="small" (onClick)="applyTreningPreset('palna')" />
-          <p-button label="Dystans" severity="secondary" size="small" (onClick)="applyTreningPreset('dystans')" />
-        </div>
       </div>
       <!-- Equipment -->
       <div class="section section-equipment" [class.import-highlight]="importedSections['equip']" [class.section-filled]="isSectionFilled('equip')">
@@ -305,12 +300,7 @@
           </div>
         </div>
         <div *ngIf="expandedBonuses['arkany']" class="arcane-cost-total">
-          <span class="koszt-hover-wrapper">
-            <span class="koszt-label">Koszt</span>
-            <div class="koszt-image-popup">
-              <img src="/arkany.png" />
-            </div>
-          </span>: <strong>{{ arcaneTotalCost }}</strong>
+          <span class="koszt-label">Koszt</span>: <strong>{{ arcaneTotalCost }}</strong>
         </div>
       </div>
       </div>
