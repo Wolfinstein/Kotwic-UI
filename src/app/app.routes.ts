@@ -37,5 +37,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/moby/moby.component').then(m => m.MobyComponent)
   },
+  {
+    path: 'podroze',
+    loadComponent: () =>
+      import('./pages/podroze/podroze.component').then(m => m.PodrozeComponent)
+  },
   { path: '**', redirectTo: 'home' }
 ];

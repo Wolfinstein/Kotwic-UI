@@ -37,6 +37,7 @@ export class NavBarComponent implements OnInit {
     { label: 'Zadania', icon: 'pi pi-book', route: '/zadania' },
     { label: 'Kuźnia Kaina', icon: 'pi pi-hammer', route: '/kuznia' },
     { label: 'Moby i exp', icon: 'pi pi-users', route: '/moby' },
+    { label: 'Podróże', icon: 'pi pi-map', route: '/podroze' },
   ];
 
   // External tools — separate source/domain. Collected into a right-aligned

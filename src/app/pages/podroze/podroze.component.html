@@ -1,0 +1,142 @@
+<div class="podroze-view">
+
+  @if (phase === 'setup') {
+    <section class="feature-section">
+      <header class="exp-header">
+        <h1>Podróże W.I.P</h1>
+        <p>Wklej swoje początkowe statystyki (np. skopiowane ze strony treningu lub jako JSON), wybierz poziom i bossa, po czym rozpocznij podróż.</p>
+      </header>
+
+      <div class="paste-row">
+        <textarea
+          class="paste-textarea"
+          rows="6"
+          placeholder="Możesz przekopiować z okna gry"
+          [(ngModel)]="pasteInput"
+        ></textarea>
+        <button type="button" class="btn btn-accent" (click)="parsePaste()">Wczytaj</button>
+      </div>
+
+      @if (parseWarning) {
+        <div class="parse-warning">{{ parseWarning }}</div>
+      }
+
+      <div class="stats-preview">
+        @for (key of statKeys; track key) {
+          <div class="stat-preview-row">
+            <label>{{ statLabels[key] }}</label>
+            <input type="number" [(ngModel)]="draftStats[key]" />
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="feature-section">
+      <div class="setup-selectors">
+        <div class="selector-block">
+          <label>Poziom trudności</label>
+          <select [(ngModel)]="selectedLevel">
+            @for (lvl of levels; track lvl) {
+              <option [value]="lvl">{{ lvl }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="selector-block">
+          <label>Boss</label>
+          <select [(ngModel)]="selectedBoss">
+            @for (b of bosses; track b.name) {
+              <option [ngValue]="b">{{ b.name }} (Akt {{ b.act }})</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-start" [disabled]="!canStart" (click)="startGame()">
+        ROZPOCZNIJ PODRÓŻ
+      </button>
+      @if (!canStart) {
+        <div class="parse-warning">Uzupełnij wszystkie 10 cech, aby rozpocząć.</div>
+      }
+    </section>
+  } @else {
+    <div class="game-layout">
+      <aside class="stats-panel feature-section">
+        <h2>Statystyki</h2>
+        @for (key of statKeys; track key) {
+          <div class="stat-row" [class]="statRatioClass(key)">
+            <span class="stat-name">{{ statLabels[key] }}</span>
+            <span class="stat-value">{{ stats?.[key] }} / {{ initialStats?.[key] }}</span>
+          </div>
+        }
+        <button type="button" class="btn btn-restart" (click)="restartGame()">RESTART</button>
+      </aside>
+
+      <main class="game-main feature-section">
+        @if (phase === 'normal' && currentEnemy) {
+          <div class="round-card">
+            <h2>Przeciwnik — Runda {{ currentRound }}/{{ totalRounds }}</h2>
+            <p><strong>Nazwa:</strong> {{ currentEnemy.name }}</p>
+          </div>
+        }
+
+        @if (phase === 'boss' && boss) {
+          <div class="round-card">
+            <h2>BOSS — {{ boss.name }} (Runda {{ currentBossRound }}/3)</h2>
+            <p><strong>Akt:</strong> {{ boss.act }}</p>
+            <p><strong>Stały atrybut:</strong> {{ fixedLabelForRound(boss, currentBossRound) }}</p>
+          </div>
+        }
+
+        @if (phase === 'miniboss' && currentMiniBoss) {
+          <div class="round-card">
+            <h2>MINIBOSS — {{ currentMiniBoss.name }} (Runda {{ currentMiniBossRound }}/3)</h2>
+            <p><strong>Stały atrybut:</strong> {{ fixedLabelForRound(currentMiniBoss, currentMiniBossRound) }}</p>
+          </div>
+        }
+
+        @if ((phase === 'normal' || phase === 'boss' || phase === 'miniboss') && !isWaiting) {
+          <div class="options-panel">
+            @for (opt of currentOptions; track opt.label) {
+              <button
+                type="button"
+                class="btn opt-btn"
+                [class]="opt.cssClass"
+                [disabled]="!opt.enabled"
+                (click)="opt.action()"
+              >
+                {{ opt.label }}
+              </button>
+            }
+          </div>
+        }
+
+        @if (isWaiting) {
+          <div class="waiting-card">
+            <p>Czekasz, aż zagrożenie minie...</p>
+            <div class="waiting-countdown">{{ waitSecondsLeft }}</div>
+          </div>
+        }
+
+        @if (phase === 'victory') {
+          <div class="victory-card">
+            <h1>ZWYCIĘSTWO!</h1>
+            <p>Ukończyłeś podróż na poziomie {{ level }}</p>
+            <p>Pokonany boss: {{ boss?.name }} (Akt {{ boss?.act }})</p>
+            <button type="button" class="btn btn-start" (click)="restartGame()">NOWA GRA</button>
+          </div>
+        }
+      </main>
+
+      <section class="log-panel feature-section">
+        <h2>Log gry</h2>
+        <div class="log-box" #logBox>
+          @for (line of log; track $index) {
+            <div class="log-line">{{ line }}</div>
+          }
+        </div>
+      </section>
+    </div>
+  }
+
+</div>
