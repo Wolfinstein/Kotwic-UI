@@ -2,7 +2,7 @@
   <div class="panel-grid">
     <div class="column">
       <!-- Poziom + Rasa -->
-      <div class="section">
+      <div class="section" [class.import-highlight]="importedSections['main']" [class.section-filled]="isSectionFilled('main')">
         <div class="compact-grid">
           <div class="compact-item">
             <label>Poziom</label>
@@ -19,7 +19,7 @@
         </div>
       </div>
       <!-- Trening -->
-      <div class="section">
+      <div class="section" [class.import-highlight]="importedSections['trening']" [class.section-filled]="isSectionFilled('trening')">
         <p-button [label]="'Trening ' + (expandedBonuses['trening'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('trening')" [text]="true" styleClass="bonus-toggle-btn" />
         <div *ngIf="expandedBonuses['trening']" class="compact-grid">
@@ -37,7 +37,7 @@
         </div>
       </div>
       <!-- Talizmany -->
-      <div class="section">
+      <div class="section" [class.import-highlight]="importedSections['talizman']" [class.section-filled]="isSectionFilled('talizmany')">
         <p-button [label]="'Talizmany ' + (expandedBonuses['talizmany'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('talizmany')" [text]="true" styleClass="bonus-toggle-btn" />
         <div *ngIf="expandedBonuses['talizmany']" class="compact-grid">
@@ -52,7 +52,7 @@
     </div>
     <!-- Column 2: Equipment + Runes -->
     <div class="column column-equipment">
-      <div class="section section-equipment">
+      <div class="section section-equipment" [class.import-highlight]="importedSections['equip']" [class.section-filled]="isSectionFilled('equip')">
         <div class="equipment-header">
           <h3>Ekwipunek</h3>
           <p-selectbutton [options]="weaponModeOptions" [(ngModel)]="weaponMode"
@@ -153,7 +153,7 @@
         </div>
       </div>
       <!-- Arkany -->
-      <div class="section">
+      <div class="section" [class.section-filled]="isSectionFilled('arkany')">
         <p-button [label]="'Arkany ' + (expandedBonuses['arkany'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('arkany')" [text]="true" styleClass="bonus-toggle-btn" />
         <div *ngIf="expandedBonuses['arkany']" class="compact-grid">
@@ -180,7 +180,7 @@
         </div>
       </div>
       <!-- Runy -->
-      <div class="section column-bottom-section">
+      <div class="section column-bottom-section" [class.import-highlight]="importedSections['talizman']" [class.section-filled]="isSectionFilled('runy')">
         <p-button [label]="'Runy (' + (character?.runeValues?.length || 0) + ') ' + (expandedBonuses['runy'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('runy')" [text]="true" styleClass="bonus-toggle-btn" />
         <ng-container *ngIf="expandedBonuses['runy']">
@@ -193,7 +193,7 @@
         </ng-container>
       </div>
       <!-- Umagi -->
-      <div class="section column-bottom-section">
+      <div class="section column-bottom-section" [class.import-highlight]="importedSections['enchant']" [class.section-filled]="isSectionFilled('umagi')">
         <p-button [label]="'Umagi (' + (character?.umagiValues?.length || 0) + ') ' + (expandedBonuses['umagi'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('umagi')" [text]="true" styleClass="bonus-toggle-btn" />
         <ng-container *ngIf="expandedBonuses['umagi']">
@@ -209,7 +209,7 @@
     <!-- Column 3: Bonuses -->
     <div class="column">
       <!-- Przeciwnik (collapsible) -->
-      <div class="section">
+      <div class="section" [class.section-filled]="isSectionFilled('przeciwnik')">
         <p-button [label]="'Przeciwnik ' + (expandedBonuses['przeciwnik'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('przeciwnik')" [text]="true" styleClass="bonus-toggle-btn" />
         <ng-container *ngIf="expandedBonuses['przeciwnik']">
@@ -276,7 +276,9 @@
       </div>
       <div class="bonuses-container">
         <!-- Inne (collapsible) -->
-        <div class="section column-bonus">
+        <div class="section column-bonus"
+          [class.import-highlight]="importedSections['arenaSilver'] || importedSections['arenaGold'] || importedSections['clanbld']"
+          [class.section-filled]="isSectionFilled('inne')">
           <p-button [label]="'Inne ' + (expandedBonuses['inne'] ? '▼' : '▶')"
             (onClick)="toggleBonusExpand('inne')" [text]="true" styleClass="bonus-toggle-btn" />
           <div *ngIf="expandedBonuses['inne']" class="compact-grid">
@@ -307,7 +309,7 @@
           </div>
         </div>
         <!-- Budynki (collapsible) -->
-        <div class="section column-bonus">
+        <div class="section column-bonus" [class.import-highlight]="importedSections['build']" [class.section-filled]="isSectionFilled('budynki')">
           <p-button [label]="'Budynki ' + (expandedBonuses['budynki'] ? '▼' : '▶')"
             (onClick)="toggleBonusExpand('budynki')" [text]="true" styleClass="bonus-toggle-btn" />
           <div *ngIf="expandedBonuses['budynki']" class="compact-grid">
@@ -332,7 +334,7 @@
           </div>
         </div>
         <!-- Polowanie (collapsible) -->
-        <div class="section column-bonus">
+        <div class="section column-bonus" [class.import-highlight]="importedSections['huntClanBonus']" [class.section-filled]="isSectionFilled('hunt')">
           <p-button [label]="'Polowanie ' + (expandedBonuses['hunt'] ? '▼' : '▶')"
             (onClick)="toggleBonusExpand('hunt')" [text]="true" styleClass="bonus-toggle-btn" />
           <div *ngIf="expandedBonuses['hunt']" class="bonus-list">
@@ -344,7 +346,7 @@
           </div>
         </div>
         <!-- Eventy (collapsible) -->
-        <div class="section column-bonus">
+        <div class="section column-bonus" [class.section-filled]="isSectionFilled('daily')">
           <p-button [label]="'Eventy ' + (expandedBonuses['daily'] ? '▼' : '▶')"
             (onClick)="toggleBonusExpand('daily')" [text]="true" styleClass="bonus-toggle-btn" />
           <div *ngIf="expandedBonuses['daily']" class="bonus-list bonus-single">
@@ -357,7 +359,7 @@
           </div>
         </div>
         <!-- Jednoraz (collapsible) -->
-        <div class="section column-bonus">
+        <div class="section column-bonus" [class.section-filled]="isSectionFilled('oneTime')">
           <p-button [label]="'Jednoraz ' + (expandedBonuses['oneTime'] ? '▼' : '▶')"
             (onClick)="toggleBonusExpand('oneTime')" [text]="true" styleClass="bonus-toggle-btn" />
           <div *ngIf="expandedBonuses['oneTime']" class="bonus-list bonus-single">
@@ -370,7 +372,7 @@
           </div>
         </div>
         <!-- Blaszka -->
-        <div class="section">
+        <div class="section" [class.section-filled]="isSectionFilled('blaszka')">
           <p-button [label]="'Blaszka ' + (expandedBonuses['blaszka'] ? '▼' : '▶')"
             (onClick)="toggleBonusExpand('blaszka')" [text]="true" styleClass="bonus-toggle-btn" />
           <ng-container *ngIf="expandedBonuses['blaszka']">
@@ -393,7 +395,7 @@
         </div>
       </div>
       <!-- Ewolucje -->
-      <div class="section">
+      <div class="section" [class.section-filled]="isSectionFilled('ewolucje')">
         <p-button [label]="'Ewolucje ' + (expandedBonuses['ewolucje'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('ewolucje')" [text]="true" styleClass="bonus-toggle-btn" />
         <div *ngIf="expandedBonuses['ewolucje']" class="compact-grid">
@@ -409,10 +411,11 @@
       <div class="section action-buttons">
         <p-button label="Import" icon="pi pi-upload" (onClick)="importCharacter()" styleClass="action-io-btn" />
         <p-button label="Export" icon="pi pi-download" (onClick)="exportCharacter()" styleClass="action-io-btn" />
-        <p-button label="Clear" icon="pi pi-trash" severity="danger" (onClick)="clearSession()" styleClass="action-io-btn" />
+        <p-button label="Wyczyść" icon="pi pi-trash" severity="danger" (onClick)="clearSession()" styleClass="action-io-btn" />
       </div>
       <div class="section action-buttons">
         <p-button label="Presety" icon="pi pi-list" severity="secondary" (onClick)="openPresetsModal()" styleClass="action-io-btn" />
+        <p-button label="Uzupełnij z gry" icon="pi pi-clipboard" severity="secondary" (onClick)="reopenImportBulkModal()" styleClass="action-io-btn" />
       </div>
 
     </div>
@@ -628,4 +631,50 @@
       <p-button label="Zapisz Umagi" (onClick)="saveUmagi()" />
     </div>
   </ng-template>
+</p-dialog>
+
+<!-- ═══════════════════════════════════════════════════
+     IMPORT: CHOICE MODAL
+════════════════════════════════════════════════════ -->
+<p-dialog [(visible)]="showImportChoiceModal" [modal]="true" [closable]="true"
+  header="Uzupełnić dane postaci?" [style]="{'width': 'min(480px, 95vw)'}" [resizable]="false">
+  <p>Czy chcesz wprowadzić dane postaci ręcznie, czy wkleić dane zebrane skryptem Tampermonkey?</p>
+  <ng-template pTemplate="footer">
+    <div class="import-choice-footer">
+      <p-button label="Ręcznie" severity="secondary" (onClick)="chooseManualImport()" />
+      <p-button label="Uzupełnij z gry" (onClick)="chooseBulkImport()" />
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- ═══════════════════════════════════════════════════
+     IMPORT: BULK PASTE MODAL (Tampermonkey JSON)
+════════════════════════════════════════════════════ -->
+<p-dialog [(visible)]="showImportBulkModal" [modal]="true" [closable]="true"
+  header="Import zbiorczy (skrypt Tampermonkey)" [style]="{'width': 'min(720px, 95vw)'}" [resizable]="false">
+  <p class="import-step-hint">
+    Nie masz jeszcze skryptu? Pobierz go z
+    <a href="https://greasyfork.org/en/scripts/592617-kotwicui-export" target="_blank" rel="noopener">Greasy Fork</a>.
+  </p>
+  <p class="import-step-hint">
+    Uruchom skrypt Tampermonkey na dowolnej stronie r20.bloodwars.pl (musisz być zalogowany), kliknij
+    "Eksportuj dane do KotwicUI" — dane trafią do schowka. Wklej je poniżej i kliknij "Zaimportuj".
+  </p>
+  <textarea class="import-html-textarea" rows="10" placeholder="Wklej tu zawartość skopiowaną przez skrypt Tampermonkey (JSON)..."
+    [(ngModel)]="importBulkInput"></textarea>
+
+  <div *ngIf="importBulkError" class="import-result import-result-err">{{ importBulkError }}</div>
+
+  <div class="import-bulk-results">
+    <div *ngFor="let s of importSummary" class="import-result"
+      [class.import-result-ok]="s.result?.ok" [class.import-result-err]="s.result && !s.result.ok"
+      [style.display]="s.result ? 'block' : 'none'">
+      <strong>{{ s.label }}:</strong> {{ s.result?.message }}
+    </div>
+  </div>
+
+  <div class="import-step-actions">
+    <p-button label="Zaimportuj" (onClick)="parseBulkImport()" />
+    <p-button label="Zakończ" severity="secondary" (onClick)="finishBulkImport()" />
+  </div>
 </p-dialog>

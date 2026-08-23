@@ -1,6 +1,7 @@
 import { Component, ElementRef, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { AnchorIconComponent } from '../icons/anchor-icon.component';
 
 export interface NavItem {
   label: string;
@@ -13,7 +14,7 @@ export interface NavItem {
 @Component({
   selector: 'app-nav-bar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, AnchorIconComponent],
   templateUrl: './nav-bar.component.html',
   styleUrl: './nav-bar.component.css'
 })
@@ -27,13 +28,15 @@ export class NavBarComponent implements OnInit {
 
   // Internal tools — routed items get a working link,
   // items without a route (or disabled) render as "wkrótce".
+  // icon: 'anchor' is a sentinel rendered via <app-anchor-icon> (PrimeIcons has no anchor glyph).
   items: NavItem[] = [
+    { label: 'Start', icon: '', route: '/home' },
     { label: 'Kalkulator Postaci', icon: 'pi pi-calculator', route: '/calculator' },
-    { label: 'Poziom i statystyki', icon: 'pi pi-chart-line', route: '/doswiadczenie' },
+    { label: 'Poziom/Trening/Ewolucje', icon: 'pi pi-chart-line', route: '/doswiadczenie' },
     { label: 'Umagi', icon: 'pi pi-star-fill', route: '/umagi' },
     { label: 'Zadania', icon: 'pi pi-book', route: '/zadania' },
     { label: 'Kuźnia Kaina', icon: 'pi pi-hammer', route: '/kuznia' },
-    { label: 'Moby', icon: 'pi pi-users', route: '/moby' },
+    { label: 'Moby i exp', icon: 'pi pi-users', route: '/moby' },
   ];
 
   // External tools — separate source/domain. Collected into a right-aligned

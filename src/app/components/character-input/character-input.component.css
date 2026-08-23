@@ -1,3 +1,100 @@
+.import-highlight {
+  border: 1px solid #4caf50;
+  border-radius: 6px;
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.35);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.import-choice-hint {
+  font-size: 0.85em;
+  opacity: 0.75;
+}
+
+.import-bulk-results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.import-choice-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.import-summary-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.import-summary-chip {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.import-summary-chip.import-summary-ok {
+  border-color: #4caf50;
+  color: #81c784;
+}
+
+.import-summary-chip.import-summary-err {
+  border-color: #e57373;
+  color: #e57373;
+}
+
+.import-step h3 {
+  margin-top: 0;
+}
+
+.import-step-hint {
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+
+.import-step-actions-top {
+  margin-bottom: 10px;
+}
+
+.import-html-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: monospace;
+  font-size: 0.8em;
+  resize: vertical;
+}
+
+.import-result {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+.import-result-ok {
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid #4caf50;
+  color: #81c784;
+}
+
+.import-result-err {
+  background: rgba(229, 115, 115, 0.15);
+  border: 1px solid #e57373;
+  color: #e57373;
+}
+
+.import-step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 .presets-modal-layout {
   display: flex;
   gap: 16px;
@@ -167,6 +264,7 @@
 
 /* ─── Section ──────────────────────────────────────────── */
 .section {
+  position: relative;
   padding: 10px;
   background: var(--bg-panel);
   border: 1px solid var(--color-accent);
@@ -176,6 +274,13 @@
 
 @media (max-width: 768px) {
   .section { padding: 14px; }
+}
+
+/* Marks a section that already holds data, so an empty tab is visually
+   distinct from a filled one at a glance. */
+.section-filled {
+  border-color: var(--external-accent);
+  box-shadow: 0 0 5px var(--external-accent-hi);
 }
 
 .section h3, h3 {

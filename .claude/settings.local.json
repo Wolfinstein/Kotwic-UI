@@ -32,7 +32,11 @@
       "Bash(cat /tmp/mobs_sheet.csv | tail -10 *)",
       "Bash(cp /tmp/mobs_sheet.csv \"C:\\\\Users\\\\Ola\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Ola-Desktop-KotwicUI\\\\2eb4026f-b1b8-4550-8ffe-8df9056bf1e7\\\\scratchpad\\\\mobs_sheet.csv\")",
       "Bash(node parseMobs.js)",
-      "Bash(node genMobsTs.js)"
+      "Bash(node genMobsTs.js)",
+      "Bash(npx tsc *)",
+      "Bash(python3 -c ' *)",
+      "Bash(node \"C:\\\\Users\\\\Ola\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Ola-Desktop-KotwicUI\\\\59c518aa-2011-4a9b-b8aa-67f0b98ebe0e\\\\scratchpad\\\\test_resolve.js\")",
+      "Bash(npx esbuild *)"
     ]
   }
 }

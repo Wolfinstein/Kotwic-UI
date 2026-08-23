@@ -1,7 +1,12 @@
 import { Routes } from '@angular/router';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'calculator' },
+  { path: '', pathMatch: 'full', redirectTo: 'home' },
+  {
+    path: 'home',
+    loadComponent: () =>
+      import('./pages/home/home.component').then(m => m.HomeComponent)
+  },
   {
     path: 'calculator',
     loadComponent: () =>
@@ -32,5 +37,5 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./pages/moby/moby.component').then(m => m.MobyComponent)
   },
-  { path: '**', redirectTo: 'calculator' }
+  { path: '**', redirectTo: 'home' }
 ];

@@ -34,19 +34,10 @@
   background: var(--accent-hi);
 }
 
-.hub-brand .pi {
+.hub-brand .pi,
+.hub-brand app-anchor-icon {
   color: var(--section-icon);
   font-size: 16px;
-}
-
-.brand-theme-icon {
-  font-size: 12px !important;
-  color: var(--label-color) !important;
-  margin-left: 2px;
-}
-
-.hub-brand:hover .brand-theme-icon {
-  color: var(--section-icon) !important;
 }
 
 .hub-nav-items {
@@ -78,7 +69,8 @@
   white-space: nowrap;
 }
 
-.hub-nav-link .pi {
+.hub-nav-link .pi,
+.hub-nav-link app-anchor-icon {
   font-size: 14px;
 }
 

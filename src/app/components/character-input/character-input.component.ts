@@ -22,112 +22,15 @@ import { DashboardService } from '../../services/calculate';
 import { ChartModule } from 'primeng/chart';
 import { ACT_MOBS, STAR_MOBS, ActMob, StarMob, MobStats, StatRange } from '../../data/mobsData';
 import { scaledRangeForStar, formatMobRange } from '../../data/mobStatUtils';
+import { GameImportService, ImportResult } from '../../services/game-import.service';
+import { SlotCategory, BaseItemDef, RARITIES, BASE_ITEMS, PREFIXES_BY_CATEGORY, SUFFIXES_BY_CATEGORY } from '../../data/equipmentDictionary';
 
-export type SlotCategory = 'head' | 'chest' | 'legs' | 'neck' | 'finger' | 'weapon1h' | 'weapon2h';
-export interface BaseItemDef {
-  name: string;
-  category: SlotCategory;
-  hasPrefix: boolean;
-  hasSuffix: boolean;
+export interface ImportStepDef {
+  key: 'trening' | 'main' | 'equip' | 'enchant' | 'talizman' | 'build' | 'arenaSilver' | 'arenaGold' | 'clanbld' | 'huntClanBonus';
+  label: string;
+  url: string;
 }
-export const RARITIES = ['ZWYKLY', 'DOBRY', 'DOSKONALY', 'LEGENDARNY', 'LEGENDARNY_DOBRY', 'LEGENDARNY_DOSKONALY', 'EPICKI', 'STAROZYTNY'] as const;
-export const BASE_ITEMS: BaseItemDef[] = [
-  { name: 'Czapka', category: 'head', hasPrefix: true, hasSuffix: true },
-  { name: 'Kask', category: 'head', hasPrefix: true, hasSuffix: true },
-  { name: 'Helm', category: 'head', hasPrefix: true, hasSuffix: true },
-  { name: 'Maska', category: 'head', hasPrefix: true, hasSuffix: true },
-  { name: 'Obrecz', category: 'head', hasPrefix: true, hasSuffix: true },
-  { name: 'Kominiarka', category: 'head', hasPrefix: true, hasSuffix: true },
-  { name: 'Kapelusz', category: 'head', hasPrefix: true, hasSuffix: true },
-  { name: 'Korona', category: 'head', hasPrefix: true, hasSuffix: true },
-  { name: 'Opaska', category: 'head', hasPrefix: true, hasSuffix: true },
-  { name: 'Bandana', category: 'head', hasPrefix: true, hasSuffix: true },
-  { name: 'Kurtka', category: 'chest', hasPrefix: true, hasSuffix: true },
-  { name: 'Kamizelka', category: 'chest', hasPrefix: true, hasSuffix: true },
-  { name: 'Kolczuga', category: 'chest', hasPrefix: true, hasSuffix: true },
-  { name: 'ZbrojaWarstwowa', category: 'chest', hasPrefix: true, hasSuffix: true },
-  { name: 'Koszulka', category: 'chest', hasPrefix: true, hasSuffix: true },
-  { name: 'Marynarka', category: 'chest', hasPrefix: true, hasSuffix: true },
-  { name: 'PelnaZbroja', category: 'chest', hasPrefix: true, hasSuffix: true },
-  { name: 'Peleryna', category: 'chest', hasPrefix: true, hasSuffix: true },
-  { name: 'Gorset', category: 'chest', hasPrefix: true, hasSuffix: true },
-  { name: 'Smoking', category: 'chest', hasPrefix: true, hasSuffix: true },
-  { name: 'Szorty', category: 'legs', hasPrefix: true, hasSuffix: true },
-  { name: 'Spodnie', category: 'legs', hasPrefix: true, hasSuffix: true },
-  { name: 'Kilt', category: 'legs', hasPrefix: true, hasSuffix: true },
-  { name: 'Spodnica', category: 'legs', hasPrefix: true, hasSuffix: true },
-  { name: 'Amulet', category: 'neck', hasPrefix: true, hasSuffix: true },
-  { name: 'Apaszka', category: 'neck', hasPrefix: true, hasSuffix: true },
-  { name: 'Naszyjnik', category: 'neck', hasPrefix: true, hasSuffix: true },
-  { name: 'Lancuch', category: 'neck', hasPrefix: true, hasSuffix: true },
-  { name: 'Krawat', category: 'neck', hasPrefix: true, hasSuffix: true },
-  { name: 'Pierscien', category: 'finger', hasPrefix: true, hasSuffix: true },
-  { name: 'Bransoleta', category: 'finger', hasPrefix: true, hasSuffix: true },
-  { name: 'Sygnet', category: 'finger', hasPrefix: true, hasSuffix: true },
-  { name: 'Palka', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
-  { name: 'Noz', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
-  { name: 'Sztylet', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
-  { name: 'Rapier', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
-  { name: 'Miecz', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
-  { name: 'Topor', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
-  { name: 'Kastet', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
-  { name: 'Kama', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
-  { name: 'PiescNiebios', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
-  { name: 'Wakizashi', category: 'weapon1h', hasPrefix: true, hasSuffix: true },
-  { name: 'Glock', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
-  { name: 'Magnum', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
-  { name: 'DesertEagle', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
-  { name: 'Beretta', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
-  { name: 'Uzi', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
-  { name: 'Mp5k', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
-  { name: 'Skorpion', category: 'weapon1h', hasPrefix: false, hasSuffix: false },
-  { name: 'KarabinMysliwski', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
-  { name: 'Strzelba', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
-  { name: 'AK47', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
-  { name: 'MiotaczPlomieni', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
-  { name: 'FnFal', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
-  { name: 'PolautomatSnajperski', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
-  { name: 'KarabinSnajperski', category: 'weapon2h', hasPrefix: false, hasSuffix: false },
-  { name: 'Maczuga', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
-  { name: 'Lom', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
-  { name: 'Pika', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
-  { name: 'ToporDwureczny', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
-  { name: 'MieczDwureczny', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
-  { name: 'Kosa', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
-  { name: 'Korbacz', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
-  { name: 'Halabarda', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
-  { name: 'Katana', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
-  { name: 'PilaLancuchowa', category: 'weapon2h', hasPrefix: true, hasSuffix: true },
-  { name: 'KrotkiLuk', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-  { name: 'Luk', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-  { name: 'DlugiLuk', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-  { name: 'Oszczep', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-  { name: 'Pilum', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-  { name: 'NozDoRzucania', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-  { name: 'ToporekDoRzucania', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-  { name: 'Kusza', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-  { name: 'Shuriken', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-  { name: 'CiezkaKusza', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-  { name: 'LukRefleksyjny', category: 'weapon2h', hasPrefix: false, hasSuffix: true },
-];
-export const PREFIXES_BY_CATEGORY: Record<SlotCategory, string[]> = {
-  head: ['Ozdobna', 'Utwardzana', 'Elegancka', 'Pomocna', 'Kosztowny', 'Wzmocniony', 'Magnetyczna', 'Rogata', 'Bojowa', 'Zlosliwa', 'Leniwa', 'Kuloodporne', 'Szturmowy', 'Szamanska', 'Runiczne', 'Krwawy', 'Tygrysi', 'Smiercionosny', 'Rytualny'],
-  chest: ['Wzmocniony', 'Wladcza', 'Cwiekowany', 'Lekki', 'Kuloodporne', 'Luskowa', 'Gietki', 'Plytowa', 'Szamanska', 'Lowiecka', 'Elfie', 'Bojowa', 'Tygrysi', 'Smiercionosny', 'Krwawy', 'Runiczne'],
-  legs: ['Pikowany', 'Wzmocniony', 'Cwiekowany', 'Lekki', 'Krotkie', 'Aksamitne', 'Kolcze', 'Kuloodporne', 'Gietki', 'Pancerne', 'Kompozytowe', 'Elfie', 'Runiczne', 'Szamanska', 'Tygrysi', 'Krwawy', 'Smiercionosny'],
-  neck: ['Miedziany', 'Srebrny', 'Szmaragdowy', 'Zloty', 'Platynowy', 'Rubinowy', 'Dystyngowany', 'Przebiegly', 'Niedzwiedzi', 'Twardy', 'Gwiezdny', 'Elastyczny', 'Kardynalski', 'Nekromancki', 'Plastikowy', 'Tytanowy', 'Diamentowy', 'Msciwy', 'Spaczony', 'Zdradziecki', 'Archaiczny', 'Hipnotyczny', 'Tanczacy', 'Zwierzecy', 'Jastrzebi', 'Pajeczy', 'Sloneczny', 'Czarny'],
-  finger: ['Miedziany', 'Szmaragdowy', 'Srebrny', 'Rubinowy', 'Zloty', 'Platynowy', 'Dystyngowany', 'Przebiegly', 'Niedzwiedzi', 'Twardy', 'Gwiezdny', 'Elastyczny', 'Kardynalski', 'Nekromancki', 'Plastikowy', 'Tytanowy', 'Diamentowy', 'Msciwy', 'Spaczony', 'Zdradziecki', 'Archaiczny', 'Hipnotyczny', 'Tanczacy', 'Zwierzecy', 'Pajeczy', 'Sloneczny', 'Jastrzebi', 'Czarny'],
-  weapon1h: ['Ostry', 'Kasajacy', 'Okrutny', 'Krysztalowy', 'Przyjacielski', 'Jadowity', 'Lekki', 'Zebaty', 'Wzmacniajacy', 'Opiekunczy', 'Mistyczny', 'Swiecacy', 'Kosciany', 'Zatruty', 'Antyczny', 'Zabojczy', 'Zwinny', 'Szybki', 'Przeklety', 'Demoniczny'],
-  weapon2h: ['Ostry', 'Kasajacy', 'Kosztowny', 'Wzmacniajacy', 'Lekki', 'Okrutny', 'Jadowity', 'Swiecacy', 'Krysztalowy', 'Ciezki', 'Szeroki', 'Opiekunczy', 'Mistyczny', 'Napromieniowany', 'Antyczny', 'Zebaty', 'Zatruty', 'Zabojczy', 'Przeklety', 'Demoniczny', 'Zwinny'],
-};
-export const SUFFIXES_BY_CATEGORY: Record<SlotCategory, string[]> = {
-  head: ['Miss', 'Mistera', 'Podroznika', 'Przezornosci', 'Wytrzymalosci', 'Ochrony', 'Zmyslow', 'Narkomana', 'Gladiatora', 'Wieszcza', 'SmoczejLuski', 'Mocy', 'Kary', 'Pasterza', 'Krwi', 'Magii', 'Adrenaliny', 'Prekognicji'],
-  chest: ['Narkomana', 'Zlodzieja', 'Straznika', 'Silacza', 'Gwardzisty', 'Adepta', 'Adrenaliny', 'SkorupyZolwia', 'Zabojcy', 'Kobry', 'Unikow', 'Centuriona', 'Szermierza', 'Kaliguli', 'Odpornosci', 'Grabiezcy', 'Mistrza', 'Orchidei', 'SiewcySmierci', 'Szybkosci'],
-  legs: ['Narkomana', 'Silacza', 'Rzezimieszka', 'CichychRuchow', 'Skrytosci', 'Przemytnika', 'Slonca', 'LowcyCieni', 'HandlarzaBronia', 'Inkow', 'Unikow', 'Weza', 'Pasterza', 'Tropiciela', 'Nocy'],
-  neck: ['Urody', 'Wladzy', 'Wystepku', 'Mlodosci', 'Sily', 'Geniuszu', 'Madrosci', 'TwardejSkory', 'Pielgrzyma', 'Celnosci', 'Przebieglosci', 'Sztuki', 'Wilkolaka', 'Szalenca', 'Koncentracji', 'Lewitacji', 'Krwi', 'Zdolnosci', 'Szczescia'],
-  finger: ['Urody', 'Wladzy', 'Wystepku', 'Sily', 'Geniuszu', 'Madrosci', 'Lisa', 'TwardejSkory', 'Sztuki', 'Mlodosci', 'Celnosci', 'Przebieglosci', 'Wilkolaka', 'Koncentracji', 'Lewitacji', 'Nietoperza', 'Krwi', 'Szalenca', 'Szczescia'],
-  weapon1h: ['Sekty', 'Zdobywcy', 'Mocy', 'Dowodcy', 'Zwinnosci', 'Trafienia', 'Kontuzji', 'Wladzy', 'Bolu', 'Odwagi', 'Precyzji', 'Krwi', 'Przodkow', 'Zarazy', 'Drakuli', 'Zemsty', 'Mestwa', 'Klanu', 'Podkowy', 'Bieglosci', 'Samobojcy', 'Imperatora'],
-  weapon2h: ['Podstepu', 'Hazardzisty', 'Olowiu', 'Mocy', 'Zdrady', 'Wladzy', 'Zdobywcy', 'Bolu', 'Krwiopijcy', 'Inkwizytora', 'Krwi', 'Drakuli', 'Zarazy', 'Zemsty', 'Podkowy', 'Bazyliszka', 'Autokraty', 'Samobojcy', 'DalekiegoZasiegu', 'Precyzji', 'Driady', 'Zemsty', 'Szybkostrzelnosci', 'Wilka', 'Doskonalosci', 'Reakcji'],
-};
+
 const SLOT_TO_CATEGORY: Record<string, SlotCategory> = {
   head: 'head',
   chest: 'chest',
@@ -326,17 +229,13 @@ export class CharacterInputComponent implements OnInit {
   dailyBonuses = ['Brak', 'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień Vlada', 'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina', 'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you', 'Dzień Przemiany', 'Dzień poszukiwaczy', 'Świąteczna wizja Kaina (deluxe)', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami', 'Pierwszy gol', 'Pierwszy serwis', 'Szczęście Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden'];
   oneTimeBonuses = ['Brak', 'Krew wilka', 'Jabłko żelaznego drzewa', 'Płetwa rekina', 'Eliksir zmysłów', 'Święcona woda', 'Łza feniksa', 'Magiczna pieczęć', 'Serce nietoperza', 'Kwiat lotosu', 'Jad Wielkopchły', 'Serum oświecenia', 'Wywar z czarnego kota', 'Węgiel', 'Sierść kreta', 'Saletra', 'Sok z żuka', 'Esencja młodości', 'Paznokieć trolla', 'Wilcza jagoda', 'Oko kota', 'Absynt', 'Łuski salamandry', 'Woda źródlana', 'Kość męczennika', 'Napój miłosny', 'Jad skorpiona', 'Korzeń mandragory', 'Gwiezdny pył', 'Fiolka kwasu', 'Siarka', 'Czarny diament', 'Oko topielca', 'Boska łza', 'Ząb ghula', 'Wywar z koralowca', 'Serce proroka', 'Pazur bazyliszka', 'Łuski demona', 'Skrzydła chrząszcza', 'Maska gargulca', 'Sok z modliszki', 'Oddech smoka', 'Ząb wiedźmy', 'Grimoire', 'Czarna żółć', 'Palec kowala', 'Kwiat bzu', 'Ogień z serca ziemi'];
   private static readonly EXPANDED_STORAGE_KEY = 'expandedBonuses';
+  private static readonly IMPORT_PROMPT_SHOWN_KEY = 'importChoicePromptShown';
   private static readonly EXPANDED_DEFAULTS: { [key: string]: boolean } = {
     silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false,
     trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: false, ewolucje: true,
     przeciwnik: true, inne: false, budynki: false,
   };
   expandedBonuses: { [key: string]: boolean } = { ...CharacterInputComponent.EXPANDED_DEFAULTS };
-  issues = [
-    'brak liczenia punktow krwi punkty krwi',
-    'testowanie na waskim zakresie lv'
-  ];
-  showIssuesDropdown = false;
   selectedHuntBonuses: string[] = [];
   selectedEventBonus: string | null = null;
   selectedOneTimeBonus: string | null = null;
@@ -354,7 +253,135 @@ export class CharacterInputComponent implements OnInit {
   presetSelections: boolean[] = [];
   readonly emptyChartData = { labels: Array.from({ length: 10 }, (_, i) => `R${i + 1}`), datasets: [] };
 
-  constructor(private characterService: CharacterService, private ngZone: NgZone, private cdr: ChangeDetectorRef, private dashboardService: DashboardService) { }
+  // ── Import z gry ──
+  showImportChoiceModal = false;
+  readonly importSteps: ImportStepDef[] = [
+    { key: 'trening', label: 'Trening', url: 'https://r20.bloodwars.pl/?a=training' },
+    { key: 'main', label: 'Poziom / Rasa / Event', url: 'https://r20.bloodwars.pl/?a=main' },
+    { key: 'equip', label: 'Ekwipunek', url: 'https://r20.bloodwars.pl/?a=equip' },
+    { key: 'enchant', label: 'Umagicznienia', url: 'https://r20.bloodwars.pl/?a=enchant' },
+    { key: 'talizman', label: 'Talizmany i Runy', url: 'https://r20.bloodwars.pl/?a=talizman' },
+    { key: 'build', label: 'Budynki', url: 'https://r20.bloodwars.pl/?a=build' },
+    { key: 'arenaSilver', label: 'Myśliwy / Ninja', url: 'https://r20.bloodwars.pl/?a=newarena&cat=4&t=silver' },
+    { key: 'arenaGold', label: 'Strateg', url: 'https://r20.bloodwars.pl/?a=newarena&cat=4&t=gold' },
+    { key: 'clanbld', label: 'Kaplica', url: 'https://r20.bloodwars.pl/?a=clanbld' },
+    { key: 'huntClanBonus', label: 'Polowanie', url: 'https://r20.bloodwars.pl/?a=hunt&do=clanBonus' },
+  ];
+  importResults: Partial<Record<ImportStepDef['key'], ImportResult>> = {};
+  importedSections: Record<string, boolean> = {
+    trening: false, main: false, equip: false, enchant: false, talizman: false,
+    build: false, arenaSilver: false, arenaGold: false, clanbld: false, huntClanBonus: false,
+  };
+
+  get importSummary(): { key: string; label: string; result: ImportResult | null }[] {
+    return this.importSteps.map(s => ({ key: s.key, label: s.label, result: this.importResults[s.key] ?? null }));
+  }
+  chooseManualImport() {
+    this.showImportChoiceModal = false;
+  }
+  private runParserForKey(key: ImportStepDef['key'], html: string): ImportResult {
+    switch (key) {
+      case 'trening': return this.gameImportService.parseTraining(html);
+      case 'main': return this.gameImportService.parseMain(html);
+      case 'equip': return this.gameImportService.parseEquip(html);
+      case 'enchant': return this.gameImportService.parseEnchant(html);
+      case 'talizman': return this.gameImportService.parseTalizman(html);
+      case 'build': return this.gameImportService.parseBuild(html);
+      case 'arenaSilver': return this.gameImportService.parseArenaSilver(html);
+      case 'arenaGold': return this.gameImportService.parseArenaGold(html);
+      case 'clanbld': return this.gameImportService.parseClanBld(html);
+      case 'huntClanBonus': return this.gameImportService.parseHuntClanBonus(html);
+    }
+  }
+
+  // ── Import z gry: wklejenie jednego zbiorczego JSON-a (np. ze skryptu Tampermonkey) ──
+  showImportBulkModal = false;
+  importBulkInput = '';
+  importBulkError: string | null = null;
+  private clearForBulkImport() {
+    this.characterService.clearCharacter();
+    this.importedSections = {
+      trening: false, main: false, equip: false, enchant: false, talizman: false,
+      build: false, arenaSilver: false, arenaGold: false, clanbld: false, huntClanBonus: false,
+    };
+    this.importResults = {};
+    this.importBulkInput = '';
+    this.importBulkError = null;
+  }
+  chooseBulkImport() {
+    this.showImportChoiceModal = false;
+    this.clearForBulkImport();
+    this.showImportBulkModal = true;
+  }
+  reopenImportBulkModal() {
+    if (!confirm('To wyczyści bieżącą postać przed wklejeniem nowych danych. Kontynuować?')) return;
+    this.clearForBulkImport();
+    this.showImportBulkModal = true;
+  }
+  parseBulkImport() {
+    this.importBulkError = null;
+    const raw = this.importBulkInput.trim();
+    if (!raw) {
+      this.importBulkError = 'Nie wklejono żadnych danych.';
+      return;
+    }
+    let parsed: any;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      this.importBulkError = 'Nie udało się odczytać wklejonego tekstu jako JSON. Upewnij się, że skopiowano całą zawartość ze skryptu (przycisk "Skopiowano do schowka").';
+      return;
+    }
+    const pages = parsed?.pages ?? parsed;
+    if (!pages || typeof pages !== 'object') {
+      this.importBulkError = 'Wklejony JSON nie ma oczekiwanej struktury ({ pages: { ... } }).';
+      return;
+    }
+    let anyApplied = false;
+    for (const step of this.importSteps) {
+      const page = pages[step.key];
+      if (!page) continue;
+      const html: string | undefined = typeof page === 'string' ? page : page.html;
+      if (!html) {
+        this.importResults[step.key] = { ok: false, message: page?.error ? `Skrypt zgłosił błąd pobierania: ${page.error}` : 'Brak danych HTML dla tej strony w pliku.' };
+        continue;
+      }
+      const result = this.runParserForKey(step.key, html);
+      this.importResults[step.key] = result;
+      if (result.ok && result.data) {
+        this.applyImportData(result.data);
+        this.importedSections[step.key] = true;
+        anyApplied = true;
+      }
+    }
+    if (!anyApplied) {
+      this.importBulkError = 'Nie udało się zaimportować żadnej sekcji — sprawdź podsumowanie poniżej dla szczegółów.';
+    }
+  }
+  finishBulkImport() {
+    this.showImportBulkModal = false;
+  }
+  private applyImportData(data: { [key: string]: any }) {
+    if (!this.character) return;
+    const patch: any = {};
+    const fields = [
+      'attributes', 'poziom', 'rasa', 'eventBonus', 'equipment', 'talizmanLevels', 'arcaneLevels',
+      'runeValues', 'umagiValues', 'posredniak', 'domPubliczny', 'rzeznia', 'ninja', 'mysliwy',
+      'strateg', 'kaplica', 'huntBonuses',
+    ];
+    for (const field of fields) {
+      if (data[field] !== undefined) patch[field] = data[field];
+    }
+    if (Object.keys(patch).length) {
+      this.characterService.updateCharacter(patch);
+    }
+    if (data['eventBonus'] !== undefined) this.selectedEventBonus = data['eventBonus'];
+    if (data['runeValues']) this.selectedRunes = data['runeValues'];
+    if (data['umagiValues']) this.selectedUmagi = data['umagiValues'];
+    if (data['huntBonuses']) this.selectedHuntBonuses = data['huntBonuses'];
+    if (data['equipment']?.weaponMode) this.weaponMode = data['equipment'].weaponMode;
+  }
+  constructor(private characterService: CharacterService, private ngZone: NgZone, private cdr: ChangeDetectorRef, private dashboardService: DashboardService, private gameImportService: GameImportService) { }
 
   openPresetsModal() {
     if (!this.presetSelections.length) {
@@ -420,6 +447,14 @@ export class CharacterInputComponent implements OnInit {
         this.weaponMode = char.equipment.weaponMode;
       }
     });
+    try {
+      if (!sessionStorage.getItem(CharacterInputComponent.IMPORT_PROMPT_SHOWN_KEY)) {
+        sessionStorage.setItem(CharacterInputComponent.IMPORT_PROMPT_SHOWN_KEY, '1');
+        this.showImportChoiceModal = true;
+      }
+    } catch {
+      this.showImportChoiceModal = true;
+    }
   }
 
   private getSlotCategory(slot: string): SlotCategory {
@@ -777,6 +812,11 @@ export class CharacterInputComponent implements OnInit {
   clearSession() {
     if (!confirm('Czy na pewno chcesz zresetować postać?')) return;
     this.characterService.clearCharacter();
+    this.importedSections = {
+      trening: false, main: false, equip: false, enchant: false, talizman: false,
+      build: false, arenaSilver: false, arenaGold: false, clanbld: false, huntClanBonus: false,
+    };
+    this.importResults = {};
   }
   loadPreset(preset: CharacterPreset) {
     this.characterService.updateCharacter(preset.character);
@@ -841,6 +881,53 @@ export class CharacterInputComponent implements OnInit {
       return this.selectedOneTimeBonus === bonus;
     }
     return false;
+  }
+
+  /** Whether a collapsible section currently holds non-default data, for the "filled tab" indicator. */
+  isSectionFilled(key: string): boolean {
+    if (!this.character) return false;
+    switch (key) {
+      case 'main':
+        return this.character.poziom > 0 || !!this.character.rasa;
+      case 'trening':
+        return this.attributes.some(a => this.getAttrValue(a.key) > 0);
+      case 'talizmany':
+        return this.talizmanAttributes.some(t => this.getTalizmanValue(t.key) > 0);
+      case 'arkany':
+        return this.arcaneAttributes.some(a => {
+          const v = this.getArcaneValue(a.key);
+          return typeof v === 'boolean' ? v : v > 0;
+        });
+      case 'ewolucje':
+        return this.evolutions.some(e => this.getEvoValue(e.key) > 0);
+      case 'runy':
+        return (this.character.runeValues?.length ?? 0) > 0;
+      case 'umagi':
+        return (this.character.umagiValues?.length ?? 0) > 0;
+      case 'equip':
+        return !!(this.character.equipment?.head?.base || this.character.equipment?.chest?.base
+          || this.character.equipment?.legs?.base || this.character.equipment?.neck?.base
+          || this.character.equipment?.finger1?.base || this.character.equipment?.finger2?.base
+          || this.character.equipment?.weapon1?.base || this.character.equipment?.weapon2?.base);
+      case 'przeciwnik':
+        return this.character.obronaPrzeciwnika > 0 || this.character.odpornoscPrzeciwnika > 0
+          || this.character.trafieniePrzeciwnika > 0 || this.character.szczesciePrzeciwnika > 0;
+      case 'inne':
+        return this.character.ninja > 0 || this.character.mysliwy > 0
+          || this.character.strateg > 0 || this.character.kaplica > 0;
+      case 'budynki':
+        return this.character.posredniak > 0 || this.character.domPubliczny > 0 || this.character.rzeznia > 0;
+      case 'hunt':
+        return (this.character.huntBonuses?.length ?? 0) > 0;
+      case 'daily':
+        return !!this.character.eventBonus;
+      case 'oneTime':
+        return !!this.character.oneTimeBonus;
+      case 'blaszka':
+        return !!(this.character.blaszkaZaMoba || this.character.blaszkaZaKronosa || this.character.blaszkaZaHastura);
+      default:
+        return false;
+    }
   }
 
   get filteredRuneOptions(): string[] {

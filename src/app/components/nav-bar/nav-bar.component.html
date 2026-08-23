@@ -1,8 +1,7 @@
 <nav class="hub-nav">
   <button type="button" class="hub-brand" (click)="cycleTheme()" [title]="'Motyw: ' + currentThemeLabel + ' (kliknij, aby zmienić)'">
-    <i class="pi pi-anchor"></i>
+    <app-anchor-icon></app-anchor-icon>
     <span>Kotwic-UI</span>
-    <i class="pi pi-palette brand-theme-icon"></i>
   </button>
 
   <ul class="hub-nav-items">
@@ -10,12 +9,20 @@
       <li>
         @if (item.route && !item.disabled) {
           <a [routerLink]="item.route" routerLinkActive="active" class="hub-nav-link">
-            <i [class]="item.icon"></i>
+            @if (item.icon === 'anchor') {
+              <app-anchor-icon></app-anchor-icon>
+            } @else if (item.icon) {
+              <i [class]="item.icon"></i>
+            }
             <span>{{ item.label }}</span>
           </a>
         } @else {
           <span class="hub-nav-link disabled" title="Wkrótce">
-            <i [class]="item.icon"></i>
+            @if (item.icon === 'anchor') {
+              <app-anchor-icon></app-anchor-icon>
+            } @else if (item.icon) {
+              <i [class]="item.icon"></i>
+            }
             <span>{{ item.label }}</span>
           </span>
         }
