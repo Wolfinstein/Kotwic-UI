@@ -1,5 +1,6 @@
 .hub-nav {
   position: relative;
+  z-index: 50;
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
