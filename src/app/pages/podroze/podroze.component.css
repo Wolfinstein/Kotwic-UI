@@ -179,7 +179,7 @@
 /* ── Game layout ── */
 .game-layout {
   display: grid;
-  grid-template-columns: 220px 1fr;
+  grid-template-columns: 270px 1fr;
   grid-template-rows: auto auto;
   gap: 16px;
 }
@@ -221,17 +221,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding: 5px 8px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .stat-name {
   font-weight: 700;
   color: var(--label-color);
+  white-space: nowrap;
 }
 
 .stat-value {
+  flex-shrink: 0;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
   font-family: 'Consolas', 'Courier New', monospace;
 }
