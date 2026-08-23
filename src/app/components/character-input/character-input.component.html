@@ -1,9 +1,32 @@
 <div class="input-panel">
+  <!-- Action buttons — pinned to top -->
+  <div class="action-bar">
+    <div class="section action-buttons">
+      <p-button label="Presety" icon="pi pi-list" severity="secondary" (onClick)="openPresetsModal()" styleClass="action-io-btn" />
+      <p-button label="Import Skryptem" icon="pi pi-clipboard" severity="secondary" (onClick)="reopenImportBulkModal()" styleClass="action-io-btn action-io-btn-accent" />
+      <p-button label="Wyczyść" icon="pi pi-trash" severity="danger" (onClick)="clearSession()" styleClass="action-io-btn" />
+      <p-button label="Export JSON" icon="pi pi-download" (onClick)="exportCharacter()" styleClass="action-io-btn" />
+      <p-button label="Import JSON" icon="pi pi-upload" (onClick)="importCharacter()" styleClass="action-io-btn" />
+    </div>
+  </div>
+
   <div class="panel-grid">
-    <div class="column">
-      <!-- Poziom + Rasa -->
-      <div class="section" [class.import-highlight]="importedSections['main']" [class.section-filled]="isSectionFilled('main')">
-        <div class="compact-grid">
+    <!-- ═══ Big tab: everything the Tampermonkey script can fill ═══ -->
+    <div class="big-tab" [class.big-tab-collapsed]="!expandedBonuses['importTab']">
+      <button type="button" class="big-tab-header" (click)="toggleBonusExpand('importTab')">
+        <span class="big-tab-title"><i class="pi pi-cloud-download"></i> Dane z importu (Tampermonkey)</span>
+        <i class="pi" [class.pi-chevron-down]="expandedBonuses['importTab']" [class.pi-chevron-right]="!expandedBonuses['importTab']"></i>
+      </button>
+      <div class="big-tab-body" *ngIf="expandedBonuses['importTab']">
+      <!-- Row 1: Różne | Trening | Ekwipunek -->
+      <div class="tab-row">
+      <!-- Różne (collapsible) -->
+      <div class="section"
+        [class.import-highlight]="importedSections['arenaSilver'] || importedSections['arenaGold'] || importedSections['clanbld'] || importedSections['main']"
+        [class.section-filled]="isSectionFilled('inne')">
+        <p-button [label]="'Różne ' + (expandedBonuses['inne'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('inne')" [text]="true" styleClass="bonus-toggle-btn" />
+        <div *ngIf="expandedBonuses['inne']" class="compact-grid">
           <div class="compact-item">
             <label>Poziom</label>
             <p-inputnumber [ngModel]="character!.poziom" [min]="1" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
@@ -15,6 +38,35 @@
             <p-select [options]="rasaOptions" [(ngModel)]="character!.rasa"
               (onChange)="updateCharacterField('rasa', character!.rasa)"
               optionLabel="label" optionValue="value" />
+          </div>
+          <div class="compact-item">
+            <label>Event</label>
+            <p-select [options]="dailyBonuses" [ngModel]="selectedEventBonus ?? 'Brak'"
+              (onChange)="onEventBonusChange($event.value)" appendTo="body" />
+          </div>
+          <div class="compact-item">
+            <label>Ninja</label>
+            <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.ninja"
+              [inputStyleClass]="character!.ninja > 0 ? 'input-active' : ''"
+              (ngModelChange)="updateCharacterField('ninja', $event)" />
+          </div>
+          <div class="compact-item">
+            <label>Mysliwy</label>
+            <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.mysliwy"
+              [inputStyleClass]="character!.mysliwy > 0 ? 'input-active' : ''"
+              (ngModelChange)="updateCharacterField('mysliwy', $event)" />
+          </div>
+          <div class="compact-item">
+            <label>Strateg</label>
+            <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.strateg"
+              [inputStyleClass]="character!.strateg > 0 ? 'input-active' : ''"
+              (ngModelChange)="updateCharacterField('strateg', $event)" />
+          </div>
+          <div class="compact-item">
+            <label>Kaplica</label>
+            <p-inputnumber [min]="0" [max]="6" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.kaplica"
+              [inputStyleClass]="character!.kaplica > 0 ? 'input-active' : ''"
+              (ngModelChange)="updateCharacterField('kaplica', $event)" />
           </div>
         </div>
       </div>
@@ -36,22 +88,7 @@
           <p-button label="Dystans" severity="secondary" size="small" (onClick)="applyTreningPreset('dystans')" />
         </div>
       </div>
-      <!-- Talizmany -->
-      <div class="section" [class.import-highlight]="importedSections['talizman']" [class.section-filled]="isSectionFilled('talizmany')">
-        <p-button [label]="'Talizmany ' + (expandedBonuses['talizmany'] ? '▼' : '▶')"
-          (onClick)="toggleBonusExpand('talizmany')" [text]="true" styleClass="bonus-toggle-btn" />
-        <div *ngIf="expandedBonuses['talizmany']" class="compact-grid">
-          <div *ngFor="let tal of talizmanAttributes" class="compact-item">
-            <label>{{ tal.label }}</label>
-            <p-inputnumber [min]="0" [max]="4" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getTalizmanValue(tal.key)"
-              [inputStyleClass]="getTalizmanValue(tal.key) > 0 ? 'input-active' : ''"
-              (ngModelChange)="setTalizmanValue(tal.key, $event)" />
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Column 2: Equipment + Runes -->
-    <div class="column column-equipment">
+      <!-- Equipment -->
       <div class="section section-equipment" [class.import-highlight]="importedSections['equip']" [class.section-filled]="isSectionFilled('equip')">
         <div class="equipment-header">
           <h3>Ekwipunek</h3>
@@ -152,6 +189,103 @@
           </button>
         </div>
       </div>
+      </div>
+      <!-- Row 2: Talizmany (full width) -->
+      <div class="tab-row">
+      <!-- Talizmany -->
+      <div class="section section-wide" [class.import-highlight]="importedSections['talizman']" [class.section-filled]="isSectionFilled('talizmany')">
+        <p-button [label]="'Talizmany ' + (expandedBonuses['talizmany'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('talizmany')" [text]="true" styleClass="bonus-toggle-btn" />
+        <div *ngIf="expandedBonuses['talizmany']" class="talizman-grid">
+          <div *ngFor="let tal of talizmanAttributes" class="compact-item compact-item-stacked">
+            <label>{{ tal.label }}</label>
+            <p-inputnumber [min]="0" [max]="4" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getTalizmanValue(tal.key)"
+              [inputStyleClass]="getTalizmanValue(tal.key) > 0 ? 'input-active' : ''"
+              (ngModelChange)="setTalizmanValue(tal.key, $event)" />
+          </div>
+        </div>
+      </div>
+      </div>
+      <!-- Row 3: Runy | Umagi | Budynki | Polowanie -->
+      <div class="tab-row">
+      <!-- Runy -->
+      <div class="section" [class.import-highlight]="importedSections['talizman']" [class.section-filled]="isSectionFilled('runy')">
+        <p-button [label]="'Runy (' + (character?.runeValues?.length || 0) + ') ' + (expandedBonuses['runy'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('runy')" [text]="true" styleClass="bonus-toggle-btn" />
+        <ng-container *ngIf="expandedBonuses['runy']">
+          <div class="rune-summary" *ngIf="character?.runeValues?.length">
+            <span *ngFor="let rune of character!.runeValues" class="rune-chip">{{ rune }}</span>
+          </div>
+          <span *ngIf="!character?.runeValues?.length" class="rune-empty">Brak run</span>
+          <p-button label="Zarządzaj runami"
+            (onClick)="openRunesModal()" severity="secondary" styleClass="action-btn-primeng" />
+        </ng-container>
+      </div>
+      <!-- Umagi -->
+      <div class="section" [class.import-highlight]="importedSections['enchant']" [class.section-filled]="isSectionFilled('umagi')">
+        <p-button [label]="'Umagi (' + (character?.umagiValues?.length || 0) + ') ' + (expandedBonuses['umagi'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('umagi')" [text]="true" styleClass="bonus-toggle-btn" />
+        <ng-container *ngIf="expandedBonuses['umagi']">
+          <div class="rune-summary" *ngIf="character?.umagiValues?.length">
+            <span *ngFor="let umag of character!.umagiValues" class="rune-chip">{{ umag }}</span>
+          </div>
+          <span *ngIf="!character?.umagiValues?.length" class="rune-empty">Brak umagow</span>
+          <p-button label="Zarządzaj umagami"
+            (onClick)="openUmagiModal()" severity="secondary" styleClass="action-btn-primeng" />
+        </ng-container>
+      </div>
+      <!-- Budynki (collapsible) -->
+      <div class="section" [class.import-highlight]="importedSections['build']" [class.section-filled]="isSectionFilled('budynki')">
+        <p-button [label]="'Budynki ' + (expandedBonuses['budynki'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('budynki')" [text]="true" styleClass="bonus-toggle-btn" />
+        <div *ngIf="expandedBonuses['budynki']" class="compact-grid">
+          <div class="compact-item">
+            <label>Pośredniak</label>
+            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.posredniak"
+              [inputStyleClass]="character!.posredniak > 0 ? 'input-active' : ''"
+              (ngModelChange)="updateCharacterField('posredniak', $event)" />
+          </div>
+          <div class="compact-item">
+            <label>Dom Publiczny</label>
+            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.domPubliczny"
+              [inputStyleClass]="character!.domPubliczny > 0 ? 'input-active' : ''"
+              (ngModelChange)="updateCharacterField('domPubliczny', $event)" />
+          </div>
+          <div class="compact-item">
+            <label>Rzeźnia</label>
+            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.rzeznia"
+              [inputStyleClass]="character!.rzeznia > 0 ? 'input-active' : ''"
+              (ngModelChange)="updateCharacterField('rzeznia', $event)" />
+          </div>
+        </div>
+      </div>
+      <!-- Polowanie (collapsible) -->
+      <div class="section" [class.import-highlight]="importedSections['huntClanBonus']" [class.section-filled]="isSectionFilled('hunt')">
+        <p-button [label]="'Polowanie ' + (expandedBonuses['hunt'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('hunt')" [text]="true" styleClass="bonus-toggle-btn" />
+        <div *ngIf="expandedBonuses['hunt']" class="bonus-list">
+          <div *ngFor="let bonus of huntBonuses" class="bonus-item">
+            <p-checkbox [binary]="true" [ngModel]="isBonusSelected('hunt', bonus)"
+              (ngModelChange)="toggleBonusSelection('hunt', bonus)" [inputId]="'hunt_' + bonus" />
+            <label [for]="'hunt_' + bonus">{{ bonus }}</label>
+          </div>
+        </div>
+      </div>
+      </div>
+      </div>
+      <!-- ═══ /Big tab: import ═══ -->
+    </div>
+
+    <!-- ═══ Big tab: everything that must be filled manually ═══ -->
+    <div class="big-tab" [class.big-tab-collapsed]="!expandedBonuses['manualTab']">
+      <button type="button" class="big-tab-header" (click)="toggleBonusExpand('manualTab')">
+        <span class="big-tab-title"><i class="pi pi-pencil"></i> Dane uzupełniane ręcznie</span>
+        <i class="pi" [class.pi-chevron-down]="expandedBonuses['manualTab']" [class.pi-chevron-right]="!expandedBonuses['manualTab']"></i>
+      </button>
+      <div class="big-tab-body" *ngIf="expandedBonuses['manualTab']">
+      <div class="tab-col-group">
+      <!-- Column A: Arkany -->
+      <div class="tab-col">
       <!-- Arkany -->
       <div class="section" [class.section-filled]="isSectionFilled('arkany')">
         <p-button [label]="'Arkany ' + (expandedBonuses['arkany'] ? '▼' : '▶')"
@@ -179,35 +313,25 @@
           </span>: <strong>{{ arcaneTotalCost }}</strong>
         </div>
       </div>
-      <!-- Runy -->
-      <div class="section column-bottom-section" [class.import-highlight]="importedSections['talizman']" [class.section-filled]="isSectionFilled('runy')">
-        <p-button [label]="'Runy (' + (character?.runeValues?.length || 0) + ') ' + (expandedBonuses['runy'] ? '▼' : '▶')"
-          (onClick)="toggleBonusExpand('runy')" [text]="true" styleClass="bonus-toggle-btn" />
-        <ng-container *ngIf="expandedBonuses['runy']">
-          <div class="rune-summary" *ngIf="character?.runeValues?.length">
-            <span *ngFor="let rune of character!.runeValues" class="rune-chip">{{ rune }}</span>
-          </div>
-          <span *ngIf="!character?.runeValues?.length" class="rune-empty">Brak run</span>
-          <p-button label="Zarządzaj runami"
-            (onClick)="openRunesModal()" severity="secondary" styleClass="action-btn-primeng" />
-        </ng-container>
       </div>
-      <!-- Umagi -->
-      <div class="section column-bottom-section" [class.import-highlight]="importedSections['enchant']" [class.section-filled]="isSectionFilled('umagi')">
-        <p-button [label]="'Umagi (' + (character?.umagiValues?.length || 0) + ') ' + (expandedBonuses['umagi'] ? '▼' : '▶')"
-          (onClick)="toggleBonusExpand('umagi')" [text]="true" styleClass="bonus-toggle-btn" />
-        <ng-container *ngIf="expandedBonuses['umagi']">
-          <div class="rune-summary" *ngIf="character?.umagiValues?.length">
-            <span *ngFor="let umag of character!.umagiValues" class="rune-chip">{{ umag }}</span>
+      <!-- Column B: Ewolucje -->
+      <div class="tab-col">
+      <!-- Ewolucje -->
+      <div class="section" [class.section-filled]="isSectionFilled('ewolucje')">
+        <p-button [label]="'Ewolucje ' + (expandedBonuses['ewolucje'] ? '▼' : '▶')"
+          (onClick)="toggleBonusExpand('ewolucje')" [text]="true" styleClass="bonus-toggle-btn" />
+        <div *ngIf="expandedBonuses['ewolucje']" class="compact-grid">
+          <div *ngFor="let evo of evolutions" class="compact-item">
+            <label>{{ evo.label }}</label>
+            <p-inputnumber [min]="0" [max]="15" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getEvoValue(evo.key)"
+              [inputStyleClass]="getEvoValue(evo.key) > 0 ? 'input-active' : ''"
+              (ngModelChange)="setEvoValue(evo.key, $event)" />
           </div>
-          <span *ngIf="!character?.umagiValues?.length" class="rune-empty">Brak umagow</span>
-          <p-button label="Zarządzaj umagami"
-            (onClick)="openUmagiModal()" severity="secondary" styleClass="action-btn-primeng" />
-        </ng-container>
+        </div>
       </div>
-    </div>
-    <!-- Column 3: Bonuses -->
-    <div class="column">
+      </div>
+      <!-- Column C: Przeciwnik, Jednoraz, Blaszka -->
+      <div class="tab-col">
       <!-- Przeciwnik (collapsible) -->
       <div class="section" [class.section-filled]="isSectionFilled('przeciwnik')">
         <p-button [label]="'Przeciwnik ' + (expandedBonuses['przeciwnik'] ? '▼' : '▶')"
@@ -274,100 +398,15 @@
           </div>
         </ng-container>
       </div>
-      <div class="bonuses-container">
-        <!-- Inne (collapsible) -->
-        <div class="section column-bonus"
-          [class.import-highlight]="importedSections['arenaSilver'] || importedSections['arenaGold'] || importedSections['clanbld']"
-          [class.section-filled]="isSectionFilled('inne')">
-          <p-button [label]="'Inne ' + (expandedBonuses['inne'] ? '▼' : '▶')"
-            (onClick)="toggleBonusExpand('inne')" [text]="true" styleClass="bonus-toggle-btn" />
-          <div *ngIf="expandedBonuses['inne']" class="compact-grid">
-            <div class="compact-item">
-              <label>Ninja</label>
-              <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.ninja"
-                [inputStyleClass]="character!.ninja > 0 ? 'input-active' : ''"
-                (ngModelChange)="updateCharacterField('ninja', $event)" />
-            </div>
-            <div class="compact-item">
-              <label>Mysliwy</label>
-              <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.mysliwy"
-                [inputStyleClass]="character!.mysliwy > 0 ? 'input-active' : ''"
-                (ngModelChange)="updateCharacterField('mysliwy', $event)" />
-            </div>
-            <div class="compact-item">
-              <label>Strateg</label>
-              <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.strateg"
-                [inputStyleClass]="character!.strateg > 0 ? 'input-active' : ''"
-                (ngModelChange)="updateCharacterField('strateg', $event)" />
-            </div>
-            <div class="compact-item">
-              <label>Kaplica</label>
-              <p-inputnumber [min]="0" [max]="6" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.kaplica"
-                [inputStyleClass]="character!.kaplica > 0 ? 'input-active' : ''"
-                (ngModelChange)="updateCharacterField('kaplica', $event)" />
-            </div>
-          </div>
-        </div>
-        <!-- Budynki (collapsible) -->
-        <div class="section column-bonus" [class.import-highlight]="importedSections['build']" [class.section-filled]="isSectionFilled('budynki')">
-          <p-button [label]="'Budynki ' + (expandedBonuses['budynki'] ? '▼' : '▶')"
-            (onClick)="toggleBonusExpand('budynki')" [text]="true" styleClass="bonus-toggle-btn" />
-          <div *ngIf="expandedBonuses['budynki']" class="compact-grid">
-            <div class="compact-item">
-              <label>Pośredniak</label>
-              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.posredniak"
-                [inputStyleClass]="character!.posredniak > 0 ? 'input-active' : ''"
-                (ngModelChange)="updateCharacterField('posredniak', $event)" />
-            </div>
-            <div class="compact-item">
-              <label>Dom Publiczny</label>
-              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.domPubliczny"
-                [inputStyleClass]="character!.domPubliczny > 0 ? 'input-active' : ''"
-                (ngModelChange)="updateCharacterField('domPubliczny', $event)" />
-            </div>
-            <div class="compact-item">
-              <label>Rzeźnia</label>
-              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.rzeznia"
-                [inputStyleClass]="character!.rzeznia > 0 ? 'input-active' : ''"
-                (ngModelChange)="updateCharacterField('rzeznia', $event)" />
-            </div>
-          </div>
-        </div>
-        <!-- Polowanie (collapsible) -->
-        <div class="section column-bonus" [class.import-highlight]="importedSections['huntClanBonus']" [class.section-filled]="isSectionFilled('hunt')">
-          <p-button [label]="'Polowanie ' + (expandedBonuses['hunt'] ? '▼' : '▶')"
-            (onClick)="toggleBonusExpand('hunt')" [text]="true" styleClass="bonus-toggle-btn" />
-          <div *ngIf="expandedBonuses['hunt']" class="bonus-list">
-            <div *ngFor="let bonus of huntBonuses" class="bonus-item">
-              <p-checkbox [binary]="true" [ngModel]="isBonusSelected('hunt', bonus)"
-                (ngModelChange)="toggleBonusSelection('hunt', bonus)" [inputId]="'hunt_' + bonus" />
-              <label [for]="'hunt_' + bonus">{{ bonus }}</label>
-            </div>
-          </div>
-        </div>
-        <!-- Eventy (collapsible) -->
-        <div class="section column-bonus" [class.section-filled]="isSectionFilled('daily')">
-          <p-button [label]="'Eventy ' + (expandedBonuses['daily'] ? '▼' : '▶')"
-            (onClick)="toggleBonusExpand('daily')" [text]="true" styleClass="bonus-toggle-btn" />
-          <div *ngIf="expandedBonuses['daily']" class="bonus-list bonus-single">
-            <div *ngFor="let bonus of dailyBonuses" class="bonus-item">
-              <p-radiobutton [value]="bonus" [ngModel]="selectedEventBonus"
-                (onClick)="toggleBonusSelection('daily', bonus, true)" name="dailyBonus"
-                [inputId]="'daily_' + bonus" />
-              <label [for]="'daily_' + bonus">{{ bonus }}</label>
-            </div>
-          </div>
-        </div>
         <!-- Jednoraz (collapsible) -->
-        <div class="section column-bonus" [class.section-filled]="isSectionFilled('oneTime')">
+        <div class="section" [class.section-filled]="isSectionFilled('oneTime')">
           <p-button [label]="'Jednoraz ' + (expandedBonuses['oneTime'] ? '▼' : '▶')"
             (onClick)="toggleBonusExpand('oneTime')" [text]="true" styleClass="bonus-toggle-btn" />
-          <div *ngIf="expandedBonuses['oneTime']" class="bonus-list bonus-single">
-            <div *ngFor="let bonus of oneTimeBonuses" class="bonus-item">
-              <p-radiobutton [value]="bonus" [ngModel]="selectedOneTimeBonus"
-                (onClick)="toggleBonusSelection('oneTime', bonus, true)" name="oneTimeBonus"
-                [inputId]="'oneTime_' + bonus" />
-              <label [for]="'oneTime_' + bonus">{{ bonus }}</label>
+          <div *ngIf="expandedBonuses['oneTime']" class="compact-grid">
+            <div class="compact-item">
+              <label>Bonus</label>
+              <p-select [options]="oneTimeBonuses" [ngModel]="selectedOneTimeBonus ?? 'Brak'"
+                (onChange)="onOneTimeBonusChange($event.value)" appendTo="body" [filter]="true" />
             </div>
           </div>
         </div>
@@ -394,30 +433,9 @@
           </ng-container>
         </div>
       </div>
-      <!-- Ewolucje -->
-      <div class="section" [class.section-filled]="isSectionFilled('ewolucje')">
-        <p-button [label]="'Ewolucje ' + (expandedBonuses['ewolucje'] ? '▼' : '▶')"
-          (onClick)="toggleBonusExpand('ewolucje')" [text]="true" styleClass="bonus-toggle-btn" />
-        <div *ngIf="expandedBonuses['ewolucje']" class="compact-grid">
-          <div *ngFor="let evo of evolutions" class="compact-item">
-            <label>{{ evo.label }}</label>
-            <p-inputnumber [min]="0" [max]="15" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getEvoValue(evo.key)"
-              [inputStyleClass]="getEvoValue(evo.key) > 0 ? 'input-active' : ''"
-              (ngModelChange)="setEvoValue(evo.key, $event)" />
-          </div>
-        </div>
       </div>
-      <!-- Import / Export -->
-      <div class="section action-buttons">
-        <p-button label="Import" icon="pi pi-upload" (onClick)="importCharacter()" styleClass="action-io-btn" />
-        <p-button label="Export" icon="pi pi-download" (onClick)="exportCharacter()" styleClass="action-io-btn" />
-        <p-button label="Wyczyść" icon="pi pi-trash" severity="danger" (onClick)="clearSession()" styleClass="action-io-btn" />
       </div>
-      <div class="section action-buttons">
-        <p-button label="Presety" icon="pi pi-list" severity="secondary" (onClick)="openPresetsModal()" styleClass="action-io-btn" />
-        <p-button label="Uzupełnij z gry" icon="pi pi-clipboard" severity="secondary" (onClick)="reopenImportBulkModal()" styleClass="action-io-btn" />
-      </div>
-
+      <!-- ═══ /Big tab: manual ═══ -->
     </div>
   </div>
 </div>
@@ -667,7 +685,9 @@
 
   <div class="import-bulk-results">
     <div *ngFor="let s of importSummary" class="import-result"
-      [class.import-result-ok]="s.result?.ok" [class.import-result-err]="s.result && !s.result.ok"
+      [class.import-result-ok]="s.result?.ok && !isPartialImportResult(s.result)"
+      [class.import-result-warn]="isPartialImportResult(s.result)"
+      [class.import-result-err]="s.result && !s.result.ok"
       [style.display]="s.result ? 'block' : 'none'">
       <strong>{{ s.label }}:</strong> {{ s.result?.message }}
     </div>

@@ -93,20 +93,20 @@ export class DashboardService {
     }
   }
   private getPrefixTypeByName(name: string): PrefixType {
-    const prefixValues = Object.values(PrefixType);
-    const found = prefixValues.find(v => v === name);
+    const normalized = name.replace(/\s+/g, '').toLowerCase();
+    const found = Object.values(PrefixType).find(v => v.replace(/\s+/g, '').toLowerCase() === normalized);
     if (!found) {
       throw new Error(`Prefix type not found: ${name}`);
     }
-    return name as PrefixType;
+    return found;
   }
   private getSuffixTypeByName(name: string): SuffixType {
-    const suffixValues = Object.values(SuffixType);
-    const found = suffixValues.find(v => v === name);
+    const normalized = name.replace(/\s+/g, '').toLowerCase();
+    const found = Object.values(SuffixType).find(v => v.replace(/\s+/g, '').toLowerCase() === normalized);
     if (!found) {
       throw new Error(`Suffix type not found: ${name}`);
     }
-    return name as SuffixType;
+    return found;
   }
   private getGenreForItemType(itemType: ItemType): ItemGenre {
     const legTypes = [ItemType.SZORTY, ItemType.SPODNIE, ItemType.SPODNICA, ItemType.KILT];

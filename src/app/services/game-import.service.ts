@@ -94,6 +94,9 @@ function translateEffectLine(text: string, options: { obronaDivisor: boolean }, 
   if ((m = t.match(/obrona postaci\s*\+?(\d+)\s*na kazde\s*(\d+)\s*poziom/i))) {
     return options.obronaDivisor ? tryOption(`obrona ${m[1]}/${m[2]}`, list) : tryOption(`obrona ${m[1]}`, list);
   }
+  if ((m = t.match(/obrona postaci\s*\+?(\d+)\s*$/i))) {
+    return tryOption(`obrona ${m[1]}`, list);
+  }
   if ((m = t.match(/bazowe PKT ZYCIA\s*\+?(\d+)/i)) || (m = t.match(/PKT ZYCIA\s*\+?(\d+)/i))) {
     return tryOption(`zycie ${m[1]}`, list);
   }
@@ -111,6 +114,9 @@ function translateEffectLine(text: string, options: { obronaDivisor: boolean }, 
   }
   if ((m = t.match(/szansa trafienia krytycznego\s*\+?(\d+)\s*%/i))) {
     return tryOption(`kryt ${m[1]}`, list);
+  }
+  if ((m = t.match(/modyfikator obrazen od trafienia krytycznego\s*\+?(\d+)\s*%/i))) {
+    return tryOption(`multi ${m[1]}`, list);
   }
   if ((m = t.match(/SZCZESCIE\s*\+?(\d+)/i))) {
     return tryOption(`szczescie ${m[1]}`, list);

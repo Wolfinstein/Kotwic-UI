@@ -169,14 +169,17 @@ export class CharacterInputComponent implements OnInit {
     { key: 'wzmocnioneMiesnie', label: 'Wzmocnione mięsnie' },
   ];
   talizmanAttributes = [
+    // Row 1
     { key: 'ambicja', label: 'Ambicja' },
     { key: 'lewiatan', label: 'Lewiatan' },
     { key: 'behemot', label: 'Behemot' },
+    { key: 'ziz', label: 'Ziz' },
     { key: 'kamienZla', label: 'Kamień Zła' },
     { key: 'kamienDobra', label: 'Kamień Dobra' },
     { key: 'kamienPrzestrzeni', label: 'Kamień Przestrzeni' },
     { key: 'kamienCzasu', label: 'Kamień Czasu' },
     { key: 'szponyNocy', label: 'Szpony Nocy' },
+    // Row 2
     { key: 'zycieISmierc', label: 'Życie i Śmierć' },
     { key: 'otchlaniCiszy', label: 'Otchlań Ciszy' },
     { key: 'potegaMocy', label: 'Potęga Mocy' },
@@ -186,7 +189,6 @@ export class CharacterInputComponent implements OnInit {
     { key: 'maskaStachu', label: 'Maska Strachu' },
     { key: 'cichyLowca', label: 'Cichy Łowca' },
     { key: 'piesnKrwi', label: 'Pieśń Krwi' },
-    { key: 'ziz', label: 'Ziz' }
   ];
   arcaneAttributes = [
     { key: 'maskaAdonisa', label: 'Maska Adonisa', type: 'int', cost: 10 },
@@ -234,6 +236,7 @@ export class CharacterInputComponent implements OnInit {
     silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false,
     trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: false, ewolucje: true,
     przeciwnik: true, inne: false, budynki: false,
+    importTab: true, manualTab: true,
   };
   expandedBonuses: { [key: string]: boolean } = { ...CharacterInputComponent.EXPANDED_DEFAULTS };
   selectedHuntBonuses: string[] = [];
@@ -275,6 +278,10 @@ export class CharacterInputComponent implements OnInit {
 
   get importSummary(): { key: string; label: string; result: ImportResult | null }[] {
     return this.importSteps.map(s => ({ key: s.key, label: s.label, result: this.importResults[s.key] ?? null }));
+  }
+  /** ok, but the message flags unrecognized/skipped items — shown as a warning rather than a clean success. */
+  isPartialImportResult(result: ImportResult | null | undefined): boolean {
+    return !!result?.ok && result.message.includes('Uwaga:');
   }
   chooseManualImport() {
     this.showImportChoiceModal = false;
@@ -613,20 +620,20 @@ export class CharacterInputComponent implements OnInit {
     }
   }
   private getPrefixTypeByName(name: string): PrefixType {
-    const prefixValues = Object.values(PrefixType);
-    const found = prefixValues.find(v => v === name);
+    const normalized = name.replace(/\s+/g, '').toLowerCase();
+    const found = Object.values(PrefixType).find(v => v.replace(/\s+/g, '').toLowerCase() === normalized);
     if (!found) {
       throw new Error(`Prefix type not found: ${name}`);
     }
-    return name as PrefixType;
+    return found;
   }
   private getSuffixTypeByName(name: string): SuffixType {
-    const suffixValues = Object.values(SuffixType);
-    const found = suffixValues.find(v => v === name);
+    const normalized = name.replace(/\s+/g, '').toLowerCase();
+    const found = Object.values(SuffixType).find(v => v.replace(/\s+/g, '').toLowerCase() === normalized);
     if (!found) {
       throw new Error(`Suffix type not found: ${name}`);
     }
-    return name as SuffixType;
+    return found;
   }
   private getGenreForItemType(itemType: ItemType): ItemGenre {
     const legTypes = [ItemType.SZORTY, ItemType.SPODNIE, ItemType.SPODNICA, ItemType.KILT];
@@ -872,6 +879,18 @@ export class CharacterInputComponent implements OnInit {
       });
     }
   }
+  onEventBonusChange(value: string): void {
+    this.selectedEventBonus = value === 'Brak' ? null : value;
+    if (this.character) {
+      this.characterService.updateCharacter({ ...this.character, eventBonus: this.selectedEventBonus });
+    }
+  }
+  onOneTimeBonusChange(value: string): void {
+    this.selectedOneTimeBonus = value === 'Brak' ? null : value;
+    if (this.character) {
+      this.characterService.updateCharacter({ ...this.character, oneTimeBonus: this.selectedOneTimeBonus });
+    }
+  }
   isBonusSelected(bonusType: string, bonus: string): boolean {
     if (bonusType === 'hunt') {
       return this.selectedHuntBonuses.includes(bonus);
@@ -914,7 +933,8 @@ export class CharacterInputComponent implements OnInit {
           || this.character.trafieniePrzeciwnika > 0 || this.character.szczesciePrzeciwnika > 0;
       case 'inne':
         return this.character.ninja > 0 || this.character.mysliwy > 0
-          || this.character.strateg > 0 || this.character.kaplica > 0;
+          || this.character.strateg > 0 || this.character.kaplica > 0 || !!this.character.eventBonus
+          || this.character.poziom > 0 || !!this.character.rasa;
       case 'budynki':
         return this.character.posredniak > 0 || this.character.domPubliczny > 0 || this.character.rzeznia > 0;
       case 'hunt':

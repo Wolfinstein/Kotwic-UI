@@ -151,7 +151,7 @@ export const CHARACTER_PRESETS: CharacterPreset[] = [
         neck: { rarity: 'EPICKI', prefix: 'Spaczony', base: 'Krawat', suffix: 'Wilkolaka' },
         finger1: { rarity: 'EPICKI', prefix: 'Spaczony', base: 'Sygnet', suffix: 'Madrosci' },
         finger2: { rarity: 'EPICKI', prefix: 'Spaczony', base: 'Pierscien', suffix: 'Wilkolaka' },
-        weapon1: { rarity: 'EPICKI', prefix: '', base: 'Shuriken', suffix: 'DalekiegoZasiegu' },
+        weapon1: { rarity: 'EPICKI', prefix: '', base: 'Shuriken', suffix: 'Dalekiego Zasiegu' },
       },
     }
   },
