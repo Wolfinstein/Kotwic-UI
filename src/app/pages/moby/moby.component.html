@@ -1,8 +1,8 @@
 <div class="moby-view">
   <section class="feature-section">
     <header class="exp-header">
-      <h1>Moby - do uzupenienia bonusy za lokacje w m1 duo/trio</h1>
-      <p>Wybierz mapę: M1 to przeciwnicy zależni od aktu (1–3), M2 to przeciwnicy skalowani liczbą gwiazdek (1–12).</p>
+      <h1>Przeciwnicy ekspedycyjni</h1>
+      <p>Wybierz mapę: M1/M2.</p>
     </header>
 
     <div class="picker-row">
@@ -16,7 +16,7 @@
         <div class="picker-field">
           <label>Przeciwnik</label>
           <p-select [options]="actMobOptions" optionLabel="label" optionValue="value"
-            [(ngModel)]="selectedActMobName" (onChange)="onMobChange()" placeholder="-- wybierz przeciwnika --" [filter]="true" filterBy="label"></p-select>
+            [(ngModel)]="selectedActMobName" (onChange)="onMobChange()" placeholder="-- wybierz --" [filter]="true" filterBy="label"></p-select>
         </div>
       }
 
@@ -24,7 +24,7 @@
         <div class="picker-field">
           <label>Przeciwnik</label>
           <p-select [options]="starMobOptions" optionLabel="label" optionValue="value"
-            [(ngModel)]="selectedStarMobName" (onChange)="onMobChange()" placeholder="-- wybierz przeciwnika --" [filter]="true" filterBy="label"></p-select>
+            [(ngModel)]="selectedStarMobName" (onChange)="onMobChange()" placeholder="-- wybierz --" [filter]="true" filterBy="label"></p-select>
         </div>
       }
     </div>
