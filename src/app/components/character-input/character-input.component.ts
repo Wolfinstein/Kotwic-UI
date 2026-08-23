@@ -233,9 +233,9 @@ export class CharacterInputComponent implements OnInit {
   private static readonly EXPANDED_STORAGE_KEY = 'expandedBonuses';
   private static readonly IMPORT_PROMPT_SHOWN_KEY = 'importChoicePromptShown';
   private static readonly EXPANDED_DEFAULTS: { [key: string]: boolean } = {
-    silver: false, gold: false, hunt: false, daily: false, kaplica: false, oneTime: false,
-    trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: false, ewolucje: true,
-    przeciwnik: true, inne: false, budynki: false,
+    silver: false, gold: false, hunt: true, daily: false, kaplica: false, oneTime: true,
+    trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: true, ewolucje: true,
+    przeciwnik: true, inne: false, budynki: true,
     importTab: true, manualTab: true,
   };
   expandedBonuses: { [key: string]: boolean } = { ...CharacterInputComponent.EXPANDED_DEFAULTS };
