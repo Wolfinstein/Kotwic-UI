@@ -829,7 +829,7 @@ export class DashboardService {
           p.addObronaDodatkowa(Math.floor(c.poziom / 8) * value);
           break;
         case 'odpornosc':
-          if (value <= 3) {
+          if (value <= 4) {
             p.addOdpornosc(Math.floor(c.poziom / 60));
           } else if (value == 6) {
             p.addOdpornosc(Math.floor(c.poziom / 60) * 2);
