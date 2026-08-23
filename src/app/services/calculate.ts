@@ -776,9 +776,9 @@ export class DashboardService {
           p.addIgnore(toDecimal(value));
           break;
         case 'sila':
-          if (value <= 2) {
+          if (value <= 3) {
             p.addSila(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value == 6) {
             p.addSila(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addSila(Math.floor(c.poziom / 60) * 3);
@@ -786,9 +786,9 @@ export class DashboardService {
           p.addSila(value);
           break;
         case 'spostrzegawczosc':
-          if (value <= 2) {
+          if (value <= 3) {
             p.addSpostrzegawczosc(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value == 6) {
             p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 3);
@@ -796,9 +796,9 @@ export class DashboardService {
           p.addSpostrzegawczosc(value);
           break;
         case 'inteligencja':
-          if (value <= 2) {
+          if (value <= 3) {
             p.addInteligencja(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value == 6) {
             p.addInteligencja(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addInteligencja(Math.floor(c.poziom / 60) * 3);
@@ -806,9 +806,9 @@ export class DashboardService {
           p.addInteligencja(value);
           break;
         case 'wiedza':
-          if (value <= 2) {
+          if (value <= 3) {
             p.addWiedza(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value == 6) {
             p.addWiedza(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addWiedza(Math.floor(c.poziom / 60) * 3);
@@ -816,9 +816,9 @@ export class DashboardService {
           p.addWiedza(value);
           break;
         case 'zwinnosc':
-          if (value <= 2) {
+          if (value <= 3) {
             p.addZwinnosc(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value == 6) {
             p.addZwinnosc(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addZwinnosc(Math.floor(c.poziom / 60) * 3);
@@ -829,9 +829,9 @@ export class DashboardService {
           p.addObronaDodatkowa(Math.floor(c.poziom / 8) * value);
           break;
         case 'odpornosc':
-          if (value <= 2) {
+          if (value <= 3) {
             p.addOdpornosc(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value == 6) {
             p.addOdpornosc(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addOdpornosc(Math.floor(c.poziom / 60) * 3);
