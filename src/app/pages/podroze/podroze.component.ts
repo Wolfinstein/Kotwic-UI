@@ -459,7 +459,7 @@ export class PodrozeComponent implements AfterViewChecked, OnDestroy {
   }
 
   private buildSpecialAttackOption(attack: BossSpecialAttack, round: number, isMini: boolean): RoundOption {
-    const cost = specialAttackCost(attack, this.initialStats!);
+    const cost = specialAttackCost(attack, this.initialStats!, isMini);
     const enabled = this.hasEnough(attack.requiredStat, cost);
     const base = `Specjalny atak: ${attack.description} (koszt: ${cost} ${this.statLabels[attack.requiredStat]})`;
     return {

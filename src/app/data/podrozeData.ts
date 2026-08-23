@@ -187,8 +187,10 @@ export function randomBossSpecialAttack(): BossSpecialAttack {
   return BOSS_SPECIAL_ATTACKS[Math.floor(Math.random() * BOSS_SPECIAL_ATTACKS.length)];
 }
 
-export function specialAttackCost(attack: BossSpecialAttack, initialStats: Stats): number {
-  return Math.floor(initialStats[attack.requiredStat] * 0.25);
+/** 25% of the starting stat for a boss special attack, 20% for a miniboss one. */
+export function specialAttackCost(attack: BossSpecialAttack, initialStats: Stats, isMini: boolean): number {
+  const percent = isMini ? 0.2 : 0.25;
+  return Math.floor(initialStats[attack.requiredStat] * percent);
 }
 
 export interface LevelData {
