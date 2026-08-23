@@ -213,7 +213,6 @@
 .stat-row {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
   gap: 12px;
   padding: 8px 12px;
   background: var(--accent-low);
@@ -222,6 +221,10 @@
 }
 
 @media (max-width: 480px) {
+  .stat-row {
+    flex-wrap: wrap;
+  }
+
   .stat-label {
     flex-basis: 100%;
   }
