@@ -130,7 +130,7 @@ function translateEffectLine(text: string, options: { obronaDivisor: boolean }, 
   if ((m = t.match(/^multi\w*\s*\+?(\d+)/i))) {
     return tryOption(`multi ${m[1]}`, list);
   }
-  if (/dodatkowy atak/i.test(t)) {
+  if (/dodatkow\w*\s+atak/i.test(t)) {
     return tryOption('dodatkowyAtak', list);
   }
   if ((m = t.match(/^obrona\s*\+?(\d+)\s*$/i))) {
