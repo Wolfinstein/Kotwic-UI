@@ -666,8 +666,13 @@
   <p class="import-step-hint">
     Uruchom skrypt Tampermonkey na dowolnej stronie r20.bloodwars.pl (musisz być zalogowany), kliknij
     "Eksportuj dane do KotwicUI" — dane trafią do schowka. Wklej je poniżej i kliknij "Zaimportuj".
+    Na telefonie schowek czasem nie mieści tak dużej ilości danych — w takim wypadku skrypt zaproponuje
+    pobranie pliku JSON, który możesz wczytać bezpośrednio poniżej.
   </p>
-  <textarea class="import-html-textarea" rows="10" placeholder="Wklej tu zawartość skopiowaną przez skrypt Tampermonkey (JSON)..."
+  <div class="import-step-actions">
+    <p-button label="Wczytaj plik JSON" severity="secondary" (onClick)="importBulkFromFile()" />
+  </div>
+  <textarea class="import-html-textarea" rows="10" placeholder="...albo wklej tu zawartość skopiowaną przez skrypt Tampermonkey (JSON)"
     [(ngModel)]="importBulkInput"></textarea>
 
   <div *ngIf="importBulkError" class="import-result import-result-err">{{ importBulkError }}</div>

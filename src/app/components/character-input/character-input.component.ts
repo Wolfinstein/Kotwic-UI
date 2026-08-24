@@ -288,6 +288,25 @@ export class CharacterInputComponent implements OnInit {
     this.clearForBulkImport();
     this.showImportBulkModal = true;
   }
+  importBulkFromFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = (e: any) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.ngZone.run(() => {
+          this.importBulkInput = event.target.result;
+          this.parseBulkImport();
+          this.cdr.detectChanges();
+        });
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
   parseBulkImport() {
     this.importBulkError = null;
     const raw = this.importBulkInput.trim();
