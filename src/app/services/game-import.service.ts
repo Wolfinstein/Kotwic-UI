@@ -97,8 +97,11 @@ function translateEffectLine(text: string, options: { obronaDivisor: boolean }, 
   if ((m = t.match(/obrona postaci\s*\+?(\d+)\s*$/i))) {
     return tryOption(`obrona ${m[1]}`, list);
   }
-  if ((m = t.match(/bazowe PKT ZYCIA\s*\+?(\d+)/i)) || (m = t.match(/PKT ZYCIA\s*\+?(\d+)/i))) {
+  if ((m = t.match(/(?:bazowe\s+)?(?:pkt\.?\s*zycia|punkty zycia)\s*\+?(\d+)/i))) {
     return tryOption(`zycie ${m[1]}`, list);
+  }
+  if ((m = t.match(/obrazenia wszystkich broni\s*\+?(\d+)\s*na kazde\s*(\d+)\s*poziom/i))) {
+    return tryOption(`obrazenia ${m[1]}/${m[2]}`, list);
   }
   if ((m = t.match(/laczne obrazenia wszystkich broni\s*\+?(\d+)\s*%/i)) || (m = t.match(/obrazenia wszystkich broni\s*\+?(\d+)/i))) {
     return tryOption(`obrazenia ${m[1]}`, list);
