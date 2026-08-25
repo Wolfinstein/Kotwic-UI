@@ -149,8 +149,11 @@ function translateEffectLine(text: string, options: { obronaDivisor: boolean }, 
 }
 
 function baseNameToRegexSource(name: string): string {
-  const spaced = name.replace(/([a-z])([A-Z])/g, '$1 $2');
-  return spaced.split(' ').map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('\\s+');
+  const spaced = name
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/([A-Za-z])(\d)/g, '$1 $2')
+    .replace(/(\d)([A-Za-z])/g, '$1 $2');
+  return spaced.split(' ').map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('[\\s-]*');
 }
 
 function findBaseItem(text: string): { base: BaseItemDef; index: number; matchedText: string } | null {
