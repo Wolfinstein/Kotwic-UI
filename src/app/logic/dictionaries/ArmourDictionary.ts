@@ -83,6 +83,7 @@ export class ArmourDictionary {
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.ELEGANCKA, Stats.builder().wyglad(5).build()));
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.POMOCNA, Stats.builder().obronaAffixu(3).build()));
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.KOSZTOWNY, Stats.builder().wyglad(8).build()));
+    prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.KUNSZTOWNY, Stats.builder().wyglad(8).obronaAffixu(-2).build()));
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.WZMOCNIONY, Stats.builder().obronaAffixu(5).build()));
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.MAGNETYCZNA, Stats.builder().inteligencja(2).wiedza(-4).build()));
     prefixes.push(new Prefix(ItemGenre.HEAD, PrefixType.ROGATA, Stats.builder().minDpsBiala2h(5).minDpsDystans1h(5).minDpsDystans2h(5).minDpsPalna1h(5).minDpsPalna2h(5).minDpsBiala1h(5).maxDpsBiala2h(5).maxDpsDystans1h(5).maxDpsDystans2h(5).maxDpsPalna1h(5).maxDpsPalna2h(5).maxDpsBiala1h(5).build()));

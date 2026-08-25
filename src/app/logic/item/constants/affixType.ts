@@ -24,6 +24,7 @@ export enum PrefixType {
   BOJOWA = 'Bojowa',
   OZDOBNA = 'Ozdobna',
   UTWARDZANA = 'Utwardzana',
+  KUNSZTOWNY = 'Kunsztowny',
   ELEGANCKA = 'Elegancka',
   POMOCNA = 'Pomocna',
   MAGNETYCZNA = 'Magnetyczna',
