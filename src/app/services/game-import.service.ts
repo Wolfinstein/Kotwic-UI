@@ -31,7 +31,7 @@ const RASA_MAP: Record<string, string> = {
 /** Known selectable "Eventy" bonus names (see character-input.component.ts dailyBonuses). */
 const KNOWN_DAILY_BONUSES = [
   'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień Vlada',
-  'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina',
+  'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina', 'Urodzinowa Wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina',
   'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you',
   'Dzień Przemiany', 'Dzień poszukiwaczy', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami',
   'Pierwszy gol', 'Pierwszy serwis', 'Szczęście Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden',
