@@ -700,6 +700,9 @@ export class DashboardService {
       case 'dzień poszukiwaczy':
         p.addSzczescie(100);
         break;
+      case 'urodzinowa wizja kaina':
+        p.addSzczescie(100);
+        break;
       case 'dzień vlada':
         break;
       case 'dzień gwiazd północy':
