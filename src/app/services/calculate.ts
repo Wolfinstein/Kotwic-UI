@@ -277,7 +277,7 @@ export class DashboardService {
         case 'obrona':
           if (parts[1]?.includes('/')) {
             const [num, den] = parts[1].split('/').map(Number);
-            p.addObronaDodatkowa((Math.floor(num / den) * c.poziom));
+            p.addObronaDodatkowa((Math.floor(c.poziom / den) * num));
           } else {
             p.addObronaDodatkowa(value);
           }
@@ -779,9 +779,9 @@ export class DashboardService {
           p.addIgnore(toDecimal(value));
           break;
         case 'sila':
-          if (value <= 3) {
+          if (value <= 2) {
             p.addSila(Math.floor(c.poziom / 60));
-          } else if (value == 6) {
+          } else if (value === 3) {
             p.addSila(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addSila(Math.floor(c.poziom / 60) * 3);
@@ -789,9 +789,9 @@ export class DashboardService {
           p.addSila(value);
           break;
         case 'spostrzegawczosc':
-          if (value <= 3) {
+          if (value <= 2) {
             p.addSpostrzegawczosc(Math.floor(c.poziom / 60));
-          } else if (value == 6) {
+          } else if (value === 3) {
             p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 3);
@@ -799,9 +799,9 @@ export class DashboardService {
           p.addSpostrzegawczosc(value);
           break;
         case 'inteligencja':
-          if (value <= 3) {
+          if (value <= 2) {
             p.addInteligencja(Math.floor(c.poziom / 60));
-          } else if (value == 6) {
+          } else if (value === 3) {
             p.addInteligencja(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addInteligencja(Math.floor(c.poziom / 60) * 3);
@@ -809,9 +809,9 @@ export class DashboardService {
           p.addInteligencja(value);
           break;
         case 'wiedza':
-          if (value <= 3) {
+          if (value <= 2) {
             p.addWiedza(Math.floor(c.poziom / 60));
-          } else if (value == 6) {
+          } else if (value === 3) {
             p.addWiedza(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addWiedza(Math.floor(c.poziom / 60) * 3);
@@ -819,9 +819,9 @@ export class DashboardService {
           p.addWiedza(value);
           break;
         case 'zwinnosc':
-          if (value <= 3) {
+          if (value <= 2) {
             p.addZwinnosc(Math.floor(c.poziom / 60));
-          } else if (value == 6) {
+          } else if (value === 3) {
             p.addZwinnosc(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addZwinnosc(Math.floor(c.poziom / 60) * 3);

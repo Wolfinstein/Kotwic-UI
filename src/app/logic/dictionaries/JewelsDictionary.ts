@@ -126,7 +126,7 @@ export class JewelsDictionary {
     suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.WILKOLAKA, Stats.builder().redukcjaObrazen(0.02).build()));
     suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.KONCENTRACJI, Stats.builder().inteligencja(3).wiedza(3).build()));
     suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.LEWITACJI, Stats.builder().sila(3).zwinnosc(3).build()));
-    suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.NIETOPERZA, Stats.builder().wyglad(-13).spostrzegawczosc(3).zwinnosc(3).build()));
+    suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.NIETOPERZA, Stats.builder().wyglad(-8).spostrzegawczosc(3).zwinnosc(3).build()));
     suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.KRWI, Stats.builder().punktyKrwi(0.05).build()));
     suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.SZALENCA, Stats.builder().szczescie(5).inteligencja(4).wplywy(-6).build()));
     suffixes.push(new Suffix(ItemGenre.FINGER, SuffixType.SZCZESCIA, Stats.builder().szczescie(5).build()));
