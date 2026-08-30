@@ -25,8 +25,11 @@ function mobDamageStarMultiplier(star: number): number {
   return 1 + Math.max(0, star - 1) * 0.6;
 }
 
-/** Picking the MIN mob-stat variant also shaves 5% off the mob's weapon damage (MAX uses the profile's numbers as-is). */
-function mobVariantDamageMultiplier(variant: MobStatVariant): number {
+/** Picking the MIN mob-stat variant also shaves 5% off the mob's weapon damage (MAX uses the profile's numbers as-is), unless the profile overrides these multipliers (e.g. when minDmg/maxDmg are themselves the MIN-variant numbers). */
+function mobVariantDamageMultiplier(variant: MobStatVariant, profile?: MobCombatProfile): number {
+  if (profile?.variantDamageMultiplier) {
+    return variant === 'min' ? profile.variantDamageMultiplier.min : profile.variantDamageMultiplier.max;
+  }
   return variant === 'min' ? 0.95 : 1;
 }
 
@@ -113,6 +116,8 @@ export interface PlayerCombatState {
   unikDystansActivated: number;
   /** Otchłań Ciszy: on this player's first landed hit each round, the mob's CURRENT obrona/odpornosc is multiplied by (1 - otchlanReduction) — compounds every round, per qualifying player, uncapped in total. */
   otchlanReduction: number;
+  /** Macki Strachu (mob special): once triggered, this player's ignoreObrony is treated as 0 for the rest of the round. */
+  ignoreDisabledThisRound: boolean;
   /** Potęga Mocy: on this player's first landed hit of the whole fight, steals up to this much crit-multiplier from the mob (floored so the mob keeps at least 150%) and adds it to their own weapons. Fires once, ever. */
   potegaStealPotential: number;
   potegaTriggered: boolean;
@@ -211,6 +216,26 @@ function auraBestiiHpBonusFor(bonus: AuraBestiiTeamBonus, redukcja: number): num
 function cichyLowcaChanceFor(cichyLowcaTier: number, kocieSciezkiLevel: number): number {
   if (cichyLowcaTier !== 4) return 0;
   return Math.min(0.01 * kocieSciezkiLevel, 0.50);
+}
+
+/** Macki Strachu: eligible once the mob has taken 25% of its max HP; each subsequent player attack against it then has this chance to disable that attacker's ignoreObrony for the rest of the round. */
+const MACKI_STRACHU_HP_THRESHOLD = 0.75;
+const MACKI_STRACHU_PROC_CHANCE = 0.30;
+
+/** Recomputes a weapon's damage bounds as if its ignoreObrony were 0 — i.e. the mob's obrona/odpornosc is subtracted in full instead of discounted by the weapon's ignore stat, mirroring the reduction calculate.ts applies before ignore. */
+function ignoreDisabledWeaponBounds(w: WeaponDamage, mobObrona: number, mobOdpornosc: number, genre: MobWeaponGenre): { minDmg: number; maxDmg: number; critDmgMin: number; critDmgMax: number } {
+  const ignore = w.ignore ?? 0;
+  const factor = genre === 'dystans' ? mobObrona / 4 : genre === 'biala' ? mobObrona / 2 : mobOdpornosc / 2;
+  const extraReduction = Math.floor(factor) - Math.floor(factor * (1 - ignore));
+  const minDmg = Math.max(1, w.minDmg - extraReduction);
+  const maxDmg = Math.max(1, w.maxDmg - extraReduction);
+  const critMulti = w.critMulti ?? 1;
+  return {
+    minDmg,
+    maxDmg,
+    critDmgMin: Math.max(1, Math.floor(minDmg * critMulti)),
+    critDmgMax: Math.max(1, Math.floor(maxDmg * critMulti)),
+  };
 }
 
 const TCHNIENIE_ACCEL_PER_LEVEL: Record<number, number> = { 1: 0.005, 2: 0.01, 3: 0.015, 4: 0.02 };
@@ -513,6 +538,7 @@ export function computeCombatPreview(
       unikPalnaActivated: dashboard.unikPalna ?? 0,
       unikDystansActivated: dashboard.unikDystans ?? 0,
       otchlanReduction: otchlanReductionFor(saved.character.talizmanLevels?.otchlaniCiszy ?? 0, saved.character.arcaneLevels?.ciszaKrwi ?? 0),
+      ignoreDisabledThisRound: false,
       potegaStealPotential: potegaStealPotentialFor(saved.character.talizmanLevels?.potegaMocy ?? 0, saved.character.arcaneLevels?.wyssanieMocy ?? 0),
       potegaTriggered: false,
       potegaAppliedSteal: 0,
@@ -562,8 +588,8 @@ export function computeCombatPreview(
   const mobPreview: CombatPreviewMob = {
     name: mob.name,
     maxHp: mobMaxHp,
-    minDmg: profile ? Math.round(profile.minDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant)) + rosterBonus.extraDamage : 0,
-    maxDmg: profile ? Math.round(profile.maxDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant)) + rosterBonus.extraDamage : 0,
+    minDmg: profile ? Math.round(profile.minDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile)) + rosterBonus.extraDamage : 0,
+    maxDmg: profile ? Math.round(profile.maxDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile)) + rosterBonus.extraDamage : 0,
     critChance: profile?.critChance ?? 0,
     critMulti: profile?.critMulti ?? 1,
     obrona: mobObrona,
@@ -681,6 +707,7 @@ export function simulateExpedition(
       unikPalnaActivated: dashboardActivated.unikPalna ?? 0,
       unikDystansActivated: dashboardActivated.unikDystans ?? 0,
       otchlanReduction: otchlanReductionFor(saved.character.talizmanLevels?.otchlaniCiszy ?? 0, saved.character.arcaneLevels?.ciszaKrwi ?? 0),
+      ignoreDisabledThisRound: false,
       potegaStealPotential: potegaStealPotentialFor(saved.character.talizmanLevels?.potegaMocy ?? 0, saved.character.arcaneLevels?.wyssanieMocy ?? 0),
       potegaTriggered: false,
       potegaAppliedSteal: 0,
@@ -798,13 +825,16 @@ export function simulateExpedition(
     let dmg = 0;
     let otchlanProced = false;
     let potegaSteal = 0;
+    const effBounds = attacker.ignoreDisabledThisRound
+      ? ignoreDisabledWeaponBounds(w, mobObronaCurrent, mobOdpornoscCurrent, mobGenreForWeapon(w.genre))
+      : { minDmg: w.minDmg, maxDmg: w.maxDmg, critDmgMin: w.critDmgMin ?? w.minDmg, critDmgMax: w.critDmgMax ?? w.maxDmg };
     if (hit) {
       attacker.hitsLanded++;
       crit = Math.random() < (w.critChance ?? 0);
       if (crit) attacker.critsLanded++;
       dmg = crit
-        ? randomInt(w.critDmgMin ?? w.minDmg, w.critDmgMax ?? w.maxDmg)
-        : randomInt(w.minDmg, w.maxDmg);
+        ? randomInt(effBounds.critDmgMin, effBounds.critDmgMax)
+        : randomInt(effBounds.minDmg, effBounds.maxDmg);
       if (organizer && !organizer.alive) {
         dmg = Math.round(dmg * 0.9);
       }
@@ -835,6 +865,12 @@ export function simulateExpedition(
         }
       }
     }
+    let mackiStrachuProced = false;
+    if (profile?.special?.kind === 'mackiStrachu' && !attacker.ignoreDisabledThisRound
+      && mobHp <= mobMaxHp * MACKI_STRACHU_HP_THRESHOLD && Math.random() < MACKI_STRACHU_PROC_CHANCE) {
+      attacker.ignoreDisabledThisRound = true;
+      mackiStrachuProced = true;
+    }
     attacks.push({
       round: roundNum,
       attackerName: attacker.name,
@@ -853,6 +889,9 @@ export function simulateExpedition(
     }
     if (potegaSteal > 0) {
       pushNote(attacker.name, `${attacker.name} aktywuje Potęgę Mocy`, roundNum);
+    }
+    if (mackiStrachuProced) {
+      pushNote(attacker.name, `Macki Strachu napełniają serce ${attacker.name} grozą — jego ataki tracą na skuteczności do końca rundy`, roundNum);
     }
     if (mobHp <= 0) {
       attacker.kills++;
@@ -874,6 +913,7 @@ export function simulateExpedition(
       p.lewiatanBonusObrona = 0;
       p.lewiatanBonusOdpornosc = 0;
       p.damageDealtThisRound = 0;
+      p.ignoreDisabledThisRound = false;
     }
     otchlanProcdThisRound = new Set<string>();
     const alivePlayers = players.filter(p => p.alive);
@@ -954,7 +994,7 @@ export function simulateExpedition(
             if (profile) {
               crit = Math.random() < effectiveMobCritChance(profile.critChance, target);
               if (crit) mobCritsLanded++;
-              const raw = randomInt(profile.minDmg, profile.maxDmg) * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant) * (crit ? mobCritMulti : 1) + rosterBonus.extraDamage;
+              const raw = randomInt(profile.minDmg, profile.maxDmg) * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile) * (crit ? mobCritMulti : 1) + rosterBonus.extraDamage;
               const afterRedukcja = raw * (1 - target.redukcja);
               const defenseReduction = mobHitDefenseReduction(profile, target);
               dmg = Math.max(0, Math.round(afterRedukcja - defenseReduction));
