@@ -226,6 +226,12 @@
         <i class="pi pi-arrow-left"></i>
         <span>Wieże</span>
       </button>
+      @if (combatResult) {
+        <button type="button" class="btn-fight-again" (click)="startCombat()">
+          <i class="pi pi-refresh"></i>
+          <span>Walcz ponownie</span>
+        </button>
+      }
     </section>
 
     @if (combatResult) {
