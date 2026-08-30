@@ -25,6 +25,11 @@ function mobDamageStarMultiplier(star: number): number {
   return 1 + Math.max(0, star - 1) * 0.6;
 }
 
+/** Picking the MIN mob-stat variant also shaves 5% off the mob's weapon damage (MAX uses the profile's numbers as-is). */
+function mobVariantDamageMultiplier(variant: MobStatVariant): number {
+  return variant === 'min' ? 0.95 : 1;
+}
+
 /** Player level cap scales +50% per star above 1 (star 1 = base, star 2 = 1.5x, star 3 = 2x, ...). */
 function mobLevelCapForStar(baseCap: number, star: number): number {
   return Math.round(baseCap * (1 + Math.max(0, star - 1) * 0.5));
@@ -36,18 +41,24 @@ export interface RosterBonus {
 }
 
 /**
- * Incomplete-roster penalty: if the joined players' combined level is under
- * half the mob's level cap, the mob gets extra flat damage equal to the
- * level deficit, plus extra hit-chance points scaled by how large that
- * deficit is relative to the cap (deficit²/maxLevelSum), plus a flat +1000
- * hit-chance bonus when the expedition is done solo.
+ * Incomplete-roster penalty: whether it activates is judged against half of
+ * the star-scaled level cap, but the actual bonus magnitude is always
+ * measured against the full star-1 (base) cap — so the bonus itself never
+ * grows with star, only the threshold for triggering it does. The mob gets
+ * extra flat damage equal to that base-cap deficit, plus extra hit-chance
+ * points scaled by how large the deficit is relative to the base cap
+ * (deficit²/baseLevelCap), plus a flat +1000 hit-chance bonus when the
+ * expedition is done solo. Never negative.
  */
-function computeRosterBonus(maxLevelSum: number | null, joinedLevelSum: number, playerCount: number): RosterBonus {
-  if (!maxLevelSum || maxLevelSum <= 0) return { extraDamage: 0, extraHitChance: 0 };
-  if (joinedLevelSum >= maxLevelSum / 2) return { extraDamage: 0, extraHitChance: 0 };
-  const deficit = maxLevelSum - joinedLevelSum;
+function computeRosterBonus(baseLevelCap: number | null, scaledLevelCap: number | null, joinedLevelSum: number, playerCount: number): RosterBonus {
+  if (!scaledLevelCap || scaledLevelCap <= 0 || !baseLevelCap || baseLevelCap <= 0) return { extraDamage: 0, extraHitChance: 0 };
+  if (joinedLevelSum >= scaledLevelCap / 2) return { extraDamage: 0, extraHitChance: 0 };
+  const deficit = Math.max(0, baseLevelCap - joinedLevelSum);
   const soloBonus = playerCount === 1 ? 1000 : 0;
-  return { extraDamage: deficit, extraHitChance: deficit * (deficit / maxLevelSum) + soloBonus };
+  return {
+    extraDamage: Math.max(0, deficit),
+    extraHitChance: Math.max(0, deficit * (deficit / baseLevelCap) + soloBonus),
+  };
 }
 
 /**
@@ -395,7 +406,8 @@ export function computeCombatPreview(
   const profile = MOB_COMBAT_PROFILES[mob.name];
   const levelCap = profile?.playerLevelCap ? mobLevelCapForStar(profile.playerLevelCap, star) : null;
   const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
-  const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length);
+  // Activation is judged against the star-scaled cap; the bonus magnitude is always measured against the base (star-1) cap.
+  const rosterBonus = computeRosterBonus(profile?.playerLevelCap ?? null, levelCap, joinedLevelSum, savedPlayers.length);
   const auraBestiiBonus = computeAuraBestiiTeamBonus(savedPlayers);
 
   const players: CombatPreviewPlayer[] = savedPlayers.map(saved => {
@@ -481,8 +493,8 @@ export function computeCombatPreview(
   const mobPreview: CombatPreviewMob = {
     name: mob.name,
     maxHp: mobMaxHp,
-    minDmg: profile ? Math.round(profile.minDmg * mobDamageStarMultiplier(star)) + rosterBonus.extraDamage : 0,
-    maxDmg: profile ? Math.round(profile.maxDmg * mobDamageStarMultiplier(star)) + rosterBonus.extraDamage : 0,
+    minDmg: profile ? Math.round(profile.minDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant)) + rosterBonus.extraDamage : 0,
+    maxDmg: profile ? Math.round(profile.maxDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant)) + rosterBonus.extraDamage : 0,
     critChance: profile?.critChance ?? 0,
     critMulti: profile?.critMulti ?? 1,
     obrona: mobObrona,
@@ -544,7 +556,8 @@ export function simulateExpedition(
 
   const levelCap = profile?.playerLevelCap ? mobLevelCapForStar(profile.playerLevelCap, star) : null;
   const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
-  const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length);
+  // Activation is judged against the star-scaled cap; the bonus magnitude is always measured against the base (star-1) cap.
+  const rosterBonus = computeRosterBonus(profile?.playerLevelCap ?? null, levelCap, joinedLevelSum, savedPlayers.length);
   const auraBestiiBonus = computeAuraBestiiTeamBonus(savedPlayers);
 
   const players: PlayerCombatState[] = savedPlayers.map(saved => {
@@ -821,7 +834,7 @@ export function simulateExpedition(
           if (hit) {
             if (profile) {
               crit = Math.random() < effectiveMobCritChance(profile.critChance, target);
-              const raw = randomInt(profile.minDmg, profile.maxDmg) * mobDamageStarMultiplier(star) * (crit ? mobCritMulti : 1) + rosterBonus.extraDamage;
+              const raw = randomInt(profile.minDmg, profile.maxDmg) * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant) * (crit ? mobCritMulti : 1) + rosterBonus.extraDamage;
               const afterRedukcja = raw * (1 - target.redukcja);
               const defenseReduction = mobHitDefenseReduction(profile, target);
               dmg = Math.max(0, Math.round(afterRedukcja - defenseReduction));

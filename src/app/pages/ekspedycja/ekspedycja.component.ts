@@ -9,6 +9,15 @@ import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPrevi
 type VolumeLevel = 'low' | 'mid' | 'high';
 type ExpeditionStep = 'players' | 'towers' | 'combat';
 
+interface BulkSimResult {
+  total: number;
+  wins: number;
+  losses: number;
+  draws: number;
+}
+
+const BULK_SIM_RUNS = 100;
+
 const VOLUME_LEVELS: VolumeLevel[] = ['low', 'mid', 'high'];
 const VOLUME_VALUES: Record<VolumeLevel, number> = { low: 0.25, mid: 0.6, high: 1 };
 const VOLUME_LABELS: Record<VolumeLevel, string> = { low: 'Cicho', mid: 'Średnio', high: 'Głośno' };
@@ -33,6 +42,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   selectedMobName: string | null = null;
   combatResult: ExpeditionResult | null = null;
   combatPreview: CombatPreview | null = null;
+  bulkSimResult: BulkSimResult | null = null;
   muted = true;
   volumeLevel: VolumeLevel = 'mid';
 
@@ -116,6 +126,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.step = 'players';
     this.selectedTower = null;
     this.selectedMobName = null;
+    this.bulkSimResult = null;
     this.switchBackgroundTrack();
   }
 
@@ -123,11 +134,13 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.selectedTower = tower;
     this.selectedMobName = null;
     this.combatPreview = null;
+    this.bulkSimResult = null;
     this.playSelectSound();
   }
 
   selectMob(mobName: string): void {
     this.selectedMobName = mobName;
+    this.bulkSimResult = null;
     this.playMobSelectSound();
     this.refreshCombatPreview();
   }
@@ -177,12 +190,30 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   selectStar(star: number): void {
     this.starLevel = star;
     this.showStarPicker = false;
+    this.bulkSimResult = null;
     this.refreshCombatPreview();
   }
 
   toggleMobVariant(): void {
     this.mobVariant = this.mobVariant === 'min' ? 'max' : 'min';
+    this.bulkSimResult = null;
     this.refreshCombatPreview();
+  }
+
+  runBulkSimulation(): void {
+    if (!this.selectedTower || !this.selectedMobName) return;
+    const mob = this.selectedTower.mobs.find(m => m.name === this.selectedMobName);
+    if (!mob) return;
+    let wins = 0;
+    let losses = 0;
+    let draws = 0;
+    for (let i = 0; i < BULK_SIM_RUNS; i++) {
+      const result = simulateExpedition(this.selectedPlayers, mob, this.starLevel, this.dashboardService, this.mobVariant);
+      if (result.outcome === 'win') wins++;
+      else if (result.outcome === 'loss') losses++;
+      else draws++;
+    }
+    this.bulkSimResult = { total: BULK_SIM_RUNS, wins, losses, draws };
   }
 
   private refreshCombatPreview(): void {

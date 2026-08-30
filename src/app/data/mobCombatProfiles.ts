@@ -27,8 +27,8 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
   Abaddon: {
     weaponName: 'Rusznica Otchłani',
     weaponGenre: 'palna',
-    minDmg: 600,
-    maxDmg: 900,
+    minDmg: 875,
+    maxDmg: 1075,
     attacksPerRound: 5,
     critChance: 0.85,
     critMulti: 2.5,

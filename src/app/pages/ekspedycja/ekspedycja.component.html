@@ -193,7 +193,21 @@
       </section>
     }
 
+    @if (bulkSimResult) {
+      <section class="feature-section bulk-sim-result">
+        <h3>Wynik symulacji ({{ bulkSimResult.total }}x)</h3>
+        <div class="bulk-sim-row">
+          <span class="bulk-sim-stat bulk-sim-win">Zwycięstwa: {{ bulkSimResult.wins }} ({{ (bulkSimResult.wins / bulkSimResult.total * 100).toFixed(0) }}%)</span>
+          <span class="bulk-sim-stat bulk-sim-loss">Porażki: {{ bulkSimResult.losses }} ({{ (bulkSimResult.losses / bulkSimResult.total * 100).toFixed(0) }}%)</span>
+          <span class="bulk-sim-stat bulk-sim-draw">Remisy: {{ bulkSimResult.draws }} ({{ (bulkSimResult.draws / bulkSimResult.total * 100).toFixed(0) }}%)</span>
+        </div>
+      </section>
+    }
+
     <div class="step-footer">
+      <button type="button" class="btn-simulate" [disabled]="!selectedMobName" (click)="runBulkSimulation()">
+        Symuluj 100x
+      </button>
       <button type="button" class="btn-next" [disabled]="!selectedMobName" (click)="startCombat()">
         Walcz!
       </button>

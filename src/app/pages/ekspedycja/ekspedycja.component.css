@@ -572,7 +572,66 @@
 .step-footer {
   display: flex;
   justify-content: center;
+  gap: 14px;
   margin-top: 20px;
+}
+
+.btn-simulate {
+  padding: 12px 28px;
+  background: transparent;
+  border: 2px solid var(--section-icon);
+  border-radius: 8px;
+  color: var(--section-icon);
+  font-family: 'Bungee', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: filter 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+}
+
+.btn-simulate:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-simulate:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Bulk simulation result ── */
+.bulk-sim-result {
+  text-align: center;
+}
+
+.bulk-sim-result h3 {
+  margin: 0 0 10px;
+  font-family: 'Bungee', sans-serif;
+  font-size: var(--fs-md);
+  letter-spacing: 0.5px;
+  color: var(--section-icon);
+}
+
+.bulk-sim-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 20px;
+}
+
+.bulk-sim-stat {
+  font-weight: 700;
+}
+
+.bulk-sim-win {
+  color: #6fe0cf;
+}
+
+.bulk-sim-loss {
+  color: #e57373;
+}
+
+.bulk-sim-draw {
+  color: #ffc94d;
 }
 
 .btn-next {
