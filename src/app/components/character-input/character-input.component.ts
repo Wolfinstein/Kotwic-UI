@@ -27,7 +27,7 @@ import { GameImportService, ImportResult } from '../../services/game-import.serv
 import { SlotCategory, BaseItemDef, RARITIES, BASE_ITEMS, PREFIXES_BY_CATEGORY, SUFFIXES_BY_CATEGORY } from '../../data/equipmentDictionary';
 
 export interface ImportStepDef {
-  key: 'trening' | 'main' | 'equip' | 'enchant' | 'talizman' | 'build' | 'arenaSilver' | 'arenaGold' | 'clanbld' | 'huntClanBonus';
+  key: 'trening' | 'main' | 'equip' | 'enchant' | 'talizman' | 'evo' | 'build' | 'arenaSilver' | 'arenaGold' | 'clanbld' | 'huntClanBonus';
   label: string;
   url: string;
 }
@@ -105,6 +105,11 @@ export class CharacterInputComponent implements OnInit {
   refStarMobName: string | null = null;
   refAct: number | null = null;
   refStar: number | null = null;
+  refVariant: 'min' | 'max' = 'min';
+  readonly refVariantOptions = [
+    { label: 'MIN', value: 'min' },
+    { label: 'MAX', value: 'max' },
+  ];
 
   attributes = [
     { key: 'sila', label: 'Siła' },
@@ -123,12 +128,14 @@ export class CharacterInputComponent implements OnInit {
     { key: 'klyPazuryKolce', label: 'Kły/Pazury/Kolce' },
     { key: 'gruczolyJadowe', label: 'Gruczoły jadowe' },
     { key: 'wzmocnioneSciegna', label: 'Wzmocnione scięgna' },
+    { key: 'dodatkowaKomora', label: 'Dodatkowa komora' },
     { key: 'krewDemona', label: 'Krew demona' },
     { key: 'mutacjaDna', label: 'Mutacja DNA' },
     { key: 'oswiecony', label: 'Oświecony' },
     { key: 'szostyZmysl', label: 'Szósty zmysl' },
     { key: 'absorpcja', label: 'Absorpcja' },
     { key: 'harmonijnyRozwoj', label: 'Harmonijny rozwój' },
+    { key: 'skazenieMana', label: 'Skażenie Maną' },
     { key: 'pietnoDemona', label: 'Piętno demona' },
     { key: 'wzmocnioneMiesnie', label: 'Wzmocnione mięsnie' },
   ];
@@ -183,8 +190,8 @@ export class CharacterInputComponent implements OnInit {
 
   /** Cumulative "Poziom Ewolucji" cost to reach each evolution level (index = level, 1-15). */
   private static readonly EVOLUTION_LEVEL_CUMULATIVE_COST: number[] = [0, 1, 3, 6, 10, 15, 17, 21, 27, 35, 45, 48, 54, 63, 75, 90];
-  /** These two evolutions don't consume the "Poziom Ewolucji" resource, so they're excluded from the total. */
-  private static readonly EVOLUTIONS_EXCLUDED_FROM_COST = ['krewDemona', 'dodatkowaKomora'];
+  /** These evolutions don't consume the "Poziom Ewolucji" resource on the standard scale, so they're excluded from the total. */
+  private static readonly EVOLUTIONS_EXCLUDED_FROM_COST = ['krewDemona', 'dodatkowaKomora', 'skazenieMana'];
 
   get evolutionTotalCost(): number {
     if (!this.character) return 0;
@@ -193,6 +200,19 @@ export class CharacterInputComponent implements OnInit {
       const level = this.getEvoValue(evo.key);
       return sum + (CharacterInputComponent.EVOLUTION_LEVEL_CUMULATIVE_COST[level] ?? 0);
     }, 0);
+  }
+
+  /** "Skażenie Maną" grants extra Poziom Ewolucji points, this much per level (index = level, 1-15). */
+  private static readonly SKAZENIE_MANA_BONUS: number[] = [0, 1, 2, 3, 5, 7, 9, 11, 13, 17, 21, 25, 29, 33, 41, 49];
+  /** Player level at which the "Poziom Ewolucji" pool starts (1 point at this level, +1 per level after). */
+  private static readonly EVOLUTION_POOL_START_LEVEL = 65;
+
+  get evolutionPointsTotal(): number {
+    if (!this.character) return 0;
+    const base = Math.max(0, this.character.poziom - CharacterInputComponent.EVOLUTION_POOL_START_LEVEL + 1);
+    const skazenieLevel = this.getEvoValue('skazenieMana');
+    const bonus = CharacterInputComponent.SKAZENIE_MANA_BONUS[skazenieLevel] ?? 0;
+    return base + bonus;
   }
   rasaOptions = [
     { label: 'Potępiony', value: 'Potepiony' },
@@ -242,6 +262,7 @@ export class CharacterInputComponent implements OnInit {
     { key: 'equip', label: 'Ekwipunek', url: 'https://r20.bloodwars.pl/?a=equip' },
     { key: 'enchant', label: 'Umagicznienia', url: 'https://r20.bloodwars.pl/?a=enchant' },
     { key: 'talizman', label: 'Talizmany i Runy', url: 'https://r20.bloodwars.pl/?a=talizman' },
+    { key: 'evo', label: 'Ewolucja', url: 'https://r20.bloodwars.pl/?a=training&do=evo' },
     { key: 'build', label: 'Budynki', url: 'https://r20.bloodwars.pl/?a=build' },
     { key: 'arenaSilver', label: 'Myśliwy / Ninja', url: 'https://r20.bloodwars.pl/?a=newarena&cat=4&t=silver' },
     { key: 'arenaGold', label: 'Strateg', url: 'https://r20.bloodwars.pl/?a=newarena&cat=4&t=gold' },
@@ -250,7 +271,7 @@ export class CharacterInputComponent implements OnInit {
   ];
   importResults: Partial<Record<ImportStepDef['key'], ImportResult>> = {};
   importedSections: Record<string, boolean> = {
-    trening: false, main: false, equip: false, enchant: false, talizman: false,
+    trening: false, main: false, equip: false, enchant: false, talizman: false, evo: false,
     build: false, arenaSilver: false, arenaGold: false, clanbld: false, huntClanBonus: false,
   };
 
@@ -271,6 +292,7 @@ export class CharacterInputComponent implements OnInit {
       case 'equip': return this.gameImportService.parseEquip(html);
       case 'enchant': return this.gameImportService.parseEnchant(html);
       case 'talizman': return this.gameImportService.parseTalizman(html);
+      case 'evo': return this.gameImportService.parseEvo(html);
       case 'build': return this.gameImportService.parseBuild(html);
       case 'arenaSilver': return this.gameImportService.parseArenaSilver(html);
       case 'arenaGold': return this.gameImportService.parseArenaGold(html);
@@ -370,7 +392,7 @@ export class CharacterInputComponent implements OnInit {
     const patch: any = {};
     const fields = [
       'attributes', 'poziom', 'rasa', 'eventBonus', 'equipment', 'talizmanLevels', 'arcaneLevels',
-      'runeValues', 'umagiValues', 'posredniak', 'domPubliczny', 'rzeznia', 'ninja', 'mysliwy',
+      'evolutions', 'runeValues', 'umagiValues', 'posredniak', 'domPubliczny', 'rzeznia', 'ninja', 'mysliwy',
       'strateg', 'kaplica', 'huntBonuses',
     ];
     for (const field of fields) {
@@ -777,6 +799,7 @@ export class CharacterInputComponent implements OnInit {
     const updated: any = { ...this.character.equipment, weaponMode: mode };
     if (mode === '2h') updated.weapon2 = undefined;
     this.characterService.updateCharacter({ ...this.character, equipment: updated });
+    this.applyRefStatsToPrzeciwnik();
   }
   saveEquipmentItem() {
     if (!this.character) return;
@@ -787,6 +810,7 @@ export class CharacterInputComponent implements OnInit {
     };
     this.characterService.updateCharacter({ ...this.character, equipment: updated });
     this.showEquipmentModal = false;
+    this.applyRefStatsToPrzeciwnik();
   }
 
   getAttrValue(key: string): number {
@@ -1092,6 +1116,47 @@ export class CharacterInputComponent implements OnInit {
   onRefMobChange(): void {
     this.refAct = null;
     this.refStar = null;
+  }
+
+  private variantValue(range: StatRange | null, variant: 'min' | 'max'): number {
+    if (!range) return 0;
+    return variant === 'min' ? range.min : range.max;
+  }
+
+  /** Weapon category driving which stat feeds "Trafienie Przeciwnika" — weapon1 wins on a mixed 1H+1H combo. */
+  get equippedWeaponCategory(): 'white' | 'gun' | 'range' | null {
+    const w1 = this.character?.equipment?.weapon1;
+    const w2 = this.character?.equipment?.weapon2;
+    const item = w1?.base ? w1 : w2?.base ? w2 : null;
+    if (!item?.base) return null;
+    try {
+      const genre = this.getGenreForItemType(item.base as ItemType);
+      if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) return 'white';
+      if (genre === ItemGenre.GUN_1H || genre === ItemGenre.GUN_2H) return 'gun';
+      if (genre === ItemGenre.RANGE_1H || genre === ItemGenre.RANGE_2H) return 'range';
+    } catch { }
+    return null;
+  }
+
+  /** Fills the 4 "Przeciwnik" fields from the currently picked mob + wariant (obrona/odpornosc/szczescie directly, trafienie per equipped weapon type). */
+  applyRefStatsToPrzeciwnik(): void {
+    const stats = this.refStats;
+    if (!stats || !this.character) return;
+    const category = this.equippedWeaponCategory;
+    if (!category) {
+      alert('Nie wykryto żadnej wyekwipowanej broni — uzupełnij "Ekwipunek", aby automatycznie obliczyć Trafienie Przeciwnika.');
+    }
+    let trafienie = 0;
+    if (category === 'white') trafienie = this.variantValue(stats.zwinnosc, this.refVariant);
+    else if (category === 'gun') trafienie = this.variantValue(stats.spostrzegawczosc, this.refVariant);
+    else if (category === 'range') trafienie = this.variantValue(stats.zwinnosc, this.refVariant) + this.variantValue(stats.spostrzegawczosc, this.refVariant);
+    this.characterService.updateCharacter({
+      ...this.character,
+      obronaPrzeciwnika: this.variantValue(stats.obrona, this.refVariant),
+      odpornoscPrzeciwnika: this.variantValue(stats.odpornosc, this.refVariant),
+      trafieniePrzeciwnika: trafienie,
+      szczesciePrzeciwnika: this.variantValue(stats.szczescie, this.refVariant),
+    });
   }
 
   get refActMob(): ActMob | null {

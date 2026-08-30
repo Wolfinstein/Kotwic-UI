@@ -305,7 +305,7 @@
         <div *ngIf="expandedBonuses['arkany']" class="bonus-item">
           <p-checkbox [binary]="true" [ngModel]="!!character?.tchnienieSmierciActive" inputId="tchnienieSmierciActive"
             (ngModelChange)="updateCharacterField('tchnienieSmierciActive', $event)" />
-          <label for="tchnienieSmierciActive">Tchnienie Śmierci aktywne (poniżej progu HP)</label>
+          <label for="tchnienieSmierciActive">Tchnienie Śmierci aktywne</label>
         </div>
       </div>
       </div>
@@ -324,7 +324,7 @@
           </div>
         </div>
         <div *ngIf="expandedBonuses['ewolucje']" class="arcane-cost-total">
-          <span class="koszt-label">Poziomy ewolucji wydane</span>: <strong>{{ evolutionTotalCost }}</strong>
+          <span class="koszt-label">Poziomy ewolucji</span>: <strong>{{ evolutionTotalCost }}/{{ evolutionPointsTotal }}</strong>
         </div>
       </div>
       </div>
@@ -349,7 +349,7 @@
             <div class="compact-item" *ngIf="refMapMode === 'M1' && refActMobName">
               <label>Akt</label>
               <p-select [options]="refActOptions" optionLabel="label" optionValue="value"
-                [(ngModel)]="refAct" placeholder="-- akt --" />
+                [(ngModel)]="refAct" (onChange)="applyRefStatsToPrzeciwnik()" placeholder="-- akt --" />
             </div>
             <div class="compact-item" *ngIf="refMapMode === 'M2'">
               <label>Przeciwnik</label>
@@ -359,13 +359,18 @@
             <div class="compact-item" *ngIf="refMapMode === 'M2' && refStarMobName">
               <label>Gwiazdki</label>
               <p-select [options]="refStarOptions" optionLabel="label" optionValue="value"
-                [(ngModel)]="refStar" placeholder="-- gwiazdki --" />
+                [(ngModel)]="refStar" (onChange)="applyRefStatsToPrzeciwnik()" placeholder="-- gwiazdki --" />
+            </div>
+            <div class="compact-item" *ngIf="refStats">
+              <label>Wariant</label>
+              <p-selectbutton [options]="refVariantOptions" optionLabel="label" optionValue="value"
+                [(ngModel)]="refVariant" (onChange)="applyRefStatsToPrzeciwnik()" />
             </div>
             <div class="ref-stats" *ngIf="refStats">
               <span class="ref-stat-chip" *ngFor="let s of refStatDefs">
                 <span class="ref-stat-label">{{ s.label }}</span>{{ formatRefRange(refStats[s.key]) }}
               </span>
-              <span class="ref-stat-chip ref-stat-chip-sum" *ngIf="refStatsSum">
+              <span class="ref-stat-chip" *ngIf="refStatsSum">
                 <span class="ref-stat-label">Suma</span>{{ formatRefRange(refStatsSum) }}
               </span>
             </div>

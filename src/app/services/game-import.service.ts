@@ -76,6 +76,30 @@ const TALIZMAN_NAME_TO_KEY: Record<string, string> = {
   'ZIZ': 'ziz',
 };
 
+/** Mirrors the `evolutions` list in character-input.component.ts (normalized name -> Evolutions key). */
+const EVO_NAME_TO_KEY: Record<string, string> = {
+  'skrzydla': 'skrzydla',
+  'pancerz': 'pancerz',
+  'kly pazury kolce': 'klyPazuryKolce',
+  'gruczoly jadowe': 'gruczolyJadowe',
+  'wzmocnione sciegna': 'wzmocnioneSciegna',
+  'dodatkowa komora': 'dodatkowaKomora',
+  'krew demona': 'krewDemona',
+  'mutacja dna': 'mutacjaDna',
+  'oswiecony': 'oswiecony',
+  'szosty zmysl': 'szostyZmysl',
+  'absorpcja': 'absorpcja',
+  'harmonijny rozwoj': 'harmonijnyRozwoj',
+  'skazenie mana': 'skazenieMana',
+  'pietno demona': 'pietnoDemona',
+  'wzmocnione miesnie': 'wzmocnioneMiesnie',
+};
+
+/** Evolutions the game exposes but that KotwicUI intentionally doesn't track — skipped silently on import. */
+const EVO_NAMES_EXCLUDED = new Set([
+  'lekkosc bytu', 'potega', 'pamiec przodkow', 'wiez z gaja', 'piromancja', 'hydromancja', 'forma astralna',
+]);
+
 function stripDiacritics(s: string): string {
   const map: Record<string, string> = {
     'ą': 'a', 'ć': 'c', 'ę': 'e', 'ł': 'l', 'ń': 'n', 'ó': 'o', 'ś': 's', 'ź': 'z', 'ż': 'z',
@@ -505,6 +529,43 @@ export class GameImportService {
       ? `Zaimportowano ${talizmanFound.length} poziomów talizmanów i ${runeValues.length} run. Uwaga: ${problems.join('; ')}.`
       : `Zaimportowano ${talizmanFound.length} poziomów talizmanów i ${runeValues.length} run.`;
     return { ok: true, message, data: { talizmanLevels, runeValues } };
+  }
+
+  /** ?a=training&do=evo — evolution levels, read from each "training-evo-title" block. */
+  parseEvo(html: string): ImportResult {
+    const titleRe = /<div class="training-evo-title">([^<]+)<\/div>/g;
+    const evolutions: Record<string, number> = {};
+    const found: string[] = [];
+    const skippedNames: string[] = [];
+    const unmatched: string[] = [];
+    let m: RegExpExecArray | null;
+    while ((m = titleRe.exec(html))) {
+      const raw = m[1].replace(/&amp;/g, '&').trim();
+      const levelMatch = raw.match(/^(.*?)\s+poziom\s+(\d+)$/i);
+      const name = levelMatch ? levelMatch[1].trim() : raw;
+      const level = levelMatch ? parseInt(levelMatch[2], 10) : 0;
+      const norm = stripDiacritics(name).toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+      if (EVO_NAMES_EXCLUDED.has(norm)) {
+        skippedNames.push(name);
+        continue;
+      }
+      const key = EVO_NAME_TO_KEY[norm];
+      if (!key) {
+        unmatched.push(name);
+        continue;
+      }
+      evolutions[key] = level;
+      found.push(`${name} (${level})`);
+    }
+    if (found.length === 0) {
+      return { ok: false, message: 'Nie znaleziono żadnych ewolucji w podanym HTML. Upewnij się, że wklejono źródło strony ?a=training&do=evo.' };
+    }
+    const problems: string[] = [];
+    if (unmatched.length) problems.push(`nierozpoznane ewolucje: ${unmatched.join(', ')}`);
+    const message = problems.length
+      ? `Zaimportowano ${found.length} ewolucji. Uwaga: ${problems.join('; ')}.`
+      : `Zaimportowano ${found.length} ewolucji.`;
+    return { ok: true, message, data: { evolutions } };
   }
 
   /** ?a=build — Pośredniak / Dom Publiczny / Rzeźnia building levels. */

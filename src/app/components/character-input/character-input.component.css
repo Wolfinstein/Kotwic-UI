@@ -534,16 +534,6 @@ label {
   font-weight: 700;
 }
 
-.ref-stat-chip-sum {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--bg-deep);
-}
-
-.ref-stat-chip-sum .ref-stat-label {
-  color: var(--bg-deep);
-}
-
 /* ─── Equipment ────────────────────────────────────────── */
 .section-equipment {
   flex: 1;

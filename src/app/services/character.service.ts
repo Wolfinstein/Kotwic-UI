@@ -131,6 +131,7 @@ export class CharacterService {
         szostyZmysl: 0,
         absorpcja: 0,
         harmonijnyRozwoj: 0,
+        skazenieMana: 0,
         pietnoDemona: 0,
         wzmocnioneMiesnie: 0
       },

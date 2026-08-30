@@ -1269,8 +1269,11 @@ export class DashboardService {
         }
       }
 
-      const critDmgMin = Math.floor(minDmg * critMulti);
-      const critDmgMax = Math.floor(maxDmg * critMulti);
+      minDmg = Math.max(1, minDmg);
+      maxDmg = Math.max(1, maxDmg);
+
+      const critDmgMin = Math.max(1, Math.floor(minDmg * critMulti));
+      const critDmgMax = Math.max(1, Math.floor(maxDmg * critMulti));
       const avgDmg = Math.floor((minDmg + maxDmg) / 2);
       const avgCritDmg = Math.floor((critDmgMin + critDmgMax) / 2);
       const estimatedHitChance = genre ? this.calculateHitChance(genre, player, trafienieLegDystans) : 1;

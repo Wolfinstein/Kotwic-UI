@@ -59,6 +59,7 @@ export interface Evolutions {
     szostyZmysl: number,
     absorpcja: number,
     harmonijnyRozwoj: number,
+    skazenieMana: number,
     pietnoDemona: number,
     wzmocnioneMiesnie: number
 }

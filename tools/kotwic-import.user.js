@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KotwicUI Export
 // @namespace    kotwicui
-// @version      1.5.0
+// @version      1.6.0
 // @description  Fetches the game pages KotwicUI's Kalkulator Postaci needs, trims each one down to just the HTML the parser actually reads, copies the result to your clipboard when small enough, and shows a result popup with a manual JSON download button.
 // @author       KotwicUI
 // @match        https://r20.bloodwars.pl/*
@@ -12,12 +12,75 @@
 (function () {
   'use strict';
 
+  // Keep this in sync with the @version header above.
+  const SCRIPT_VERSION = '1.6.0';
+  const LAST_SEEN_VERSION_KEY = 'kotwicuiImportScriptLastSeenVersion';
+  // One entry per version that should notify the user on their first run after updating.
+  const CHANGELOG = {
+    '1.6.0': 'Dodana obsługa importu ewolucji. Importuje na maksymalnym dostępnym poziomie.',
+  };
+
+  function showUpdateNotice(version, message) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = [
+      'position:fixed', 'inset:0', 'z-index:100001',
+      'background:rgba(0,0,0,0.6)', 'display:flex',
+      'align-items:center', 'justify-content:center', 'padding:20px',
+    ].join(';');
+
+    const box = document.createElement('div');
+    box.style.cssText = [
+      'background:#1c2b45', 'color:#fff', 'border:1px solid #4fc3f7',
+      'border-radius:8px', 'padding:20px', 'max-width:420px',
+      'box-shadow:0 4px 20px rgba(0,0,0,0.6)', 'font-size:13px',
+    ].join(';');
+
+    const title = document.createElement('div');
+    title.textContent = `KotwicUI Export zaktualizowany do wersji ${version}`;
+    title.style.cssText = 'font-weight:bold;margin-bottom:10px;';
+    box.appendChild(title);
+
+    const text = document.createElement('div');
+    text.textContent = message;
+    text.style.cssText = 'white-space:pre-wrap;margin-bottom:16px;line-height:1.4;';
+    box.appendChild(text);
+
+    const buttonRow = document.createElement('div');
+    buttonRow.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = 'OK';
+    closeBtn.style.cssText = [
+      'background:#4fc3f7', 'color:#1c2b45', 'border:none',
+      'border-radius:6px', 'padding:8px 14px', 'font-size:13px',
+      'cursor:pointer', 'font-weight:bold',
+    ].join(';');
+    closeBtn.addEventListener('click', () => overlay.remove());
+
+    buttonRow.appendChild(closeBtn);
+    box.appendChild(buttonRow);
+    overlay.appendChild(box);
+    overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  }
+
+  function maybeShowChangelog() {
+    let lastSeen = null;
+    try { lastSeen = localStorage.getItem(LAST_SEEN_VERSION_KEY); } catch (e) { /* ignore */ }
+    if (lastSeen !== SCRIPT_VERSION) {
+      const message = CHANGELOG[SCRIPT_VERSION];
+      if (message) showUpdateNotice(SCRIPT_VERSION, message);
+      try { localStorage.setItem(LAST_SEEN_VERSION_KEY, SCRIPT_VERSION); } catch (e) { /* ignore */ }
+    }
+  }
+
   const PAGES = {
     trening: '?a=training',
     main: '?a=main',
     equip: '?a=equip',
     enchant: '?a=enchant',
     talizman: '?a=talizman',
+    evo: '?a=training&do=evo',
     build: '?a=build',
     arenaSilver: '?a=newarena&cat=4&t=silver',
     arenaGold: '?a=newarena&cat=4&t=gold',
@@ -172,6 +235,7 @@
       const combined = [...tal, ...runes];
       return combined.length ? combined : null;
     },
+    evo: html => html.match(/<div class="training-evo-title">[^<]*<\/div>/g),
     build: html => html.match(/<span class="bldheader">[\s\S]*?POZIOM&nbsp;<b>\d+<\/b>/g),
     arenaSilver: html => extractArenaBonuses(html, ['Ninja', 'Myśliwy']),
     arenaGold: html => extractArenaBonuses(html, ['Strateg']),
@@ -259,4 +323,5 @@
 
   const button = makeButton();
   button.addEventListener('click', () => runExport(button));
+  maybeShowChangelog();
 })();
