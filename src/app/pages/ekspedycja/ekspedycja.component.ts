@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EXPEDITION_TOWERS, ExpeditionTower } from '../../data/ekspedycjaData';
 import { SavedCharactersService, SavedCharacter } from '../../services/saved-characters.service';
@@ -23,7 +23,7 @@ const PLAYER_COLORS = ['#4fc3f7', '#81c784', '#ffb74d', '#f06292', '#ce93d8', '#
   templateUrl: './ekspedycja.component.html',
   styleUrl: './ekspedycja.component.css',
 })
-export class EkspedycjaComponent implements OnInit {
+export class EkspedycjaComponent implements OnInit, OnDestroy {
   readonly towers = EXPEDITION_TOWERS;
   step: ExpeditionStep = 'players';
   players: SavedCharacter[] = [];
@@ -61,6 +61,12 @@ export class EkspedycjaComponent implements OnInit {
       this.players = players;
       this.selectedPlayerIds = this.selectedPlayerIds.filter(id => players.some(p => p.id === id));
     });
+  }
+
+  ngOnDestroy(): void {
+    this.characterSelectBackground.pause();
+    this.towerBackground.pause();
+    this.muted = true;
   }
 
   get volumeLevelIndex(): number {
