@@ -99,6 +99,10 @@ export class PodrozeComponent implements AfterViewChecked, OnDestroy {
   bossFight: SpecialFightState = freshFightState();
   miniBossFight: SpecialFightState = freshFightState();
 
+  // ── Manual stat adjustment (ongoing journey) ──
+  manualStatKey: StatKey = STAT_KEYS[0];
+  manualStatValue: number | null = null;
+
   private fightState(isMini: boolean): SpecialFightState {
     return isMini ? this.miniBossFight : this.bossFight;
   }
@@ -604,6 +608,21 @@ export class PodrozeComponent implements AfterViewChecked, OnDestroy {
     if (current < initial * 0.3) return 'stat-low';
     if (current < initial * 0.6) return 'stat-mid';
     return '';
+  }
+
+  // ── Manual stat adjustment (ongoing journey) ──
+  addSingleStat(): void {
+    if (!this.stats || this.manualStatValue == null || isNaN(this.manualStatValue)) return;
+    this.stats[this.manualStatKey] += this.manualStatValue;
+    this.addLog(`Ręcznie dodano: ${this.statLabels[this.manualStatKey]} (${this.manualStatValue >= 0 ? '+' : ''}${this.manualStatValue})`);
+  }
+
+  addAllStats(): void {
+    if (!this.stats || this.manualStatValue == null || isNaN(this.manualStatValue)) return;
+    for (const key of this.statKeys) {
+      this.stats[key] += this.manualStatValue;
+    }
+    this.addLog(`Ręcznie dodano do wszystkich cech: ${this.manualStatValue >= 0 ? '+' : ''}${this.manualStatValue}`);
   }
 
   fixedLabelForRound(source: Boss, round: number): string {

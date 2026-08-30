@@ -168,6 +168,9 @@ export class Player {
   addOdpornosc(value: number): void {
     this.stats.odpornosc += value;
   }
+  addEnemyCritChanceReduction(value: number): void {
+    this.stats.enemyCritChanceReductionRaw += value;
+  }
   addSila(value: number): void {
     this.stats.sila += value;
   }

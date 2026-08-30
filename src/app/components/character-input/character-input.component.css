@@ -117,6 +117,28 @@
   max-height: 420px;
 }
 
+.preset-add-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preset-name-input {
+  width: 100%;
+}
+
+.preset-add-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.preset-add-buttons > * {
+  flex: 1;
+}
+
 .presets-chart-panel {
   flex: 1;
   display: flex;
@@ -156,6 +178,14 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.preset-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
   flex-shrink: 0;
 }
 

@@ -69,6 +69,22 @@
             <span class="stat-value">{{ stats?.[key] }} / {{ initialStats?.[key] }}</span>
           </div>
         }
+        <div class="manual-stat-panel">
+          <label>Ręczna korekta cechy</label>
+          <div class="manual-stat-row">
+            <select [(ngModel)]="manualStatKey">
+              @for (key of statKeys; track key) {
+                <option [ngValue]="key">{{ statLabels[key] }}</option>
+              }
+            </select>
+            <input type="number" [(ngModel)]="manualStatValue" placeholder="wartość" />
+          </div>
+          <div class="manual-stat-actions">
+            <button type="button" class="btn" (click)="addSingleStat()">Dodaj do wybranej</button>
+            <button type="button" class="btn" (click)="addAllStats()">Dodaj do wszystkich</button>
+          </div>
+        </div>
+
         <button type="button" class="btn btn-restart" (click)="restartGame()">RESTART</button>
       </aside>
 

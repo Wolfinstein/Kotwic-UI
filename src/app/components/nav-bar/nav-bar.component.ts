@@ -24,12 +24,13 @@ export class NavBarComponent {
   // icon: 'anchor' is a sentinel rendered via <app-anchor-icon> (PrimeIcons has no anchor glyph).
   items: NavItem[] = [
     { label: 'Kalkulator Postaci', icon: 'pi pi-calculator', route: '/calculator' },
-    { label: 'Poziom/Trening/Ewolucje', icon: 'pi pi-chart-line', route: '/doswiadczenie' },
+    { label: 'Poziomy', icon: 'pi pi-chart-line', route: '/doswiadczenie' },
     { label: 'Umagi', icon: 'pi pi-star-fill', route: '/umagi' },
     { label: 'Zadania', icon: 'pi pi-book', route: '/zadania' },
     { label: 'Kuźnia Kaina', icon: 'pi pi-hammer', route: '/kuznia' },
     { label: 'Moby i exp', icon: 'pi pi-users', route: '/moby' },
     { label: 'Podróże', icon: 'pi pi-map', route: '/podroze' },
+    { label: 'Symulator ekspedycji', icon: 'pi pi-send', route: '/ekspedycja' },
   ];
 
   // External tools — separate source/domain. Collected into a right-aligned

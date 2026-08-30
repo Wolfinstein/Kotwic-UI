@@ -95,6 +95,8 @@ export interface Character {
     blaszkaZaMoba: boolean;
     blaszkaZaKronosa: boolean;
     blaszkaZaHastura: boolean;
+    /** Manual override for Tchnienie Śmierci's HP-threshold-gated bonuses, since the calculator has no live HP tracking. */
+    tchnienieSmierciActive: boolean;
     evolutions: Evolutions;
     obronaPrzeciwnika: number;
     odpornoscPrzeciwnika: number;
@@ -114,6 +116,8 @@ export interface WeaponDamage {
     maxDmg: number;
     iloscAtakow: number;
     critChance?: number;
+    /** Uncapped crit chance before the 85% cap — lets the UI flag when the cap is actually being hit. */
+    rawCritChance?: number;
     critMulti?: number;
     trafienie?: number;
     ignore?: number;
@@ -136,6 +140,7 @@ export interface DashboardValues {
     unikBiala?: number;
     unikPalna?: number;
     unikDystans?: number;
+    enemyCritChanceReduction?: number;
     inicjatywa?: number;
     trafienieDodatkoweDystans?: number;
     trafienieDodatkowePalna?: number;

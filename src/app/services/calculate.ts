@@ -63,7 +63,15 @@ export class DashboardService {
     this.calculateEventBonus(c, player);
     this.calculateStrateg(c, player);
     const dashboard: DashboardValues = this.buildDashboardValues(player);
+    this.capUnik(dashboard, c.evolutions?.mutacjaDna ?? 0);
     return dashboard;
+  }
+  /** Unik is capped at 30%, raised to 31%/32% by Mutacja DNA level 6-9/10-15. */
+  private capUnik(dashboard: DashboardValues, mutacjaDnaLevel: number): void {
+    const cap = mutacjaDnaLevel >= 10 ? 0.32 : mutacjaDnaLevel >= 6 ? 0.31 : 0.30;
+    dashboard.unikBiala = Math.min(dashboard.unikBiala ?? 0, cap);
+    dashboard.unikPalna = Math.min(dashboard.unikPalna ?? 0, cap);
+    dashboard.unikDystans = Math.min(dashboard.unikDystans ?? 0, cap);
   }
   calculateBudynki(c: Character, p: Player): void {
     p.addCharyzma(c.posredniak);
@@ -371,6 +379,7 @@ export class DashboardService {
         .aCienBestii(c.arcaneLevels?.cienBestii ? 1 : 0)
         .aNocny(c.arcaneLevels?.nocnyLowca ?? 0)
         .aTchnienie(c.arcaneLevels?.tchnienieSmierci ?? 0)
+        .tchnienieAktywne(c.tchnienieSmierciActive ?? false)
         .ambicja(c.talizmanLevels?.ambicja ?? 0)
         .behemot(c.talizmanLevels?.behemot ?? 0)
         .ziz(c.talizmanLevels?.ziz ?? 0)
@@ -928,10 +937,11 @@ export class DashboardService {
         obrona: player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc,
         attributes: attributes,
         twardrosc: player.stats.twardosc,
-        redukcja: player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01,
+        redukcja: cappedRedukcja,
         unikBiala: player.stats.unikBiala,
         unikPalna: player.stats.unikPalna,
         unikDystans: player.stats.unikDystans,
+        enemyCritChanceReduction: Math.floor(player.stats.enemyCritChanceReductionRaw) / 100,
         trafienieDodatkoweDystans: player.stats.trafienieDystans,
         trafienieDodatkowePalna: player.stats.trafieniePalna,
         trafienieDodatkoweBiala: player.stats.trafienieBiala,
@@ -1231,8 +1241,10 @@ export class DashboardService {
         finalCritChance += Math.min(toDecimal(Math.floor((player.stats.szczescie - player.szczesciePrzeciwnika) / 5)), 0.2)
       }
 
+      const uncappedCritChance = finalCritChance;
+
       if (finalCritChance > 0.85) {
-        critChance = 0.85;
+        finalCritChance = 0.85;
       }
 
       let laczneProcentoweDmg = (player.stats.laczneObrazeniaWszystkichBroni * 100) / 100;
@@ -1262,7 +1274,7 @@ export class DashboardService {
       const avgDmg = Math.floor((minDmg + maxDmg) / 2);
       const avgCritDmg = Math.floor((critDmgMin + critDmgMax) / 2);
       const estimatedHitChance = genre ? this.calculateHitChance(genre, player, trafienieLegDystans) : 1;
-      const obrazeniaNaRundeAvg = Math.floor(estimatedHitChance * (critChance * ataki * avgCritDmg + (1 - critChance) * ataki * avgDmg));
+      const obrazeniaNaRundeAvg = Math.floor(estimatedHitChance * (finalCritChance * ataki * avgCritDmg + (1 - finalCritChance) * ataki * avgDmg));
       return {
         name: this.constructWeaponName(weapon),
         genre: genre,
@@ -1273,6 +1285,7 @@ export class DashboardService {
         trafienieProcentowe: trafienieProcentowe,
         ignore: player.stats.ignoreObrony,
         critChance: finalCritChance,
+        rawCritChance: uncappedCritChance,
         critMulti,
         critDmgMin,
         critDmgMax,

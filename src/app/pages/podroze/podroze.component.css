@@ -165,6 +165,64 @@
   background: #f0c070;
 }
 
+.manual-stat-panel {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-muted);
+}
+
+.manual-stat-panel label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--label-color);
+}
+
+.manual-stat-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.manual-stat-row select {
+  flex: 1;
+  min-width: 0;
+  background: var(--bg-deep);
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  padding: 6px 4px;
+  font-size: var(--fs-sm);
+}
+
+.manual-stat-row input {
+  width: 70px;
+  background: var(--bg-deep);
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  padding: 6px;
+  text-align: center;
+}
+
+.manual-stat-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.manual-stat-actions .btn {
+  width: 100%;
+  background: var(--accent-mid);
+  color: var(--value-color);
+  border: 1px solid var(--color-accent);
+  padding: 7px 10px;
+  font-size: var(--fs-sm);
+}
+
+.manual-stat-actions .btn:hover {
+  background: var(--bg-hover);
+}
+
 .btn-restart {
   margin-top: 14px;
   width: 100%;

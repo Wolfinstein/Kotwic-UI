@@ -1,0 +1,260 @@
+<div class="ekspedycja-view">
+
+  <section class="feature-section">
+    <header class="exp-header">
+      <div class="header-controls">
+        <button type="button" class="btn-mute" (click)="toggleMute()" [attr.aria-label]="muted ? 'Włącz dźwięk' : 'Wycisz dźwięk'">
+          <i class="pi" [class.pi-volume-off]="muted" [class.pi-volume-up]="!muted"></i>
+        </button>
+
+        <button type="button" class="btn-volume" (click)="cycleVolume()" [attr.aria-label]="'Głośność: ' + volumeLabel" [title]="volumeLabel">
+          <span class="volume-bar" [class.active]="volumeLevelIndex >= 0"></span>
+          <span class="volume-bar" [class.active]="volumeLevelIndex >= 1"></span>
+          <span class="volume-bar" [class.active]="volumeLevelIndex >= 2"></span>
+        </button>
+      </div>
+
+      <h1>Symulator ekspedycji W.I.P</h1>
+    </header>
+  </section>
+
+  @if (step === 'players') {
+    <section class="player-arena">
+      <div class="arena-vignette"></div>
+      <div class="arena-cracks"></div>
+
+      <div class="player-grid">
+        @for (p of players; track p.id) {
+          <button
+            type="button"
+            class="player-card"
+            [class.selected]="isPlayerSelected(p.id)"
+            [style.border-color]="playerSelectionColor(p.id)"
+            [style.box-shadow]="playerSelectionColor(p.id) ? '0 0 14px 3px ' + playerSelectionColor(p.id) + '55, 0 0 0 1px ' + playerSelectionColor(p.id) : null"
+            (click)="togglePlayer(p.id)"
+          >
+            @if (isPlayerSelected(p.id)) {
+              <span class="player-badge" [style.background]="playerSelectionColor(p.id)">{{ playerSelectionNumber(p.id) }}</span>
+            }
+            <span class="player-portrait">
+              @if (avatarUrl(p.character.rasa); as avatar) {
+                <img [src]="avatar" [alt]="p.character.rasa" class="player-avatar" />
+              }
+            </span>
+            <span class="player-name">{{ p.name }}</span>
+          </button>
+        }
+        @if (players.length === 0) {
+          <p class="player-empty">Brak zapisanych postaci — dodaj je w Kalkulatorze Postaci.</p>
+        }
+      </div>
+    </section>
+
+    <div class="step-footer">
+      <button type="button" class="btn-next" [disabled]="!selectedPlayerIds.length" (click)="goToTowers()">
+        Dalej ({{ selectedPlayerIds.length }})
+      </button>
+    </div>
+  } @else if (step === 'towers') {
+    <section class="feature-section ladder-header">
+      <button type="button" class="btn-back" (click)="backToPlayers()">
+        <i class="pi pi-arrow-left"></i>
+        <span>Drużyna</span>
+      </button>
+    </section>
+
+    <section class="tower-arena">
+      <div class="arena-moon"></div>
+      <div class="arena-clouds"></div>
+      <div class="arena-fog"></div>
+      <div class="arena-ground"></div>
+
+      <div class="star-picker star-picker-arena">
+        <button type="button" class="btn-star" (click)="toggleStarPicker()" [attr.aria-label]="'Poziom gwiazdek: ' + starLevel">
+          <i class="pi pi-star-fill"></i>
+          <span>{{ starLevel }}</span>
+        </button>
+
+        @if (showStarPicker) {
+          <div class="star-dropdown">
+            @for (star of starOptions; track star) {
+              <button
+                type="button"
+                class="star-option"
+                [class.selected]="star === starLevel"
+                (click)="selectStar(star)"
+              >
+                {{ star }}
+              </button>
+            }
+          </div>
+        }
+
+        <button
+          type="button"
+          class="btn-mob-variant"
+          (click)="toggleMobVariant()"
+          [attr.aria-label]="'Wariant przeciwnika: ' + (mobVariant === 'min' ? 'minimalny' : 'maksymalny')"
+          [title]="mobVariant === 'min' ? 'Minimalne staty przeciwnika' : 'Maksymalne staty przeciwnika'"
+        >
+          <i class="pi" [class.pi-arrow-down]="mobVariant === 'min'" [class.pi-arrow-up]="mobVariant === 'max'"></i>
+          <span>{{ mobVariant === 'min' ? 'MIN' : 'MAX' }}</span>
+        </button>
+      </div>
+
+      <div class="towers-row">
+        @for (tower of towers; track tower.id) {
+          @if (selectedTower?.id === tower.id) {
+            <div class="tower-column tower-column-enlarged">
+              <div class="tower-stack">
+                @for (mob of tower.mobs; track mob.name) {
+                  <button
+                    type="button"
+                    class="tower-brick"
+                    [class.selected]="selectedMobName === mob.name"
+                    (click)="selectMob(mob.name)"
+                  >
+                    <span class="mob-name">{{ mob.name }}</span>
+                    <span class="mob-portrait">
+                      <img [src]="mob.imageUrl" [alt]="mob.name" class="mob-thumb" />
+                    </span>
+                  </button>
+                }
+              </div>
+            </div>
+          } @else {
+            <button type="button" class="tower-column tower-column-pick" (click)="selectTower(tower)">
+              <div class="tower-stack">
+                @for (mob of tower.mobs; track mob.name) {
+                  <div class="tower-brick tower-brick-static">
+                    <span class="mob-name">{{ mob.name }}</span>
+                    <span class="mob-portrait">
+                      <img [src]="mob.imageUrl" [alt]="mob.name" class="mob-thumb" />
+                    </span>
+                  </div>
+                }
+              </div>
+            </button>
+          }
+        }
+      </div>
+    </section>
+
+    @if (combatPreview) {
+      <section class="feature-section combat-preview">
+        <h3>Podgląd starcia</h3>
+        <div class="preview-grid">
+          <div class="preview-card preview-card-mob">
+            <h4><i class="pi pi-bolt"></i>{{ combatPreview.mob.name }}<span class="preview-card-tag">WRÓG</span></h4>
+            <div class="preview-stat"><span>HP</span><span>{{ combatPreview.mob.maxHp }}</span></div>
+            @if (combatPreview.mob.playerLevelCap) {
+              <div class="preview-stat"><span>Limit poziomu gracza</span><span>{{ combatPreview.mob.playerLevelCap }}</span></div>
+            }
+            @if (combatPreview.mob.rosterBonus.extraDamage > 0 || combatPreview.mob.rosterBonus.extraHitChance > 0) {
+              <div class="preview-stat preview-stat-note"><span>Bonus za niepełny skład</span><span>+{{ combatPreview.mob.rosterBonus.extraDamage }} dmg, +{{ combatPreview.mob.rosterBonus.extraHitChance.toFixed(0) }} traf.</span></div>
+            }
+            @if (combatPreview.mob.hasProfile) {
+              <div class="preview-stat"><span>Obrażenia</span><span>{{ combatPreview.mob.minDmg }}-{{ combatPreview.mob.maxDmg }}</span></div>
+              <div class="preview-stat"><span>Szansa na kryt.</span><span>{{ (combatPreview.mob.critChance * 100).toFixed(0) }}%</span></div>
+              <div class="preview-stat"><span>Mnożnik kryt.</span><span>x{{ combatPreview.mob.critMulti.toFixed(2) }}</span></div>
+            } @else {
+              <div class="preview-stat preview-stat-note"><span>Brak profilu ataku — placeholder</span></div>
+            }
+            <div class="preview-stat"><span>Obrona</span><span>{{ combatPreview.mob.obrona }}</span></div>
+            <div class="preview-stat"><span>Odporność</span><span>{{ combatPreview.mob.odpornosc }}</span></div>
+            <div class="preview-stat"><span>Szczęście</span><span>{{ combatPreview.mob.luck }}</span></div>
+            <div class="preview-stat"><span>Inicjatywa</span><span>{{ combatPreview.mob.initiative }}</span></div>
+            <div class="preview-stat"><span>Unik biała</span><span>{{ (combatPreview.mob.unikBiala * 100).toFixed(0) }}%</span></div>
+            <div class="preview-stat"><span>Unik palna</span><span>{{ (combatPreview.mob.unikPalna * 100).toFixed(0) }}%</span></div>
+            <div class="preview-stat"><span>Unik dystans</span><span>{{ (combatPreview.mob.unikDystans * 100).toFixed(0) }}%</span></div>
+          </div>
+
+          @for (p of combatPreview.players; track p.id) {
+            <div class="preview-card preview-card-player">
+              <h4><i class="pi pi-shield"></i>{{ p.name }}<span class="preview-card-tag">DRUŻYNA</span></h4>
+              <div class="preview-stat"><span>HP</span><span>{{ p.maxHp }}</span></div>
+              @for (w of p.weapons; track w.name) {
+                <div class="preview-stat"><span>{{ w.name }}</span><span>{{ w.minDmg }}-{{ w.maxDmg }}</span></div>
+                <div class="preview-stat"><span>Szansa trafienia</span><span>{{ (w.hitChance * 100).toFixed(0) }}%</span></div>
+                <div class="preview-stat"><span>Szansa na kryt.</span><span>{{ (w.critChance * 100).toFixed(0) }}%</span></div>
+                <div class="preview-stat"><span>Mnożnik kryt.</span><span>x{{ w.critMulti.toFixed(2) }}</span></div>
+              }
+              <div class="preview-stat"><span>Unik (na boss)</span><span>{{ (p.dodge * 100).toFixed(0) }}%</span></div>
+              <div class="preview-stat"><span>Szansa trafienia bossa</span><span>{{ (p.mobHitChance * 100).toFixed(0) }}%</span></div>
+              <div class="preview-stat"><span>Szansa na kryt. bossa</span><span>{{ (p.mobCritChance * 100).toFixed(0) }}%</span></div>
+              <div class="preview-stat"><span>Szczęście</span><span>{{ p.luck }}</span></div>
+              <div class="preview-stat"><span>Inicjatywa</span><span>{{ p.initiative }}</span></div>
+              <div class="preview-stat"><span>Obrona</span><span>{{ p.obrona }}</span></div>
+              <div class="preview-stat"><span>Odporność</span><span>{{ p.odpornosc }}</span></div>
+              <div class="preview-stat"><span>Redukcja obrażeń</span><span>{{ (p.redukcja * 100).toFixed(0) }}%</span></div>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    <div class="step-footer">
+      <button type="button" class="btn-next" [disabled]="!selectedMobName" (click)="startCombat()">
+        Walcz!
+      </button>
+    </div>
+  } @else {
+    <section class="feature-section ladder-header">
+      <button type="button" class="btn-back" (click)="backToTowers()">
+        <i class="pi pi-arrow-left"></i>
+        <span>Wieże</span>
+      </button>
+    </section>
+
+    @if (combatResult) {
+      <section class="feature-section combat-outcome" [class.outcome-win]="combatResult.outcome === 'win'"
+        [class.outcome-loss]="combatResult.outcome === 'loss'" [class.outcome-draw]="combatResult.outcome === 'draw'">
+        <h2>
+          @switch (combatResult.outcome) {
+            @case ('win') { Zwycięstwo! }
+            @case ('loss') { Porażka }
+            @default { Remis }
+          }
+        </h2>
+        <p>{{ combatResult.mobName }}: {{ combatResult.mobMaxHp - combatResult.mobHpRemaining }} / {{ combatResult.mobMaxHp }} obrażeń zadanych ({{ combatResult.roundsElapsed }} {{ combatResult.roundsElapsed === 1 ? 'runda' : 'rund' }})</p>
+      </section>
+
+      <section class="feature-section combat-log">
+        <h3>Przebieg starcia</h3>
+        @for (a of combatResult.attacks; track $index) {
+          @if ($index === 0 || combatResult.attacks[$index - 1].round !== a.round) {
+            <div class="combat-round-divider">Runda {{ a.round }}</div>
+          }
+          <div class="combat-attack-line" [class.side-mob]="a.attackerSide === 'mob'" [class.miss]="!a.hit" [class.crit]="a.crit">
+            <i class="pi combat-side-icon" [class.pi-shield]="a.attackerSide === 'players'" [class.pi-bolt]="a.attackerSide === 'mob'"></i>
+            <span class="combat-attacker">{{ a.attackerName }}</span>
+            <span class="combat-attack-detail">
+              @if (a.note) {
+                {{ a.note }}
+              } @else if (!a.hit && a.dodged) {
+                atakuje z broni <strong>{{ a.weaponName }}</strong>, <span class="combat-target">{{ a.targetName }}</span> unika ataku.
+              } @else if (!a.hit) {
+                atakuje z broni <strong>{{ a.weaponName }}</strong>, <span class="combat-target">{{ a.targetName }}</span> nie zostaje trafiony.
+              } @else if (a.crit) {
+                trafia krytycznie z broni <strong>{{ a.weaponName }}</strong>, <span class="combat-target">{{ a.targetName }}</span> zostaje zraniony za <strong>{{ a.damage }}</strong> PKT ŻYCIA.
+              } @else {
+                atakuje z broni <strong>{{ a.weaponName }}</strong>, <span class="combat-target">{{ a.targetName }}</span> zostaje zraniony za <strong>{{ a.damage }}</strong> PKT ŻYCIA.
+              }
+            </span>
+          </div>
+        }
+      </section>
+
+      <section class="feature-section combat-players">
+        <h3>Drużyna</h3>
+        @for (p of combatResult.players; track p.id) {
+          <div class="combat-player-row" [class.dead]="!p.alive">
+            <span>{{ p.name }}</span>
+            <span>{{ p.hp }} / {{ p.maxHp }} hp</span>
+          </div>
+        }
+      </section>
+    }
+  }
+
+</div>

@@ -15,6 +15,7 @@ export class TalismanyAndArkany {
   aCienBestii: number = 0;
   aNocny: number = 0;
   aTchnienie: number = 0;
+  tchnienieAktywne: boolean = false;
   ambicja: number = 0;
   behemot: number = 0;
   ziz: number = 0;
@@ -316,7 +317,9 @@ export class TalismanyAndArkany {
         break;
       case 4:
         player.addBaseLife(this.aSkora * 30);
-        player.addBaseLife(this.aSkora * 10);
+        // The +10/point team-wide HP + crit-received-reduction aura (Aura Bestii talizman description)
+        // is a cross-player, top-4-contributors mechanic the deterministic calculator can't express —
+        // it's implemented in full in expeditionCombat.ts instead (computeAuraBestiiTeamBonus).
         player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0035 * this.aSkora, 0.15));
         break;
       default:
@@ -433,6 +436,7 @@ export class TalismanyAndArkany {
   }
   private doSkora(player: Player): Player {
     player.addOdpornosc(this.aSkora);
+    player.addEnemyCritChanceReduction(this.aSkora * 1.25);
     return player;
   }
   private doDziki(player: Player): Player {
@@ -460,11 +464,15 @@ export class TalismanyAndArkany {
     return player;
   }
   private doaTchnienie(player: Player): Player {
-    player.addUnikBiala(0.02 * this.aTchnienie);
-    player.addUnikDystans(0.02 * this.aTchnienie);
-    player.addUnikPalna(0.02 * this.aTchnienie);
-    player.addAllTrafienie(-1 * this.aTchnienie);
-    player.addAllDps(5 * this.aTchnienie);
+    // Real activation is HP-threshold-gated (see expeditionCombat.ts) — the calculator has no
+    // live HP to check, so tchnienieAktywne is a manual "assume active" toggle instead.
+    if (this.tchnienieAktywne) {
+      player.addUnikBiala(0.02 * this.aTchnienie);
+      player.addUnikDystans(0.02 * this.aTchnienie);
+      player.addUnikPalna(0.02 * this.aTchnienie);
+      player.addAllTrafienie(-1 * this.aTchnienie);
+      player.addAllDps(5 * this.aTchnienie);
+    }
     if (this.aTchnienie > 0) {
       player.setHalvedRegen(true);
     }
@@ -490,6 +498,7 @@ class TalismanyAndArkanyBuilder {
   private _aCienBestii: number = 0;
   private _aNocny: number = 0;
   private _aTchnienie: number = 0;
+  private _tchnienieAktywne: boolean = false;
   private _ambicja: number = 0;
   private _behemot: number = 0;
   private _ziz: number = 0;
@@ -559,6 +568,10 @@ class TalismanyAndArkanyBuilder {
   }
   aTchnienie(aTchnienie: number): TalismanyAndArkanyBuilder {
     this._aTchnienie = aTchnienie;
+    return this;
+  }
+  tchnienieAktywne(tchnienieAktywne: boolean): TalismanyAndArkanyBuilder {
+    this._tchnienieAktywne = tchnienieAktywne;
     return this;
   }
   ambicja(ambicja: number): TalismanyAndArkanyBuilder {
@@ -637,6 +650,7 @@ class TalismanyAndArkanyBuilder {
     t.aCienBestii = this._aCienBestii;
     t.aNocny = this._aNocny;
     t.aTchnienie = this._aTchnienie;
+    t.tchnienieAktywne = this._tchnienieAktywne;
     t.ambicja = this._ambicja;
     t.behemot = this._behemot;
     t.ziz = this._ziz;

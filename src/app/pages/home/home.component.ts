@@ -24,10 +24,11 @@ export interface HomeTool {
 export class HomeComponent {
   tools: HomeTool[] = [
     { label: 'Kalkulator Postaci', description: 'Zbuduj postać — trening, ekwipunek, talizmany, umagi, arkany — i policz jej "realną" siłę bojową.', icon: 'pi pi-calculator', route: '/calculator', accent: 'teal', size: 'lg' },
-    { label: 'Poziom/Trening/Ewolucje', description: 'Sprawdź ile punktów potrzeba do konkretnego poziomu, ile zainwestowałeś w trening czy ewolucje.', icon: 'pi pi-chart-line', route: '/doswiadczenie', accent: 'slate', size: 'wide' },
+    { label: 'Poziomy', description: 'Koszty poziomów, treningu i ewolucji.', icon: 'pi pi-chart-line', route: '/doswiadczenie', accent: 'slate' },
+    { label: 'Kuźnia Kaina', description: 'Plan i koszty tworzenia przedmiotów w Kuźni Kaina.', icon: 'pi pi-hammer', route: '/kuznia', accent: 'amber' },
     { label: 'Umagi', description: 'Lista umagicznień wraz z symulatorem.', icon: 'pi pi-star-fill', route: '/umagi', accent: 'orange' },
     { label: 'Zadania', description: 'Lista zadań i wymagań do ich ukończenia.', icon: 'pi pi-book', route: '/zadania', accent: 'purple' },
-    { label: 'Kuźnia Kaina', description: 'Plan i koszty tworzenia przedmiotów w Kuźni Kaina.', icon: 'pi pi-hammer', route: '/kuznia', accent: 'amber', size: 'wide' },
+    { label: 'Symulator ekspedycji', description: 'Symulator ekspedycji.', icon: 'pi pi-send', route: '/ekspedycja', accent: 'plum', size: 'wide' },
     { label: 'Moby i exp', description: 'Statystyki przeciwników wraz z kalkulatorem doświadczenia.', icon: 'pi pi-users', route: '/moby', accent: 'ash' },
     { label: 'Podróże', description: 'Symulator podróży', icon: 'pi pi-map', route: '/podroze', accent: 'rose' },
   ];

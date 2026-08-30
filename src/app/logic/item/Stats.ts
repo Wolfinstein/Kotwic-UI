@@ -10,6 +10,8 @@ export class Stats {
   inteligencja: number = 0;
   wiedza: number = 0;
   szczescie: number = 0;
+  /** Raw (unrounded) reduction to enemy crit chance, in percentage points — e.g. Skóra Bestii adds 1.25 per level. */
+  enemyCritChanceReductionRaw: number = 0;
   punktyKrwi: number = 0;
   punktyZycia: number = 0;
   obronaAffixu: number = 0;

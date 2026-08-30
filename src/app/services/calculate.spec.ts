@@ -7,6 +7,7 @@ const CHARACTER: Character = {
   blaszkaZaMoba: true,
   blaszkaZaKronosa: true,
   blaszkaZaHastura: false,
+  tchnienieSmierciActive: false,
   attributes: {
     sila: 96,
     zwinnosc: 125,

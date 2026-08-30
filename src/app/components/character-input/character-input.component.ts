@@ -17,7 +17,8 @@ import { ItemGenre, PrefixType, SuffixType, ItemType, ItemRarity, Stats, Base } 
 import { WeaponStats } from '../../logic/item/WeaponStats';
 import { applyQualityMultiplier } from '../../logic/item/qualityMultiplier';
 import { applyQualityWeaponMultiplier } from '../../logic/item/qualityWeaponMultiplier';
-import { CHARACTER_PRESETS, CharacterPreset } from '../../data/presets';
+import { SavedCharactersService, SavedCharacter } from '../../services/saved-characters.service';
+import { rasaAvatarUrl } from '../../data/avatars';
 import { DashboardService } from '../../services/calculate';
 import { ChartModule } from 'primeng/chart';
 import { ACT_MOBS, STAR_MOBS, ActMob, StarMob, MobStats, StatRange } from '../../data/mobsData';
@@ -66,8 +67,9 @@ export class CharacterInputComponent implements OnInit {
   showEquipmentModal = false;
   showRunesModal = false;
   showUmagiModal = false;
-  showPresetsModal = false;
-  presets = CHARACTER_PRESETS;
+  showCharactersModal = false;
+  savedCharacters: SavedCharacter[] = [];
+  newCharacterName = '';
   selectedEquipmentSlot = '';
   weaponMode: 'dual1h' | '2h' = 'dual1h';
   draftItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
@@ -121,7 +123,6 @@ export class CharacterInputComponent implements OnInit {
     { key: 'klyPazuryKolce', label: 'Kły/Pazury/Kolce' },
     { key: 'gruczolyJadowe', label: 'Gruczoły jadowe' },
     { key: 'wzmocnioneSciegna', label: 'Wzmocnione scięgna' },
-    { key: 'dodatkowaKomora', label: 'Dodatkowa komora' },
     { key: 'krewDemona', label: 'Krew demona' },
     { key: 'mutacjaDna', label: 'Mutacja DNA' },
     { key: 'oswiecony', label: 'Oświecony' },
@@ -179,6 +180,20 @@ export class CharacterInputComponent implements OnInit {
       return sum + levels * arcane.cost;
     }, 0);
   }
+
+  /** Cumulative "Poziom Ewolucji" cost to reach each evolution level (index = level, 1-15). */
+  private static readonly EVOLUTION_LEVEL_CUMULATIVE_COST: number[] = [0, 1, 3, 6, 10, 15, 17, 21, 27, 35, 45, 48, 54, 63, 75, 90];
+  /** These two evolutions don't consume the "Poziom Ewolucji" resource, so they're excluded from the total. */
+  private static readonly EVOLUTIONS_EXCLUDED_FROM_COST = ['krewDemona', 'dodatkowaKomora'];
+
+  get evolutionTotalCost(): number {
+    if (!this.character) return 0;
+    return this.evolutions.reduce((sum, evo) => {
+      if (CharacterInputComponent.EVOLUTIONS_EXCLUDED_FROM_COST.includes(evo.key)) return sum;
+      const level = this.getEvoValue(evo.key);
+      return sum + (CharacterInputComponent.EVOLUTION_LEVEL_CUMULATIVE_COST[level] ?? 0);
+    }, 0);
+  }
   rasaOptions = [
     { label: 'Potępiony', value: 'Potepiony' },
     { label: 'Łapacz Myśli', value: 'LapaczMysli' },
@@ -205,8 +220,8 @@ export class CharacterInputComponent implements OnInit {
   selectedHuntBonuses: string[] = [];
   selectedEventBonus: string | null = null;
   selectedOneTimeBonus: string | null = null;
-  presetChartData: any = null;
-  presetChartOptions: any = {
+  charactersChartData: any = null;
+  charactersChartOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: { legend: { labels: { color: '#ccc' } } },
@@ -216,7 +231,7 @@ export class CharacterInputComponent implements OnInit {
     },
   };
   readonly CHART_COLORS = ['#4fc3f7','#81c784','#ffb74d','#f06292','#ce93d8','#80cbc4'];
-  presetSelections: boolean[] = [];
+  characterSelections: boolean[] = [];
   readonly emptyChartData = { labels: Array.from({ length: 10 }, (_, i) => `R${i + 1}`), datasets: [] };
 
   // ── Import z gry ──
@@ -370,33 +385,78 @@ export class CharacterInputComponent implements OnInit {
     if (data['huntBonuses']) this.selectedHuntBonuses = data['huntBonuses'];
     if (data['equipment']?.weaponMode) this.weaponMode = data['equipment'].weaponMode;
   }
-  constructor(private characterService: CharacterService, private ngZone: NgZone, private cdr: ChangeDetectorRef, private dashboardService: DashboardService, private gameImportService: GameImportService) { }
+  constructor(
+    private characterService: CharacterService,
+    private ngZone: NgZone,
+    private cdr: ChangeDetectorRef,
+    private dashboardService: DashboardService,
+    private gameImportService: GameImportService,
+    private savedCharactersService: SavedCharactersService,
+  ) { }
 
-  openPresetsModal() {
-    if (!this.presetSelections.length) {
-      this.presetSelections = this.presets.map(() => true);
-    }
-    this.buildAllPresetsChart();
-    this.showPresetsModal = true;
+  openCharactersModal() {
+    this.showCharactersModal = true;
   }
 
-  togglePresetSelection(index: number) {
-    this.presetSelections[index] = !this.presetSelections[index];
-    this.buildAllPresetsChart();
+  toggleCharacterSelection(index: number) {
+    this.characterSelections[index] = !this.characterSelections[index];
+    this.buildAllCharactersChart();
   }
 
-  private buildAllPresetsChart() {
-    const datasets = this.presets
-      .map((preset, i) => {
-        const perWeapon = this.dashboardService.calculateStuff(preset.character).roundsPerWeapon ?? [];
+  saveCurrentAsCharacter() {
+    const name = this.newCharacterName.trim();
+    if (!name || !this.character) return;
+    this.savedCharactersService.add(name, this.character);
+    this.newCharacterName = '';
+  }
+
+  importCharacterAsNew() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json,application/json';
+    input.onchange = (e: any) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event: any) => {
+        this.ngZone.run(() => {
+          try {
+            const imported = JSON.parse(event.target.result);
+            const name = this.newCharacterName.trim() || file.name.replace(/\.json$/i, '');
+            this.savedCharactersService.add(name, imported);
+            this.newCharacterName = '';
+            this.cdr.detectChanges();
+          } catch (error) {
+            console.error('Error importing character JSON:', error);
+          }
+        });
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+
+  avatarUrl(rasa: string): string | null {
+    return rasaAvatarUrl(rasa);
+  }
+
+  removeSavedCharacter(id: string) {
+    if (!confirm('Czy na pewno chcesz usunąć tę postać?')) return;
+    this.savedCharactersService.remove(id);
+  }
+
+  private buildAllCharactersChart() {
+    const datasets = this.savedCharacters
+      .map((saved, i) => {
+        const perWeapon = this.dashboardService.calculateStuff(saved.character).roundsPerWeapon ?? [];
         const rounds = perWeapon.length
           ? perWeapon[0].rounds.map((_, r) => perWeapon.reduce((sum, w) => sum + (w.rounds[r] ?? 0), 0))
           : [];
-        return { preset, i, rounds };
+        return { saved, i, rounds };
       })
-      .filter(({ i, rounds }) => this.presetSelections[i] && rounds.length > 0)
-      .map(({ preset, i, rounds }) => ({
-        label: preset.name,
+      .filter(({ i, rounds }) => this.characterSelections[i] && rounds.length > 0)
+      .map(({ saved, i, rounds }) => ({
+        label: saved.name,
         data: rounds,
         borderColor: this.CHART_COLORS[i % this.CHART_COLORS.length],
         backgroundColor: this.CHART_COLORS[i % this.CHART_COLORS.length] + '33',
@@ -405,9 +465,9 @@ export class CharacterInputComponent implements OnInit {
         pointRadius: 4,
       }));
 
-    if (!datasets.length) { this.presetChartData = null; return; }
+    if (!datasets.length) { this.charactersChartData = null; return; }
     const roundCount = datasets[0].data.length;
-    this.presetChartData = {
+    this.charactersChartData = {
       labels: Array.from({ length: roundCount }, (_, i) => `R${i + 1}`),
       datasets,
     };
@@ -435,6 +495,11 @@ export class CharacterInputComponent implements OnInit {
       if (char?.equipment?.weaponMode) {
         this.weaponMode = char.equipment.weaponMode;
       }
+    });
+    this.savedCharactersService.getAll$().subscribe(saved => {
+      this.savedCharacters = saved;
+      this.characterSelections = saved.map((_, i) => this.characterSelections[i] ?? true);
+      this.buildAllCharactersChart();
     });
     try {
       if (!sessionStorage.getItem(CharacterInputComponent.IMPORT_PROMPT_SHOWN_KEY)) {
@@ -807,10 +872,10 @@ export class CharacterInputComponent implements OnInit {
     };
     this.importResults = {};
   }
-  loadPreset(preset: CharacterPreset) {
-    this.characterService.updateCharacter(preset.character);
-    this.weaponMode = preset.character.equipment?.weaponMode ?? 'dual1h';
-    this.showPresetsModal = false;
+  loadSavedCharacter(saved: SavedCharacter) {
+    this.characterService.updateCharacter(saved.character);
+    this.weaponMode = saved.character.equipment?.weaponMode ?? 'dual1h';
+    this.showCharactersModal = false;
   }
   async exportCharacter() {
     if (!this.character) return;

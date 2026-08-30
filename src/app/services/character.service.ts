@@ -69,6 +69,7 @@ export class CharacterService {
       blaszkaZaMoba: false,
       blaszkaZaKronosa: false,
       blaszkaZaHastura: false,
+      tchnienieSmierciActive: false,
       attributes: {
         sila: 0,
         zwinnosc: 0,
