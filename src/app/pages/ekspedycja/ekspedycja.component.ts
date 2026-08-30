@@ -10,11 +10,18 @@ import { mobImplementationStatus, MobImplementationStatus } from '../../data/mob
 type VolumeLevel = 'low' | 'mid' | 'high';
 type ExpeditionStep = 'players' | 'towers' | 'combat';
 
+interface BulkSimPlayerResult {
+  name: string;
+  survivalRate: number;
+  avgDamage: number;
+}
+
 interface BulkSimResult {
   total: number;
   wins: number;
   losses: number;
   draws: number;
+  players: BulkSimPlayerResult[];
 }
 
 const BULK_SIM_RUNS = 1000;
@@ -240,13 +247,28 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     let wins = 0;
     let losses = 0;
     let draws = 0;
+    const survivalCount: Record<string, number> = {};
+    const totalDamage: Record<string, number> = {};
+    for (const p of this.selectedPlayers) {
+      survivalCount[p.id] = 0;
+      totalDamage[p.id] = 0;
+    }
     for (let i = 0; i < BULK_SIM_RUNS; i++) {
       const result = simulateExpedition(this.selectedPlayers, mob, this.starLevel, this.dashboardService, this.mobVariant);
       if (result.outcome === 'win') wins++;
       else if (result.outcome === 'loss') losses++;
       else draws++;
+      for (const p of result.players) {
+        if (p.alive) survivalCount[p.id]++;
+        totalDamage[p.id] += p.totalDamageDealt;
+      }
     }
-    this.bulkSimResult = { total: BULK_SIM_RUNS, wins, losses, draws };
+    const players: BulkSimPlayerResult[] = this.selectedPlayers.map(p => ({
+      name: p.name,
+      survivalRate: survivalCount[p.id] / BULK_SIM_RUNS,
+      avgDamage: totalDamage[p.id] / BULK_SIM_RUNS,
+    }));
+    this.bulkSimResult = { total: BULK_SIM_RUNS, wins, losses, draws, players };
   }
 
   private refreshCombatPreview(): void {

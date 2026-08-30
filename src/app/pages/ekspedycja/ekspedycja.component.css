@@ -718,6 +718,56 @@
   color: #ffc94d;
 }
 
+.bulk-sim-details {
+  margin-top: 14px;
+  text-align: left;
+}
+
+.bulk-sim-details summary {
+  cursor: pointer;
+  text-align: center;
+  font-weight: 700;
+  color: var(--section-icon);
+  list-style: none;
+}
+
+.bulk-sim-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.bulk-sim-details summary::before {
+  content: '▸ ';
+}
+
+.bulk-sim-details[open] summary::before {
+  content: '▾ ';
+}
+
+.bulk-sim-players {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.bulk-sim-player-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 16px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+}
+
+.bulk-sim-player-name {
+  font-weight: 700;
+}
+
+.bulk-sim-player-stat {
+  color: var(--text-muted, #b8b8c8);
+}
+
 .btn-next {
   padding: 12px 28px;
   background: var(--section-icon);

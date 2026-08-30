@@ -218,6 +218,21 @@
           <span class="bulk-sim-stat bulk-sim-loss">Porażki: {{ bulkSimResult.losses }} ({{ (bulkSimResult.losses / bulkSimResult.total * 100).toFixed(0) }}%)</span>
           <span class="bulk-sim-stat bulk-sim-draw">Remisy: {{ bulkSimResult.draws }} ({{ (bulkSimResult.draws / bulkSimResult.total * 100).toFixed(0) }}%)</span>
         </div>
+
+        @if (bulkSimResult.players.length) {
+          <details class="bulk-sim-details">
+            <summary>Szczegóły graczy</summary>
+            <div class="bulk-sim-players">
+              @for (p of bulkSimResult.players; track p.name) {
+                <div class="bulk-sim-player-row">
+                  <span class="bulk-sim-player-name">{{ p.name }}</span>
+                  <span class="bulk-sim-player-stat">Przeżywalność: {{ (p.survivalRate * 100).toFixed(1) }}%</span>
+                  <span class="bulk-sim-player-stat">Śr. obrażenia: {{ p.avgDamage | number:'1.0-0' }}</span>
+                </div>
+              }
+            </div>
+          </details>
+        }
       </section>
     }
 
