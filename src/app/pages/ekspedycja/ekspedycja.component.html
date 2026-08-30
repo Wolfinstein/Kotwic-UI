@@ -69,6 +69,13 @@
       <div class="arena-fog"></div>
       <div class="arena-ground"></div>
 
+      <div class="status-legend status-legend-arena">
+        <div class="status-legend-title">Status moba</div>
+        <div class="status-legend-row"><span class="mob-status-dot status-red"></span><span>Niezaimplementowany</span></div>
+        <div class="status-legend-row"><span class="mob-status-dot status-yellow"></span><span>W trakcie</span></div>
+        <div class="status-legend-row"><span class="mob-status-dot status-green"></span><span>Ukończony</span></div>
+      </div>
+
       <div class="star-picker star-picker-arena">
         <button type="button" class="btn-star" (click)="toggleStarPicker()" [attr.aria-label]="'Poziom gwiazdek: ' + starLevel">
           <i class="pi pi-star-fill"></i>
@@ -116,6 +123,7 @@
                   >
                     <span class="mob-name">{{ mob.name }}</span>
                     <span class="mob-portrait">
+                      <span class="mob-status-dot" [class.status-red]="mobStatus(mob.name) === 'red'" [class.status-yellow]="mobStatus(mob.name) === 'yellow'" [class.status-green]="mobStatus(mob.name) === 'green'"></span>
                       <img [src]="mob.imageUrl" [alt]="mob.name" class="mob-thumb" />
                     </span>
                   </button>
@@ -129,6 +137,7 @@
                   <div class="tower-brick tower-brick-static">
                     <span class="mob-name">{{ mob.name }}</span>
                     <span class="mob-portrait">
+                      <span class="mob-status-dot" [class.status-red]="mobStatus(mob.name) === 'red'" [class.status-yellow]="mobStatus(mob.name) === 'yellow'" [class.status-green]="mobStatus(mob.name) === 'green'"></span>
                       <img [src]="mob.imageUrl" [alt]="mob.name" class="mob-thumb" />
                     </span>
                   </div>

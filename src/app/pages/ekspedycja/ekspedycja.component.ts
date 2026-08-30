@@ -5,6 +5,7 @@ import { SavedCharactersService, SavedCharacter } from '../../services/saved-cha
 import { rasaAvatarUrl, rasaLabel as rasaDisplayLabel } from '../../data/avatars';
 import { DashboardService } from '../../services/calculate';
 import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, MobStatVariant, CombatAttackLog, CombatantSummary } from '../../logic/expeditionCombat';
+import { mobImplementationStatus, MobImplementationStatus } from '../../data/mobCombatProfiles';
 
 type VolumeLevel = 'low' | 'mid' | 'high';
 type ExpeditionStep = 'players' | 'towers' | 'combat';
@@ -97,6 +98,11 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
 
   avatarUrl(rasa: string): string | null {
     return rasaAvatarUrl(rasa);
+  }
+
+  /** Hand-tracked "is this mob's combat math actually right yet" marker shown on the tower picker. */
+  mobStatus(mobName: string): MobImplementationStatus {
+    return mobImplementationStatus(mobName);
   }
 
   rasaLabel(rasa: string): string {

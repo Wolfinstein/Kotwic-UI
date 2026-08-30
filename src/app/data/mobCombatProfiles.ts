@@ -37,3 +37,19 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     playerLevelCap: 980,
   },
 };
+
+/**
+ * Manually-tracked implementation status per mob, shown as a colored marker on the tower select
+ * screen. Red = not implemented yet (falls back to the generic placeholder combat math). Yellow =
+ * in progress (has a combat profile, but numbers/abilities are still being tuned). Green = fully
+ * implemented and verified against the real game. Defaults to red for any mob without an entry.
+ */
+export type MobImplementationStatus = 'red' | 'yellow' | 'green';
+
+export const MOB_IMPLEMENTATION_STATUS: Record<string, MobImplementationStatus> = {
+  Abaddon: 'yellow',
+};
+
+export function mobImplementationStatus(mobName: string): MobImplementationStatus {
+  return MOB_IMPLEMENTATION_STATUS[mobName] ?? 'red';
+}
