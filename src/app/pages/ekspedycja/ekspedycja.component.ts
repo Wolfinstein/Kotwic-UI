@@ -46,6 +46,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   private readonly characterSelectSound = new Audio('/select-character.mp3');
   private readonly characterSelectBackground = new Audio('/character-select.mp3');
   private readonly towerBackground = new Audio('/ladder-select.mp3');
+  private readonly fightSound = new Audio('/mk4-fight.wav');
 
   constructor(
     private savedCharactersService: SavedCharactersService,
@@ -66,6 +67,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.characterSelectBackground.pause();
     this.towerBackground.pause();
+    this.fightSound.pause();
     this.muted = true;
   }
 
@@ -140,6 +142,9 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     if (!this.selectedTower || !this.selectedMobName) return;
     const mob = this.selectedTower.mobs.find(m => m.name === this.selectedMobName);
     if (!mob) return;
+    this.characterSelectBackground.pause();
+    this.towerBackground.pause();
+    this.playFightSound();
     this.combatResult = simulateExpedition(this.selectedPlayers, mob, this.starLevel, this.dashboardService, this.mobVariant);
     this.step = 'combat';
   }
@@ -206,6 +211,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.selectSound.volume = value;
     this.mobSelectSound.volume = value;
     this.characterSelectSound.volume = value;
+    this.fightSound.volume = value;
     this.characterSelectBackground.volume = value * 0.75;
     this.towerBackground.volume = value * 0.75;
   }
@@ -226,5 +232,11 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     if (this.muted) return;
     this.mobSelectSound.currentTime = 0;
     this.mobSelectSound.play().catch(() => {});
+  }
+
+  private playFightSound(): void {
+    if (this.muted) return;
+    this.fightSound.currentTime = 0;
+    this.fightSound.play().catch(() => {});
   }
 }
