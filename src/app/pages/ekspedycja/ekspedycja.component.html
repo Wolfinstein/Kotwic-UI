@@ -146,6 +146,11 @@
         <div class="preview-grid">
           <div class="preview-card preview-card-mob">
             <h4><i class="pi pi-bolt"></i>{{ combatPreview.mob.name }}<span class="preview-card-tag">WRÓG</span></h4>
+            @if (combatPreview.mob.weaponName) {
+              <div class="preview-stat"><span>Broń</span><span>{{ combatPreview.mob.weaponName }}</span></div>
+              <div class="preview-stat"><span>Ilość ataków</span><span>{{ combatPreview.mob.attacksPerRound }}</span></div>
+              <hr class="preview-divider" />
+            }
             <div class="preview-stat"><span>HP</span><span>{{ combatPreview.mob.maxHp }}</span></div>
             @if (combatPreview.mob.playerLevelCap) {
               <div class="preview-stat"><span>Limit poziomu gracza</span><span>{{ combatPreview.mob.playerLevelCap }}</span></div>
@@ -171,22 +176,25 @@
 
           @for (p of combatPreview.players; track p.id) {
             <div class="preview-card preview-card-player">
-              <h4><i class="pi pi-shield"></i>{{ p.name }}<span class="preview-card-tag">DRUŻYNA</span></h4>
+              <h4><i class="pi pi-shield"></i>{{ p.name }}<span class="preview-card-tag">{{ rasaLabel(p.rasa) }}</span></h4>
+              @for (w of p.weapons; track w.name) {
+                <div class="preview-stat"><span>Broń</span><span>{{ w.name }}</span></div>
+                <div class="preview-stat"><span>Ilość ataków</span><span>{{ w.attacksPerRound }}</span></div>
+              }
+              <hr class="preview-divider" />
               <div class="preview-stat"><span>HP</span><span>{{ p.maxHp }}</span></div>
               @for (w of p.weapons; track w.name) {
-                <div class="preview-stat"><span>{{ w.name }}</span><span>{{ w.minDmg }}-{{ w.maxDmg }}</span></div>
-                <div class="preview-stat"><span>Szansa trafienia</span><span>{{ (w.hitChance * 100).toFixed(0) }}%</span></div>
+                <div class="preview-stat"><span>Szansa na trafienie</span><span>{{ (w.hitChance * 100).toFixed(0) }}%</span></div>
                 <div class="preview-stat"><span>Szansa na kryt.</span><span>{{ (w.critChance * 100).toFixed(0) }}%</span></div>
                 <div class="preview-stat"><span>Mnożnik kryt.</span><span>x{{ w.critMulti.toFixed(2) }}</span></div>
               }
               <div class="preview-stat"><span>Unik (na boss)</span><span>{{ (p.dodge * 100).toFixed(0) }}%</span></div>
-              <div class="preview-stat"><span>Szansa trafienia bossa</span><span>{{ (p.mobHitChance * 100).toFixed(0) }}%</span></div>
-              <div class="preview-stat"><span>Szansa na kryt. bossa</span><span>{{ (p.mobCritChance * 100).toFixed(0) }}%</span></div>
               <div class="preview-stat"><span>Szczęście</span><span>{{ p.luck }}</span></div>
               <div class="preview-stat"><span>Inicjatywa</span><span>{{ p.initiative }}</span></div>
-              <div class="preview-stat"><span>Obrona</span><span>{{ p.obrona }}</span></div>
-              <div class="preview-stat"><span>Odporność</span><span>{{ p.odpornosc }}</span></div>
               <div class="preview-stat"><span>Redukcja obrażeń</span><span>{{ (p.redukcja * 100).toFixed(0) }}%</span></div>
+              <hr class="preview-divider" />
+              <div class="preview-stat"><span>Szansa na trafienie przez bossa</span><span>{{ (p.mobHitChance * 100).toFixed(0) }}%</span></div>
+              <div class="preview-stat"><span>Szansa na kryt. bossa</span><span>{{ (p.mobCritChance * 100).toFixed(0) }}%</span></div>
             </div>
           }
         </div>
@@ -230,11 +238,6 @@
             @default { Remis }
           }
         </h2>
-        <p>{{ combatResult.mobName }}: {{ combatResult.mobMaxHp - combatResult.mobHpRemaining }} / {{ combatResult.mobMaxHp }} obrażeń zadanych ({{ combatResult.roundsElapsed }} {{ combatResult.roundsElapsed === 1 ? 'runda' : 'rund' }})</p>
-      </section>
-
-      <section class="feature-section combat-summary">
-        <h3>Podsumowanie</h3>
 
         <div class="summary-detail-grid">
           @for (p of combatResult.summary.players; track p.name) {

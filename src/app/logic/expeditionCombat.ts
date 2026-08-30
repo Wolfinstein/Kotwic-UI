@@ -303,6 +303,31 @@ function mobGenreForWeapon(genre?: string): MobWeaponGenre {
   return 'biala';
 }
 
+/**
+ * Resolves the mob stat that feeds a player's "Trafienie Przeciwnika" for hit-chance math,
+ * mirroring the manual guidance for that field in Kalkulator Postaci: a white-weapon user
+ * subtracts the mob's zwinnosc, a gun user its spostrzegawczosc, and a ranged-weapon user the
+ * sum of both — driven by the player's first equipped weapon (dual 1H+1H combos use weapon1).
+ * Using a single fixed stat (previously always spostrzegawczosc) regardless of weapon type
+ * under- or over-counted the mob's real evasion-relevant stat and inflated hit chance for
+ * white/ranged users. The genre itself is read off a throwaway calculateStuff call since the
+ * ItemType→genre mapping lives in the calculator layer, not here.
+ */
+function resolveTrafieniePrzeciwnik(character: Character, dashboardService: DashboardService, mobZwinnosc: number, mobSpostrzegawczosc: number): number {
+  const probe = dashboardService.calculateStuff({
+    ...character,
+    obronaPrzeciwnika: 0,
+    odpornoscPrzeciwnika: 0,
+    szczesciePrzeciwnika: 0,
+    trafieniePrzeciwnika: 0,
+    tchnienieSmierciActive: false,
+  });
+  const genre = mobGenreForWeapon(probe.obrazenia?.[0]?.genre);
+  if (genre === 'biala') return mobZwinnosc;
+  if (genre === 'palna') return mobSpostrzegawczosc;
+  return mobZwinnosc + mobSpostrzegawczosc;
+}
+
 function mobUnikFor(profile: MobCombatProfile | undefined, genre: MobWeaponGenre): number {
   return profile?.unik?.[genre] ?? 0;
 }
@@ -378,11 +403,13 @@ export interface CombatPreviewWeapon {
   critChance: number;
   critMulti: number;
   mobDodge: number;
+  attacksPerRound: number;
 }
 
 export interface CombatPreviewPlayer {
   id: string;
   name: string;
+  rasa: string;
   maxHp: number;
   redukcja: number;
   obrona: number;
@@ -412,6 +439,8 @@ export interface CombatPreviewMob {
   unikDystans: number;
   playerLevelCap: number | null;
   rosterBonus: RosterBonus;
+  weaponName: string | null;
+  attacksPerRound: number;
 }
 
 export interface CombatPreview {
@@ -447,7 +476,7 @@ export function computeCombatPreview(
       obronaPrzeciwnika: mobObrona,
       odpornoscPrzeciwnika: mobOdpornosc,
       szczesciePrzeciwnika: mobSzczescie,
-      trafieniePrzeciwnika: mobSpostrzegawczosc,
+      trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
       // Preview always shows the pre-activation (full-hp) state — the real, HP-gated activation only runs in simulateExpedition.
       tchnienieSmierciActive: false,
     };
@@ -507,6 +536,7 @@ export function computeCombatPreview(
     return {
       id: saved.id,
       name: saved.name,
+      rasa: saved.character.rasa,
       maxHp: target.maxHp,
       redukcja: target.redukcja,
       obrona: target.obrona,
@@ -524,6 +554,7 @@ export function computeCombatPreview(
         critChance: w.critChance ?? 0,
         critMulti: w.critMulti ?? 1,
         mobDodge: mobUnikFor(profile, mobGenreForWeapon(w.genre)),
+        attacksPerRound: w.iloscAtakow ?? 0,
       })),
     };
   });
@@ -545,6 +576,8 @@ export function computeCombatPreview(
     playerLevelCap: levelCap,
     rosterBonus,
     hasProfile: !!profile,
+    weaponName: profile?.weaponName ?? null,
+    attacksPerRound: profile?.attacksPerRound ?? 0,
   };
 
   return { mob: mobPreview, players };
@@ -607,7 +640,7 @@ export function simulateExpedition(
       obronaPrzeciwnika: mobObrona,
       odpornoscPrzeciwnika: mobOdpornosc,
       szczesciePrzeciwnika: mobSzczescie,
-      trafieniePrzeciwnika: mobSpostrzegawczosc,
+      trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
       // The real activation is HP-gated below, not the manual calculator toggle — combat always starts un-activated.
       tchnienieSmierciActive: false,
     };
@@ -686,7 +719,7 @@ export function simulateExpedition(
         obronaPrzeciwnika: effObrona,
         odpornoscPrzeciwnika: effOdpornosc,
         szczesciePrzeciwnika: mobSzczescie,
-        trafieniePrzeciwnika: mobSpostrzegawczosc,
+        trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
         tchnienieSmierciActive: false,
       };
       const dashboardBase = dashboardService.calculateStuff(characterBase);

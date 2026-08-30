@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EXPEDITION_TOWERS, ExpeditionTower } from '../../data/ekspedycjaData';
 import { SavedCharactersService, SavedCharacter } from '../../services/saved-characters.service';
-import { rasaAvatarUrl } from '../../data/avatars';
+import { rasaAvatarUrl, rasaLabel as rasaDisplayLabel } from '../../data/avatars';
 import { DashboardService } from '../../services/calculate';
 import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, MobStatVariant, CombatAttackLog, CombatantSummary } from '../../logic/expeditionCombat';
 
@@ -97,6 +97,10 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
 
   avatarUrl(rasa: string): string | null {
     return rasaAvatarUrl(rasa);
+  }
+
+  rasaLabel(rasa: string): string {
+    return rasaDisplayLabel(rasa);
   }
 
   isPlayerSelected(id: string): boolean {

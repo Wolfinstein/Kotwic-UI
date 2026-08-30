@@ -662,15 +662,10 @@
 }
 
 .combat-outcome h2 {
-  margin: 0 0 4px;
+  margin: 0 0 16px;
   font-family: 'Bungee', sans-serif;
   font-size: var(--fs-2xl);
   letter-spacing: 1px;
-}
-
-.combat-outcome p {
-  margin: 0;
-  color: var(--label-color);
 }
 
 .combat-outcome.outcome-win h2 {
@@ -685,8 +680,7 @@
   color: #ffc94d;
 }
 
-.combat-log h3,
-.combat-summary h3 {
+.combat-log h3 {
   margin: 0 0 12px;
   font-size: var(--fs-md);
   color: var(--section-title-color);
@@ -879,4 +873,10 @@
   justify-content: center;
   font-style: italic;
   opacity: 0.7;
+}
+
+.preview-divider {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 6px 0;
 }
