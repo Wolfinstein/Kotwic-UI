@@ -128,6 +128,14 @@ export interface PlayerCombatState {
   regenPerRound: number;
   damageDealtThisRound: number;
   weapons: WeaponDamage[];
+  // ── Post-fight summary counters (simulateExpedition only — left at 0 in the stat-preview builder). ──
+  attacksMade: number;
+  hitsLanded: number;
+  critsLanded: number;
+  attacksReceived: number;
+  hitsReceived: number;
+  totalDamageDealt: number;
+  kills: number;
 }
 
 /** Bakes an added crit-multiplier straight into a weapon's critDmgMin/Max, matching how calculate.ts derives them (minDmg/maxDmg * critMulti). */
@@ -244,9 +252,31 @@ export interface CombatAttackLog {
   mobHpAfter: number;
   /** When set, the UI shows this exact text instead of the normal hit/crit/dodge phrasing (e.g. a Groza activation). */
   note?: string;
+  /** Set on the death-announcement line pushed the instant a player or the mob hits 0 HP — lets the UI color it by side instead of as a generic special-effect note. */
+  died?: boolean;
 }
 
 export type ExpeditionOutcome = 'win' | 'loss' | 'draw';
+
+/** Per-combatant post-fight scoreboard row (damage/kills/hp header + hit-rate detail box). */
+export interface CombatantSummary {
+  name: string;
+  side: 'players' | 'mob';
+  damageDealt: number;
+  kills: number;
+  hpRemaining: number;
+  hpMax: number;
+  attacksMade: number;
+  hitsLanded: number;
+  critsLanded: number;
+  attacksReceived: number;
+  hitsReceived: number;
+}
+
+export interface CombatSummary {
+  players: CombatantSummary[];
+  mob: CombatantSummary;
+}
 
 export interface ExpeditionResult {
   outcome: ExpeditionOutcome;
@@ -256,6 +286,7 @@ export interface ExpeditionResult {
   mobMaxHp: number;
   mobHpRemaining: number;
   roundsElapsed: number;
+  summary: CombatSummary;
 }
 
 function unikForGenre(target: PlayerCombatState, genre: MobWeaponGenre): number {
@@ -464,6 +495,13 @@ export function computeCombatPreview(
       regenPerRound: dashboard.regeneracja ?? 0,
       damageDealtThisRound: 0,
       weapons: [],
+      attacksMade: 0,
+      hitsLanded: 0,
+      critsLanded: 0,
+      attacksReceived: 0,
+      hitsReceived: 0,
+      totalDamageDealt: 0,
+      kills: 0,
     };
     const genre: MobWeaponGenre = profile?.weaponGenre ?? 'biala';
     return {
@@ -515,7 +553,10 @@ export function computeCombatPreview(
 interface ShotQueueEntry {
   side: 'player' | 'mob';
   player?: PlayerCombatState;
-  weapon?: WeaponDamage;
+  /** Index into the player's CURRENT `weapons` array, resolved live at attack time — not a snapshot — so a
+   *  mid-round Tchnienie Śmierci activation (which swaps `player.weapons` to the boosted set) immediately
+   *  applies to this player's still-queued shots for the rest of the round, instead of only from next round. */
+  weaponIndex?: number;
 }
 
 /**
@@ -618,6 +659,13 @@ export function simulateExpedition(
       regenPerRound: dashboard.regeneracja ?? 0,
       damageDealtThisRound: 0,
       weapons: dashboard.obrazenia ?? [],
+      attacksMade: 0,
+      hitsLanded: 0,
+      critsLanded: 0,
+      attacksReceived: 0,
+      hitsReceived: 0,
+      totalDamageDealt: 0,
+      kills: 0,
     };
   });
 
@@ -660,6 +708,12 @@ export function simulateExpedition(
   let mobHp = mobMaxHp;
   let outcome: ExpeditionOutcome = 'draw';
   let roundsElapsed = 0;
+  // ── Post-fight summary counters for the mob side ──
+  let mobAttacksMade = 0;
+  let mobHitsLanded = 0;
+  let mobCritsLanded = 0;
+  let mobTotalDamageDealt = 0;
+  let mobKills = 0;
   /** First selected player is the expedition organizer — their death cuts the whole team's damage output by 10%. */
   const organizer = players[0];
   /** Otchłań Ciszy triggers on each qualifying player's own first landed hit per round — reset fresh every round. */
@@ -683,8 +737,28 @@ export function simulateExpedition(
     });
   }
 
+  /** Logs the death-announcement line the instant a combatant's HP hits 0. */
+  function pushDeath(name: string, side: 'players' | 'mob', roundNum: number): void {
+    attacks.push({
+      round: roundNum,
+      attackerName: name,
+      attackerSide: side,
+      weaponName: '',
+      targetName: mob.name,
+      hit: true,
+      dodged: false,
+      crit: false,
+      damage: 0,
+      targetHpAfter: mobHp,
+      mobHpAfter: mobHp,
+      note: side === 'mob' ? 'zostaje pokonany!' : 'ginie!',
+      died: true,
+    });
+  }
+
   /** Resolves one player attack (normal shot or Furia Bestii counterattack) against the mob: dodge/hit/crit/damage, plus the Otchłań Ciszy and Potęga Mocy first-hit triggers. Returns whether the mob died. */
   function resolvePlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number): boolean {
+    attacker.attacksMade++;
     const dodgedByMob = Math.random() < mobUnikFor(profile, mobGenreForWeapon(w.genre));
     const hit = !dodgedByMob && Math.random() < (w.estimatedHitChance ?? 1);
     let crit = false;
@@ -692,7 +766,9 @@ export function simulateExpedition(
     let otchlanProced = false;
     let potegaSteal = 0;
     if (hit) {
+      attacker.hitsLanded++;
       crit = Math.random() < (w.critChance ?? 0);
+      if (crit) attacker.critsLanded++;
       dmg = crit
         ? randomInt(w.critDmgMin ?? w.minDmg, w.critDmgMax ?? w.maxDmg)
         : randomInt(w.minDmg, w.maxDmg);
@@ -701,6 +777,7 @@ export function simulateExpedition(
       }
       mobHp = Math.max(0, mobHp - dmg);
       attacker.damageDealtThisRound += dmg;
+      attacker.totalDamageDealt += dmg;
       if (crit && profile?.special?.kind === 'demonicznyGniew') {
         mobCritMulti += w.genre?.endsWith('2H') ? 0.05 : 0.025;
       }
@@ -744,7 +821,11 @@ export function simulateExpedition(
     if (potegaSteal > 0) {
       pushNote(attacker.name, `${attacker.name} aktywuje Potęgę Mocy`, roundNum);
     }
-    if (mobHp <= 0) return true;
+    if (mobHp <= 0) {
+      attacker.kills++;
+      pushDeath(mob.name, 'mob', roundNum);
+      return true;
+    }
     // Cichy Łowca: a missed or dodged swing has a chance to immediately swing again with the same weapon.
     if ((dodgedByMob || !hit) && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
       pushNote(attacker.name, `${attacker.name} aktywuje Cichego Łowcę`, roundNum);
@@ -773,11 +854,11 @@ export function simulateExpedition(
     for (const p of alivePlayers) {
       const shots: ShotQueueEntry[] = [];
       let totalWeaponAttacks = 0;
-      for (const w of p.weapons) {
+      p.weapons.forEach((w, weaponIndex) => {
         const count = Math.max(0, Math.round(w.iloscAtakow ?? 0));
         totalWeaponAttacks += count;
-        for (let i = 0; i < count; i++) shots.push({ side: 'player', player: p, weapon: w });
-      }
+        for (let i = 0; i < count; i++) shots.push({ side: 'player', player: p, weaponIndex });
+      });
       if (shots.length) queues.push({ initiative: p.initiative, shots });
       // Furia Bestii: this round's counterattack budget is a % of this round's normal attack count.
       p.furiaMaxCountersThisRound = Math.floor(p.furiaCapPercent * totalWeaponAttacks);
@@ -813,7 +894,8 @@ export function simulateExpedition(
 
         if (shot.side === 'player') {
           if (!shot.player!.alive) continue;
-          const w = shot.weapon!;
+          const w = shot.player!.weapons[shot.weaponIndex!];
+          if (!w) continue;
           const mobDied = resolvePlayerAttack(shot.player!, w, w.name, r + 1);
           if (mobDied) {
             outcome = 'win';
@@ -829,11 +911,16 @@ export function simulateExpedition(
           const genre: MobWeaponGenre = profile?.weaponGenre ?? 'biala';
           const dodged = Math.random() < unikForGenre(target, genre);
           const hit = !dodged && Math.random() < mobHitChance(profile?.weaponGenre ?? 'dystans', mobZwinnosc, mobSpostrzegawczosc, mobSzczescie, target, rosterBonus.extraHitChance);
+          mobAttacksMade++;
+          target.attacksReceived++;
           let crit = false;
           let dmg = 0;
           if (hit) {
+            mobHitsLanded++;
+            target.hitsReceived++;
             if (profile) {
               crit = Math.random() < effectiveMobCritChance(profile.critChance, target);
+              if (crit) mobCritsLanded++;
               const raw = randomInt(profile.minDmg, profile.maxDmg) * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant) * (crit ? mobCritMulti : 1) + rosterBonus.extraDamage;
               const afterRedukcja = raw * (1 - target.redukcja);
               const defenseReduction = mobHitDefenseReduction(profile, target);
@@ -842,7 +929,11 @@ export function simulateExpedition(
               dmg = Math.max(0, Math.round(placeholderDamagePerAttack * (1 - target.redukcja)));
             }
             target.hp = Math.max(0, target.hp - dmg);
-            if (target.hp <= 0) target.alive = false;
+            mobTotalDamageDealt += dmg;
+            if (target.hp <= 0 && target.alive) {
+              target.alive = false;
+              mobKills++;
+            }
           }
           attacks.push({
             round: r + 1,
@@ -857,12 +948,18 @@ export function simulateExpedition(
             targetHpAfter: target.hp,
             mobHpAfter: mobHp,
           });
+          if (!target.alive) {
+            pushDeath(target.name, 'players', r + 1);
+          }
           if (hit) {
             if (crit && applyLewiatanProc(target)) {
               pushNote(target.name, `${target.name} aktywuje Lewiatana`, r + 1);
             }
             if (tryActivateTchnienie(target)) {
-              pushNote(target.name, `${target.name} aktywuje Tchnienie Śmierci`, r + 1);
+              const dmgBonus = 5 * target.tchnienieLevel;
+              const trafPenalty = target.tchnienieLevel;
+              const unikBonus = 2 * target.tchnienieLevel;
+              pushNote(target.name, `${target.name} aktywuje Tchnienie Śmierci (obrażenia wszystkich broni +${dmgBonus}, trafienie wszystkich broni -${trafPenalty}, unik +${unikBonus}%)`, r + 1);
             }
             if (crit && target.alive && target.furiaChance > 0
               && target.furiaCountersUsedThisRound < target.furiaMaxCountersThisRound
@@ -897,5 +994,34 @@ export function simulateExpedition(
     }
   }
 
-  return { outcome, attacks, players, mobName: mob.name, mobMaxHp, mobHpRemaining: mobHp, roundsElapsed };
+  const summary: CombatSummary = {
+    players: players.map(p => ({
+      name: p.name,
+      side: 'players',
+      damageDealt: p.totalDamageDealt,
+      kills: p.kills,
+      hpRemaining: p.hp,
+      hpMax: p.maxHp,
+      attacksMade: p.attacksMade,
+      hitsLanded: p.hitsLanded,
+      critsLanded: p.critsLanded,
+      attacksReceived: p.attacksReceived,
+      hitsReceived: p.hitsReceived,
+    })),
+    mob: {
+      name: mob.name,
+      side: 'mob',
+      damageDealt: mobTotalDamageDealt,
+      kills: mobKills,
+      hpRemaining: mobHp,
+      hpMax: mobMaxHp,
+      attacksMade: mobAttacksMade,
+      hitsLanded: mobHitsLanded,
+      critsLanded: mobCritsLanded,
+      attacksReceived: players.reduce((sum, p) => sum + p.attacksMade, 0),
+      hitsReceived: players.reduce((sum, p) => sum + p.hitsLanded, 0),
+    },
+  };
+
+  return { outcome, attacks, players, mobName: mob.name, mobMaxHp, mobHpRemaining: mobHp, roundsElapsed, summary };
 }

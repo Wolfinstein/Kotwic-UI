@@ -206,7 +206,7 @@
 
     <div class="step-footer">
       <button type="button" class="btn-simulate" [disabled]="!selectedMobName" (click)="runBulkSimulation()">
-        Symuluj 100x
+        Symuluj 1000x
       </button>
       <button type="button" class="btn-next" [disabled]="!selectedMobName" (click)="startCombat()">
         Walcz!
@@ -233,13 +233,40 @@
         <p>{{ combatResult.mobName }}: {{ combatResult.mobMaxHp - combatResult.mobHpRemaining }} / {{ combatResult.mobMaxHp }} obrażeń zadanych ({{ combatResult.roundsElapsed }} {{ combatResult.roundsElapsed === 1 ? 'runda' : 'rund' }})</p>
       </section>
 
+      <section class="feature-section combat-summary">
+        <h3>Podsumowanie</h3>
+
+        <div class="summary-detail-grid">
+          @for (p of combatResult.summary.players; track p.name) {
+            <div class="summary-detail-box" [style.color]="summaryColor(p)">
+              <div class="summary-detail-name">{{ p.name }}</div>
+              <div>Życie: {{ p.hpRemaining }} / {{ p.hpMax }}</div>
+              <div>Obrażenia zadane: {{ p.damageDealt }}</div>
+              <hr class="summary-detail-divider" />
+              <div>Trafione: {{ p.hitsLanded }} / {{ p.attacksMade }} ({{ percent(p.hitsLanded, p.attacksMade) }}%)</div>
+              <div>Krytycznych: {{ p.critsLanded }} ({{ percent(p.critsLanded, p.hitsLanded) }}%)</div>
+              <div>Otrzymane: {{ p.hitsReceived }} / {{ p.attacksReceived }} ({{ percent(p.hitsReceived, p.attacksReceived) }}%)</div>
+            </div>
+          }
+          <div class="summary-detail-box" [style.color]="summaryColor(combatResult.summary.mob)">
+            <div class="summary-detail-name">{{ combatResult.summary.mob.name }}</div>
+            <div>Życie: {{ combatResult.summary.mob.hpRemaining }} / {{ combatResult.summary.mob.hpMax }}</div>
+            <div>Obrażenia zadane: {{ combatResult.summary.mob.damageDealt }}</div>
+            <hr class="summary-detail-divider" />
+            <div>Trafione: {{ combatResult.summary.mob.hitsLanded }} / {{ combatResult.summary.mob.attacksMade }} ({{ percent(combatResult.summary.mob.hitsLanded, combatResult.summary.mob.attacksMade) }}%)</div>
+            <div>Krytycznych: {{ combatResult.summary.mob.critsLanded }} ({{ percent(combatResult.summary.mob.critsLanded, combatResult.summary.mob.hitsLanded) }}%)</div>
+            <div>Otrzymane: {{ combatResult.summary.mob.hitsReceived }} / {{ combatResult.summary.mob.attacksReceived }} ({{ percent(combatResult.summary.mob.hitsReceived, combatResult.summary.mob.attacksReceived) }}%)</div>
+          </div>
+        </div>
+      </section>
+
       <section class="feature-section combat-log">
         <h3>Przebieg starcia</h3>
         @for (a of combatResult.attacks; track $index) {
           @if ($index === 0 || combatResult.attacks[$index - 1].round !== a.round) {
             <div class="combat-round-divider">Runda {{ a.round }}</div>
           }
-          <div class="combat-attack-line" [class.side-mob]="a.attackerSide === 'mob'" [class.miss]="!a.hit" [class.crit]="a.crit">
+          <div class="combat-attack-line" [class.side-mob]="a.attackerSide === 'mob'" [class.miss]="!a.hit" [class.crit]="a.crit" [style.color]="attackerColor(a)">
             <i class="pi combat-side-icon" [class.pi-shield]="a.attackerSide === 'players'" [class.pi-bolt]="a.attackerSide === 'mob'"></i>
             <span class="combat-attacker">{{ a.attackerName }}</span>
             <span class="combat-attack-detail">
@@ -250,21 +277,11 @@
               } @else if (!a.hit) {
                 atakuje z broni <strong>{{ a.weaponName }}</strong>, <span class="combat-target">{{ a.targetName }}</span> nie zostaje trafiony.
               } @else if (a.crit) {
-                trafia krytycznie z broni <strong>{{ a.weaponName }}</strong>, <span class="combat-target">{{ a.targetName }}</span> zostaje zraniony za <strong>{{ a.damage }}</strong> PKT ŻYCIA.
+                <span class="crit-label">trafia krytycznie</span> z broni <strong>{{ a.weaponName }}</strong>, <span class="combat-target">{{ a.targetName }}</span> zostaje zraniony za <strong>{{ a.damage }}</strong> PKT ŻYCIA.
               } @else {
                 atakuje z broni <strong>{{ a.weaponName }}</strong>, <span class="combat-target">{{ a.targetName }}</span> zostaje zraniony za <strong>{{ a.damage }}</strong> PKT ŻYCIA.
               }
             </span>
-          </div>
-        }
-      </section>
-
-      <section class="feature-section combat-players">
-        <h3>Drużyna</h3>
-        @for (p of combatResult.players; track p.id) {
-          <div class="combat-player-row" [class.dead]="!p.alive">
-            <span>{{ p.name }}</span>
-            <span>{{ p.hp }} / {{ p.maxHp }} hp</span>
           </div>
         }
       </section>

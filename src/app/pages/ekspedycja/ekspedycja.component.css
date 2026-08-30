@@ -686,7 +686,7 @@
 }
 
 .combat-log h3,
-.combat-players h3 {
+.combat-summary h3 {
   margin: 0 0 12px;
   font-size: var(--fs-md);
   color: var(--section-title-color);
@@ -712,80 +712,78 @@
   padding: 4px 0;
   font-size: var(--fs-sm);
   line-height: 1.4;
-  border-left: 2px solid transparent;
+  border-left: 2px solid currentColor;
   padding-left: 8px;
 }
 
 .combat-attack-line.side-mob {
-  border-left-color: #e57373;
-}
-
-.combat-attack-line:not(.side-mob) {
-  border-left-color: var(--section-icon);
+  font-size: calc(var(--fs-sm) * 1.15);
 }
 
 .combat-attack-line.miss {
   opacity: 0.55;
 }
 
-.combat-attack-line.crit .combat-attack-detail {
-  color: #ffc94d;
+.combat-attack-line.crit {
+  font-weight: 700;
+}
+
+.crit-label {
+  color: #ffd600;
 }
 
 .combat-side-icon {
   flex-shrink: 0;
   font-size: 11px;
   opacity: 0.9;
-}
-
-.combat-attack-line:not(.side-mob) .combat-side-icon {
-  color: var(--section-icon);
-}
-
-.combat-attack-line.side-mob .combat-side-icon {
-  color: #e57373;
+  color: inherit;
 }
 
 .combat-attacker {
   flex-shrink: 0;
   font-weight: 700;
-}
-
-.combat-attack-line:not(.side-mob) .combat-attacker {
-  color: var(--section-icon);
-}
-
-.combat-attack-line.side-mob .combat-attacker {
-  color: #e57373;
+  color: inherit;
 }
 
 .combat-attack-detail {
-  color: var(--label-color);
+  color: inherit;
 }
 
 .combat-attack-detail strong {
-  color: var(--color-text);
+  color: inherit;
 }
 
 .combat-target {
   font-weight: 700;
-  color: var(--section-title-color);
+  color: inherit;
 }
 
-.combat-player-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-muted);
+/* ── Post-fight summary scoreboard ── */
+.summary-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 10px;
 }
 
-.combat-player-row:last-child {
-  border-bottom: none;
+.summary-detail-box {
+  background: var(--accent-low, rgba(255, 255, 255, 0.04));
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: var(--fs-xs);
+  line-height: 1.6;
 }
 
-.combat-player-row.dead {
-  opacity: 0.45;
-  text-decoration: line-through;
+.summary-detail-name {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.summary-detail-divider {
+  border: none;
+  border-top: 1px solid currentColor;
+  opacity: 0.35;
+  margin: 6px 0;
 }
 
 /* ── Pre-fight stat preview ── */

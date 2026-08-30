@@ -4,7 +4,7 @@ import { EXPEDITION_TOWERS, ExpeditionTower } from '../../data/ekspedycjaData';
 import { SavedCharactersService, SavedCharacter } from '../../services/saved-characters.service';
 import { rasaAvatarUrl } from '../../data/avatars';
 import { DashboardService } from '../../services/calculate';
-import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, MobStatVariant } from '../../logic/expeditionCombat';
+import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, MobStatVariant, CombatAttackLog, CombatantSummary } from '../../logic/expeditionCombat';
 
 type VolumeLevel = 'low' | 'mid' | 'high';
 type ExpeditionStep = 'players' | 'towers' | 'combat';
@@ -16,7 +16,7 @@ interface BulkSimResult {
   draws: number;
 }
 
-const BULK_SIM_RUNS = 100;
+const BULK_SIM_RUNS = 1000;
 
 const VOLUME_LEVELS: VolumeLevel[] = ['low', 'mid', 'high'];
 const VOLUME_VALUES: Record<VolumeLevel, number> = { low: 0.25, mid: 0.6, high: 1 };
@@ -24,6 +24,12 @@ const VOLUME_LABELS: Record<VolumeLevel, string> = { low: 'Cicho', mid: 'Średni
 
 // Same palette used for the color dots in the Postacie list (Kalkulator Postaci).
 const PLAYER_COLORS = ['#4fc3f7', '#81c784', '#ffb74d', '#f06292', '#ce93d8', '#80cbc4'];
+/** Combat-log line color for every player, regardless of which one. */
+const PLAYER_LOG_COLOR = '#2979ff';
+/** Combat-log line color for the mob — always the same, regardless of which mob it is. */
+const MOB_LOG_COLOR = '#ff1744';
+/** Combat-log line color for talisman/arcane special-effect activations (Groza, Tchnienie Śmierci, ...), regardless of which player triggered it. */
+const SPECIAL_EFFECT_LOG_COLOR = '#00e676';
 
 @Component({
   selector: 'app-ekspedycja',
@@ -165,6 +171,23 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   backToTowers(): void {
     this.combatResult = null;
     this.step = 'towers';
+  }
+
+  /** Combat-log line color: special-effect notes are always bright green, mob attacks always red, and every player is blue. */
+  attackerColor(attack: CombatAttackLog): string {
+    if (attack.note) return SPECIAL_EFFECT_LOG_COLOR;
+    if (attack.attackerSide === 'mob') return MOB_LOG_COLOR;
+    return PLAYER_LOG_COLOR;
+  }
+
+  /** Same red/blue scheme as the log, for the post-fight summary scoreboard. */
+  summaryColor(c: CombatantSummary): string {
+    return c.side === 'mob' ? MOB_LOG_COLOR : PLAYER_LOG_COLOR;
+  }
+
+  /** Rounded hit-rate percentage for the summary boxes — 0 when there's nothing to divide by. */
+  percent(part: number, total: number): number {
+    return total > 0 ? Math.round((part / total) * 100) : 0;
   }
 
   toggleMute(): void {
