@@ -502,13 +502,19 @@ export class CharacterInputComponent implements OnInit {
       this.buildAllCharactersChart();
     });
     try {
-      if (!sessionStorage.getItem(CharacterInputComponent.IMPORT_PROMPT_SHOWN_KEY)) {
+      if (!sessionStorage.getItem(CharacterInputComponent.IMPORT_PROMPT_SHOWN_KEY) && !this.hasStoredCharacterData()) {
         sessionStorage.setItem(CharacterInputComponent.IMPORT_PROMPT_SHOWN_KEY, '1');
         this.showImportChoiceModal = true;
       }
     } catch {
-      this.showImportChoiceModal = true;
+      if (!this.hasStoredCharacterData()) this.showImportChoiceModal = true;
     }
+  }
+
+  /** True if the character already has meaningful data saved — skip the import prompt in that case. */
+  private hasStoredCharacterData(): boolean {
+    return ['main', 'trening', 'equip', 'talizmany', 'arkany', 'ewolucje', 'runy', 'umagi']
+      .some(key => this.isSectionFilled(key));
   }
 
   private getSlotCategory(slot: string): SlotCategory {
