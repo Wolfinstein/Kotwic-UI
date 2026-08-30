@@ -1134,4 +1134,14 @@ export class CharacterInputComponent implements OnInit {
   formatRefRange(r: StatRange | null): string {
     return formatMobRange(r);
   }
+
+  /** Sum of zwinnosc + spostrzegawczosc for the currently picked mob (used for dystans hit-chance calcs). */
+  get refStatsSum(): StatRange | null {
+    const stats = this.refStats;
+    if (!stats || !stats.zwinnosc || !stats.spostrzegawczosc) return null;
+    return {
+      min: stats.zwinnosc.min + stats.spostrzegawczosc.min,
+      max: stats.zwinnosc.max + stats.spostrzegawczosc.max,
+    };
+  }
 }

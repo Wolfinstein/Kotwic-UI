@@ -365,6 +365,9 @@
               <span class="ref-stat-chip" *ngFor="let s of refStatDefs">
                 <span class="ref-stat-label">{{ s.label }}</span>{{ formatRefRange(refStats[s.key]) }}
               </span>
+              <span class="ref-stat-chip ref-stat-chip-sum" *ngIf="refStatsSum">
+                <span class="ref-stat-label">Suma</span>{{ formatRefRange(refStatsSum) }}
+              </span>
             </div>
           </div>
           <div class="compact-grid">
