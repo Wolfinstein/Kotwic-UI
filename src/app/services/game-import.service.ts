@@ -35,6 +35,7 @@ const KNOWN_DAILY_BONUSES = [
   'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you',
   'Dzień Przemiany', 'Dzień poszukiwaczy', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami',
   'Pierwszy gol', 'Pierwszy serwis', 'Szczęście Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden',
+  'Noc Bohaterów', 'Pamięci ofiar II wojny światowej',
 ];
 
 /** Mirrors umagiOptions in character-input.component.ts — used to validate translated enchant tiers. */
@@ -574,6 +575,11 @@ export class GameImportService {
       { name: 'POŚREDNIAK', field: 'posredniak' },
       { name: 'DOM PUBLICZNY', field: 'domPubliczny' },
       { name: 'RZEŹNIA', field: 'rzeznia' },
+      { name: 'POSTERUNEK POLICJI', field: 'policja' },
+      { name: 'SCHRONISKO DLA BEZDOMNYCH', field: 'schronisko' },
+      { name: 'AGENCJA OCHRONY', field: 'ochrona' },
+      { name: 'HANDLARZ BRONIĄ', field: 'handlarz' },
+      { name: 'DZIENNIK LOKALNY "NOCNA ZMIANA"', field: 'gazeta' },
     ];
     const data: Record<string, any> = {};
     const found: string[] = [];
@@ -638,6 +644,7 @@ export class GameImportService {
     return this.parseArenaBonuses(html, [
       { name: 'Ninja', field: 'ninja' },
       { name: 'Myśliwy', field: 'mysliwy' },
+      { name: 'Assasyn', field: 'assasyn' },
     ]);
   }
 

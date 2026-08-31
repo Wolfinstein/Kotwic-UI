@@ -68,6 +68,12 @@
               [inputStyleClass]="character!.kaplica > 0 ? 'input-active' : ''"
               (ngModelChange)="updateCharacterField('kaplica', $event)" />
           </div>
+          <div class="compact-item">
+            <label>Assasyn</label>
+            <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.assasyn"
+              [inputStyleClass]="character!.assasyn > 0 ? 'input-active' : ''"
+              (ngModelChange)="updateCharacterField('assasyn', $event)" />
+          </div>
         </div>
       </div>
       <!-- Trening -->
@@ -233,24 +239,63 @@
       <div class="section" [class.import-highlight]="importedSections['build']" [class.section-filled]="isSectionFilled('budynki')">
         <p-button [label]="'Budynki ' + (expandedBonuses['budynki'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('budynki')" [text]="true" styleClass="bonus-toggle-btn" />
-        <div *ngIf="expandedBonuses['budynki']" class="compact-grid">
-          <div class="compact-item">
-            <label>Pośredniak</label>
-            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.posredniak"
-              [inputStyleClass]="character!.posredniak > 0 ? 'input-active' : ''"
-              (ngModelChange)="updateCharacterField('posredniak', $event)" />
+        <div *ngIf="expandedBonuses['budynki']">
+          <div class="compact-grid">
+            <div class="compact-item">
+              <label>Pośredniak</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.posredniak"
+                [inputStyleClass]="character!.posredniak > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('posredniak', $event)" />
+            </div>
+            <div class="compact-item">
+              <label>Dom Publiczny</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.domPubliczny"
+                [inputStyleClass]="character!.domPubliczny > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('domPubliczny', $event)" />
+            </div>
+            <div class="compact-item">
+              <label>Rzeźnia</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.rzeznia"
+                [inputStyleClass]="character!.rzeznia > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('rzeznia', $event)" />
+            </div>
           </div>
-          <div class="compact-item">
-            <label>Dom Publiczny</label>
-            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.domPubliczny"
-              [inputStyleClass]="character!.domPubliczny > 0 ? 'input-active' : ''"
-              (ngModelChange)="updateCharacterField('domPubliczny', $event)" />
-          </div>
-          <div class="compact-item">
-            <label>Rzeźnia</label>
-            <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.rzeznia"
-              [inputStyleClass]="character!.rzeznia > 0 ? 'input-active' : ''"
-              (ngModelChange)="updateCharacterField('rzeznia', $event)" />
+          <!-- Noc Bohaterów (nested, collapsible) -->
+          <div class="section" [class.section-filled]="isSectionFilled('nocBohaterow')">
+            <p-button [label]="'Noc Bohaterów ' + (expandedBonuses['nocBohaterow'] ? '▼' : '▶')"
+              (onClick)="toggleBonusExpand('nocBohaterow')" [text]="true" styleClass="bonus-toggle-btn" />
+            <div *ngIf="expandedBonuses['nocBohaterow']" class="compact-grid">
+              <div class="compact-item">
+                <label>Posterunek Policji</label>
+                <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.policja"
+                  [inputStyleClass]="character!.policja > 0 ? 'input-active' : ''"
+                  (ngModelChange)="updateCharacterField('policja', $event)" />
+              </div>
+              <div class="compact-item">
+                <label>Schronisko dla Bezdomnych</label>
+                <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.schronisko"
+                  [inputStyleClass]="character!.schronisko > 0 ? 'input-active' : ''"
+                  (ngModelChange)="updateCharacterField('schronisko', $event)" />
+              </div>
+              <div class="compact-item">
+                <label>Agencja Ochrony</label>
+                <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.ochrona"
+                  [inputStyleClass]="character!.ochrona > 0 ? 'input-active' : ''"
+                  (ngModelChange)="updateCharacterField('ochrona', $event)" />
+              </div>
+              <div class="compact-item">
+                <label>Handlarz Bronią</label>
+                <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.handlarz"
+                  [inputStyleClass]="character!.handlarz > 0 ? 'input-active' : ''"
+                  (ngModelChange)="updateCharacterField('handlarz', $event)" />
+              </div>
+              <div class="compact-item">
+                <label>Dziennik Lokalny "Nocna Zmiana"</label>
+                <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.gazeta"
+                  [inputStyleClass]="character!.gazeta > 0 ? 'input-active' : ''"
+                  (ngModelChange)="updateCharacterField('gazeta', $event)" />
+              </div>
+            </div>
           </div>
         </div>
       </div>

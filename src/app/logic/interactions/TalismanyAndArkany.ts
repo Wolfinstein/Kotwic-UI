@@ -21,6 +21,8 @@ export class TalismanyAndArkany {
   ziz: number = 0;
   kamienSpota: number = 0;
   kamienZwinki: number = 0;
+  kamienDobra: number = 0;
+  kamienZla: number = 0;
   szpony: number = 0;
   zycieSmierc: number = 0;
   otchlan: number = 0;
@@ -40,6 +42,8 @@ export class TalismanyAndArkany {
     this.doZiz(p1);
     this.doKamykSpota(p1);
     this.doKamykZwinki(p1);
+    this.doKamienDobra(p1);
+    this.doKamienZla(p1);
     this.doSzpony(p1);
     this.doZycieiSmierc(p1);
     this.doOtchlan(p1);
@@ -226,6 +230,44 @@ export class TalismanyAndArkany {
     }
     return player;
   }
+  private doKamienDobra(player: Player): Player {
+    switch (this.kamienDobra) {
+      case 1:
+        player.addCharyzma(20);
+        break;
+      case 2:
+        player.addCharyzma(40);
+        break;
+      case 3:
+        player.addCharyzma(60);
+        break;
+      case 4:
+        player.addCharyzma(80);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doKamienZla(player: Player): Player {
+    switch (this.kamienZla) {
+      case 1:
+        player.addWplywy(20);
+        break;
+      case 2:
+        player.addWplywy(40);
+        break;
+      case 3:
+        player.addWplywy(60);
+        break;
+      case 4:
+        player.addWplywy(80);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
   private doSzpony(player: Player): Player {
     switch (this.szpony) {
       case 1:
@@ -245,22 +287,16 @@ export class TalismanyAndArkany {
     }
     return player;
   }
+  /** Per Tchnienie Śmierci arcane point, PKT Życia bazowe increases by this tier's %, capped at +400% total. */
+  private static readonly ZYCIE_SMIERC_PCT_PER_TCHNIENIE: Record<number, number> = { 1: 0.03, 2: 0.04, 3: 0.05, 4: 0.06 };
+  static tchnienieModifier(zycieSmierc: number, aTchnienie: number): number {
+    const pctPerPoint = TalismanyAndArkany.ZYCIE_SMIERC_PCT_PER_TCHNIENIE[zycieSmierc] ?? 0;
+    return Math.min(pctPerPoint * aTchnienie, 4.00);
+  }
   private doZycieiSmierc(player: Player): Player {
-    switch (this.zycieSmierc) {
-      case 1:
-        player.setLife(Math.floor(player.life + (this.aTchnienie * 0.03) * player.baseLife));
-        break;
-      case 2:
-        player.setLife(Math.floor(player.life + (this.aTchnienie * 0.04) * player.baseLife));
-        break;
-      case 3:
-        player.setLife(Math.floor(player.life + (this.aTchnienie * 0.05) * player.baseLife));
-        break;
-      case 4:
-        player.setLife(Math.floor(player.life + (this.aTchnienie * 0.06) * player.baseLife));
-        break;
-      default:
-        break;
+    const modifier = TalismanyAndArkany.tchnienieModifier(this.zycieSmierc, this.aTchnienie);
+    if (modifier > 0) {
+      player.addLife(Math.floor(modifier * player.baseLife));
     }
     return player;
   }
@@ -504,6 +540,8 @@ class TalismanyAndArkanyBuilder {
   private _ziz: number = 0;
   private _kamienSpota: number = 0;
   private _kamienZwinki: number = 0;
+  private _kamienDobra: number = 0;
+  private _kamienZla: number = 0;
   private _szpony: number = 0;
   private _zycieSmierc: number = 0;
   private _otchlan: number = 0;
@@ -594,6 +632,14 @@ class TalismanyAndArkanyBuilder {
     this._kamienZwinki = kamienZwinki;
     return this;
   }
+  kamienDobra(kamienDobra: number): TalismanyAndArkanyBuilder {
+    this._kamienDobra = kamienDobra;
+    return this;
+  }
+  kamienZla(kamienZla: number): TalismanyAndArkanyBuilder {
+    this._kamienZla = kamienZla;
+    return this;
+  }
   szpony(szpony: number): TalismanyAndArkanyBuilder {
     this._szpony = szpony;
     return this;
@@ -656,6 +702,8 @@ class TalismanyAndArkanyBuilder {
     t.ziz = this._ziz;
     t.kamienSpota = this._kamienSpota;
     t.kamienZwinki = this._kamienZwinki;
+    t.kamienDobra = this._kamienDobra;
+    t.kamienZla = this._kamienZla;
     t.szpony = this._szpony;
     t.zycieSmierc = this._zycieSmierc;
     t.otchlan = this._otchlan;

@@ -74,6 +74,7 @@ const CHARACTER: Character = {
   },
   mysliwy: 5,
   ninja: 5,
+  assasyn: 0,
   strateg: 5,
   kaplica: 6,
   obronaPrzeciwnika: 905,

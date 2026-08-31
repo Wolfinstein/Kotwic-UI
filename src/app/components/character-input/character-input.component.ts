@@ -226,14 +226,14 @@ export class CharacterInputComponent implements OnInit {
     { label: '2H', value: '2h' },
   ];
   huntBonuses = ['Juggernaut', 'Ronin', 'Adrenalina', 'SokoleOko', 'Rzeźnik'];
-  dailyBonuses = ['Brak', 'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień Vlada', 'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina','Urodzinowa Wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina', 'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you', 'Dzień Przemiany', 'Dzień poszukiwaczy', 'Świąteczna wizja Kaina (deluxe)', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami', 'Pierwszy gol', 'Pierwszy serwis', 'Szczęście Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden'];
+  dailyBonuses = ['Brak', 'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień Vlada', 'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina','Urodzinowa Wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina', 'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you', 'Dzień Przemiany', 'Dzień poszukiwaczy', 'Świąteczna wizja Kaina (deluxe)', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami', 'Pierwszy gol', 'Pierwszy serwis', 'Szczęście Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden', 'Noc Bohaterów', 'Pamięci ofiar II wojny światowej'];
   oneTimeBonuses = ['Brak', 'Krew wilka', 'Jabłko żelaznego drzewa', 'Płetwa rekina', 'Eliksir zmysłów', 'Święcona woda', 'Łza feniksa', 'Magiczna pieczęć', 'Serce nietoperza', 'Kwiat lotosu', 'Jad Wielkopchły', 'Serum oświecenia', 'Wywar z czarnego kota', 'Węgiel', 'Sierść kreta', 'Saletra', 'Sok z żuka', 'Esencja młodości', 'Paznokieć trolla', 'Wilcza jagoda', 'Oko kota', 'Absynt', 'Łuski salamandry', 'Woda źródlana', 'Kość męczennika', 'Napój miłosny', 'Jad skorpiona', 'Korzeń mandragory', 'Gwiezdny pył', 'Fiolka kwasu', 'Siarka', 'Czarny diament', 'Oko topielca', 'Boska łza', 'Ząb ghula', 'Wywar z koralowca', 'Serce proroka', 'Pazur bazyliszka', 'Łuski demona', 'Skrzydła chrząszcza', 'Maska gargulca', 'Sok z modliszki', 'Oddech smoka', 'Ząb wiedźmy', 'Grimoire', 'Czarna żółć', 'Palec kowala', 'Kwiat bzu', 'Ogień z serca ziemi'];
   private static readonly EXPANDED_STORAGE_KEY = 'expandedBonuses';
   private static readonly IMPORT_PROMPT_SHOWN_KEY = 'importChoicePromptShown';
   private static readonly EXPANDED_DEFAULTS: { [key: string]: boolean } = {
     silver: false, gold: false, hunt: true, daily: false, kaplica: false, oneTime: true,
     trening: true, talizmany: true, arkany: true, runy: true, umagi: true, blaszka: true, ewolucje: true,
-    przeciwnik: true, inne: true, budynki: true,
+    przeciwnik: true, inne: true, budynki: true, nocBohaterow: false,
     importTab: true, manualTab: true,
   };
   expandedBonuses: { [key: string]: boolean } = { ...CharacterInputComponent.EXPANDED_DEFAULTS };
@@ -392,8 +392,8 @@ export class CharacterInputComponent implements OnInit {
     const patch: any = {};
     const fields = [
       'attributes', 'poziom', 'rasa', 'eventBonus', 'equipment', 'talizmanLevels', 'arcaneLevels',
-      'evolutions', 'runeValues', 'umagiValues', 'posredniak', 'domPubliczny', 'rzeznia', 'ninja', 'mysliwy',
-      'strateg', 'kaplica', 'huntBonuses',
+      'evolutions', 'runeValues', 'umagiValues', 'posredniak', 'domPubliczny', 'rzeznia', 'policja', 'schronisko',
+      'ochrona', 'handlarz', 'gazeta', 'ninja', 'mysliwy', 'assasyn', 'strateg', 'kaplica', 'huntBonuses',
     ];
     for (const field of fields) {
       if (data[field] !== undefined) patch[field] = data[field];
@@ -1009,11 +1009,14 @@ export class CharacterInputComponent implements OnInit {
         return this.character.obronaPrzeciwnika > 0 || this.character.odpornoscPrzeciwnika > 0
           || this.character.trafieniePrzeciwnika > 0 || this.character.szczesciePrzeciwnika > 0;
       case 'inne':
-        return this.character.ninja > 0 || this.character.mysliwy > 0
+        return this.character.ninja > 0 || this.character.mysliwy > 0 || this.character.assasyn > 0
           || this.character.strateg > 0 || this.character.kaplica > 0 || !!this.character.eventBonus
           || this.character.poziom > 0 || !!this.character.rasa;
       case 'budynki':
         return this.character.posredniak > 0 || this.character.domPubliczny > 0 || this.character.rzeznia > 0;
+      case 'nocBohaterow':
+        return this.character.policja > 0 || this.character.schronisko > 0 || this.character.ochrona > 0
+          || this.character.handlarz > 0 || this.character.gazeta > 0;
       case 'hunt':
         return (this.character.huntBonuses?.length ?? 0) > 0;
       case 'daily':

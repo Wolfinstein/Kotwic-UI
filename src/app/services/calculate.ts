@@ -61,6 +61,7 @@ export class DashboardService {
     this.calculateHuntBonuses(c, player);
     this.calculateOneTimeBonus(c, player);
     this.calculateEventBonus(c, player);
+    this.calculateNocBohaterowBudynki(c, player);
     this.calculateStrateg(c, player);
     const dashboard: DashboardValues = this.buildDashboardValues(player);
     this.capUnik(dashboard, c.evolutions?.mutacjaDna ?? 0);
@@ -77,6 +78,56 @@ export class DashboardService {
     p.addCharyzma(c.posredniak);
     p.addWiedza(c.domPubliczny);
     p.addWplywy(c.rzeznia);
+  }
+  private static readonly NOC_BOHATEROW_EVENTS = ['noc bohaterów', 'pamięci ofiar ii wojny światowej'];
+  /**
+   * Strefa 5 buildings (Posterunek Policji, Schronisko dla Bezdomnych, Agencja Ochrony,
+   * Handlarz Bronią, Dziennik Lokalny "Nocna Zmiana") are only accessible during the
+   * "Noc Bohaterów" / "Pamięci ofiar II wojny światowej" events, so their effects only
+   * apply while one of those is selected. While active, the Assasyn arena bonus
+   * (levels 1-5: +20/30/40/50/60%) boosts the PKT ŻYCIA coming from Agencja Ochrony,
+   * and an equipped Życie i Śmierć talizman boosts the buildings' flat PKT ŻYCIA
+   * (Agencja Ochrony + Handlarz Bronią) by the same Tchnienie Śmierci modifier
+   * (see TalismanyAndArkany.tchnienieModifier — 3/4/5/6% per arcane point depending
+   * on the talizman's own tier, capped at +400%) that always boosts base PKT ŻYCIA.
+   */
+  calculateNocBohaterowBudynki(c: Character, p: Player): void {
+    const event = c.eventBonus?.toLowerCase();
+    if (!event || !DashboardService.NOC_BOHATEROW_EVENTS.includes(event)) {
+      return;
+    }
+    if (c.policja >= 1) {
+      p.addSpostrzegawczosc(c.policja);
+    }
+    if (c.schronisko >= 1) {
+      let schroniskoWplywy = c.schronisko;
+      if (c.gazeta >= 1) {
+        const gazetaBonusPct = 0.25 + 0.05 * (c.gazeta - 1);
+        schroniskoWplywy = Math.floor(schroniskoWplywy * (1 + gazetaBonusPct));
+      }
+      p.addWplywy(schroniskoWplywy);
+    }
+    const finalWplywy = p.stats.wplywy;
+    let ochronaLife = 0;
+    if (c.ochrona >= 1) {
+      p.addLaczneObrazeniaWszystkichBroni(c.ochrona / 100);
+      ochronaLife = finalWplywy * c.ochrona;
+    }
+    if (ochronaLife > 0 && c.assasyn >= 1) {
+      const assasynBonusPct = [0, 0.20, 0.30, 0.40, 0.50, 0.60][c.assasyn] ?? 0;
+      ochronaLife = Math.floor(ochronaLife * (1 + assasynBonusPct));
+    }
+    let budynkiLife = ochronaLife;
+    if (c.handlarz >= 1) {
+      budynkiLife += ((c.handlarz + 3) / 10) * c.ochrona * finalWplywy;
+    }
+    const zycieSmierc = c.talizmanLevels?.zycieISmierc ?? 0;
+    if (budynkiLife > 0 && zycieSmierc >= 1) {
+      const tchnienie = c.arcaneLevels?.tchnienieSmierci ?? 0;
+      const bonusPct = TalismanyAndArkany.tchnienieModifier(zycieSmierc, tchnienie);
+      budynkiLife = Math.floor(budynkiLife * (1 + bonusPct));
+    }
+    p.addLife(Math.floor(budynkiLife));
   }
   calculateStrateg(c: Character, p: Player): void {
     const strateg = c.strateg;
@@ -385,6 +436,8 @@ export class DashboardService {
         .ziz(c.talizmanLevels?.ziz ?? 0)
         .kamienSpota(c.talizmanLevels?.kamienPrzestrzeni ?? 0)
         .kamienZwinki(c.talizmanLevels?.kamienCzasu ?? 0)
+        .kamienDobra(c.talizmanLevels?.kamienDobra ?? 0)
+        .kamienZla(c.talizmanLevels?.kamienZla ?? 0)
         .szpony(c.talizmanLevels?.szponyNocy ?? 0)
         .zycieSmierc(c.talizmanLevels?.zycieISmierc ?? 0)
         .otchlan(c.talizmanLevels?.otchlaniCiszy ?? 0)
@@ -768,6 +821,10 @@ export class DashboardService {
         break;
       case 'zwycięzca jest tylko jeden':
         p.addSzczescie(50);
+        break;
+      case 'noc bohaterów':
+        break;
+      case 'pamięci ofiar ii wojny światowej':
         break;
     }
   }

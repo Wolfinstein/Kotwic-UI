@@ -105,11 +105,17 @@ export interface Character {
     trafieniePrzeciwnika: number;
     mysliwy: number;
     ninja: number;
+    assasyn: number;
     strateg: number;
     kaplica: number;
     posredniak: number;
     domPubliczny: number;
     rzeznia: number;
+    policja: number;
+    schronisko: number;
+    ochrona: number;
+    handlarz: number;
+    gazeta: number;
 }
 export interface WeaponDamage {
     name: string;

@@ -41,10 +41,7 @@ export class HomeComponent {
   ];
 
   knownIssues: string[] = [
-    'Narzędzia budowane z myślą o R20',
-    'Event "Noc Bohaterów" nie jest obsługiwana.',
-    'Wartości dla mobów i kalkulator doświadczenia wymaga więcej testów i uzupełnienia statycznej tabeli z mnożnikiem.',
-    'Punkty krwi nie są zliczane prawidłowo.',
+    'Jakieś na pewno są'
   ];
 
   issuesOpen = false;
