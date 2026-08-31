@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         KotwicUI Export
 // @namespace    kotwicui
-// @version      1.6.0
+// @version      1.6.1
 // @description  Fetches the game pages KotwicUI's Kalkulator Postaci needs, trims each one down to just the HTML the parser actually reads, copies the result to your clipboard when small enough, and shows a result popup with a manual JSON download button.
 // @author       KotwicUI
 // @match        https://r20.bloodwars.pl/*
@@ -13,11 +13,12 @@
   'use strict';
 
   // Keep this in sync with the @version header above.
-  const SCRIPT_VERSION = '1.6.0';
+  const SCRIPT_VERSION = '1.6.1';
   const LAST_SEEN_VERSION_KEY = 'kotwicuiImportScriptLastSeenVersion';
   // One entry per version that should notify the user on their first run after updating.
   const CHANGELOG = {
     '1.6.0': 'Dodana obsługa importu ewolucji. Importuje na maksymalnym dostępnym poziomie.',
+    '1.6.1': 'Naprawiono import areny (silver) — premia Assasyn nie była wycinana ze strony i przez to nigdy nie trafiała do eksportu.',
   };
 
   function showUpdateNotice(version, message) {
@@ -237,7 +238,7 @@
     },
     evo: html => html.match(/<div class="training-evo-title">[^<]*<\/div>/g),
     build: html => html.match(/<span class="bldheader">[\s\S]*?POZIOM&nbsp;<b>\d+<\/b>/g),
-    arenaSilver: html => extractArenaBonuses(html, ['Ninja', 'Myśliwy']),
+    arenaSilver: html => extractArenaBonuses(html, ['Ninja', 'Myśliwy', 'Assasyn']),
     arenaGold: html => extractArenaBonuses(html, ['Strateg']),
     clanbld: html => html.match(/KAPLICA poziom \d+/),
     huntClanBonus: html => html.match(/<div class="singleBonusContainer">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g),
