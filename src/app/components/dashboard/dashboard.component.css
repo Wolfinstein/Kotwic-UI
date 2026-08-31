@@ -10,6 +10,12 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  /* Stat grids below react to this panel's own rendered width, not the
+     viewport — the results panel is only a fraction of the window (see
+     calculator.component.css's 7fr/3fr split), so a viewport media query
+     switches to a multi-column row layout well before there's actually
+     room for it, overflowing the narrow panel. */
+  container-type: inline-size;
 }
 
 /* Tablet & Desktop padding */
@@ -76,15 +82,15 @@ h4 {
   padding: 3px 3px 3px 3px;
 }
 
-/* Tablet: 2 columns */
-@media (min-width: 769px) {
+/* 2 columns once the panel is actually wide enough */
+@container (min-width: 380px) {
   .attr-grid {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-/* Desktop: 3 columns (original) */
-@media (min-width: 1281px) {
+/* 3 columns */
+@container (min-width: 560px) {
   .attr-grid {
     grid-template-columns: 1fr 1fr 1fr;
   }
@@ -94,13 +100,7 @@ h4 {
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 769px) {
-  .attr-grid--2col {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (min-width: 1281px) {
+@container (min-width: 380px) {
   .attr-grid--2col {
     grid-template-columns: 1fr 1fr;
   }
@@ -110,13 +110,13 @@ h4 {
   grid-template-columns: 1fr;
 }
 
-@media (min-width: 769px) {
+@container (min-width: 380px) {
   .attr-grid--3col {
     grid-template-columns: 1fr 1fr;
   }
 }
 
-@media (min-width: 1281px) {
+@container (min-width: 560px) {
   .attr-grid--3col {
     grid-template-columns: 1fr 1fr 1fr;
   }
@@ -138,21 +138,14 @@ h4 {
   justify-content: center;
 }
 
-/* Tablet: flex row */
-@media (min-width: 769px) {
+/* Row layout once the panel is wide enough for label + value side by side */
+@container (min-width: 260px) {
   .attr-item {
     flex-direction: row;
     justify-content: space-between;
     padding: 10px 12px;
     font-size: var(--fs-sm);
     min-height: auto;
-  }
-}
-
-/* Desktop: same */
-@media (min-width: 1281px) {
-  .attr-item {
-    font-size: var(--fs-sm);
   }
 }
 
@@ -166,12 +159,17 @@ h4 {
   font-weight: 600;
   color: var(--label-color);
   font-size: var(--fs-base);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .attr-value {
   font-weight: 700;
   color: var(--value-color);
   font-size: var(--fs-md);
+  flex-shrink: 0;
 }
 
 .combat-row {

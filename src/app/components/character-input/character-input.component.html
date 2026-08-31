@@ -26,7 +26,7 @@
         [class.section-filled]="isSectionFilled('inne')">
         <p-button [label]="'Różne ' + (expandedBonuses['inne'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('inne')" [text]="true" styleClass="bonus-toggle-btn" />
-        <div *ngIf="expandedBonuses['inne']" class="compact-grid">
+        <div *ngIf="expandedBonuses['inne']" class="compact-grid compact-grid-1col">
           <div class="compact-item">
             <label>Poziom</label>
             <p-inputnumber [ngModel]="character!.poziom" [min]="1" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus"
@@ -80,7 +80,7 @@
       <div class="section" [class.import-highlight]="importedSections['trening']" [class.section-filled]="isSectionFilled('trening')">
         <p-button [label]="'Trening ' + (expandedBonuses['trening'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('trening')" [text]="true" styleClass="bonus-toggle-btn" />
-        <div *ngIf="expandedBonuses['trening']" class="compact-grid">
+        <div *ngIf="expandedBonuses['trening']" class="compact-grid compact-grid-1col">
           <div *ngFor="let attr of attributes" class="compact-item">
             <label>{{ attr.label }}</label>
             <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getAttrValue(attr.key)"
@@ -290,7 +290,7 @@
                   (ngModelChange)="updateCharacterField('handlarz', $event)" />
               </div>
               <div class="compact-item">
-                <label>Dziennik Lokalny "Nocna Zmiana"</label>
+                <label>Dziennik Lokalny</label>
                 <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.gazeta"
                   [inputStyleClass]="character!.gazeta > 0 ? 'input-active' : ''"
                   (ngModelChange)="updateCharacterField('gazeta', $event)" />
@@ -330,7 +330,7 @@
       <div class="section" [class.section-filled]="isSectionFilled('arkany')">
         <p-button [label]="'Arkany ' + (expandedBonuses['arkany'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('arkany')" [text]="true" styleClass="bonus-toggle-btn" />
-        <div *ngIf="expandedBonuses['arkany']" class="compact-grid">
+        <div *ngIf="expandedBonuses['arkany']" class="compact-grid compact-grid-1col">
           <div *ngFor="let arcane of arcaneAttributes" class="compact-item">
             <label>{{ arcane.label }}</label>
             <ng-container [ngSwitch]="arcane.type">
@@ -360,7 +360,7 @@
       <div class="section" [class.section-filled]="isSectionFilled('ewolucje')">
         <p-button [label]="'Ewolucje ' + (expandedBonuses['ewolucje'] ? '▼' : '▶')"
           (onClick)="toggleBonusExpand('ewolucje')" [text]="true" styleClass="bonus-toggle-btn" />
-        <div *ngIf="expandedBonuses['ewolucje']" class="compact-grid">
+        <div *ngIf="expandedBonuses['ewolucje']" class="compact-grid compact-grid-1col">
           <div *ngFor="let evo of evolutions" class="compact-item">
             <label>{{ evo.label }}</label>
             <p-inputnumber [min]="0" [max]="15" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="getEvoValue(evo.key)"
@@ -420,7 +420,7 @@
               </span>
             </div>
           </div>
-          <div class="compact-grid">
+          <div class="compact-grid compact-grid-1col">
             <div class="compact-item">
               <label class="label-hint" pTooltip="Jeśli bijesz białą / dystansem" tooltipPosition="top">Obrona Przeciwnika</label>
               <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.obronaPrzeciwnika"

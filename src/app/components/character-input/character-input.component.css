@@ -371,6 +371,11 @@
   border: 1px solid var(--border-muted);
   border-radius: 6px;
   flex-shrink: 0;
+  /* Grids inside (compact-grid, talizman-grid) react to this section's own
+     rendered width, not the viewport — the section can be squeezed much
+     narrower than the window by the auto-fit tab grid or the results/form
+     split, and a viewport media query has no idea that happened. */
+  container-type: inline-size;
 }
 
 @media (max-width: 768px) {
@@ -417,8 +422,14 @@ label {
   gap: 8px;
 }
 
-@media (min-width: 481px) and (max-width: 768px) {
+@container (min-width: 420px) {
   .compact-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+}
+
+/* Różne / Trening: always a single column, regardless of section width. */
+.compact-grid-1col,
+.compact-grid-1col.compact-grid {
+  grid-template-columns: 1fr;
 }
 
 .compact-item {
@@ -427,6 +438,11 @@ label {
   gap: 6px;
   border-radius: 3px;
   padding: 2px 4px;
+  /* Without this, a grid/flex item's automatic min-width is its content's
+     min-content size — and a nowrap label's min-content IS its full text
+     width, which silently overrides the label's own overflow:hidden and
+     pushes this item (and the input beside it) past the grid track. */
+  min-width: 0;
 }
 
 .compact-item:nth-child(odd) {
@@ -445,7 +461,9 @@ label {
   flex: 1;
   font-size: var(--fs-md);
   white-space: nowrap;
-  min-width: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
   color: var(--label-color);
 }
 
@@ -461,11 +479,11 @@ label {
   gap: 6px 4px;
 }
 
-@media (max-width: 900px) {
+@container (max-width: 900px) {
   .talizman-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
-@media (max-width: 480px) {
+@container (max-width: 480px) {
   .talizman-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
@@ -1056,6 +1074,15 @@ label {
   padding: 3px 2px;
 }
 
+/* Once the talizman columns themselves get tight (3- or 2-col fallback),
+   shrink the spinner buttons too so the field inside still has room. */
+@container (max-width: 480px) {
+  :host ::ng-deep .talizman-grid p-inputnumber .p-inputnumber-button {
+    width: 18px;
+    min-height: 20px;
+  }
+}
+
 :host ::ng-deep p-inputnumber .p-inputnumber-button {
   width: 24px;
   min-height: 24px;
@@ -1072,6 +1099,35 @@ label {
 
 :host ::ng-deep p-inputnumber .p-inputnumber-button .pi {
   font-size: var(--fs-xs);
+}
+
+/* Shrink the number field + spinner buttons as their section gets narrower,
+   so the input has room next to the label instead of relying on the label
+   alone to give up space (see .compact-item's min-width: 0 above). */
+@container (max-width: 340px) {
+  :host ::ng-deep .compact-item p-inputnumber .p-inputtext {
+    width: 44px;
+    padding: 3px 3px;
+  }
+
+  :host ::ng-deep .compact-item p-inputnumber .p-inputnumber-button {
+    width: 20px;
+    min-height: 20px;
+  }
+
+  .compact-item { gap: 4px; }
+}
+
+@container (max-width: 240px) {
+  :host ::ng-deep .compact-item p-inputnumber .p-inputtext {
+    width: 34px;
+    padding: 3px 1px;
+  }
+
+  :host ::ng-deep .compact-item p-inputnumber .p-inputnumber-button {
+    width: 17px;
+    min-height: 18px;
+  }
 }
 
 /* Select (Rasa dropdown) */
