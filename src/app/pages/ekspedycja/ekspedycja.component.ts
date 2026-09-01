@@ -57,6 +57,8 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   combatResult: ExpeditionResult | null = null;
   combatPreview: CombatPreview | null = null;
   bulkSimResult: BulkSimResult | null = null;
+  /** One losing run from the last bulk simulation, kept so the user can inspect an example defeat instead of just the win/loss tally. */
+  sampleLossResult: ExpeditionResult | null = null;
   muted = true;
   volumeLevel: VolumeLevel = 'mid';
 
@@ -231,12 +233,14 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.starLevel = star;
     this.showStarPicker = false;
     this.bulkSimResult = null;
+    this.sampleLossResult = null;
     this.refreshCombatPreview();
   }
 
   toggleMobVariant(): void {
     this.mobVariant = this.mobVariant === 'min' ? 'max' : 'min';
     this.bulkSimResult = null;
+    this.sampleLossResult = null;
     this.refreshCombatPreview();
   }
 
@@ -253,11 +257,14 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
       survivalCount[p.id] = 0;
       totalDamage[p.id] = 0;
     }
+    this.sampleLossResult = null;
     for (let i = 0; i < BULK_SIM_RUNS; i++) {
       const result = simulateExpedition(this.selectedPlayers, mob, this.starLevel, this.dashboardService, this.mobVariant);
       if (result.outcome === 'win') wins++;
-      else if (result.outcome === 'loss') losses++;
-      else draws++;
+      else if (result.outcome === 'loss') {
+        losses++;
+        if (!this.sampleLossResult) this.sampleLossResult = result;
+      } else draws++;
       for (const p of result.players) {
         if (p.alive) survivalCount[p.id]++;
         totalDamage[p.id] += p.totalDamageDealt;
