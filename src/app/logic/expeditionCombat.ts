@@ -129,6 +129,9 @@ export interface PlayerCombatState {
   furiaCountersUsedThisRound: number;
   /** Cichy Łowca: chance to immediately swing again with the same weapon after a missed/dodged attack. */
   cichyLowcaChance: number;
+  /** Ziz tier 4: each of this player's own crits permanently adds to their crit-multiplier for the rest of the fight (+0.05 for a 2H weapon crit, +0.025 for 1H), mirroring the mob's Demoniczny Gniew special. */
+  zizActive: boolean;
+  zizBonus: number;
   /** End-of-round HP regen (from the calculator's dashboard), capped at half of this player's own damage dealt that round. */
   regenPerRound: number;
   damageDealtThisRound: number;
@@ -547,6 +550,8 @@ export function computeCombatPreview(
       furiaMaxCountersThisRound: 0,
       furiaCountersUsedThisRound: 0,
       cichyLowcaChance: cichyLowcaChanceFor(saved.character.talizmanLevels?.cichyLowca ?? 0, saved.character.arcaneLevels?.kocieSciezki ?? 0),
+      zizActive: (saved.character.talizmanLevels?.ziz ?? 0) === 4,
+      zizBonus: 0,
       regenPerRound: dashboard.regeneracja ?? 0,
       damageDealtThisRound: 0,
       weapons: [],
@@ -716,6 +721,8 @@ export function simulateExpedition(
       furiaMaxCountersThisRound: 0,
       furiaCountersUsedThisRound: 0,
       cichyLowcaChance: cichyLowcaChanceFor(saved.character.talizmanLevels?.cichyLowca ?? 0, saved.character.arcaneLevels?.kocieSciezki ?? 0),
+      zizActive: (saved.character.talizmanLevels?.ziz ?? 0) === 4,
+      zizBonus: 0,
       regenPerRound: dashboard.regeneracja ?? 0,
       damageDealtThisRound: 0,
       weapons: dashboard.obrazenia ?? [],
@@ -754,11 +761,12 @@ export function simulateExpedition(
         ? dashboardService.calculateStuff({ ...characterBase, tchnienieSmierciActive: true }).obrazenia ?? []
         : dashboardBase.obrazenia ?? [];
       p.weapons = p.tchnienieActive ? p.weaponsActivated : (dashboardBase.obrazenia ?? []);
-      // Rebuilding from scratch loses any already-triggered Potęga Mocy crit-multi steal — reapply it.
-      if (p.potegaAppliedSteal > 0) {
-        boostWeaponsCritMulti(p.weapons, p.potegaAppliedSteal);
+      // Rebuilding from scratch loses any already-triggered Potęga Mocy crit-multi steal and any accumulated Ziz bonus — reapply them.
+      const reapplyBonus = p.potegaAppliedSteal + p.zizBonus;
+      if (reapplyBonus > 0) {
+        boostWeaponsCritMulti(p.weapons, reapplyBonus);
         if (p.weaponsActivated !== p.weapons) {
-          boostWeaponsCritMulti(p.weaponsActivated, p.potegaAppliedSteal);
+          boostWeaponsCritMulti(p.weaponsActivated, reapplyBonus);
         }
       }
     });
@@ -843,6 +851,14 @@ export function simulateExpedition(
       attacker.totalDamageDealt += dmg;
       if (crit && profile?.special?.kind === 'demonicznyGniew') {
         mobCritMulti += w.genre?.endsWith('2H') ? 0.05 : 0.025;
+      }
+      if (crit && attacker.zizActive) {
+        const zizDelta = w.genre?.endsWith('2H') ? 0.05 : 0.025;
+        attacker.zizBonus += zizDelta;
+        boostWeaponsCritMulti(attacker.weapons, zizDelta);
+        if (attacker.weaponsActivated !== attacker.weapons) {
+          boostWeaponsCritMulti(attacker.weaponsActivated, zizDelta);
+        }
       }
       if (attacker.otchlanReduction > 0 && !otchlanProcdThisRound.has(attacker.id)) {
         otchlanProcdThisRound.add(attacker.id);

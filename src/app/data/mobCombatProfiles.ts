@@ -45,7 +45,7 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     maxDmg: 1075,
     attacksPerRound: 5,
     critChance: 0.85,
-    critMulti: 2.5,
+    critMulti: 2,
     unik: { biala: 0, palna: 0, dystans: 0 },
     special: { kind: 'demonicznyGniew' },
     playerLevelCap: 980,
