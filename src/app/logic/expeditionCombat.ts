@@ -25,14 +25,6 @@ function mobDamageStarMultiplier(star: number): number {
   return 1 + Math.max(0, star - 1) * 0.6;
 }
 
-/** Picking the MIN mob-stat variant also shaves 5% off the mob's weapon damage (MAX uses the profile's numbers as-is), unless the profile overrides these multipliers (e.g. when minDmg/maxDmg are themselves the MIN-variant numbers). */
-function mobVariantDamageMultiplier(variant: MobStatVariant, profile?: MobCombatProfile): number {
-  if (profile?.variantDamageMultiplier) {
-    return variant === 'min' ? profile.variantDamageMultiplier.min : profile.variantDamageMultiplier.max;
-  }
-  return variant === 'min' ? 0.95 : 1;
-}
-
 /** Flat amount added to both minDmg and maxDmg for the selected stat variant, applied separately from the main mobDamageStarMultiplier — 0 unless the profile sets one. */
 function mobVariantDamageFlatBonus(variant: MobStatVariant, profile?: MobCombatProfile): number {
   if (!profile?.variantDamageFlatBonus) return 0;
@@ -57,19 +49,22 @@ export interface RosterBonus {
 /**
  * Incomplete-roster penalty: activates when the joined players' level sum is
  * under half of the star-scaled player level cap. The mob then gets extra
- * flat damage equal to (levelCap - joinedLevelSum), plus extra hit-chance
- * points scaled by how large that deficit is relative to the cap
- * (deficit²/levelCap), plus a flat +1000 hit-chance bonus when the
- * expedition is done solo. Both levelCap and the deficit scale with star.
- * Never negative.
+ * flat damage equal to (levelCap/damageCapDivisor - joinedLevelSum) — divisor
+ * defaults to 1 (full levelCap), but a mob can use a smaller reference cap for
+ * its damage bonus specifically (e.g. Abaddon uses half the cap) via
+ * MobCombatProfile.rosterBonusDamageCapDivisor — plus extra hit-chance points
+ * scaled by how large the FULL (undivided) deficit is relative to the cap
+ * (deficit²/levelCap), plus a flat +1000 hit-chance bonus when the expedition
+ * is done solo. Both levelCap and the deficits scale with star. Never negative.
  */
-function computeRosterBonus(levelCap: number | null, joinedLevelSum: number, playerCount: number): RosterBonus {
+function computeRosterBonus(levelCap: number | null, joinedLevelSum: number, playerCount: number, damageCapDivisor: number = 1): RosterBonus {
   if (!levelCap || levelCap <= 0) return { extraDamage: 0, extraHitChance: 0 };
   if (joinedLevelSum >= levelCap / 2) return { extraDamage: 0, extraHitChance: 0 };
   const deficit = Math.max(0, levelCap - joinedLevelSum);
+  const damageDeficit = Math.max(0, levelCap / damageCapDivisor - joinedLevelSum);
   const soloBonus = playerCount === 1 ? 1000 : 0;
   return {
-    extraDamage: Math.max(0, deficit),
+    extraDamage: damageDeficit,
     extraHitChance: Math.max(0, deficit * (deficit / levelCap) + soloBonus),
   };
 }
@@ -139,7 +134,7 @@ export interface PlayerCombatState {
   furiaCountersUsedThisRound: number;
   /** Cichy Łowca: chance to immediately swing again with the same weapon after a missed/dodged attack. */
   cichyLowcaChance: number;
-  /** Ziz tier 4: each of this player's own crits permanently adds to their crit-multiplier for the rest of the fight (+0.05 for a 2H weapon crit, +0.025 for 1H), mirroring the mob's Demoniczny Gniew special. */
+  /** Ziz tier 4: each of this player's own crits permanently adds to their crit-multiplier for the rest of the fight (+0.05 for a 2H weapon crit, +0.025 for 1H) — same mechanic shape as the mob's Demoniczny Gniew special, though the two scale independently. */
   zizActive: boolean;
   zizBonus: number;
   /** End-of-round HP regen (from the calculator's dashboard), capped at half of this player's own damage dealt that round. */
@@ -513,11 +508,11 @@ export function computeCombatPreview(
   const profile = MOB_COMBAT_PROFILES[mob.name];
   const levelCap = profile?.playerLevelCap ? mobLevelCapForStar(profile.playerLevelCap, star) : null;
   const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
-  const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length);
+  const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length, profile?.rosterBonusDamageCapDivisor ?? 1);
   const auraBestiiBonus = computeAuraBestiiTeamBonus(savedPlayers);
 
-  const mobMinDmgBase = profile ? Math.round(profile.minDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile) + mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star)) + rosterBonus.extraDamage : 0;
-  const mobMaxDmgBase = profile ? Math.round(profile.maxDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile) + mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star)) + rosterBonus.extraDamage : 0;
+  const mobMinDmgBase = profile ? Math.round(profile.minDmg * mobDamageStarMultiplier(star) + mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star)) + rosterBonus.extraDamage : 0;
+  const mobMaxDmgBase = profile ? Math.round(profile.maxDmg * mobDamageStarMultiplier(star) + mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star)) + rosterBonus.extraDamage : 0;
 
   const players: CombatPreviewPlayer[] = savedPlayers.map(saved => {
     const character: Character = {
@@ -688,7 +683,7 @@ export function simulateExpedition(
 
   const levelCap = profile?.playerLevelCap ? mobLevelCapForStar(profile.playerLevelCap, star) : null;
   const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
-  const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length);
+  const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length, profile?.rosterBonusDamageCapDivisor ?? 1);
   const auraBestiiBonus = computeAuraBestiiTeamBonus(savedPlayers);
 
   const players: PlayerCombatState[] = savedPlayers.map(saved => {
@@ -876,7 +871,7 @@ export function simulateExpedition(
       attacker.damageDealtThisRound += dmg;
       attacker.totalDamageDealt += dmg;
       if (crit && profile?.special?.kind === 'demonicznyGniew') {
-        mobCritMulti += w.genre?.endsWith('2H') ? 0.05 : 0.025;
+        mobCritMulti += 0.25;
       }
       if (crit && attacker.zizActive) {
         const zizDelta = w.genre?.endsWith('2H') ? 0.05 : 0.025;
@@ -1037,7 +1032,7 @@ export function simulateExpedition(
               crit = Math.random() < effectiveMobCritChance(profile.critChance, target);
               if (crit) mobCritsLanded++;
               const variantFlatBonus = mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star);
-              const raw = randomInt(profile.minDmg, profile.maxDmg) * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile) * (crit ? mobCritMulti : 1) + rosterBonus.extraDamage + variantFlatBonus;
+              const raw = randomInt(profile.minDmg, profile.maxDmg) * mobDamageStarMultiplier(star) * (crit ? mobCritMulti : 1) + rosterBonus.extraDamage + variantFlatBonus;
               const afterRedukcja = raw * (1 - target.redukcja);
               const defenseReduction = mobHitDefenseReduction(profile, target);
               dmg = Math.max(0, Math.round(afterRedukcja - defenseReduction));
@@ -1105,7 +1100,11 @@ export function simulateExpedition(
       if (!p.alive || p.regenPerRound <= 0) continue;
       const regenAmount = Math.min(p.regenPerRound, p.damageDealtThisRound / 2);
       if (regenAmount > 0) {
-        p.hp = Math.min(p.maxHp, p.hp + Math.floor(regenAmount));
+        const healed = Math.min(p.maxHp - p.hp, Math.floor(regenAmount));
+        p.hp += healed;
+        if (healed > 0) {
+          pushNote(p.name, `${p.name} regeneruje ${healed} PKT ŻYCIA`, r + 1);
+        }
       }
     }
   }

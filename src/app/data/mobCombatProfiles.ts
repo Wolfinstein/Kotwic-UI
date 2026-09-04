@@ -5,7 +5,7 @@
 export type MobWeaponGenre = 'biala' | 'palna' | 'dystans';
 
 export type MobSpecialAbility =
-  /** Every crit the mob takes permanently raises its own crit multiplier: +2.5% per 1H crit, +5% per 2H crit. */
+  /** Every crit the mob takes permanently raises its own crit multiplier by +25%, regardless of weapon type. */
   | { kind: 'demonicznyGniew' }
   /**
    * Once the party has dealt 25% of the mob's max HP, every subsequent player attack against
@@ -29,28 +29,28 @@ export interface MobCombatProfile {
   special?: MobSpecialAbility;
   /** Max player level allowed to fight this mob, at star 1. Scales +50% per star above 1. */
   playerLevelCap?: number;
-  /**
-   * Overrides the default MIN/MAX stat-variant damage multipliers (min ×0.95, max ×1 — i.e. minDmg/maxDmg
-   * are themselves the MAX-variant numbers by default). Set this when minDmg/maxDmg are specifically the
-   * MIN-variant numbers instead, so the MAX variant needs its own (larger) multiplier.
-   */
-  variantDamageMultiplier?: { min: number; max: number };
-  /** Flat amount added to minDmg/maxDmg per stat variant, applied before variantDamageMultiplier and star scaling. */
+  /** Flat amount added to minDmg/maxDmg per stat variant (MIN and MAX otherwise deal identical damage), scaled by its own +20%/star curve — see flatBonusStarMultiplier. */
   variantDamageFlatBonus?: { min: number; max: number };
+  /** Divides playerLevelCap for the incomplete-roster damage bonus specifically (extraDamage = levelCap/divisor - joinedLevelSum), leaving the activation threshold and hit-chance bonus on the full cap. Defaults to 1 (full cap). */
+  rosterBonusDamageCapDivisor?: number;
 }
 
 export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
   Abaddon: {
     weaponName: 'Rusznica Otchłani',
     weaponGenre: 'palna',
-    minDmg: 875,
-    maxDmg: 1075,
+    minDmg: 600,
+    maxDmg: 900,
     attacksPerRound: 5,
     critChance: 0.85,
     critMulti: 2,
     unik: { biala: 0, palna: 0, dystans: 0 },
     special: { kind: 'demonicznyGniew' },
     playerLevelCap: 980,
+    // MAX-variant adds a flat +30 on top of the shared minDmg/maxDmg range.
+    variantDamageFlatBonus: { min: 0, max: 30 },
+    // Incomplete-roster damage bonus uses half the level cap instead of the full cap.
+    rosterBonusDamageCapDivisor: 2,
   },
   Agrameon: {
     weaponName: 'Bicz grozy',
@@ -63,8 +63,7 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     unik: { biala: 0, palna: 0, dystans: 0 },
     special: { kind: 'mackiStrachu' },
     playerLevelCap: 1190,
-    // minDmg/maxDmg above are the MIN-variant numbers; MAX-variant adds a flat +450 instead of a percentage multiplier.
-    variantDamageMultiplier: { min: 1, max: 1 },
+    // MAX-variant adds a flat +450 on top of the shared minDmg/maxDmg range.
     variantDamageFlatBonus: { min: 0, max: 450 },
   },
 };
