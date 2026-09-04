@@ -268,7 +268,7 @@ export class Player {
       temp.addWeaponStats(a.suffix.stats as WeaponStats);
     }
 
-    const multiplied = applyQualityWeaponMultiplier(temp, a.getRarity(), a.getGenre(), playerLvl);
+    const multiplied = applyQualityWeaponMultiplier(temp, a.getRarity(), a.getGenre(), playerLvl, a.base?.type);
     return multiplied;
   }
 

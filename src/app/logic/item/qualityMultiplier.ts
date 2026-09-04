@@ -2,7 +2,7 @@ import { Stats } from './Stats';
 import { Base } from './Base';
 import { ItemGenre } from './constants/itemGenre';
 import { ItemRarity } from './constants/itemRarity';
-import { LEGENDARY_BONUS, EPIC_BASE_MULTIPLIER, getQualityMultiplier, isLegendary, isEpicTier, getEpicMultiplier, scaleValue, STAROZYTNY_BASE_TWARDOSC } from './qualityMultiplierUtils';
+import { STAROZYTNY_BONUS, EPIC_BASE_MULTIPLIER, getQualityMultiplier, isLegendary, isEpicTier, getEpicMultiplier, getLegendaryBonus, scaleValue, STAROZYTNY_BASE_TWARDOSC } from './qualityMultiplierUtils';
 
 const CORE_ATTRIBUTES: (keyof Stats)[] = [
   'sila', 'zwinnosc', 'odpornosc', 'wyglad', 'charyzma',
@@ -44,7 +44,7 @@ export function applyQualityMultiplier(stats: Stats, rarity: ItemRarity, playerL
   const isEpic = isEpicTier(rarity);
   const epicMult = getEpicMultiplier(rarity);
   const isLeg = isLegendary(rarity);
-  const legendaryBonus = LEGENDARY_BONUS;
+  const legendaryBonus = getLegendaryBonus(rarity);
   let tempObrona = 0;
   let tempObrazenia = 0;
   let tempMultiPalna2h = 0;
@@ -108,9 +108,11 @@ function applyStarozytnyNonWeapon(result: Stats, base: Base, rawTwardosc: number
     // Twardość: stała z bazy + skalowana (epicko) twardość z prefixów/sufixów.
     const affixRaw = rawTwardosc - (base.stats.twardosc ?? 0);
     const scaledAffix = affixRaw > 0
-      ? scaleValue(affixRaw, [EPIC_BASE_MULTIPLIER, LEGENDARY_BONUS], 'twardosc')
+      ? scaleValue(affixRaw, [EPIC_BASE_MULTIPLIER, STAROZYTNY_BONUS], 'twardosc')
       : 0;
-    result.twardosc = (STAROZYTNY_BASE_TWARDOSC[base.type] ?? 0) + scaledAffix;
+    // Płaski bonus poziomu STAROZYTNY.
+    result.twardosc = Math.round(((STAROZYTNY_BASE_TWARDOSC[base.type] ?? 0) + scaledAffix + 0.1) * 100) / 100;
+    result.odpornosc += 50;
   } else if (genre === ItemGenre.NECK || genre === ItemGenre.FINGER) {
     // Dodatnie atrybuty podstawowe podwojone względem epickich.
     for (const attr of CORE_ATTRIBUTES) {
@@ -127,7 +129,7 @@ function calcValue(value: number, rarity: ItemRarity, prop: string): number {
   const isEpic = isEpicTier(rarity);
   const epicMult = getEpicMultiplier(rarity);
   const isLeg = isLegendary(rarity);
-  const legendaryBonus = LEGENDARY_BONUS;
+  const legendaryBonus = getLegendaryBonus(rarity);
   let multipliedValue: number;
   if (isEpic) {
     multipliedValue = scaleValue(value, [epicMult, legendaryBonus], prop);

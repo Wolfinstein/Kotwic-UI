@@ -194,7 +194,7 @@ export class BaseDictionary {
 
     bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(15).bazaDpsMax(25).atakiNaRunde(2).atakiVsPotwory(2).critChance(0.25).ignore(0.30).trafienieProcentowe(0.05).build(), ItemGenre.GUN_2H, ItemType.POLAUTOMATSNAJPERSKI));
 
-    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(80).bazaDpsMax(80).atakiNaRunde(1).atakiVsPotwory(2).critChance(0.50).ignoreFlat(1.00).trafienieProcentowe(0.05).spostrzegawczosc(4).zwinnosc(-5).build(), ItemGenre.GUN_2H, ItemType.KARABINSNAJPERSKI));
+    bases.push(new Base(new WeaponStatsBuilder().bazaDpsMin(40).bazaDpsMax(40).atakiNaRunde(1).dpsVsPotwory(40).atakiVsPotwory(2).critChance(0.50).ignoreFlat(1.00).trafienieProcentowe(0.05).spostrzegawczosc(4).zwinnosc(-5).build(), ItemGenre.GUN_2H, ItemType.KARABINSNAJPERSKI));
 
 
 

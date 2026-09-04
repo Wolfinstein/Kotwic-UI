@@ -2,6 +2,7 @@ import { ItemRarity } from './constants/itemRarity';
 import { ItemType } from './constants/itemType';
 
 export const LEGENDARY_BONUS = 1.35;
+export const STAROZYTNY_BONUS = 1.5;
 export const EPIC_BASE_MULTIPLIER = 2.5;
 
 /**
@@ -72,6 +73,11 @@ export function getEpicMultiplier(rarity: ItemRarity): number {
 /** Starożytny skaluje bazowo identycznie jak Epicki (mnożnik EPIC_BASE_MULTIPLIER). */
 export function isEpicTier(rarity: ItemRarity): boolean {
   return rarity === ItemRarity.EPICKI || rarity === ItemRarity.STAROZYTNY;
+}
+
+/** Starożytny używa własnego (wyższego) drugiego mnożnika zamiast LEGENDARY_BONUS. */
+export function getLegendaryBonus(rarity: ItemRarity): number {
+  return rarity === ItemRarity.STAROZYTNY ? STAROZYTNY_BONUS : LEGENDARY_BONUS;
 }
 
 export function scaleValue(value: number, multipliers: number[], name: string = ''): number {

@@ -684,7 +684,7 @@ export class CharacterInputComponent implements OnInit {
         }
       }
       if (genre == ItemGenre.RANGE_1H || genre == ItemGenre.RANGE_2H || genre == ItemGenre.WHITE_1H || genre == ItemGenre.WHITE_2H || genre == ItemGenre.GUN_2H || genre == ItemGenre.GUN_1H) {
-        const multipliedStats = applyQualityWeaponMultiplier(combinedStats, rarity, genre, playerLvl);
+        const multipliedStats = applyQualityWeaponMultiplier(combinedStats, rarity, genre, playerLvl, itemType);
         return JSON.stringify(this.extractStats(multipliedStats), null, 2);
       } else {
         const multipliedStats = applyQualityMultiplier(combinedStats, rarity, playerLvl, base);
