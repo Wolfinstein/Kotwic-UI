@@ -266,6 +266,10 @@
               <hr class="preview-divider" />
               <div class="preview-stat"><span>Szansa na trafienie przez bossa</span><span>{{ (p.mobHitChance * 100).toFixed(0) }}%</span></div>
               <div class="preview-stat"><span>Szansa na kryt. bossa</span><span>{{ (p.mobCritChance * 100).toFixed(0) }}%</span></div>
+              @if (combatPreview.mob.hasProfile) {
+                <div class="preview-stat"><span>Obrażenia od bossa</span><span>{{ p.mobMinDmgToPlayer }}-{{ p.mobMaxDmgToPlayer }}</span></div>
+                <div class="preview-stat"><span>Obrażenia od bossa (kryt.)</span><span>{{ p.mobMinCritDmgToPlayer }}-{{ p.mobMaxCritDmgToPlayer }}</span></div>
+              }
             </div>
           }
         </div>

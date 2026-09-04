@@ -25,7 +25,14 @@ import { max } from 'rxjs';
   providedIn: 'root'
 })
 export class DashboardService {
-  calculateStuff(c: Character): DashboardValues {
+  /**
+   * @param extraBaseLife Additional baseLife to inject before any baseLife-dependent talismans/arcanes
+   * run (Życie i Śmierć × Tchnienie Śmierci's up-to-+400% bonus, Majestat's +7%/point bonus, and the
+   * final Wzmocniony-set punktyZycia% bonus) so it compounds with them exactly like equipment/umagi
+   * baseLife does. Used by the expedition simulator to fold Aura Bestii's team-wide HP bonus into a
+   * single player's dashboard instead of adding it as a separate flat amount afterwards.
+   */
+  calculateStuff(c: Character, extraBaseLife: number = 0): DashboardValues {
     let player: Player = new PlayerBuilder()
       .lvl(c.poziom)
       .stats(new StatsBuilder()
@@ -45,7 +52,7 @@ export class DashboardService {
       .trafieniePrzeciwnika(c.trafieniePrzeciwnika)
       .items(this.mapItems(c))
       .build();
-    player.baseLife += this.calculateBaseLife(c);
+    player.baseLife += this.calculateBaseLife(c) + extraBaseLife;
     this.calculateUmagi(c, player);
     player.doMysliwy(c.mysliwy);
     player.doNinja(c.ninja);

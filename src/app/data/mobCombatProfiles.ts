@@ -35,6 +35,8 @@ export interface MobCombatProfile {
    * MIN-variant numbers instead, so the MAX variant needs its own (larger) multiplier.
    */
   variantDamageMultiplier?: { min: number; max: number };
+  /** Flat amount added to minDmg/maxDmg per stat variant, applied before variantDamageMultiplier and star scaling. */
+  variantDamageFlatBonus?: { min: number; max: number };
 }
 
 export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
@@ -53,16 +55,17 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
   Agrameon: {
     weaponName: 'Bicz grozy',
     weaponGenre: 'biala',
-    minDmg: 1300,
-    maxDmg: 1650,
+    minDmg: 1000,
+    maxDmg: 1300,
     attacksPerRound: 8,
     critChance: 0.7,
     critMulti: 6,
     unik: { biala: 0, palna: 0, dystans: 0 },
     special: { kind: 'mackiStrachu' },
     playerLevelCap: 1190,
-    // minDmg/maxDmg above are the MIN-variant numbers; MAX-variant is 25% higher.
-    variantDamageMultiplier: { min: 1, max: 1.25 },
+    // minDmg/maxDmg above are the MIN-variant numbers; MAX-variant adds a flat +450 instead of a percentage multiplier.
+    variantDamageMultiplier: { min: 1, max: 1 },
+    variantDamageFlatBonus: { min: 0, max: 450 },
   },
 };
 

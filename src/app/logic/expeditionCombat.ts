@@ -33,6 +33,17 @@ function mobVariantDamageMultiplier(variant: MobStatVariant, profile?: MobCombat
   return variant === 'min' ? 0.95 : 1;
 }
 
+/** Flat amount added to both minDmg and maxDmg for the selected stat variant, applied separately from the main mobDamageStarMultiplier — 0 unless the profile sets one. */
+function mobVariantDamageFlatBonus(variant: MobStatVariant, profile?: MobCombatProfile): number {
+  if (!profile?.variantDamageFlatBonus) return 0;
+  return variant === 'min' ? profile.variantDamageFlatBonus.min : profile.variantDamageFlatBonus.max;
+}
+
+/** The variant flat-damage bonus scales +20% per star above 1 (star 1 = base, star 2 = 1.2x, star 3 = 1.4x, ...) — independent of mobDamageStarMultiplier's own +60%/star. */
+function flatBonusStarMultiplier(star: number): number {
+  return 1 + Math.max(0, star - 1) * 0.2;
+}
+
 /** Player level cap scales +50% per star above 1 (star 1 = base, star 2 = 1.5x, star 3 = 2x, ...). */
 function mobLevelCapForStar(baseCap: number, star: number): number {
   return Math.round(baseCap * (1 + Math.max(0, star - 1) * 0.5));
@@ -44,23 +55,22 @@ export interface RosterBonus {
 }
 
 /**
- * Incomplete-roster penalty: whether it activates is judged against half of
- * the star-scaled level cap, but the actual bonus magnitude is always
- * measured against the full star-1 (base) cap — so the bonus itself never
- * grows with star, only the threshold for triggering it does. The mob gets
- * extra flat damage equal to that base-cap deficit, plus extra hit-chance
- * points scaled by how large the deficit is relative to the base cap
- * (deficit²/baseLevelCap), plus a flat +1000 hit-chance bonus when the
- * expedition is done solo. Never negative.
+ * Incomplete-roster penalty: activates when the joined players' level sum is
+ * under half of the star-scaled player level cap. The mob then gets extra
+ * flat damage equal to (levelCap - joinedLevelSum), plus extra hit-chance
+ * points scaled by how large that deficit is relative to the cap
+ * (deficit²/levelCap), plus a flat +1000 hit-chance bonus when the
+ * expedition is done solo. Both levelCap and the deficit scale with star.
+ * Never negative.
  */
-function computeRosterBonus(baseLevelCap: number | null, scaledLevelCap: number | null, joinedLevelSum: number, playerCount: number): RosterBonus {
-  if (!scaledLevelCap || scaledLevelCap <= 0 || !baseLevelCap || baseLevelCap <= 0) return { extraDamage: 0, extraHitChance: 0 };
-  if (joinedLevelSum >= scaledLevelCap / 2) return { extraDamage: 0, extraHitChance: 0 };
-  const deficit = Math.max(0, baseLevelCap - joinedLevelSum);
+function computeRosterBonus(levelCap: number | null, joinedLevelSum: number, playerCount: number): RosterBonus {
+  if (!levelCap || levelCap <= 0) return { extraDamage: 0, extraHitChance: 0 };
+  if (joinedLevelSum >= levelCap / 2) return { extraDamage: 0, extraHitChance: 0 };
+  const deficit = Math.max(0, levelCap - joinedLevelSum);
   const soloBonus = playerCount === 1 ? 1000 : 0;
   return {
     extraDamage: Math.max(0, deficit),
-    extraHitChance: Math.max(0, deficit * (deficit / baseLevelCap) + soloBonus),
+    extraHitChance: Math.max(0, deficit * (deficit / levelCap) + soloBonus),
   };
 }
 
@@ -185,34 +195,37 @@ function otchlanReductionFor(otchlanTier: number, ciszaKrwiLevel: number): numbe
 }
 
 export interface AuraBestiiTeamBonus {
-  /** Combined Skóra Bestii levels from the 4 strongest qualifying contributors on the team. */
-  totalSkoraBestii: number;
+  /** The 4 strongest qualifying contributors on the team, each already getting their own personal Aura Bestii tier-4 baseLife bonus (skora×30) via doAura — kept per-contributor so each player's HP-bonus share can exclude their own contribution. */
+  contributors: { id: string; skoraBestii: number }[];
   critReductionBonus: number;
 }
 
 /**
- * Aura Bestii tier 4: each Skóra Bestii point a qualifying player has invested grants the whole
- * team +10 base HP (subject to each player's own redukcja obrażeń multiplier, same as any other
- * base-HP source) and -0.75% chance to be crit by the mob — only the 4 strongest such
- * contributors on the team count. Static (team composition doesn't change mid-fight), so this
- * is computed once and applied to every player alike.
+ * Aura Bestii tier 4: each Skóra Bestii point a qualifying player has invested grants the REST of
+ * the team +10 baseLife each — fed into each recipient's own calculateStuff() call as extraBaseLife
+ * so it compounds with Życie i Śmierć × Tchnienie Śmierci, Majestat, and the Wzmocniony set's
+ * punktyZycia% exactly like equipment/umagi baseLife does. A contributor doesn't also collect a
+ * share of their own contribution — they already get skora×30 personally via doAura — only
+ * everyone else's. Crit-chance reduction (-0.75%/point) is unaffected and applies team-wide
+ * including the contributor. Only the 4 strongest such contributors on the team count. Static (team
+ * composition doesn't change mid-fight), so this is computed once and applied to every player alike.
  */
 function computeAuraBestiiTeamBonus(savedPlayers: SavedCharacter[]): AuraBestiiTeamBonus {
-  const totalSkoraBestii = savedPlayers
+  const contributors = savedPlayers
     .filter(p => (p.character.talizmanLevels?.auraBestii ?? 0) === 4 && (p.character.arcaneLevels?.skoraBestii ?? 0) > 0)
-    .map(p => p.character.arcaneLevels!.skoraBestii)
-    .sort((a, b) => b - a)
-    .slice(0, 4)
-    .reduce((sum, v) => sum + v, 0);
+    .map(p => ({ id: p.id, skoraBestii: p.character.arcaneLevels!.skoraBestii }))
+    .sort((a, b) => b.skoraBestii - a.skoraBestii)
+    .slice(0, 4);
+  const totalSkoraBestii = contributors.reduce((sum, c) => sum + c.skoraBestii, 0);
   return {
-    totalSkoraBestii,
+    contributors,
     critReductionBonus: totalSkoraBestii * 0.0075,
   };
 }
 
-/** Base-HP portion of the Aura Bestii team bonus, scaled by this specific player's own redukcja obrażeń multiplier. */
-function auraBestiiHpBonusFor(bonus: AuraBestiiTeamBonus, redukcja: number): number {
-  return bonus.totalSkoraBestii * 10 * (1 + redukcja);
+/** This player's share of the Aura Bestii team HP bonus: 10×skoraBestii from every OTHER qualifying contributor, excluding their own (already covered by their personal tier-4 bonus). */
+function auraBestiiHpShareFor(bonus: AuraBestiiTeamBonus, playerId: string): number {
+  return bonus.contributors.filter(c => c.id !== playerId).reduce((sum, c) => sum + c.skoraBestii, 0) * 10;
 }
 
 /** Cichy Łowca tier 4: each Kocie Ścieżki point gives 1% chance to immediately swing again after a missed or dodged attack, capped at 50%. */
@@ -447,6 +460,12 @@ export interface CombatPreviewPlayer {
   dodge: number;
   mobHitChance: number;
   mobCritChance: number;
+  /** Damage this specific player would take from a normal (non-crit) mob hit, after their own redukcja and flat obrona/odpornosc-based reduction. 0/0 when the mob has no combat profile. */
+  mobMinDmgToPlayer: number;
+  mobMaxDmgToPlayer: number;
+  /** Same as above but for a crit mob hit (mob minDmg/maxDmg scaled by its critMulti first). */
+  mobMinCritDmgToPlayer: number;
+  mobMaxCritDmgToPlayer: number;
   weapons: CombatPreviewWeapon[];
 }
 
@@ -494,9 +513,11 @@ export function computeCombatPreview(
   const profile = MOB_COMBAT_PROFILES[mob.name];
   const levelCap = profile?.playerLevelCap ? mobLevelCapForStar(profile.playerLevelCap, star) : null;
   const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
-  // Activation is judged against the star-scaled cap; the bonus magnitude is always measured against the base (star-1) cap.
-  const rosterBonus = computeRosterBonus(profile?.playerLevelCap ?? null, levelCap, joinedLevelSum, savedPlayers.length);
+  const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length);
   const auraBestiiBonus = computeAuraBestiiTeamBonus(savedPlayers);
+
+  const mobMinDmgBase = profile ? Math.round(profile.minDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile) + mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star)) + rosterBonus.extraDamage : 0;
+  const mobMaxDmgBase = profile ? Math.round(profile.maxDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile) + mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star)) + rosterBonus.extraDamage : 0;
 
   const players: CombatPreviewPlayer[] = savedPlayers.map(saved => {
     const character: Character = {
@@ -508,12 +529,12 @@ export function computeCombatPreview(
       // Preview always shows the pre-activation (full-hp) state — the real, HP-gated activation only runs in simulateExpedition.
       tchnienieSmierciActive: false,
     };
-    const dashboard = dashboardService.calculateStuff(character);
+    const dashboard = dashboardService.calculateStuff(character, auraBestiiHpShareFor(auraBestiiBonus, saved.id));
     const tchnienieLevel = saved.character.arcaneLevels?.tchnienieSmierci ?? 0;
     const target: PlayerCombatState = {
       id: saved.id,
       name: saved.name,
-      maxHp: (dashboard.effectiveHp ?? dashboard.punktyZycia ?? 1) + Math.floor(auraBestiiHpBonusFor(auraBestiiBonus, dashboard.redukcja ?? 0)),
+      maxHp: dashboard.punktyZycia ?? 1,
       hp: 0,
       alive: true,
       initiative: dashboard.inicjatywa ?? 0,
@@ -564,6 +585,8 @@ export function computeCombatPreview(
       kills: 0,
     };
     const genre: MobWeaponGenre = profile?.weaponGenre ?? 'biala';
+    const defenseReduction = profile ? mobHitDefenseReduction(profile, target) : 0;
+    const mobCritMultiPreview = profile?.critMulti ?? 1;
     return {
       id: saved.id,
       name: saved.name,
@@ -577,6 +600,10 @@ export function computeCombatPreview(
       dodge: unikForGenre(target, genre),
       mobHitChance: mobHitChance(profile?.weaponGenre ?? 'dystans', mobZwinnosc, mobSpostrzegawczosc, mobSzczescie, target, rosterBonus.extraHitChance),
       mobCritChance: profile ? effectiveMobCritChance(profile.critChance, target) : 0,
+      mobMinDmgToPlayer: profile ? Math.max(0, Math.round(mobMinDmgBase * (1 - target.redukcja) - defenseReduction)) : 0,
+      mobMaxDmgToPlayer: profile ? Math.max(0, Math.round(mobMaxDmgBase * (1 - target.redukcja) - defenseReduction)) : 0,
+      mobMinCritDmgToPlayer: profile ? Math.max(0, Math.round(mobMinDmgBase * mobCritMultiPreview * (1 - target.redukcja) - defenseReduction)) : 0,
+      mobMaxCritDmgToPlayer: profile ? Math.max(0, Math.round(mobMaxDmgBase * mobCritMultiPreview * (1 - target.redukcja) - defenseReduction)) : 0,
       weapons: (dashboard.obrazenia ?? []).map((w: WeaponDamage) => ({
         name: w.name,
         minDmg: w.minDmg,
@@ -593,8 +620,8 @@ export function computeCombatPreview(
   const mobPreview: CombatPreviewMob = {
     name: mob.name,
     maxHp: mobMaxHp,
-    minDmg: profile ? Math.round(profile.minDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile)) + rosterBonus.extraDamage : 0,
-    maxDmg: profile ? Math.round(profile.maxDmg * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile)) + rosterBonus.extraDamage : 0,
+    minDmg: mobMinDmgBase,
+    maxDmg: mobMaxDmgBase,
     critChance: profile?.critChance ?? 0,
     critMulti: profile?.critMulti ?? 1,
     obrona: mobObrona,
@@ -661,8 +688,7 @@ export function simulateExpedition(
 
   const levelCap = profile?.playerLevelCap ? mobLevelCapForStar(profile.playerLevelCap, star) : null;
   const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
-  // Activation is judged against the star-scaled cap; the bonus magnitude is always measured against the base (star-1) cap.
-  const rosterBonus = computeRosterBonus(profile?.playerLevelCap ?? null, levelCap, joinedLevelSum, savedPlayers.length);
+  const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length);
   const auraBestiiBonus = computeAuraBestiiTeamBonus(savedPlayers);
 
   const players: PlayerCombatState[] = savedPlayers.map(saved => {
@@ -675,8 +701,8 @@ export function simulateExpedition(
       // The real activation is HP-gated below, not the manual calculator toggle — combat always starts un-activated.
       tchnienieSmierciActive: false,
     };
-    const dashboard = dashboardService.calculateStuff(characterBase);
-    const maxHp = (dashboard.effectiveHp ?? dashboard.punktyZycia ?? 1) + Math.floor(auraBestiiHpBonusFor(auraBestiiBonus, dashboard.redukcja ?? 0));
+    const dashboard = dashboardService.calculateStuff(characterBase, auraBestiiHpShareFor(auraBestiiBonus, saved.id));
+    const maxHp = dashboard.punktyZycia ?? 1;
     const tchnienieLevel = saved.character.arcaneLevels?.tchnienieSmierci ?? 0;
     const dashboardActivated = tchnienieLevel > 0
       ? dashboardService.calculateStuff({ ...characterBase, tchnienieSmierciActive: true })
@@ -1010,7 +1036,8 @@ export function simulateExpedition(
             if (profile) {
               crit = Math.random() < effectiveMobCritChance(profile.critChance, target);
               if (crit) mobCritsLanded++;
-              const raw = randomInt(profile.minDmg, profile.maxDmg) * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile) * (crit ? mobCritMulti : 1) + rosterBonus.extraDamage;
+              const variantFlatBonus = mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star);
+              const raw = randomInt(profile.minDmg, profile.maxDmg) * mobDamageStarMultiplier(star) * mobVariantDamageMultiplier(mobVariant, profile) * (crit ? mobCritMulti : 1) + rosterBonus.extraDamage + variantFlatBonus;
               const afterRedukcja = raw * (1 - target.redukcja);
               const defenseReduction = mobHitDefenseReduction(profile, target);
               dmg = Math.max(0, Math.round(afterRedukcja - defenseReduction));
