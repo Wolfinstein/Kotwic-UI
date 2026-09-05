@@ -473,7 +473,7 @@ export class DashboardService {
           p.addIgnore(0.75);
           break;
         case 'Adrenalina':
-          p.life += Math.floor(p.baseLife * 0.25);
+          p.lifeMultiplier *= 1.15;
           break;
         case 'SokoleOko':
           p.addTrafienieProcentowePalna(0.2);
@@ -994,7 +994,7 @@ export class DashboardService {
       const cappedRedukcja = Math.min(player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01, 0.30);
       const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
       return {
-        punktyZycia: player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife),
+        punktyZycia: Math.floor((player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife)) * player.lifeMultiplier),
         effectiveHp: effectiveHp,
         punktyKrwi: 0,
         szczescie: player.stats.szczescie,

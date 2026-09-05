@@ -26,6 +26,8 @@ export class Player {
   lvl: number;
   life: number;
   baseLife: number;
+  /** Multiplies the final "Punkty Życia" total (e.g. Adrenalina hunt bonus: ×1.15). */
+  lifeMultiplier: number = 1;
   items: Item[] = [];
   bonuses: MultiplicativeBonus[] = [];
   stats: Stats;

@@ -189,7 +189,7 @@ export class CharacterInputComponent implements OnInit {
   }
 
   /** Cumulative "Poziom Ewolucji" cost to reach each evolution level (index = level, 1-15). */
-  private static readonly EVOLUTION_LEVEL_CUMULATIVE_COST: number[] = [0, 1, 3, 6, 10, 15, 17, 21, 27, 35, 45, 48, 54, 63, 75, 90];
+  private static readonly EVOLUTION_LEVEL_CUMULATIVE_COST: number[] = [0, 1, 3, 6, 10, 15, 17, 21, 27, 35, 45, 47, 51, 57, 65, 75];
   /** These evolutions don't consume the "Poziom Ewolucji" resource on the standard scale, so they're excluded from the total. */
   private static readonly EVOLUTIONS_EXCLUDED_FROM_COST = ['krewDemona', 'dodatkowaKomora', 'skazenieMana'];
 
