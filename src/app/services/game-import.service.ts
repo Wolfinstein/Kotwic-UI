@@ -664,12 +664,7 @@ export class GameImportService {
     return { ok: true, message: `Zaimportowano: Kaplica (${m[1]}).`, data: { kaplica: parseInt(m[1], 10) } };
   }
 
-  /**
-   * ?a=hunt&do=clanBonus — currently active clan hunt bonuses.
-   * Best-effort: no sample with an active bonus was available while building this,
-   * so it looks for common "already active" markers; if none are found, it reports
-   * zero active bonuses rather than failing (which may simply be correct).
-   */
+  /** ?a=hunt&do=clanBonus — currently active clan hunt bonuses (button reads "PRZEDŁUŻ O 24h" instead of "AKTYWUJ..."). */
   parseHuntClanBonus(html: string): ImportResult {
     const NAME_TO_OPTION: Record<string, string> = {
       'JUGGERNAUT': 'Juggernaut',
@@ -678,7 +673,7 @@ export class GameImportService {
       'SOKOLE OKO': 'SokoleOko',
       'RZEŹNIK': 'Rzeźnik',
     };
-    const blocks = [...html.matchAll(/<div class="singleBonusContainer">([\s\S]*?)<\/div>\s*<\/div>\s*<\/div>/g)];
+    const blocks = [...html.matchAll(/<div class="singleBonusContainer">([\s\S]*?)(?=<div class="singleBonusContainer">|<input type="hidden" name="akey")/g)];
     const huntBonuses: string[] = [];
     const seenNames: string[] = [];
     for (const b of blocks) {
@@ -686,7 +681,7 @@ export class GameImportService {
       if (!nameMatch) continue;
       const rawName = nameMatch[1].trim();
       seenNames.push(rawName);
-      const isActive = /aktywny|aktywne do|pozostał/i.test(b[1]) && !/AKTYWUJ DO PÓŁNOCY/i.test(b[1]);
+      const isActive = /class="bonusExpiry enabled"/.test(b[1]) || /PRZEDLUZ O 24H/i.test(stripDiacritics(b[1]).toUpperCase());
       if (isActive) {
         const key = stripDiacritics(rawName).toUpperCase();
         const option = NAME_TO_OPTION[key];
@@ -698,7 +693,7 @@ export class GameImportService {
     }
     const message = huntBonuses.length
       ? `Zaimportowano ${huntBonuses.length} aktywnych bonusów klanowych: ${huntBonuses.join(', ')}.`
-      : `Nie wykryto żadnych aktualnie AKTYWNYCH bonusów klanowych spośród ${seenNames.length} znalezionych (${seenNames.join(', ')}). Jeśli to niepoprawne, sprawdź ręcznie w sekcji "Polowanie" — wykrywanie stanu "aktywny" nie zostało jeszcze zweryfikowane na przykładzie z realnie aktywnym bonusem.`;
+      : `Nie wykryto żadnych aktualnie aktywnych bonusów klanowych spośród ${seenNames.length} znalezionych (${seenNames.join(', ')}).`;
     return { ok: huntBonuses.length > 0, message, data: huntBonuses.length ? { huntBonuses } : undefined };
   }
 }
