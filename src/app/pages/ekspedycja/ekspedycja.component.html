@@ -326,7 +326,7 @@
 
     <div class="step-footer">
       <button type="button" class="btn-simulate" [disabled]="!selectedMobName" (click)="runBulkSimulation()">
-        Symuluj 1000x
+        Symuluj {{ bulkSimRunCount }}x
       </button>
       <button type="button" class="btn-next" [disabled]="!selectedMobName" (click)="startCombat()">
         Walcz!

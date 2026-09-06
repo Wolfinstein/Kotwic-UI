@@ -25,6 +25,7 @@ interface BulkSimResult {
 }
 
 const BULK_SIM_RUNS = 1000;
+const YOG_SOTHOTH_BULK_SIM_RUNS = 50;
 
 const VOLUME_LEVELS: VolumeLevel[] = ['low', 'mid', 'high'];
 const VOLUME_VALUES: Record<VolumeLevel, number> = { low: 0.25, mid: 0.6, high: 1 };
@@ -268,10 +269,16 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.refreshCombatPreview();
   }
 
+  /** Yog-Sothoth's fight is much heavier to simulate (36 attacks/round, 10 rounds) — run fewer iterations for him. */
+  get bulkSimRunCount(): number {
+    return this.selectedMobName === 'Yog-Sothoth' ? YOG_SOTHOTH_BULK_SIM_RUNS : BULK_SIM_RUNS;
+  }
+
   runBulkSimulation(): void {
     if (!this.selectedTower || !this.selectedMobName) return;
     const mob = this.selectedTower.mobs.find(m => m.name === this.selectedMobName);
     if (!mob) return;
+    const runCount = this.bulkSimRunCount;
     let wins = 0;
     let losses = 0;
     let draws = 0;
@@ -282,7 +289,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
       totalDamage[p.id] = 0;
     }
     this.sampleLossResult = null;
-    for (let i = 0; i < BULK_SIM_RUNS; i++) {
+    for (let i = 0; i < runCount; i++) {
       const result = simulateExpedition(this.selectedPlayers, mob, this.starLevel, this.dashboardService, this.mobVariant);
       if (result.outcome === 'win') wins++;
       else if (result.outcome === 'loss') {
@@ -296,10 +303,10 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     }
     const players: BulkSimPlayerResult[] = this.selectedPlayers.map(p => ({
       name: p.name,
-      survivalRate: survivalCount[p.id] / BULK_SIM_RUNS,
-      avgDamage: totalDamage[p.id] / BULK_SIM_RUNS,
+      survivalRate: survivalCount[p.id] / runCount,
+      avgDamage: totalDamage[p.id] / runCount,
     }));
-    this.bulkSimResult = { total: BULK_SIM_RUNS, wins, losses, draws, players };
+    this.bulkSimResult = { total: runCount, wins, losses, draws, players };
   }
 
   private refreshCombatPreview(): void {
