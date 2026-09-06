@@ -66,6 +66,18 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     // MAX-variant adds a flat +450 on top of the shared minDmg/maxDmg range.
     variantDamageFlatBonus: { min: 0, max: 450 },
   },
+  'Yog-Sothoth': {
+    weaponName: 'Klucz Nieskończoności',
+    weaponGenre: 'biala',
+    minDmg: 7000,
+    maxDmg: 11000,
+    // Unused placeholder — his real attack count (playerCount × 2, confirmed from real logs) is
+    // computed dynamically in expeditionCombat.ts, since it isn't a fixed per-mob constant.
+    attacksPerRound: 1,
+    critChance: 0.85,
+    critMulti: 7.5,
+    // No unik (no dodge) and no playerLevelCap, per spec — both already default to "none" by omission.
+  },
 };
 
 /**
@@ -79,6 +91,7 @@ export type MobImplementationStatus = 'red' | 'yellow' | 'green';
 export const MOB_IMPLEMENTATION_STATUS: Record<string, MobImplementationStatus> = {
   Abaddon: 'yellow',
   Agrameon: 'yellow',
+  'Yog-Sothoth': 'yellow',
 };
 
 export function mobImplementationStatus(mobName: string): MobImplementationStatus {

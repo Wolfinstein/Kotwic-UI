@@ -96,7 +96,13 @@
             (click)="togglePlayer(p.id)"
           >
             @if (isPlayerSelected(p.id)) {
-              <span class="player-badge" [style.background]="playerSelectionColor(p.id)">{{ playerSelectionNumber(p.id) }}</span>
+              <span
+                class="player-badge"
+                [style.background]="playerSelectionColor(p.id)"
+                [attr.aria-label]="'Usuń jedną z ' + playerSelectionCount(p.id) + ' kopii'"
+                [title]="'Kliknij, aby usunąć jedną kopię'"
+                (click)="removePlayerInstance(p.id, $event)"
+              >{{ playerSelectionCount(p.id) > 1 ? 'x' + playerSelectionCount(p.id) : '1' }}</span>
             }
             <span class="player-portrait">
               @if (avatarUrl(p.character.rasa); as avatar) {
@@ -113,6 +119,9 @@
     </section>
 
     <div class="step-footer">
+      <button type="button" class="btn-back" [disabled]="!players.length" (click)="toggleSelectAllPlayers()">
+        {{ allPlayersSelected ? 'Odznacz wszystkich' : 'Zaznacz wszystkich' }}
+      </button>
       <button type="button" class="btn-next" [disabled]="!selectedPlayerIds.length" (click)="goToTowers()">
         Dalej ({{ selectedPlayerIds.length }})
       </button>
@@ -139,36 +148,40 @@
       </div>
 
       <div class="star-picker star-picker-arena">
-        <button type="button" class="btn-star" (click)="toggleStarPicker()" [attr.aria-label]="'Poziom gwiazdek: ' + starLevel">
-          <i class="pi pi-star-fill"></i>
-          <span>{{ starLevel }}</span>
-        </button>
+        @if (selectedTower?.id !== 'tower-4') {
+          <button type="button" class="btn-star" (click)="toggleStarPicker()" [attr.aria-label]="'Poziom gwiazdek: ' + starLevel">
+            <i class="pi pi-star-fill"></i>
+            <span>{{ starLevel }}</span>
+          </button>
 
-        @if (showStarPicker) {
-          <div class="star-dropdown">
-            @for (star of starOptions; track star) {
-              <button
-                type="button"
-                class="star-option"
-                [class.selected]="star === starLevel"
-                (click)="selectStar(star)"
-              >
-                {{ star }}
-              </button>
-            }
-          </div>
+          @if (showStarPicker) {
+            <div class="star-dropdown">
+              @for (star of starOptions; track star) {
+                <button
+                  type="button"
+                  class="star-option"
+                  [class.selected]="star === starLevel"
+                  (click)="selectStar(star)"
+                >
+                  {{ star }}
+                </button>
+              }
+            </div>
+          }
         }
 
-        <button
-          type="button"
-          class="btn-mob-variant"
-          (click)="toggleMobVariant()"
-          [attr.aria-label]="'Wariant przeciwnika: ' + (mobVariant === 'min' ? 'minimalny' : 'maksymalny')"
-          [title]="mobVariant === 'min' ? 'Minimalne staty przeciwnika' : 'Maksymalne staty przeciwnika'"
-        >
-          <i class="pi" [class.pi-arrow-down]="mobVariant === 'min'" [class.pi-arrow-up]="mobVariant === 'max'"></i>
-          <span>{{ mobVariant === 'min' ? 'MIN' : 'MAX' }}</span>
-        </button>
+        @if (selectedTower?.id !== 'tower-4') {
+          <button
+            type="button"
+            class="btn-mob-variant"
+            (click)="toggleMobVariant()"
+            [attr.aria-label]="'Wariant przeciwnika: ' + (mobVariant === 'min' ? 'minimalny' : 'maksymalny')"
+            [title]="mobVariant === 'min' ? 'Minimalne staty przeciwnika' : 'Maksymalne staty przeciwnika'"
+          >
+            <i class="pi" [class.pi-arrow-down]="mobVariant === 'min'" [class.pi-arrow-up]="mobVariant === 'max'"></i>
+            <span>{{ mobVariant === 'min' ? 'MIN' : 'MAX' }}</span>
+          </button>
+        }
       </div>
 
       <div class="towers-row">
@@ -251,6 +264,8 @@
               @for (w of p.weapons; track w.name) {
                 <div class="preview-stat"><span>Broń</span><span>{{ w.name }}</span></div>
                 <div class="preview-stat"><span>Ilość ataków</span><span>{{ w.attacksPerRound }}</span></div>
+                <div class="preview-stat"><span>Obrażenia</span><span>{{ w.minDmg }}-{{ w.maxDmg }}</span></div>
+                <div class="preview-stat"><span>Obrażenia (kryt.)</span><span>{{ (w.minDmg * w.critMulti).toFixed(0) }}-{{ (w.maxDmg * w.critMulti).toFixed(0) }}</span></div>
               }
               <hr class="preview-divider" />
               <div class="preview-stat"><span>HP</span><span>{{ p.maxHp }}</span></div>

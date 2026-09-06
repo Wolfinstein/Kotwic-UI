@@ -30,8 +30,18 @@ function withImages(mobs: StarMob[]): ExpeditionMob[] {
   return mobs.map(mob => ({ ...mob, imageUrl: mobImageUrl(mob.name) }));
 }
 
+// Not part of the spreadsheet-sourced STAR_MOBS list — no real stats yet, so it
+// falls back to the generic placeholder combat math (and the red status marker)
+// like any other unimplemented mob.
+const YOG_SOTHOTH: ExpeditionMob = {
+  name: 'Yog-Sothoth',
+  base: { zwinnosc: null, spostrzegawczosc: null, szczescie: null, obrona: null, odpornosc: null, zycie: null },
+  imageUrl: 'https://r20.bloodwars.pl/gfx/common/crusade/enemy/enemy-1.png',
+};
+
 export const EXPEDITION_TOWERS: ExpeditionTower[] = [
   { id: 'tower-1', mobs: withImages([...STAR_MOBS.slice(0, 5), STAR_MOBS[5]]) },
   { id: 'tower-2', mobs: withImages([...STAR_MOBS.slice(6, 12), STAR_MOBS[12]]) },
   { id: 'tower-3', mobs: withImages([...STAR_MOBS.slice(13, 16), STAR_MOBS[16]]) },
+  { id: 'tower-4', mobs: [YOG_SOTHOTH] },
 ];

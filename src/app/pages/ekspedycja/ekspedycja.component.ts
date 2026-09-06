@@ -122,8 +122,9 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     return this.selectedPlayerIds.includes(id);
   }
 
-  playerSelectionNumber(id: string): number {
-    return this.selectedPlayerIds.indexOf(id) + 1;
+  /** How many times this player is currently selected — a player can be picked more than once, to fight the same expedition as multiple independent copies of themselves. */
+  playerSelectionCount(id: string): number {
+    return this.selectedPlayerIds.filter(pid => pid === id).length;
   }
 
   playerSelectionColor(id: string): string | null {
@@ -132,12 +133,27 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     return PLAYER_COLORS[index % PLAYER_COLORS.length];
   }
 
+  /** Adds one more instance of this player to the selection — clicking a card always stacks another copy rather than deselecting. */
   togglePlayer(id: string): void {
-    if (this.isPlayerSelected(id)) {
-      this.selectedPlayerIds = this.selectedPlayerIds.filter(pid => pid !== id);
-    } else {
-      this.selectedPlayerIds = [...this.selectedPlayerIds, id];
-    }
+    this.selectedPlayerIds = [...this.selectedPlayerIds, id];
+    this.playCharacterSelectSound();
+  }
+
+  /** Removes a single instance of this player from the selection (the badge's own click target). */
+  removePlayerInstance(id: string, event: Event): void {
+    event.stopPropagation();
+    const idx = this.selectedPlayerIds.lastIndexOf(id);
+    if (idx === -1) return;
+    this.selectedPlayerIds = [...this.selectedPlayerIds.slice(0, idx), ...this.selectedPlayerIds.slice(idx + 1)];
+    this.playCharacterSelectSound();
+  }
+
+  get allPlayersSelected(): boolean {
+    return this.players.length > 0 && this.selectedPlayerIds.length === this.players.length;
+  }
+
+  toggleSelectAllPlayers(): void {
+    this.selectedPlayerIds = this.allPlayersSelected ? [] : this.players.map(p => p.id);
     this.playCharacterSelectSound();
   }
 
@@ -170,9 +186,17 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.refreshCombatPreview();
   }
 
+  /** Duplicated selections get their own synthetic id + a "(2)"/"(3)"/... name suffix, so they fight as independent combatants instead of colliding on the same id. */
   get selectedPlayers(): SavedCharacter[] {
+    const occurrences = new Map<string, number>();
     return this.selectedPlayerIds
-      .map(id => this.players.find(p => p.id === id))
+      .map(id => {
+        const base = this.players.find(p => p.id === id);
+        if (!base) return null;
+        const occurrence = (occurrences.get(id) ?? 0) + 1;
+        occurrences.set(id, occurrence);
+        return occurrence === 1 ? base : { ...base, id: `${base.id}__${occurrence}`, name: `${base.name} (${occurrence})` };
+      })
       .filter((p): p is SavedCharacter => !!p);
   }
 

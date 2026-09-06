@@ -41,6 +41,69 @@ function mobLevelCapForStar(baseCap: number, star: number): number {
   return Math.round(baseCap * (1 + Math.max(0, star - 1) * 0.5));
 }
 
+/**
+ * Yog-Sothoth ignores stars entirely — his stats instead scale with the SUM of every joined
+ * player's level. Derived from two real battle logs (r20, Sept 2026), both with 18 players:
+ *   Σlevel 3776 → zwinnosc 825, spostrzegawczosc 577, szczescie 30, obrona 3081, odpornosc 1381
+ *   Σlevel 4068 → zwinnosc 864, spostrzegawczosc 626, szczescie 39, obrona 3323, odpornosc 1474
+ * PKT ŻYCIA was identical (7,200,000) in both, so HP is treated as a fixed constant rather than
+ * scaled. Only two data points exist, so the other five stats are linearly interpolated/extrapolated
+ * between them — exact within the observed range, unverified far outside it.
+ */
+const YOG_SOTHOTH_HP = 7_200_000;
+const YOG_SOTHOTH_SAMPLE_LOW = { levelSum: 3776, zwinnosc: 825, spostrzegawczosc: 577, szczescie: 30, obrona: 3081, odpornosc: 1381 };
+const YOG_SOTHOTH_SAMPLE_HIGH = { levelSum: 4068, zwinnosc: 864, spostrzegawczosc: 626, szczescie: 39, obrona: 3323, odpornosc: 1474 };
+
+function yogSothothStat(levelSum: number, key: 'zwinnosc' | 'spostrzegawczosc' | 'szczescie' | 'obrona' | 'odpornosc'): number {
+  const lo = YOG_SOTHOTH_SAMPLE_LOW;
+  const hi = YOG_SOTHOTH_SAMPLE_HIGH;
+  const t = (levelSum - lo.levelSum) / (hi.levelSum - lo.levelSum);
+  return Math.max(0, Math.round(lo[key] + t * (hi[key] - lo[key])));
+}
+
+/** Yog-Sothoth's own attack count — flat 36/round regardless of party size (both real logs had 18 players and 36 attacks/round; not scaled per-player). */
+const YOG_SOTHOTH_ATTACKS_PER_ROUND = 36;
+/** His huge initiative means most of his attacks land in an immediate burst at the start of the round; the rest are mixed into the normal initiative-ordered round-robin with everyone else. */
+const YOG_SOTHOTH_BURST_ATTACK_SHARE = 0.6;
+/** Cannon-fodder ("Piekielny Ogar") count per round during the rounds 1-4 summon phase — playerCount × 2 total spawned across 4 rounds. */
+const YOG_SOTHOTH_FODDER_PER_ROUND_DIVISOR = 2;
+const YOG_SOTHOTH_FODDER_MIN_HP = 18000;
+const YOG_SOTHOTH_FODDER_MAX_HP = 35000;
+const YOG_SOTHOTH_FODDER_OBRONA = 100;
+const YOG_SOTHOTH_FODDER_ODPORNOSC = 50;
+/** His crit chance/multi can never be reduced (by Skóra Bestii / Potęga Mocy) below these floors — the engine defaults are 1% and 150%. */
+const YOG_SOTHOTH_CRIT_CHANCE_FLOOR = 0.15;
+const YOG_SOTHOTH_CRIT_MULTI_FLOOR = 2.0;
+/** "Zakrzywienie czasu" (round 8 or 9, chosen 50/50 at the start of the fight): all his attacks that round concentrate on whoever has dealt the most damage so far (cascading to the next-highest on a kill), and gain +25% damage, +1000 flat hit chance, and +3 crit multi. */
+const YOG_SOTHOTH_CURVE_DAMAGE_MULTI = 1.25;
+const YOG_SOTHOTH_CURVE_EXTRA_HIT_CHANCE = 1000;
+const YOG_SOTHOTH_CURVE_CRIT_MULTI_BONUS = 3;
+/** Players' own attack count is cut to ×0.25 (rounded up) against him, but their weapon damage is boosted ×1.5. They take 50% less final damage from his normal hits, and 75% less from his crits. */
+const YOG_SOTHOTH_PLAYER_ATTACK_COUNT_MULTI = 0.25;
+const YOG_SOTHOTH_PLAYER_DAMAGE_MULTI = 1.5;
+const YOG_SOTHOTH_PLAYER_DAMAGE_TAKEN_MULTI = 0.5;
+const YOG_SOTHOTH_PLAYER_CRIT_DAMAGE_TAKEN_MULTI = 0.2;
+
+/** Final damage-taken multiplier against Yog-Sothoth's hits — crits are reduced 75%, normal hits only 50%. */
+function yogSothothDamageTakenMulti(crit: boolean): number {
+  return crit ? YOG_SOTHOTH_PLAYER_CRIT_DAMAGE_TAKEN_MULTI : YOG_SOTHOTH_PLAYER_DAMAGE_TAKEN_MULTI;
+}
+
+function isYogSothoth(mobName: string): boolean {
+  return mobName === 'Yog-Sothoth';
+}
+
+/** Mutates a player's weapon stats in place to apply Yog-Sothoth's fight-wide player modifiers (attack count ×0.25 round up, damage ×1.5). */
+function applyYogSothothWeaponMods(weapons: WeaponDamage[]): void {
+  for (const w of weapons) {
+    w.iloscAtakow = Math.ceil((w.iloscAtakow ?? 0) * YOG_SOTHOTH_PLAYER_ATTACK_COUNT_MULTI);
+    w.minDmg = Math.round(w.minDmg * YOG_SOTHOTH_PLAYER_DAMAGE_MULTI);
+    w.maxDmg = Math.round(w.maxDmg * YOG_SOTHOTH_PLAYER_DAMAGE_MULTI);
+    w.critDmgMin = Math.round((w.critDmgMin ?? w.minDmg) * YOG_SOTHOTH_PLAYER_DAMAGE_MULTI);
+    w.critDmgMax = Math.round((w.critDmgMax ?? w.maxDmg) * YOG_SOTHOTH_PLAYER_DAMAGE_MULTI);
+  }
+}
+
 export interface RosterBonus {
   extraDamage: number;
   extraHitChance: number;
@@ -119,7 +182,7 @@ export interface PlayerCombatState {
   unikBialaActivated: number;
   unikPalnaActivated: number;
   unikDystansActivated: number;
-  /** Otchłań Ciszy: on this player's first landed hit each round, the mob's CURRENT obrona/odpornosc is multiplied by (1 - otchlanReduction) — compounds every round, per qualifying player, uncapped in total. */
+  /** Otchłań Ciszy: on this player's first landed hit each round, the mob's CURRENT odpornosc is multiplied by (1 - otchlanReduction); obrona instead loses (obrona - odpornosc) * otchlanReduction, i.e. the talisman % of the gap between the two stats, not a % of obrona itself. Compounds every round, per qualifying player, uncapped in total. */
   otchlanReduction: number;
   /** Macki Strachu (mob special): once triggered, this player's ignoreObrony is treated as 0 for the rest of the round. */
   ignoreDisabledThisRound: boolean;
@@ -269,9 +332,9 @@ function tryActivateTchnienie(target: PlayerCombatState): boolean {
   return true;
 }
 
-/** Skóra Bestii: reduces the mob's crit chance against this player, floored at a minimum of 1%. */
-function effectiveMobCritChance(baseCritChance: number, target: PlayerCombatState): number {
-  return Math.max(0.01, baseCritChance - target.enemyCritChanceReduction);
+/** Skóra Bestii: reduces the mob's crit chance against this player, floored at a minimum (1% normally, higher for some bosses — e.g. Yog-Sothoth's is floored at 15%). */
+function effectiveMobCritChance(baseCritChance: number, target: PlayerCombatState, floor = 0.01): number {
+  return Math.max(floor, baseCritChance - target.enemyCritChanceReduction);
 }
 
 export interface CombatAttackLog {
@@ -498,21 +561,25 @@ export function computeCombatPreview(
   dashboardService: DashboardService,
   mobVariant: MobStatVariant = 'min',
 ): CombatPreview {
-  const mobObrona = pickStat(scaledRangeForStar(mob, 'obrona', star), mobVariant);
-  const mobOdpornosc = pickStat(scaledRangeForStar(mob, 'odpornosc', star), mobVariant);
-  const mobSpostrzegawczosc = pickStat(scaledRangeForStar(mob, 'spostrzegawczosc', star), mobVariant);
-  const mobSzczescie = pickStat(scaledRangeForStar(mob, 'szczescie', star), mobVariant);
-  const mobZwinnosc = pickStat(scaledRangeForStar(mob, 'zwinnosc', star), mobVariant);
-  const mobMaxHp = pickStat(scaledRangeForStar(mob, 'zycie', star), mobVariant) || 1;
+  const yogSothoth = isYogSothoth(mob.name);
+  const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
+  const mobObrona = yogSothoth ? yogSothothStat(joinedLevelSum, 'obrona') : pickStat(scaledRangeForStar(mob, 'obrona', star), mobVariant);
+  const mobOdpornosc = yogSothoth ? yogSothothStat(joinedLevelSum, 'odpornosc') : pickStat(scaledRangeForStar(mob, 'odpornosc', star), mobVariant);
+  const mobSpostrzegawczosc = yogSothoth ? yogSothothStat(joinedLevelSum, 'spostrzegawczosc') : pickStat(scaledRangeForStar(mob, 'spostrzegawczosc', star), mobVariant);
+  const mobSzczescie = yogSothoth ? yogSothothStat(joinedLevelSum, 'szczescie') : pickStat(scaledRangeForStar(mob, 'szczescie', star), mobVariant);
+  const mobZwinnosc = yogSothoth ? yogSothothStat(joinedLevelSum, 'zwinnosc') : pickStat(scaledRangeForStar(mob, 'zwinnosc', star), mobVariant);
+  const mobMaxHp = yogSothoth ? YOG_SOTHOTH_HP : (pickStat(scaledRangeForStar(mob, 'zycie', star), mobVariant) || 1);
   const mobInitiative = mobZwinnosc + mobSpostrzegawczosc;
   const profile = MOB_COMBAT_PROFILES[mob.name];
   const levelCap = profile?.playerLevelCap ? mobLevelCapForStar(profile.playerLevelCap, star) : null;
-  const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
   const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length, profile?.rosterBonusDamageCapDivisor ?? 1);
   const auraBestiiBonus = computeAuraBestiiTeamBonus(savedPlayers);
+  const dmgStarMulti = yogSothoth ? 1 : mobDamageStarMultiplier(star);
+  const flatStarMulti = yogSothoth ? 1 : flatBonusStarMultiplier(star);
+  const attacksPerRound = yogSothoth ? YOG_SOTHOTH_ATTACKS_PER_ROUND : (profile?.attacksPerRound ?? 0);
 
-  const mobMinDmgBase = profile ? Math.round(profile.minDmg * mobDamageStarMultiplier(star) + mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star)) + rosterBonus.extraDamage : 0;
-  const mobMaxDmgBase = profile ? Math.round(profile.maxDmg * mobDamageStarMultiplier(star) + mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star)) + rosterBonus.extraDamage : 0;
+  const mobMinDmgBase = profile ? Math.round(profile.minDmg * dmgStarMulti + mobVariantDamageFlatBonus(mobVariant, profile) * flatStarMulti) + rosterBonus.extraDamage : 0;
+  const mobMaxDmgBase = profile ? Math.round(profile.maxDmg * dmgStarMulti + mobVariantDamageFlatBonus(mobVariant, profile) * flatStarMulti) + rosterBonus.extraDamage : 0;
 
   const players: CombatPreviewPlayer[] = savedPlayers.map(saved => {
     const character: Character = {
@@ -525,6 +592,7 @@ export function computeCombatPreview(
       tchnienieSmierciActive: false,
     };
     const dashboard = dashboardService.calculateStuff(character, auraBestiiHpShareFor(auraBestiiBonus, saved.id));
+    if (yogSothoth) applyYogSothothWeaponMods(dashboard.obrazenia ?? []);
     const tchnienieLevel = saved.character.arcaneLevels?.tchnienieSmierci ?? 0;
     const target: PlayerCombatState = {
       id: saved.id,
@@ -594,11 +662,11 @@ export function computeCombatPreview(
       initiative: target.initiative,
       dodge: unikForGenre(target, genre),
       mobHitChance: mobHitChance(profile?.weaponGenre ?? 'dystans', mobZwinnosc, mobSpostrzegawczosc, mobSzczescie, target, rosterBonus.extraHitChance),
-      mobCritChance: profile ? effectiveMobCritChance(profile.critChance, target) : 0,
-      mobMinDmgToPlayer: profile ? Math.max(0, Math.round(mobMinDmgBase * (1 - target.redukcja) - defenseReduction)) : 0,
-      mobMaxDmgToPlayer: profile ? Math.max(0, Math.round(mobMaxDmgBase * (1 - target.redukcja) - defenseReduction)) : 0,
-      mobMinCritDmgToPlayer: profile ? Math.max(0, Math.round(mobMinDmgBase * mobCritMultiPreview * (1 - target.redukcja) - defenseReduction)) : 0,
-      mobMaxCritDmgToPlayer: profile ? Math.max(0, Math.round(mobMaxDmgBase * mobCritMultiPreview * (1 - target.redukcja) - defenseReduction)) : 0,
+      mobCritChance: profile ? effectiveMobCritChance(profile.critChance, target, yogSothoth ? YOG_SOTHOTH_CRIT_CHANCE_FLOOR : 0.01) : 0,
+      mobMinDmgToPlayer: profile ? Math.max(0, Math.round((mobMinDmgBase * (1 - target.redukcja) - defenseReduction) * (yogSothoth ? yogSothothDamageTakenMulti(false) : 1))) : 0,
+      mobMaxDmgToPlayer: profile ? Math.max(0, Math.round((mobMaxDmgBase * (1 - target.redukcja) - defenseReduction) * (yogSothoth ? yogSothothDamageTakenMulti(false) : 1))) : 0,
+      mobMinCritDmgToPlayer: profile ? Math.max(0, Math.round((mobMinDmgBase * mobCritMultiPreview * (1 - target.redukcja) - defenseReduction) * (yogSothoth ? yogSothothDamageTakenMulti(true) : 1))) : 0,
+      mobMaxCritDmgToPlayer: profile ? Math.max(0, Math.round((mobMaxDmgBase * mobCritMultiPreview * (1 - target.redukcja) - defenseReduction) * (yogSothoth ? yogSothothDamageTakenMulti(true) : 1))) : 0,
       weapons: (dashboard.obrazenia ?? []).map((w: WeaponDamage) => ({
         name: w.name,
         minDmg: w.minDmg,
@@ -630,7 +698,7 @@ export function computeCombatPreview(
     rosterBonus,
     hasProfile: !!profile,
     weaponName: profile?.weaponName ?? null,
-    attacksPerRound: profile?.attacksPerRound ?? 0,
+    attacksPerRound,
   };
 
   return { mob: mobPreview, players };
@@ -669,20 +737,27 @@ export function simulateExpedition(
   dashboardService: DashboardService,
   mobVariant: MobStatVariant = 'min',
 ): ExpeditionResult {
-  const mobObrona = pickStat(scaledRangeForStar(mob, 'obrona', star), mobVariant);
-  const mobOdpornosc = pickStat(scaledRangeForStar(mob, 'odpornosc', star), mobVariant);
-  const mobSpostrzegawczosc = pickStat(scaledRangeForStar(mob, 'spostrzegawczosc', star), mobVariant);
-  const mobSzczescie = pickStat(scaledRangeForStar(mob, 'szczescie', star), mobVariant);
-  const mobZwinnosc = pickStat(scaledRangeForStar(mob, 'zwinnosc', star), mobVariant);
-  const mobMaxHp = pickStat(scaledRangeForStar(mob, 'zycie', star), mobVariant) || 1;
+  const yogSothoth = isYogSothoth(mob.name);
+  const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
+  const mobObrona = yogSothoth ? yogSothothStat(joinedLevelSum, 'obrona') : pickStat(scaledRangeForStar(mob, 'obrona', star), mobVariant);
+  const mobOdpornosc = yogSothoth ? yogSothothStat(joinedLevelSum, 'odpornosc') : pickStat(scaledRangeForStar(mob, 'odpornosc', star), mobVariant);
+  const mobSpostrzegawczosc = yogSothoth ? yogSothothStat(joinedLevelSum, 'spostrzegawczosc') : pickStat(scaledRangeForStar(mob, 'spostrzegawczosc', star), mobVariant);
+  const mobSzczescie = yogSothoth ? yogSothothStat(joinedLevelSum, 'szczescie') : pickStat(scaledRangeForStar(mob, 'szczescie', star), mobVariant);
+  const mobZwinnosc = yogSothoth ? yogSothothStat(joinedLevelSum, 'zwinnosc') : pickStat(scaledRangeForStar(mob, 'zwinnosc', star), mobVariant);
+  const mobMaxHp = yogSothoth ? YOG_SOTHOTH_HP : (pickStat(scaledRangeForStar(mob, 'zycie', star), mobVariant) || 1);
   const mobInitiative = mobZwinnosc + mobSpostrzegawczosc;
 
   const profile = MOB_COMBAT_PROFILES[mob.name];
   let mobCritMulti = profile?.critMulti ?? 1;
   const placeholderDamagePerAttack = Math.max(1, Math.round((mobObrona + mobZwinnosc) / 2));
+  const dmgStarMulti = yogSothoth ? 1 : mobDamageStarMultiplier(star);
+  const flatStarMulti = yogSothoth ? 1 : flatBonusStarMultiplier(star);
+  const critMultiFloor = yogSothoth ? YOG_SOTHOTH_CRIT_MULTI_FLOOR : 1.5;
+  const critChanceFloor = yogSothoth ? YOG_SOTHOTH_CRIT_CHANCE_FLOOR : 0.01;
+  /** "Zakrzywienie czasu": for a non-Yog-Sothoth mob this is always -1 (never matches any round). */
+  const curveRound = yogSothoth ? (Math.random() < 0.5 ? 8 : 9) : -1;
 
   const levelCap = profile?.playerLevelCap ? mobLevelCapForStar(profile.playerLevelCap, star) : null;
-  const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
   const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length, profile?.rosterBonusDamageCapDivisor ?? 1);
   const auraBestiiBonus = computeAuraBestiiTeamBonus(savedPlayers);
 
@@ -702,6 +777,10 @@ export function simulateExpedition(
     const dashboardActivated = tchnienieLevel > 0
       ? dashboardService.calculateStuff({ ...characterBase, tchnienieSmierciActive: true })
       : dashboard;
+    if (yogSothoth) {
+      applyYogSothothWeaponMods(dashboard.obrazenia ?? []);
+      if (dashboardActivated !== dashboard) applyYogSothothWeaponMods(dashboardActivated.obrazenia ?? []);
+    }
     return {
       id: saved.id,
       name: saved.name,
@@ -778,9 +857,12 @@ export function simulateExpedition(
         tchnienieSmierciActive: false,
       };
       const dashboardBase = dashboardService.calculateStuff(characterBase);
-      p.weaponsActivated = p.tchnienieLevel > 0
-        ? dashboardService.calculateStuff({ ...characterBase, tchnienieSmierciActive: true }).obrazenia ?? []
-        : dashboardBase.obrazenia ?? [];
+      if (yogSothoth) applyYogSothothWeaponMods(dashboardBase.obrazenia ?? []);
+      const activatedDashboard = p.tchnienieLevel > 0
+        ? dashboardService.calculateStuff({ ...characterBase, tchnienieSmierciActive: true })
+        : dashboardBase;
+      if (yogSothoth && activatedDashboard !== dashboardBase) applyYogSothothWeaponMods(activatedDashboard.obrazenia ?? []);
+      p.weaponsActivated = activatedDashboard.obrazenia ?? [];
       p.weapons = p.tchnienieActive ? p.weaponsActivated : (dashboardBase.obrazenia ?? []);
       // Rebuilding from scratch loses any already-triggered Potęga Mocy crit-multi steal and any accumulated Ziz bonus — reapply them.
       const reapplyBonus = p.potegaAppliedSteal + p.zizBonus;
@@ -809,11 +891,11 @@ export function simulateExpedition(
   let otchlanProcdThisRound = new Set<string>();
 
   /** Logs a standalone announcement line (no numbers) for a talisman/arcane activation. */
-  function pushNote(attackerName: string, text: string, roundNum: number): void {
+  function pushNote(attackerName: string, text: string, roundNum: number, attackerSide: 'players' | 'mob' = 'players'): void {
     attacks.push({
       round: roundNum,
       attackerName,
-      attackerSide: 'players',
+      attackerSide,
       weaponName: '',
       targetName: mob.name,
       hit: true,
@@ -853,8 +935,10 @@ export function simulateExpedition(
     let crit = false;
     let dmg = 0;
     let otchlanProced = false;
+    let otchlanObronaRemoved = 0;
+    let otchlanOdpornoscRemoved = 0;
     let potegaSteal = 0;
-    const effBounds = attacker.ignoreDisabledThisRound
+    const effBounds = (attacker.ignoreDisabledThisRound || yogSothoth)
       ? ignoreDisabledWeaponBounds(w, mobObronaCurrent, mobOdpornoscCurrent, mobGenreForWeapon(w.genre))
       : { minDmg: w.minDmg, maxDmg: w.maxDmg, critDmgMin: w.critDmgMin ?? w.minDmg, critDmgMax: w.critDmgMax ?? w.maxDmg };
     if (hit) {
@@ -883,14 +967,21 @@ export function simulateExpedition(
       }
       if (attacker.otchlanReduction > 0 && !otchlanProcdThisRound.has(attacker.id)) {
         otchlanProcdThisRound.add(attacker.id);
-        mobObronaCurrent *= (1 - attacker.otchlanReduction);
+        const obronaBefore = mobObronaCurrent;
+        const odpornoscBefore = mobOdpornoscCurrent;
+        // Odpornosc is reduced by the talisman % of itself, as before. Obrona instead loses the talisman
+        // % of the GAP between obrona and odpornosc (both read pre-proc) — not a % of obrona itself.
         mobOdpornoscCurrent *= (1 - attacker.otchlanReduction);
+        const obronaRemoved = Math.max(0, (obronaBefore - odpornoscBefore) * attacker.otchlanReduction);
+        mobObronaCurrent = obronaBefore - obronaRemoved;
+        otchlanObronaRemoved = Math.round(obronaRemoved);
+        otchlanOdpornoscRemoved = Math.round(odpornoscBefore - mobOdpornoscCurrent);
         refreshWeaponsForMobDebuff();
         otchlanProced = true;
       }
       if (attacker.potegaStealPotential > 0 && !attacker.potegaTriggered) {
         attacker.potegaTriggered = true;
-        const actualSteal = Math.min(attacker.potegaStealPotential, Math.max(0, mobCritMulti - 1.5));
+        const actualSteal = Math.min(attacker.potegaStealPotential, Math.max(0, mobCritMulti - critMultiFloor));
         if (actualSteal > 0) {
           mobCritMulti -= actualSteal;
           attacker.potegaAppliedSteal = actualSteal;
@@ -922,7 +1013,7 @@ export function simulateExpedition(
       mobHpAfter: mobHp,
     });
     if (otchlanProced) {
-      pushNote(attacker.name, `${attacker.name} aktywuje Otchłań Ciszy`, roundNum);
+      pushNote(attacker.name, `${attacker.name} aktywuje Otchłań Ciszy — ${mob.name} traci ${otchlanObronaRemoved} pkt obrony i ${otchlanOdpornoscRemoved} pkt odporności`, roundNum);
     }
     if (potegaSteal > 0) {
       pushNote(attacker.name, `${attacker.name} aktywuje Potęgę Mocy`, roundNum);
@@ -959,6 +1050,54 @@ export function simulateExpedition(
       break;
     }
 
+    // Rounds 1-4 of the Yog-Sothoth fight: he's behind the portal and doesn't attack — instead,
+    // a fresh wave of "Piekielny Ogar" cannon fodder (playerCount/2 per round, playerCount×2 total
+    // over the 4 rounds) spawns for the party to clear. No damage flows back to the players here.
+    if (yogSothoth && r < 4) {
+      const fodderCount = Math.max(1, Math.round(savedPlayers.length / YOG_SOTHOTH_FODDER_PER_ROUND_DIVISOR));
+      const fodder = Array.from({ length: fodderCount }, () => ({ hp: randomInt(YOG_SOTHOTH_FODDER_MIN_HP, YOG_SOTHOTH_FODDER_MAX_HP) }));
+      for (const p of alivePlayers) {
+        for (const w of p.weapons) {
+          const shots = Math.max(0, Math.round(w.iloscAtakow ?? 0));
+          for (let i = 0; i < shots; i++) {
+            const aliveFodder = fodder.filter(f => f.hp > 0);
+            if (!aliveFodder.length) break;
+            const target = aliveFodder[Math.floor(Math.random() * aliveFodder.length)];
+            p.attacksMade++;
+            const hit = Math.random() < (w.estimatedHitChance ?? 1);
+            let dmg = 0;
+            let crit = false;
+            if (hit) {
+              p.hitsLanded++;
+              crit = Math.random() < (w.critChance ?? 0);
+              if (crit) p.critsLanded++;
+              const genre = mobGenreForWeapon(w.genre);
+              const factor = genre === 'dystans' ? YOG_SOTHOTH_FODDER_OBRONA / 4 : genre === 'biala' ? YOG_SOTHOTH_FODDER_OBRONA / 2 : YOG_SOTHOTH_FODDER_ODPORNOSC / 2;
+              const raw = crit ? randomInt(w.critDmgMin ?? w.minDmg, w.critDmgMax ?? w.maxDmg) : randomInt(w.minDmg, w.maxDmg);
+              dmg = Math.max(1, Math.round(raw - factor));
+              target.hp = Math.max(0, target.hp - dmg);
+              p.damageDealtThisRound += dmg;
+              p.totalDamageDealt += dmg;
+            }
+            attacks.push({
+              round: r + 1,
+              attackerName: p.name,
+              attackerSide: 'players',
+              weaponName: w.name,
+              targetName: 'Piekielny Ogar',
+              hit,
+              dodged: false,
+              crit,
+              damage: dmg,
+              targetHpAfter: target.hp,
+              mobHpAfter: mobHp,
+            });
+          }
+        }
+      }
+      continue;
+    }
+
     // Build this round's shot queues, ordered by initiative (mob slotted in by its own).
     const queues: { initiative: number; shots: ShotQueueEntry[] }[] = [];
     for (const p of alivePlayers) {
@@ -989,10 +1128,110 @@ export function simulateExpedition(
       pushNote(p.name, `${p.name} używa grozy`, r + 1);
     }
 
+    const mobAttackCount = yogSothoth ? YOG_SOTHOTH_ATTACKS_PER_ROUND : (profile?.attacksPerRound ?? 1);
+    // Yog-Sothoth's huge initiative means most of his attacks land at the very start of the round —
+    // 60% fire in an immediate burst before anyone else acts, the rest are mixed into the normal
+    // initiative-ordered round-robin (so their exact timing depends on how many shots everyone else has left).
+    const mobBurstCount = yogSothoth ? Math.round(mobAttackCount * YOG_SOTHOTH_BURST_ATTACK_SHARE) : 0;
+    const mobQueuedCount = mobAttackCount - mobBurstCount;
+    const isCurveRound = yogSothoth && (r + 1) === curveRound;
+    if (isCurveRound) {
+      pushNote(mob.name, `${mob.name} zakrzywia czas i przestrzeń sprawiając, że jego ataki koncentrują się na wybranym przeciwniku oraz zyskują na sile i celności.`, r + 1, 'mob');
+    }
+
+    /** Resolves one mob attack (target pick, dodge/hit/crit/damage, procs). Returns whether the round loop should stop. */
+    function resolveMobAttack(): 'ok' | 'win' | 'loss' {
+      const targetPool = players.filter(p => p.alive);
+      if (!targetPool.length) return 'loss';
+      const target = isCurveRound
+        ? [...targetPool].sort((a, b) => b.totalDamageDealt - a.totalDamageDealt)[0]
+        : targetPool[Math.floor(Math.random() * targetPool.length)];
+      const genre: MobWeaponGenre = profile?.weaponGenre ?? 'biala';
+      const dodged = Math.random() < unikForGenre(target, genre);
+      const extraHitChance = rosterBonus.extraHitChance + (isCurveRound ? YOG_SOTHOTH_CURVE_EXTRA_HIT_CHANCE : 0);
+      const hit = !dodged && Math.random() < mobHitChance(profile?.weaponGenre ?? 'dystans', mobZwinnosc, mobSpostrzegawczosc, mobSzczescie, target, extraHitChance);
+      mobAttacksMade++;
+      target.attacksReceived++;
+      let crit = false;
+      let dmg = 0;
+      if (hit) {
+        mobHitsLanded++;
+        target.hitsReceived++;
+        if (profile) {
+          crit = Math.random() < effectiveMobCritChance(profile.critChance, target, critChanceFloor);
+          if (crit) mobCritsLanded++;
+          const variantFlatBonus = mobVariantDamageFlatBonus(mobVariant, profile) * flatStarMulti;
+          const effectiveCritMulti = mobCritMulti + (isCurveRound ? YOG_SOTHOTH_CURVE_CRIT_MULTI_BONUS : 0);
+          const raw = randomInt(profile.minDmg, profile.maxDmg) * dmgStarMulti * (crit ? effectiveCritMulti : 1) * (isCurveRound ? YOG_SOTHOTH_CURVE_DAMAGE_MULTI : 1) + rosterBonus.extraDamage + variantFlatBonus;
+          const afterRedukcja = raw * (1 - target.redukcja);
+          const defenseReduction = mobHitDefenseReduction(profile, target);
+          dmg = Math.max(0, Math.round((afterRedukcja - defenseReduction) * (yogSothoth ? yogSothothDamageTakenMulti(crit) : 1)));
+        } else {
+          dmg = Math.max(0, Math.round(placeholderDamagePerAttack * (1 - target.redukcja)));
+        }
+        target.hp = Math.max(0, target.hp - dmg);
+        mobTotalDamageDealt += dmg;
+        if (target.hp <= 0 && target.alive) {
+          target.alive = false;
+          mobKills++;
+        }
+      }
+      attacks.push({
+        round: r + 1,
+        attackerName: mob.name,
+        attackerSide: 'mob',
+        weaponName: profile?.weaponName ?? mob.name,
+        targetName: target.name,
+        hit,
+        dodged,
+        crit,
+        damage: dmg,
+        targetHpAfter: target.hp,
+        mobHpAfter: mobHp,
+      });
+      if (!target.alive) {
+        pushDeath(target.name, 'players', r + 1);
+      }
+      if (hit) {
+        if (crit && applyLewiatanProc(target)) {
+          pushNote(target.name, `${target.name} aktywuje Lewiatana`, r + 1);
+        }
+        if (tryActivateTchnienie(target)) {
+          const dmgBonus = 5 * target.tchnienieLevel;
+          const trafPenalty = target.tchnienieLevel;
+          const unikBonus = 2 * target.tchnienieLevel;
+          pushNote(target.name, `${target.name} aktywuje Tchnienie Śmierci (obrażenia wszystkich broni +${dmgBonus}, trafienie wszystkich broni -${trafPenalty}, unik +${unikBonus}%)`, r + 1);
+        }
+        if (crit && target.alive && target.furiaChance > 0
+          && target.furiaCountersUsedThisRound < target.furiaMaxCountersThisRound
+          && Math.random() < target.furiaChance) {
+          pushNote(target.name, `${target.name} aktywuje Furię Bestii`, r + 1);
+          for (const cw of target.weapons) {
+            if (target.furiaCountersUsedThisRound >= target.furiaMaxCountersThisRound) break;
+            target.furiaCountersUsedThisRound += 1;
+            const mobDiedFromCounter = resolvePlayerAttack(target, cw, `${cw.name} (kontratak)`, r + 1);
+            if (mobDiedFromCounter) return 'win';
+          }
+        }
+      }
+      if (!players.some(p => p.alive)) return 'loss';
+      return 'ok';
+    }
+
+    if (!grozaBlocksRound && profile && mobBurstCount > 0) {
+      for (let i = 0; i < mobBurstCount; i++) {
+        const result = resolveMobAttack();
+        if (result !== 'ok') {
+          outcome = result;
+          break roundLoop;
+        }
+      }
+    }
+
     const mobShots: ShotQueueEntry[] = grozaBlocksRound
       ? []
       : profile
-        ? Array.from({ length: profile.attacksPerRound }, () => ({ side: 'mob' as const }))
+        ? Array.from({ length: mobQueuedCount }, () => ({ side: 'mob' as const }))
         : [{ side: 'mob' as const }];
     queues.push({ initiative: mobInitiative, shots: mobShots });
     queues.sort((a, b) => b.initiative - a.initiative);
@@ -1012,83 +1251,9 @@ export function simulateExpedition(
             break roundLoop;
           }
         } else {
-          const targetPool = players.filter(p => p.alive);
-          if (!targetPool.length) {
-            outcome = 'loss';
-            break roundLoop;
-          }
-          const target = targetPool[Math.floor(Math.random() * targetPool.length)];
-          const genre: MobWeaponGenre = profile?.weaponGenre ?? 'biala';
-          const dodged = Math.random() < unikForGenre(target, genre);
-          const hit = !dodged && Math.random() < mobHitChance(profile?.weaponGenre ?? 'dystans', mobZwinnosc, mobSpostrzegawczosc, mobSzczescie, target, rosterBonus.extraHitChance);
-          mobAttacksMade++;
-          target.attacksReceived++;
-          let crit = false;
-          let dmg = 0;
-          if (hit) {
-            mobHitsLanded++;
-            target.hitsReceived++;
-            if (profile) {
-              crit = Math.random() < effectiveMobCritChance(profile.critChance, target);
-              if (crit) mobCritsLanded++;
-              const variantFlatBonus = mobVariantDamageFlatBonus(mobVariant, profile) * flatBonusStarMultiplier(star);
-              const raw = randomInt(profile.minDmg, profile.maxDmg) * mobDamageStarMultiplier(star) * (crit ? mobCritMulti : 1) + rosterBonus.extraDamage + variantFlatBonus;
-              const afterRedukcja = raw * (1 - target.redukcja);
-              const defenseReduction = mobHitDefenseReduction(profile, target);
-              dmg = Math.max(0, Math.round(afterRedukcja - defenseReduction));
-            } else {
-              dmg = Math.max(0, Math.round(placeholderDamagePerAttack * (1 - target.redukcja)));
-            }
-            target.hp = Math.max(0, target.hp - dmg);
-            mobTotalDamageDealt += dmg;
-            if (target.hp <= 0 && target.alive) {
-              target.alive = false;
-              mobKills++;
-            }
-          }
-          attacks.push({
-            round: r + 1,
-            attackerName: mob.name,
-            attackerSide: 'mob',
-            weaponName: profile?.weaponName ?? mob.name,
-            targetName: target.name,
-            hit,
-            dodged,
-            crit,
-            damage: dmg,
-            targetHpAfter: target.hp,
-            mobHpAfter: mobHp,
-          });
-          if (!target.alive) {
-            pushDeath(target.name, 'players', r + 1);
-          }
-          if (hit) {
-            if (crit && applyLewiatanProc(target)) {
-              pushNote(target.name, `${target.name} aktywuje Lewiatana`, r + 1);
-            }
-            if (tryActivateTchnienie(target)) {
-              const dmgBonus = 5 * target.tchnienieLevel;
-              const trafPenalty = target.tchnienieLevel;
-              const unikBonus = 2 * target.tchnienieLevel;
-              pushNote(target.name, `${target.name} aktywuje Tchnienie Śmierci (obrażenia wszystkich broni +${dmgBonus}, trafienie wszystkich broni -${trafPenalty}, unik +${unikBonus}%)`, r + 1);
-            }
-            if (crit && target.alive && target.furiaChance > 0
-              && target.furiaCountersUsedThisRound < target.furiaMaxCountersThisRound
-              && Math.random() < target.furiaChance) {
-              pushNote(target.name, `${target.name} aktywuje Furię Bestii`, r + 1);
-              for (const cw of target.weapons) {
-                if (target.furiaCountersUsedThisRound >= target.furiaMaxCountersThisRound) break;
-                target.furiaCountersUsedThisRound += 1;
-                const mobDiedFromCounter = resolvePlayerAttack(target, cw, `${cw.name} (kontratak)`, r + 1);
-                if (mobDiedFromCounter) {
-                  outcome = 'win';
-                  break roundLoop;
-                }
-              }
-            }
-          }
-          if (!players.some(p => p.alive)) {
-            outcome = 'loss';
+          const result = resolveMobAttack();
+          if (result !== 'ok') {
+            outcome = result;
             break roundLoop;
           }
         }

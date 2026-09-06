@@ -616,6 +616,11 @@
   font-family: 'Bungee', sans-serif;
   font-size: 11px;
   box-shadow: 0 0 8px 2px rgba(111, 224, 207, 0.5);
+  cursor: pointer;
+}
+
+.player-badge:hover {
+  filter: brightness(1.2);
 }
 
 .player-portrait {
