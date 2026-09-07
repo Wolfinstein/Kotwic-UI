@@ -269,10 +269,13 @@ function boostWeaponsCritMulti(weapons: WeaponDamage[], addedMulti: number): voi
 /** Merihim's Pasożyty: permanently strips 50 percentage points of crit chance and 1.0 crit multi from every weapon, floored at 0% chance / 1.0x multi. Applied once per player. */
 function applyPasozytyDebuff(weapons: WeaponDamage[]): void {
   for (const weapon of weapons) {
-    weapon.critChance = Math.max(0, (weapon.critChance ?? 0) - 0.5);
-    if (weapon.rawCritChance !== undefined) {
-      weapon.rawCritChance = Math.max(0, weapon.rawCritChance - 0.5);
-    }
+    // Subtract from the UNCAPPED crit chance (rawCritChance) so a player sitting above the 85%
+    // engine cap — e.g. 130% — correctly lands on 80%, not 35% (85% cap - 50%). critChance is
+    // then re-derived from that and re-capped at 85%.
+    const rawBefore = weapon.rawCritChance ?? weapon.critChance ?? 0;
+    const rawAfter = Math.max(0, rawBefore - 0.5);
+    weapon.rawCritChance = rawAfter;
+    weapon.critChance = Math.min(rawAfter, 0.85);
     const newCritMulti = Math.max(1, (weapon.critMulti ?? 1) - 1);
     weapon.critMulti = newCritMulti;
     weapon.critDmgMin = Math.floor(weapon.minDmg * newCritMulti);
