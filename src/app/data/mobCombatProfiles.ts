@@ -14,7 +14,16 @@ export type MobSpecialAbility =
    * (Bloodwars r20, Aug 2026): first proc consistently landed right after cumulative damage
    * crossed 25%, and mean attacks-to-proc across 57 samples was ~3.3 (⇒ p≈30%).
    */
-  | { kind: 'mackiStrachu' };
+  | { kind: 'mackiStrachu' }
+  /**
+   * Merihim's two abilities:
+   * - Pasożyty: starting round 2, permanently strips 50 percentage points of crit chance and 1.0
+   *   crit multi from every player's weapons (floored at 0% / 1.0x). Applied once, not reapplied
+   *   each round.
+   * - Pocałunek: starting round 3, each round has a 20% chance to instantly kill one random
+   *   living player, independent of Pasożyty.
+   */
+  | { kind: 'merihim' };
 
 export interface MobCombatProfile {
   weaponName: string;
@@ -78,6 +87,19 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     critMulti: 7.5,
     // No unik (no dodge) and no playerLevelCap, per spec — both already default to "none" by omission.
   },
+  Merihim: {
+    weaponName: 'Wielkie Ostrze Plagi',
+    weaponGenre: 'biala',
+    minDmg: 2500,
+    maxDmg: 3000,
+    attacksPerRound: 12,
+    critChance: 1.7,
+    critMulti: 7.5,
+    unik: { biala: 0, palna: 0, dystans: 0 },
+    special: { kind: 'merihim' },
+    // MAX-variant adds a flat +280 on top of the shared minDmg/maxDmg range, scaled the same way as Agrameon's.
+    variantDamageFlatBonus: { min: 0, max: 280 },
+  },
 };
 
 /**
@@ -92,6 +114,7 @@ export const MOB_IMPLEMENTATION_STATUS: Record<string, MobImplementationStatus> 
   Abaddon: 'yellow',
   Agrameon: 'yellow',
   'Yog-Sothoth': 'yellow',
+  Merihim: 'yellow',
 };
 
 export function mobImplementationStatus(mobName: string): MobImplementationStatus {

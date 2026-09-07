@@ -41,6 +41,43 @@ function mobLevelCapForStar(baseCap: number, star: number): number {
   return Math.round(baseCap * (1 + Math.max(0, star - 1) * 0.5));
 }
 
+/** One of Merihim's lesser "Słudzy Plagi" adds — a small independent HP pool with its own initiative, fighting alongside him for the whole fight. */
+export interface MerihimAdd {
+  id: string;
+  name: string;
+  hp: number;
+  maxHp: number;
+  initiative: number;
+  alive: boolean;
+}
+
+/** Merihim add count: 1 at star 1-2, 2 at star 3-4, ... up to 6 at star 11-12. */
+function merihimAddCountForStar(star: number): number {
+  return Math.min(6, Math.max(1, Math.ceil(Math.max(1, star) / 2)));
+}
+
+/** Merihim add HP/initiative linearly interpolated between star 1 (1000 hp, 250 init) and star 12 (8000 hp, 650 init). */
+function merihimAddStatsForStar(star: number): { hp: number; initiative: number } {
+  const t = (Math.min(12, Math.max(1, star)) - 1) / 11;
+  return {
+    hp: Math.round(1000 + t * (8000 - 1000)),
+    initiative: Math.round(250 + t * (650 - 250)),
+  };
+}
+
+function buildMerihimAdds(star: number): MerihimAdd[] {
+  const count = merihimAddCountForStar(star);
+  const { hp, initiative } = merihimAddStatsForStar(star);
+  return Array.from({ length: count }, (_, i) => ({
+    id: `merihim-add-${i}`,
+    name: `Sługa Plagi ${i + 1}`,
+    hp,
+    maxHp: hp,
+    initiative,
+    alive: true,
+  }));
+}
+
 /**
  * Yog-Sothoth ignores stars entirely — his stats instead scale with the SUM of every joined
  * player's level. Derived from two real battle logs (r20, Sept 2026), both with 18 players:
@@ -181,6 +218,8 @@ export interface PlayerCombatState {
   /** Żar Krwi: +5% damage from the start of the fight, +1% per 2% of max HP lost, capped at +35% total. Sticky — never drops even if HP regens. */
   zarLevel: boolean;
   zarDamageBonus: number;
+  /** Merihim's Pasożyty: whether this player's weapons have already had the one-time crit debuff applied. */
+  pasozytyActive: boolean;
   weaponsActivated: WeaponDamage[];
   unikBialaActivated: number;
   unikPalnaActivated: number;
@@ -221,6 +260,20 @@ export interface PlayerCombatState {
 function boostWeaponsCritMulti(weapons: WeaponDamage[], addedMulti: number): void {
   for (const weapon of weapons) {
     const newCritMulti = (weapon.critMulti ?? 1) + addedMulti;
+    weapon.critMulti = newCritMulti;
+    weapon.critDmgMin = Math.floor(weapon.minDmg * newCritMulti);
+    weapon.critDmgMax = Math.floor(weapon.maxDmg * newCritMulti);
+  }
+}
+
+/** Merihim's Pasożyty: permanently strips 50 percentage points of crit chance and 1.0 crit multi from every weapon, floored at 0% chance / 1.0x multi. Applied once per player. */
+function applyPasozytyDebuff(weapons: WeaponDamage[]): void {
+  for (const weapon of weapons) {
+    weapon.critChance = Math.max(0, (weapon.critChance ?? 0) - 0.5);
+    if (weapon.rawCritChance !== undefined) {
+      weapon.rawCritChance = Math.max(0, weapon.rawCritChance - 0.5);
+    }
+    const newCritMulti = Math.max(1, (weapon.critMulti ?? 1) - 1);
     weapon.critMulti = newCritMulti;
     weapon.critDmgMin = Math.floor(weapon.minDmg * newCritMulti);
     weapon.critDmgMax = Math.floor(weapon.maxDmg * newCritMulti);
@@ -634,6 +687,7 @@ export function computeCombatPreview(
       tchnienieActive: false,
       zarLevel: !!saved.character.arcaneLevels?.zarKrwi,
       zarDamageBonus: saved.character.arcaneLevels?.zarKrwi ? 0.05 : 0,
+      pasozytyActive: false,
       weaponsActivated: [],
       unikBialaActivated: dashboard.unikBiala ?? 0,
       unikPalnaActivated: dashboard.unikPalna ?? 0,
@@ -719,12 +773,14 @@ export function computeCombatPreview(
 }
 
 interface ShotQueueEntry {
-  side: 'player' | 'mob';
+  side: 'player' | 'mob' | 'add';
   player?: PlayerCombatState;
   /** Index into the player's CURRENT `weapons` array, resolved live at attack time — not a snapshot — so a
    *  mid-round Tchnienie Śmierci activation (which swaps `player.weapons` to the boosted set) immediately
    *  applies to this player's still-queued shots for the rest of the round, instead of only from next round. */
   weaponIndex?: number;
+  /** Merihim add id, when side is 'add'. */
+  addId?: string;
 }
 
 /**
@@ -762,6 +818,8 @@ export function simulateExpedition(
   const mobInitiative = mobZwinnosc + mobSpostrzegawczosc;
 
   const profile = MOB_COMBAT_PROFILES[mob.name];
+  const merihim = profile?.special?.kind === 'merihim';
+  const merihimAdds: MerihimAdd[] = merihim ? buildMerihimAdds(star) : [];
   let mobCritMulti = profile?.critMulti ?? 1;
   const placeholderDamagePerAttack = Math.max(1, Math.round((mobObrona + mobZwinnosc) / 2));
   const dmgStarMulti = yogSothoth ? 1 : mobDamageStarMultiplier(star);
@@ -825,6 +883,7 @@ export function simulateExpedition(
       tchnienieActive: false,
       zarLevel: !!saved.character.arcaneLevels?.zarKrwi,
       zarDamageBonus: saved.character.arcaneLevels?.zarKrwi ? 0.05 : 0,
+      pasozytyActive: false,
       weaponsActivated: dashboardActivated.obrazenia ?? [],
       unikBialaActivated: dashboardActivated.unikBiala ?? 0,
       unikPalnaActivated: dashboardActivated.unikPalna ?? 0,
@@ -883,6 +942,13 @@ export function simulateExpedition(
       if (yogSothoth && activatedDashboard !== dashboardBase) applyYogSothothWeaponMods(activatedDashboard.obrazenia ?? []);
       p.weaponsActivated = activatedDashboard.obrazenia ?? [];
       p.weapons = p.tchnienieActive ? p.weaponsActivated : (dashboardBase.obrazenia ?? []);
+      // Rebuilding from scratch loses Merihim's Pasożyty debuff — reapply it first, chronologically before any Ziz/Potęga crit-multi gains.
+      if (p.pasozytyActive) {
+        applyPasozytyDebuff(p.weapons);
+        if (p.weaponsActivated !== p.weapons) {
+          applyPasozytyDebuff(p.weaponsActivated);
+        }
+      }
       // Rebuilding from scratch loses any already-triggered Potęga Mocy crit-multi steal and any accumulated Ziz bonus — reapply them.
       const reapplyBonus = p.potegaAppliedSteal + p.zizBonus;
       if (reapplyBonus > 0) {
@@ -904,6 +970,8 @@ export function simulateExpedition(
   let mobCritsLanded = 0;
   let mobTotalDamageDealt = 0;
   let mobKills = 0;
+  /** Merihim's Pasożyty fires once, the first time round 2 is reached. */
+  let pasozytyTriggered = false;
   /** First selected player is the expedition organizer — their death cuts the whole team's damage output by 10%. */
   const organizer = players[0];
   /** Otchłań Ciszy triggers on each qualifying player's own first landed hit per round — reset fresh every round. */
@@ -1046,7 +1114,8 @@ export function simulateExpedition(
     if (mobHp <= 0) {
       attacker.kills++;
       pushDeath(mob.name, 'mob', roundNum);
-      return true;
+      // With Merihim, the fight isn't won until his Słudzy Plagi adds are all dead too.
+      return !merihim || merihimAdds.every(a => !a.alive);
     }
     // Cichy Łowca: a missed or dodged swing has a chance to immediately swing again with the same weapon.
     if ((dodgedByMob || !hit) && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
@@ -1054,6 +1123,100 @@ export function simulateExpedition(
       return resolvePlayerAttack(attacker, w, `${weaponLabel} (dodatkowy atak)`, roundNum);
     }
     return false;
+  }
+
+  /** Resolves one player attack against a Merihim lesser-mob add: a plain HP pool with no dodge/obrona/special-proc interactions. Returns whether this kill completes Merihim's overall victory condition (him and every add dead). */
+  function resolvePlayerAttackOnAdd(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number, add: MerihimAdd): boolean {
+    attacker.attacksMade++;
+    const hit = Math.random() < (w.estimatedHitChance ?? 1);
+    let crit = false;
+    let dmg = 0;
+    if (hit) {
+      attacker.hitsLanded++;
+      crit = Math.random() < (w.critChance ?? 0);
+      if (crit) attacker.critsLanded++;
+      dmg = crit ? randomInt(w.critDmgMin ?? w.minDmg, w.critDmgMax ?? w.maxDmg) : randomInt(w.minDmg, w.maxDmg);
+      if (organizer && !organizer.alive) {
+        dmg = Math.round(dmg * 0.9);
+      }
+      if (attacker.zarDamageBonus > 0) {
+        dmg = Math.round(dmg * (1 + attacker.zarDamageBonus));
+      }
+      add.hp = Math.max(0, add.hp - dmg);
+      attacker.damageDealtThisRound += dmg;
+      attacker.totalDamageDealt += dmg;
+    }
+    attacks.push({
+      round: roundNum,
+      attackerName: attacker.name,
+      attackerSide: 'players',
+      weaponName: weaponLabel,
+      targetName: add.name,
+      hit,
+      dodged: false,
+      crit,
+      damage: dmg,
+      targetHpAfter: add.hp,
+      mobHpAfter: mobHp,
+    });
+    if (add.hp <= 0 && add.alive) {
+      add.alive = false;
+      attacker.kills++;
+      pushDeath(add.name, 'mob', roundNum);
+      return mobHp <= 0 && merihimAdds.every(a => !a.alive);
+    }
+    // Cichy Łowca: a missed swing has a chance to immediately swing again with the same weapon.
+    if (!hit && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
+      pushNote(attacker.name, `${attacker.name} aktywuje Cichego Łowcę`, roundNum);
+      return resolvePlayerAttackOnAdd(attacker, w, `${weaponLabel} (dodatkowy atak)`, roundNum, add);
+    }
+    return false;
+  }
+
+  /** Picks the target for a player's next attack: against Merihim, a random living choice between him and his adds; otherwise always the mob. Returns whether the attack completed the fight's win condition. */
+  function performPlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number): boolean {
+    if (!merihim) {
+      return resolvePlayerAttack(attacker, w, weaponLabel, roundNum);
+    }
+    const livingAdds = merihimAdds.filter(a => a.alive);
+    const options: (MerihimAdd | 'mob')[] = mobHp > 0 ? ['mob', ...livingAdds] : [...livingAdds];
+    if (!options.length) return false;
+    const target = options[Math.floor(Math.random() * options.length)];
+    return target === 'mob'
+      ? resolvePlayerAttack(attacker, w, weaponLabel, roundNum)
+      : resolvePlayerAttackOnAdd(attacker, w, weaponLabel, roundNum, target);
+  }
+
+  /** Resolves one Merihim add's attack: always hits a random living player for a flat 1 damage. */
+  function resolveAddAttack(add: MerihimAdd, roundNum: number): void {
+    const targetPool = players.filter(p => p.alive);
+    if (!targetPool.length) return;
+    const target = targetPool[Math.floor(Math.random() * targetPool.length)];
+    target.attacksReceived++;
+    target.hitsReceived++;
+    const dmg = 1;
+    target.hp = Math.max(0, target.hp - dmg);
+    updateZarBonus(target);
+    if (target.hp <= 0 && target.alive) {
+      target.alive = false;
+      mobKills++;
+    }
+    attacks.push({
+      round: roundNum,
+      attackerName: add.name,
+      attackerSide: 'mob',
+      weaponName: 'Szpony',
+      targetName: target.name,
+      hit: true,
+      dodged: false,
+      crit: false,
+      damage: dmg,
+      targetHpAfter: target.hp,
+      mobHpAfter: mobHp,
+    });
+    if (!target.alive) {
+      pushDeath(target.name, 'players', roundNum);
+    }
   }
 
   roundLoop:
@@ -1066,6 +1229,35 @@ export function simulateExpedition(
       p.ignoreDisabledThisRound = false;
     }
     otchlanProcdThisRound = new Set<string>();
+
+    // Merihim — Pasożyty: starting round 2, once and for good, strips 50% crit chance and 1.0
+    // crit multi from every player's weapons.
+    if (merihim && r + 1 === 2 && !pasozytyTriggered) {
+      pasozytyTriggered = true;
+      for (const p of players) {
+        p.pasozytyActive = true;
+        applyPasozytyDebuff(p.weapons);
+        if (p.weaponsActivated !== p.weapons) {
+          applyPasozytyDebuff(p.weaponsActivated);
+        }
+      }
+      pushNote(mob.name, `${mob.name} używa Pasożytów — wszyscy gracze tracą 50% szansy na trafienie krytyczne i 1.0 mnożnika obrażeń krytycznych`, r + 1, 'mob');
+    }
+    // Merihim — Pocałunek: starting round 3, each round has a 20% chance to instantly kill one
+    // random living player. Resolved before this round's queues are built so the victim doesn't
+    // still get to act.
+    if (merihim && r + 1 >= 3) {
+      const kissPool = players.filter(p => p.alive);
+      if (kissPool.length && Math.random() < 0.20) {
+        const victim = kissPool[Math.floor(Math.random() * kissPool.length)];
+        victim.hp = 0;
+        victim.alive = false;
+        mobKills++;
+        pushNote(mob.name, `${mob.name} używa Pocałunku i natychmiast zabija ${victim.name}`, r + 1, 'mob');
+        pushDeath(victim.name, 'players', r + 1);
+      }
+    }
+
     const alivePlayers = players.filter(p => p.alive);
     if (!alivePlayers.length) {
       outcome = 'loss';
@@ -1134,6 +1326,12 @@ export function simulateExpedition(
       // Furia Bestii: this round's counterattack budget is a % of this round's normal attack count.
       p.furiaMaxCountersThisRound = Math.floor(p.furiaCapPercent * totalWeaponAttacks);
       p.furiaCountersUsedThisRound = 0;
+    }
+    // Merihim's lesser adds each get their own initiative-ordered attack slot, alongside players and Merihim himself.
+    for (const add of merihimAdds) {
+      if (add.alive) {
+        queues.push({ initiative: add.initiative, shots: [{ side: 'add', addId: add.id }] });
+      }
     }
     // Groza: guaranteed to block the mob's regular attack in round 2 if any player has it;
     // Szpony Nocy tier 4 gives each Groza-carrying player an independent (non-stacking) chance
@@ -1232,8 +1430,8 @@ export function simulateExpedition(
           for (const cw of target.weapons) {
             if (target.furiaCountersUsedThisRound >= target.furiaMaxCountersThisRound) break;
             target.furiaCountersUsedThisRound += 1;
-            const mobDiedFromCounter = resolvePlayerAttack(target, cw, `${cw.name} (kontratak)`, r + 1);
-            if (mobDiedFromCounter) return 'win';
+            const wonFromCounter = performPlayerAttack(target, cw, `${cw.name} (kontratak)`, r + 1);
+            if (wonFromCounter) return 'win';
           }
         }
       }
@@ -1268,11 +1466,14 @@ export function simulateExpedition(
           if (!shot.player!.alive) continue;
           const w = shot.player!.weapons[shot.weaponIndex!];
           if (!w) continue;
-          const mobDied = resolvePlayerAttack(shot.player!, w, w.name, r + 1);
-          if (mobDied) {
+          const won = performPlayerAttack(shot.player!, w, w.name, r + 1);
+          if (won) {
             outcome = 'win';
             break roundLoop;
           }
+        } else if (shot.side === 'add') {
+          const add = merihimAdds.find(a => a.id === shot.addId);
+          if (add?.alive) resolveAddAttack(add, r + 1);
         } else {
           const result = resolveMobAttack();
           if (result !== 'ok') {
