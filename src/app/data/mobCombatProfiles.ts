@@ -94,7 +94,7 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     maxDmg: 1150,
     attacksPerRound: 12,
     critChance: 1.7,
-    critMulti: 7.5,
+    critMulti: 6,
     unik: { biala: 0, palna: 0, dystans: 0 },
     special: { kind: 'merihim' },
     playerLevelCap: 2160,
