@@ -91,7 +91,7 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     weaponName: 'Wielkie Ostrze Plagi',
     weaponGenre: 'biala',
     minDmg: 2500,
-    maxDmg: 3000,
+    maxDmg: 2800,
     attacksPerRound: 12,
     critChance: 1.7,
     critMulti: 7.5,
