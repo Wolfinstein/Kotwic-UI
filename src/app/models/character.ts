@@ -98,6 +98,8 @@ export interface Character {
     blaszkaZaHastura: boolean;
     /** Manual override for Tchnienie Śmierci's HP-threshold-gated bonuses, since the calculator has no live HP tracking. */
     tchnienieSmierciActive: boolean;
+    /** Manual override for Żar Krwi's HP-threshold-gated bonuses, since the calculator has no live HP tracking. */
+    zarKrwiActive: boolean;
     evolutions: Evolutions;
     obronaPrzeciwnika: number;
     odpornoscPrzeciwnika: number;

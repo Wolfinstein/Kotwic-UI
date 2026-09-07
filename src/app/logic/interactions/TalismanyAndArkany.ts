@@ -7,6 +7,7 @@ export class TalismanyAndArkany {
   aKrewZycia: number = 0;
   aKocieSciezki: number = 0;
   aZar: number = 0;
+  zarAktywny: boolean = false;
   aCisza: number = 0;
   aWyssanie: number = 0;
   aMocKrwi: number = 0;
@@ -460,8 +461,10 @@ export class TalismanyAndArkany {
   private doZar(player: Player): Player {
     if (this.aZar === 1) {
       player.setLife(Math.floor(player.life + player.baseLife * 0.4));
-      player.addLaczneObrazeniaWszystkichBroni(0.35);
-      player.setHasZar(true);
+      if (this.zarAktywny) {
+        player.addLaczneObrazeniaWszystkichBroni(0.35);
+        player.setHasZar(true);
+      }
     }
     return player;
   }
@@ -526,6 +529,7 @@ class TalismanyAndArkanyBuilder {
   private _aKrewZycia: number = 0;
   private _aKocieSciezki: number = 0;
   private _aZar: number = 0;
+  private _zarAktywny: boolean = false;
   private _aCisza: number = 0;
   private _aWyssanie: number = 0;
   private _aMocKrwi: number = 0;
@@ -574,6 +578,10 @@ class TalismanyAndArkanyBuilder {
   }
   aZar(aZar: number): TalismanyAndArkanyBuilder {
     this._aZar = aZar;
+    return this;
+  }
+  zarAktywny(zarAktywny: boolean): TalismanyAndArkanyBuilder {
+    this._zarAktywny = zarAktywny;
     return this;
   }
   aCisza(aCisza: number): TalismanyAndArkanyBuilder {
@@ -688,6 +696,7 @@ class TalismanyAndArkanyBuilder {
     t.aKrewZycia = this._aKrewZycia;
     t.aKocieSciezki = this._aKocieSciezki;
     t.aZar = this._aZar;
+    t.zarAktywny = this._zarAktywny;
     t.aCisza = this._aCisza;
     t.aWyssanie = this._aWyssanie;
     t.aMocKrwi = this._aMocKrwi;

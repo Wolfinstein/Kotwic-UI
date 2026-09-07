@@ -70,6 +70,7 @@ export class CharacterService {
       blaszkaZaKronosa: false,
       blaszkaZaHastura: false,
       tchnienieSmierciActive: false,
+      zarKrwiActive: false,
       attributes: {
         sila: 0,
         zwinnosc: 0,

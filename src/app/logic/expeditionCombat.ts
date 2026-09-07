@@ -178,6 +178,9 @@ export interface PlayerCombatState {
   tchnienieLevel: number;
   tchnienieThreshold: number;
   tchnienieActive: boolean;
+  /** Żar Krwi: +5% damage from the start of the fight, +1% per 2% of max HP lost, capped at +35% total. Sticky — never drops even if HP regens. */
+  zarLevel: boolean;
+  zarDamageBonus: number;
   weaponsActivated: WeaponDamage[];
   unikBialaActivated: number;
   unikPalnaActivated: number;
@@ -330,6 +333,14 @@ function tryActivateTchnienie(target: PlayerCombatState): boolean {
   target.unikPalna = target.unikPalnaActivated;
   target.unikDystans = target.unikDystansActivated;
   return true;
+}
+
+/** Żar Krwi: recomputes the sticky damage bonus from the current HP fraction lost — +5% base, +1% per 2% of max HP lost, capped at +35%. Only ever increases (regen doesn't undo it). */
+function updateZarBonus(target: PlayerCombatState): void {
+  if (!target.zarLevel) return;
+  const hpLostPercent = Math.max(0, (1 - target.hp / target.maxHp) * 100);
+  const computed = Math.min(0.35, 0.05 + 0.01 * Math.floor(hpLostPercent / 2));
+  if (computed > target.zarDamageBonus) target.zarDamageBonus = computed;
 }
 
 /** Skóra Bestii: reduces the mob's crit chance against this player, floored at a minimum (1% normally, higher for some bosses — e.g. Yog-Sothoth's is floored at 15%). */
@@ -590,6 +601,7 @@ export function computeCombatPreview(
       trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
       // Preview always shows the pre-activation (full-hp) state — the real, HP-gated activation only runs in simulateExpedition.
       tchnienieSmierciActive: false,
+      zarKrwiActive: false,
     };
     const dashboard = dashboardService.calculateStuff(character, auraBestiiHpShareFor(auraBestiiBonus, saved.id));
     if (yogSothoth) applyYogSothothWeaponMods(dashboard.obrazenia ?? []);
@@ -620,6 +632,8 @@ export function computeCombatPreview(
       tchnienieLevel,
       tchnienieThreshold: tchnienieActivationThreshold(saved.character.talizmanLevels?.zycieISmierc ?? 0, tchnienieLevel),
       tchnienieActive: false,
+      zarLevel: !!saved.character.arcaneLevels?.zarKrwi,
+      zarDamageBonus: saved.character.arcaneLevels?.zarKrwi ? 0.05 : 0,
       weaponsActivated: [],
       unikBialaActivated: dashboard.unikBiala ?? 0,
       unikPalnaActivated: dashboard.unikPalna ?? 0,
@@ -770,6 +784,8 @@ export function simulateExpedition(
       trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
       // The real activation is HP-gated below, not the manual calculator toggle — combat always starts un-activated.
       tchnienieSmierciActive: false,
+      // Żar Krwi's damage bonus is modeled dynamically below (see zarDamageBonus), not via the calculator's flat toggle.
+      zarKrwiActive: false,
     };
     const dashboard = dashboardService.calculateStuff(characterBase, auraBestiiHpShareFor(auraBestiiBonus, saved.id));
     const maxHp = dashboard.punktyZycia ?? 1;
@@ -807,6 +823,8 @@ export function simulateExpedition(
       tchnienieLevel,
       tchnienieThreshold: tchnienieActivationThreshold(saved.character.talizmanLevels?.zycieISmierc ?? 0, tchnienieLevel),
       tchnienieActive: false,
+      zarLevel: !!saved.character.arcaneLevels?.zarKrwi,
+      zarDamageBonus: saved.character.arcaneLevels?.zarKrwi ? 0.05 : 0,
       weaponsActivated: dashboardActivated.obrazenia ?? [],
       unikBialaActivated: dashboardActivated.unikBiala ?? 0,
       unikPalnaActivated: dashboardActivated.unikPalna ?? 0,
@@ -855,6 +873,7 @@ export function simulateExpedition(
         szczesciePrzeciwnika: mobSzczescie,
         trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
         tchnienieSmierciActive: false,
+        zarKrwiActive: false,
       };
       const dashboardBase = dashboardService.calculateStuff(characterBase);
       if (yogSothoth) applyYogSothothWeaponMods(dashboardBase.obrazenia ?? []);
@@ -950,6 +969,9 @@ export function simulateExpedition(
         : randomInt(effBounds.minDmg, effBounds.maxDmg);
       if (organizer && !organizer.alive) {
         dmg = Math.round(dmg * 0.9);
+      }
+      if (attacker.zarDamageBonus > 0) {
+        dmg = Math.round(dmg * (1 + attacker.zarDamageBonus));
       }
       mobHp = Math.max(0, mobHp - dmg);
       attacker.damageDealtThisRound += dmg;
@@ -1074,7 +1096,7 @@ export function simulateExpedition(
               const genre = mobGenreForWeapon(w.genre);
               const factor = genre === 'dystans' ? YOG_SOTHOTH_FODDER_OBRONA / 4 : genre === 'biala' ? YOG_SOTHOTH_FODDER_OBRONA / 2 : YOG_SOTHOTH_FODDER_ODPORNOSC / 2;
               const raw = crit ? randomInt(w.critDmgMin ?? w.minDmg, w.critDmgMax ?? w.maxDmg) : randomInt(w.minDmg, w.maxDmg);
-              dmg = Math.max(1, Math.round(raw - factor));
+              dmg = Math.max(1, Math.round((raw - factor) * (1 + p.zarDamageBonus)));
               target.hp = Math.max(0, target.hp - dmg);
               p.damageDealtThisRound += dmg;
               p.totalDamageDealt += dmg;
@@ -1171,6 +1193,7 @@ export function simulateExpedition(
         }
         target.hp = Math.max(0, target.hp - dmg);
         mobTotalDamageDealt += dmg;
+        updateZarBonus(target);
         if (target.hp <= 0 && target.alive) {
           target.alive = false;
           mobKills++;

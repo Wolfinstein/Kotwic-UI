@@ -429,6 +429,7 @@ export class DashboardService {
         .aKrewZycia(c.arcaneLevels?.krewZycia ?? 0)
         .aKocieSciezki(c.arcaneLevels?.kocieSciezki ?? 0)
         .aZar(c.arcaneLevels?.zarKrwi ? 1 : 0)
+        .zarAktywny(c.zarKrwiActive ?? false)
         .aCisza(c.arcaneLevels?.ciszaKrwi ?? 0)
         .aWyssanie(c.arcaneLevels?.wyssanieMocy ?? 0)
         .aMocKrwi(c.arcaneLevels?.mocKrwi ?? 0)
