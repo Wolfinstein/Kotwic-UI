@@ -97,7 +97,7 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     critMulti: 6,
     unik: { biala: 0, palna: 0, dystans: 0 },
     special: { kind: 'merihim' },
-    playerLevelCap: 2160,
+    playerLevelCap: 2144,
     // MAX-variant adds a flat +280 on top of the shared minDmg/maxDmg range, scaled the same way as Agrameon's.
     variantDamageFlatBonus: { min: 0, max: 280 },
   },
