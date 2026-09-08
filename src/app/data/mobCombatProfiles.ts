@@ -64,7 +64,7 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
   Agrameon: {
     weaponName: 'Bicz grozy',
     weaponGenre: 'biala',
-    minDmg: 1000,
+    minDmg: 950,
     maxDmg: 1300,
     attacksPerRound: 8,
     critChance: 0.7,
