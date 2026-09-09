@@ -1326,7 +1326,7 @@ export function simulateExpedition(
     // still get to act.
     if (merihim && r + 1 >= 3) {
       const kissPool = players.filter(p => p.alive);
-      if (kissPool.length && Math.random() < 0.20) {
+      if (kissPool.length && Math.random() < 0.05) {
         const victim = kissPool[Math.floor(Math.random() * kissPool.length)];
         victim.hp = 0;
         victim.alive = false;
