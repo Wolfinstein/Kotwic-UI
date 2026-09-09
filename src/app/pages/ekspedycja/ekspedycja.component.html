@@ -32,6 +32,15 @@
           <div>Krytycznych: {{ result.summary.mob.critsLanded }} ({{ percent(result.summary.mob.critsLanded, result.summary.mob.hitsLanded) }}%)</div>
           <div>Otrzymane: {{ result.summary.mob.hitsReceived }} / {{ result.summary.mob.attacksReceived }} ({{ percent(result.summary.mob.hitsReceived, result.summary.mob.attacksReceived) }}%)</div>
         </div>
+        @for (add of result.summary.adds; track add.name) {
+          <div class="summary-detail-box" [style.color]="addColor(add)">
+            <div class="summary-detail-name">{{ add.name }}</div>
+            <div>Życie: {{ add.hpRemaining }} / {{ add.hpMax }}</div>
+            @if (!add.alive) {
+              <div>Pokonany</div>
+            }
+          </div>
+        }
       </div>
     </section>
 

@@ -4,7 +4,7 @@ import { EXPEDITION_TOWERS, ExpeditionTower } from '../../data/ekspedycjaData';
 import { SavedCharactersService, SavedCharacter } from '../../services/saved-characters.service';
 import { rasaAvatarUrl, rasaLabel as rasaDisplayLabel } from '../../data/avatars';
 import { DashboardService } from '../../services/calculate';
-import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, MobStatVariant, CombatAttackLog, CombatantSummary } from '../../logic/expeditionCombat';
+import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, MobStatVariant, CombatAttackLog, CombatantSummary, AddSummary } from '../../logic/expeditionCombat';
 import { mobImplementationStatus, MobImplementationStatus } from '../../data/mobCombatProfiles';
 
 type VolumeLevel = 'low' | 'mid' | 'high';
@@ -227,6 +227,11 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   /** Same red/blue scheme as the log, for the post-fight summary scoreboard. */
   summaryColor(c: CombatantSummary): string {
     return c.side === 'mob' ? MOB_LOG_COLOR : PLAYER_LOG_COLOR;
+  }
+
+  /** Cannon-fodder adds share the mob's red — dimmed to gray once dead, so a cleared wave reads at a glance. */
+  addColor(add: AddSummary): string {
+    return add.alive ? MOB_LOG_COLOR : '#888888';
   }
 
   /** Rounded hit-rate percentage for the summary boxes — 0 when there's nothing to divide by. */

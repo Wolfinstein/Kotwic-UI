@@ -23,63 +23,99 @@ export type MobSpecialAbility =
    * - Pocałunek: starting round 3, each round has a 20% chance to instantly kill one random
    *   living player, independent of Pasożyty.
    */
-  | { kind: 'merihim' };
+  | { kind: 'merihim' }
+  /**
+   * Bokrug's abilities:
+   * - Kolce Jadowe (passive poison, unblockable by Groza — it isn't part of his regular attack
+   *   queue): each round, at the start, players already poisoned from an earlier round first take
+   *   5% of their own max HP each; then he stings one not-yet-poisoned living player for 25% of
+   *   their max HP (floored at 1 HP — this hit alone can never kill), poisoning them — their
+   *   regen is permanently cut 75% and the 5% tick starts hitting them from the following round.
+   *   At most one sting per player for the whole fight.
+   * - Round 3: heals 15% of his max HP once, at the start of the round.
+   * - Tsunami: the first time he'd be reduced to 0 HP, he doesn't die — instead any of his own
+   *   still-queued attacks this round land immediately, he heals 25% of his max HP, and the party
+   *   loses the rest of their queued attacks for the round. The fight then continues normally into
+   *   the next round.
+   */
+  | { kind: 'bokrug' }
+  /**
+   * Zepar's abilities:
+   * - Aura Niewiary: once, at the very start of round 1, blocks the arcana of 1-3 random players
+   *   (picked once, for the whole fight) — their purely-arcane abilities (Groza, Żar Krwi, Tchnienie
+   *   Śmierci, and the personal Skóra Bestii odporność bonus) stop working entirely. Anything that's
+   *   really a TALIZMAN ability that merely scales off an arcane investment (Otchłań Ciszy, Potęga
+   *   Mocy, Furia Bestii, Cichy Łowca, Szpony Nocy's round-3 Groza chance, Aura Bestii's team bonus,
+   *   Ziz) is unaffected — the talizman itself still works the same way.
+   * - Cannon fodder: same "Słudzy Plagi" adds as Merihim/Bokrug. Additionally, the first time he
+   *   drops to 50% max HP or below, he summons 8 more of them at the start of the FOLLOWING round
+   *   (on top of whatever's still alive from the initial wave).
+   */
+  | { kind: 'zepar' };
 
 export interface MobCombatProfile {
   weaponName: string;
   weaponGenre: MobWeaponGenre;
-  minDmg: number;
-  maxDmg: number;
+  /** Per-attack damage roll range for the MIN stat variant, as "min-max" (e.g. "600-900") — scales with star via the shared dmgStarMulti, same as maxMobDmg. */
+  minMobDmg: string;
+  /** Per-attack damage roll range for the MAX stat variant, as "min-max" (e.g. "900-1200") — an independent range, not derived from minMobDmg by any flat/percent formula. */
+  maxMobDmg: string;
   attacksPerRound: number;
   critChance: number;
   critMulti: number;
   /** Boss's own dodge chance against incoming player attacks, keyed by the player weapon's genre. */
   unik?: Partial<Record<MobWeaponGenre, number>>;
   special?: MobSpecialAbility;
-  /** Max player level allowed to fight this mob, at star 1. Scales +50% per star above 1. */
+  /** Max player level allowed to fight this mob, at star 1. Scales +50% per star above 1 unless levelCapScalesWithStar is set to false. */
   playerLevelCap?: number;
-  /** Flat amount added to minDmg/maxDmg per stat variant (MIN and MAX otherwise deal identical damage), scaled by its own +20%/star curve — see flatBonusStarMultiplier. */
-  variantDamageFlatBonus?: { min: number; max: number };
+  /** Set to false to keep playerLevelCap fixed at every star instead of the default +50%/star scaling. Defaults to true (scales). */
+  levelCapScalesWithStar?: boolean;
   /** Divides playerLevelCap for the incomplete-roster damage bonus specifically (extraDamage = levelCap/divisor - joinedLevelSum), leaving the activation threshold and hit-chance bonus on the full cap. Defaults to 1 (full cap). */
   rosterBonusDamageCapDivisor?: number;
+  /** Flat amount added to both ends of maxMobDmg (MAX stat variant only) per star above 1 — e.g. 90 means star 1 uses maxMobDmg as-is, star 2 adds +90, star 3 adds +180, etc. Added on top of the shared dmgStarMulti scaling, not multiplied by it. 0/unset means no per-star growth beyond dmgStarMulti. */
+  maxDmgFlatPerStar?: number;
+  /** Same as maxDmgFlatPerStar, but for minMobDmg (MIN stat variant). */
+  minDmgFlatPerStar?: number;
 }
 
 export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
   Abaddon: {
     weaponName: 'Rusznica Otchłani',
     weaponGenre: 'palna',
-    minDmg: 600,
-    maxDmg: 900,
+    minMobDmg: '600-825',
+    maxMobDmg: '600-825',
     attacksPerRound: 5,
     critChance: 0.85,
     critMulti: 2,
     unik: { biala: 0, palna: 0, dystans: 0 },
     special: { kind: 'demonicznyGniew' },
     playerLevelCap: 980,
-    // MAX-variant adds a flat +30 on top of the shared minDmg/maxDmg range.
-    variantDamageFlatBonus: { min: 0, max: 30 },
-    // Incomplete-roster damage bonus uses half the level cap instead of the full cap.
-    rosterBonusDamageCapDivisor: 2,
+    // Level cap stays fixed at 980 regardless of star — no +50%/star scaling for Abaddon.
+    levelCapScalesWithStar: false,
+    // MAX variant's damage range grows an extra flat +30 (both ends) per star above 1.
+    maxDmgFlatPerStar: 30,
   },
   Agrameon: {
     weaponName: 'Bicz grozy',
     weaponGenre: 'biala',
-    minDmg: 900,
-    maxDmg: 1200,
+    minMobDmg: '675-1000',
+    maxMobDmg: '675-1000',
     attacksPerRound: 8,
     critChance: 0.7,
     critMulti: 6,
     unik: { biala: 0, palna: 0, dystans: 0 },
     special: { kind: 'mackiStrachu' },
     playerLevelCap: 1190,
-    // MAX-variant adds a flat +450 on top of the shared minDmg/maxDmg range.
-    variantDamageFlatBonus: { min: 0, max: 450 },
+    // MAX variant's damage range grows an extra flat +90 (both ends) per star above 1.
+    maxDmgFlatPerStar: 90,
+    // MIN variant's damage range grows an extra flat +45 (both ends) per star above 1.
+    minDmgFlatPerStar: 18,
   },
   'Yog-Sothoth': {
     weaponName: 'Klucz Nieskończoności',
     weaponGenre: 'biala',
-    minDmg: 7000,
-    maxDmg: 11000,
+    minMobDmg: '7000-11000',
+    maxMobDmg: '7000-11000',
     // Unused placeholder — his real attack count (playerCount × 2, confirmed from real logs) is
     // computed dynamically in expeditionCombat.ts, since it isn't a fixed per-mob constant.
     attacksPerRound: 1,
@@ -90,16 +126,40 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
   Merihim: {
     weaponName: 'Wielkie Ostrze Plagi',
     weaponGenre: 'biala',
-    minDmg: 950,
-    maxDmg: 1150,
+    minMobDmg: '700-950',
+    maxMobDmg: '700-950',
     attacksPerRound: 12,
     critChance: 1.7,
-    critMulti: 6,
+    critMulti: 6.5,
     unik: { biala: 0, palna: 0, dystans: 0 },
     special: { kind: 'merihim' },
     playerLevelCap: 2144,
-    // MAX-variant adds a flat +280 on top of the shared minDmg/maxDmg range, scaled the same way as Agrameon's.
-    variantDamageFlatBonus: { min: 0, max: 280 },
+  },
+  Bokrug: {
+    weaponName: 'Kolce Jadowe',
+    weaponGenre: 'dystans',
+    minMobDmg: '1250-1350',
+    maxMobDmg: '1300-1400',
+    attacksPerRound: 10,
+    critChance: 1.25,
+    critMulti: 6.5,
+    unik: { biala: 0.1, palna: 0.1, dystans: 0.1 },
+    special: { kind: 'bokrug' },
+    playerLevelCap: 2326,
+        // Level cap stays fixed at 2326 regardless of star — no +50%/star scaling for Abaddon.
+    levelCapScalesWithStar: false,
+  },
+  Zepar: {
+    weaponName: 'Pejcz Gromów',
+    weaponGenre: 'palna',
+    minMobDmg: '1150-1350',
+    maxMobDmg: '1208-1418',
+    attacksPerRound: 28,
+    critChance: 1,
+    critMulti: 4,
+    unik: { biala: 0.15, palna: 0.15, dystans: 0.15 },
+    special: { kind: 'zepar' },
+    playerLevelCap: 2500,
   },
 };
 
@@ -116,6 +176,8 @@ export const MOB_IMPLEMENTATION_STATUS: Record<string, MobImplementationStatus> 
   Agrameon: 'yellow',
   'Yog-Sothoth': 'yellow',
   Merihim: 'yellow',
+  Bokrug: 'red',
+  Zepar: 'red',
 };
 
 export function mobImplementationStatus(mobName: string): MobImplementationStatus {
