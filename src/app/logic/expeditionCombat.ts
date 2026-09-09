@@ -1103,6 +1103,8 @@ export function simulateExpedition(
       if (attacker.zarDamageBonus > 0) {
         dmg = Math.round(dmg * (1 + attacker.zarDamageBonus));
       }
+      // Don't count overkill — a killing blow only "deals" as much damage as the mob actually had left.
+      dmg = Math.min(dmg, mobHp);
       mobHp = Math.max(0, mobHp - dmg);
       attacker.damageDealtThisRound += dmg;
       attacker.totalDamageDealt += dmg;
@@ -1216,6 +1218,8 @@ export function simulateExpedition(
       if (attacker.zarDamageBonus > 0) {
         dmg = Math.round(dmg * (1 + attacker.zarDamageBonus));
       }
+      // Don't count overkill — a killing blow only "deals" as much damage as the add actually had left.
+      dmg = Math.min(dmg, add.hp);
       add.hp = Math.max(0, add.hp - dmg);
       attacker.damageDealtThisRound += dmg;
       attacker.totalDamageDealt += dmg;
@@ -1431,6 +1435,8 @@ export function simulateExpedition(
               const factor = genre === 'dystans' ? YOG_SOTHOTH_FODDER_OBRONA / 4 : genre === 'biala' ? YOG_SOTHOTH_FODDER_OBRONA / 2 : YOG_SOTHOTH_FODDER_ODPORNOSC / 2;
               const raw = crit ? randomInt(w.critDmgMin ?? w.minDmg, w.critDmgMax ?? w.maxDmg) : randomInt(w.minDmg, w.maxDmg);
               dmg = Math.max(1, Math.round((raw - factor) * (1 + p.zarDamageBonus)));
+              // Don't count overkill — a killing blow only "deals" as much damage as the fodder actually had left.
+              dmg = Math.min(dmg, target.hp);
               target.hp = Math.max(0, target.hp - dmg);
               p.damageDealtThisRound += dmg;
               p.totalDamageDealt += dmg;
@@ -1547,6 +1553,8 @@ export function simulateExpedition(
         } else {
           dmg = Math.max(0, Math.round(placeholderDamagePerAttack * (1 - target.redukcja)));
         }
+        // Don't count overkill — a killing blow only "deals" as much damage as the target actually had left.
+        dmg = Math.min(dmg, target.hp);
         target.hp = Math.max(0, target.hp - dmg);
         mobTotalDamageDealt += dmg;
         updateZarBonus(target);
