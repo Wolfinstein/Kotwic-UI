@@ -126,7 +126,7 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
   Merihim: {
     weaponName: 'Wielkie Ostrze Plagi',
     weaponGenre: 'biala',
-    minMobDmg: '700-950',
+    minMobDmg: '600-850',
     maxMobDmg: '700-950',
     attacksPerRound: 12,
     critChance: 1.7,
