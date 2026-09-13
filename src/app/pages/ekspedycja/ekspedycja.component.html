@@ -130,11 +130,14 @@
           >
             @if (isPlayerSelected(p.id)) {
               <span
-                class="player-badge"
-                [style.background]="playerSelectionColor(p.id)"
+                class="player-remove-btn"
                 [attr.aria-label]="'Usuń jedną z ' + playerSelectionCount(p.id) + ' kopii'"
                 [title]="'Kliknij, aby usunąć jedną kopię'"
                 (click)="removePlayerInstance(p.id, $event)"
+              ><i class="pi pi-times"></i></span>
+              <span
+                class="player-badge"
+                [style.background]="playerSelectionColor(p.id)"
               >{{ playerSelectionCount(p.id) > 1 ? 'x' + playerSelectionCount(p.id) : '1' }}</span>
             }
             <span class="player-portrait">

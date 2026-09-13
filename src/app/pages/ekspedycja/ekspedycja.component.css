@@ -616,10 +616,27 @@
   font-family: 'Bungee', sans-serif;
   font-size: 11px;
   box-shadow: 0 0 8px 2px rgba(111, 224, 207, 0.5);
+}
+
+.player-remove-btn {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e53935;
+  color: #fff;
+  font-size: 11px;
+  box-shadow: 0 0 8px 2px rgba(229, 57, 53, 0.5);
   cursor: pointer;
 }
 
-.player-badge:hover {
+.player-remove-btn:hover {
   filter: brightness(1.2);
 }
 
