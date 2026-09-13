@@ -1,6 +1,13 @@
 import { Stats } from './Stats';
+import { Base } from './Base';
+import { ItemGenre } from './constants/itemGenre';
 import { ItemRarity } from './constants/itemRarity';
-import { LEGENDARY_BONUS, getQualityMultiplier, isLegendary, getEpicMultiplier, scaleValue } from './qualityMultiplierUtils';
+import { STAROZYTNY_BONUS, EPIC_BASE_MULTIPLIER, getQualityMultiplier, isLegendary, isEpicTier, getEpicMultiplier, getLegendaryBonus, scaleValue, STAROZYTNY_BASE_TWARDOSC } from './qualityMultiplierUtils';
+
+const CORE_ATTRIBUTES: (keyof Stats)[] = [
+  'sila', 'zwinnosc', 'odpornosc', 'wyglad', 'charyzma',
+  'wplywy', 'spostrzegawczosc', 'inteligencja', 'wiedza',
+];
 
 export { getQualityMultiplier } from './qualityMultiplierUtils';
 
@@ -30,13 +37,14 @@ const MULTIPLIED_STAT_PROPERTIES: (keyof Stats)[] = [
 ];
 
 
-export function applyQualityMultiplier(stats: Stats, rarity: ItemRarity, playerLvl: number): Stats {
+export function applyQualityMultiplier(stats: Stats, rarity: ItemRarity, playerLvl: number, base?: Base): Stats {
   const result = stats.clone();
+  const rawTwardosc = result.twardosc;
   const qualityMult = getQualityMultiplier(rarity);
-  const isEpic = rarity === ItemRarity.EPICKI;
+  const isEpic = isEpicTier(rarity);
   const epicMult = getEpicMultiplier(rarity);
   const isLeg = isLegendary(rarity);
-  const legendaryBonus = LEGENDARY_BONUS;
+  const legendaryBonus = getLegendaryBonus(rarity);
   let tempObrona = 0;
   let tempObrazenia = 0;
   let tempMultiPalna2h = 0;
@@ -80,15 +88,48 @@ export function applyQualityMultiplier(stats: Stats, rarity: ItemRarity, playerL
   result.setAllMinDps(tempObrazenia);
   result.setAllMaxDps(tempObrazenia);
   result.obronaPrzedmiotow += tempObrona;
+
+  if (base && rarity === ItemRarity.STAROZYTNY) {
+    applyStarozytnyNonWeapon(result, base, rawTwardosc);
+  }
+
   return result;
+}
+
+/**
+ * Dodatkowe efekty poziomu STAROZYTNY dla przedmiotów nie-broni.
+ * Wywoływane po standardowym (epickim) skalowaniu.
+ */
+function applyStarozytnyNonWeapon(result: Stats, base: Base, rawTwardosc: number): void {
+  const genre = base.genre;
+  if (genre === ItemGenre.HEAD || genre === ItemGenre.CHEST || genre === ItemGenre.LEGS) {
+    // Odporność = obrona z samej bazy (na poziomie epickim).
+    result.odpornosc += Math.round(result.obronaBazy);
+    // Twardość: stała z bazy + skalowana (epicko) twardość z prefixów/sufixów.
+    const affixRaw = rawTwardosc - (base.stats.twardosc ?? 0);
+    const scaledAffix = affixRaw > 0
+      ? scaleValue(affixRaw, [EPIC_BASE_MULTIPLIER, STAROZYTNY_BONUS], 'twardosc')
+      : 0;
+    // Płaski bonus poziomu STAROZYTNY.
+    result.twardosc = Math.round(((STAROZYTNY_BASE_TWARDOSC[base.type] ?? 0) + scaledAffix + 0.1) * 100) / 100;
+    result.odpornosc += 50;
+  } else if (genre === ItemGenre.NECK || genre === ItemGenre.FINGER) {
+    // Dodatnie atrybuty podstawowe podwojone względem epickich.
+    for (const attr of CORE_ATTRIBUTES) {
+      const value = (result as any)[attr] as number;
+      if (value > 0) {
+        (result as any)[attr] = value * 2;
+      }
+    }
+  }
 }
 
 function calcValue(value: number, rarity: ItemRarity, prop: string): number {
   const qualityMult = getQualityMultiplier(rarity);
-  const isEpic = rarity === ItemRarity.EPICKI;
+  const isEpic = isEpicTier(rarity);
   const epicMult = getEpicMultiplier(rarity);
   const isLeg = isLegendary(rarity);
-  const legendaryBonus = LEGENDARY_BONUS;
+  const legendaryBonus = getLegendaryBonus(rarity);
   let multipliedValue: number;
   if (isEpic) {
     multipliedValue = scaleValue(value, [epicMult, legendaryBonus], prop);

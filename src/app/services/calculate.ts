@@ -25,7 +25,14 @@ import { max } from 'rxjs';
   providedIn: 'root'
 })
 export class DashboardService {
-  calculateStuff(c: Character): DashboardValues {
+  /**
+   * @param extraBaseLife Additional baseLife to inject before any baseLife-dependent talismans/arcanes
+   * run (Życie i Śmierć × Tchnienie Śmierci's up-to-+400% bonus, Majestat's +7%/point bonus, and the
+   * final Wzmocniony-set punktyZycia% bonus) so it compounds with them exactly like equipment/umagi
+   * baseLife does. Used by the expedition simulator to fold Aura Bestii's team-wide HP bonus into a
+   * single player's dashboard instead of adding it as a separate flat amount afterwards.
+   */
+  calculateStuff(c: Character, extraBaseLife: number = 0): DashboardValues {
     let player: Player = new PlayerBuilder()
       .lvl(c.poziom)
       .stats(new StatsBuilder()
@@ -45,7 +52,7 @@ export class DashboardService {
       .trafieniePrzeciwnika(c.trafieniePrzeciwnika)
       .items(this.mapItems(c))
       .build();
-    player.baseLife += this.calculateBaseLife(c);
+    player.baseLife += this.calculateBaseLife(c) + extraBaseLife;
     this.calculateUmagi(c, player);
     player.doMysliwy(c.mysliwy);
     player.doNinja(c.ninja);
@@ -61,14 +68,73 @@ export class DashboardService {
     this.calculateHuntBonuses(c, player);
     this.calculateOneTimeBonus(c, player);
     this.calculateEventBonus(c, player);
+    this.calculateNocBohaterowBudynki(c, player);
     this.calculateStrateg(c, player);
     const dashboard: DashboardValues = this.buildDashboardValues(player);
+    this.capUnik(dashboard, c.evolutions?.mutacjaDna ?? 0);
     return dashboard;
+  }
+  /** Unik is capped at 30%, raised to 31%/32% by Mutacja DNA level 6-9/10-15. */
+  private capUnik(dashboard: DashboardValues, mutacjaDnaLevel: number): void {
+    const cap = mutacjaDnaLevel >= 10 ? 0.32 : mutacjaDnaLevel >= 6 ? 0.31 : 0.30;
+    dashboard.unikBiala = Math.min(dashboard.unikBiala ?? 0, cap);
+    dashboard.unikPalna = Math.min(dashboard.unikPalna ?? 0, cap);
+    dashboard.unikDystans = Math.min(dashboard.unikDystans ?? 0, cap);
   }
   calculateBudynki(c: Character, p: Player): void {
     p.addCharyzma(c.posredniak);
     p.addWiedza(c.domPubliczny);
     p.addWplywy(c.rzeznia);
+  }
+  private static readonly NOC_BOHATEROW_EVENTS = ['noc bohaterów', 'pamięci ofiar ii wojny światowej'];
+  /**
+   * Strefa 5 buildings (Posterunek Policji, Schronisko dla Bezdomnych, Agencja Ochrony,
+   * Handlarz Bronią, Dziennik Lokalny "Nocna Zmiana") are only accessible during the
+   * "Noc Bohaterów" / "Pamięci ofiar II wojny światowej" events, so their effects only
+   * apply while one of those is selected. While active, the Assasyn arena bonus
+   * (levels 1-5: +20/30/40/50/60%) boosts the PKT ŻYCIA coming from Agencja Ochrony,
+   * and an equipped Życie i Śmierć talizman boosts the buildings' flat PKT ŻYCIA
+   * (Agencja Ochrony + Handlarz Bronią) by the same Tchnienie Śmierci modifier
+   * (see TalismanyAndArkany.tchnienieModifier — 3/4/5/6% per arcane point depending
+   * on the talizman's own tier, capped at +400%) that always boosts base PKT ŻYCIA.
+   */
+  calculateNocBohaterowBudynki(c: Character, p: Player): void {
+    const event = c.eventBonus?.toLowerCase();
+    if (!event || !DashboardService.NOC_BOHATEROW_EVENTS.includes(event)) {
+      return;
+    }
+    if (c.policja >= 1) {
+      p.addSpostrzegawczosc(c.policja);
+    }
+    if (c.schronisko >= 1) {
+      let schroniskoWplywy = c.schronisko;
+      if (c.gazeta >= 1) {
+        const gazetaBonusPct = 0.25 + 0.05 * (c.gazeta - 1);
+        schroniskoWplywy = Math.floor(schroniskoWplywy * (1 + gazetaBonusPct));
+      }
+      p.addWplywy(schroniskoWplywy);
+    }
+    const finalWplywy = p.stats.wplywy;
+    let ochronaLife = 0;
+    if (c.ochrona >= 1) {
+      p.addLaczneObrazeniaWszystkichBroni(c.ochrona / 100);
+      ochronaLife = finalWplywy * c.ochrona;
+    }
+    if (ochronaLife > 0 && c.assasyn >= 1) {
+      const assasynBonusPct = [0, 0.20, 0.30, 0.40, 0.50, 0.60][c.assasyn] ?? 0;
+      ochronaLife = Math.floor(ochronaLife * (1 + assasynBonusPct));
+    }
+    let budynkiLife = ochronaLife;
+    if (c.handlarz >= 1) {
+      budynkiLife += ((c.handlarz + 3) / 10) * c.ochrona * finalWplywy;
+    }
+    const zycieSmierc = c.talizmanLevels?.zycieISmierc ?? 0;
+    if (budynkiLife > 0 && zycieSmierc >= 1) {
+      const tchnienie = c.arcaneLevels?.tchnienieSmierci ?? 0;
+      const bonusPct = TalismanyAndArkany.tchnienieModifier(zycieSmierc, tchnienie);
+      budynkiLife = Math.floor(budynkiLife * (1 + bonusPct));
+    }
+    p.addLife(Math.floor(budynkiLife));
   }
   calculateStrateg(c: Character, p: Player): void {
     const strateg = c.strateg;
@@ -93,20 +159,20 @@ export class DashboardService {
     }
   }
   private getPrefixTypeByName(name: string): PrefixType {
-    const prefixValues = Object.values(PrefixType);
-    const found = prefixValues.find(v => v === name);
+    const normalized = name.replace(/\s+/g, '').toLowerCase();
+    const found = Object.values(PrefixType).find(v => v.replace(/\s+/g, '').toLowerCase() === normalized);
     if (!found) {
       throw new Error(`Prefix type not found: ${name}`);
     }
-    return name as PrefixType;
+    return found;
   }
   private getSuffixTypeByName(name: string): SuffixType {
-    const suffixValues = Object.values(SuffixType);
-    const found = suffixValues.find(v => v === name);
+    const normalized = name.replace(/\s+/g, '').toLowerCase();
+    const found = Object.values(SuffixType).find(v => v.replace(/\s+/g, '').toLowerCase() === normalized);
     if (!found) {
       throw new Error(`Suffix type not found: ${name}`);
     }
-    return name as SuffixType;
+    return found;
   }
   private getGenreForItemType(itemType: ItemType): ItemGenre {
     const legTypes = [ItemType.SZORTY, ItemType.SPODNIE, ItemType.SPODNICA, ItemType.KILT];
@@ -277,7 +343,7 @@ export class DashboardService {
         case 'obrona':
           if (parts[1]?.includes('/')) {
             const [num, den] = parts[1].split('/').map(Number);
-            p.addObronaDodatkowa((Math.floor(num / den) * c.poziom));
+            p.addObronaDodatkowa((Math.floor(c.poziom / den) * num));
           } else {
             p.addObronaDodatkowa(value);
           }
@@ -359,10 +425,11 @@ export class DashboardService {
       const talizmanyArkany = TalismanyAndArkany.builder()
         .aMajestat(c.arcaneLevels?.majestat ?? 0)
         .aMaskaOff(c.arcaneLevels?.maskaKaliguli ?? 0)
-        .aMaskaDef(c.arcaneLevels?.maskaAdnisa ?? 0)
+        .aMaskaDef(c.arcaneLevels?.maskaAdonisa ?? 0)
         .aKrewZycia(c.arcaneLevels?.krewZycia ?? 0)
         .aKocieSciezki(c.arcaneLevels?.kocieSciezki ?? 0)
         .aZar(c.arcaneLevels?.zarKrwi ? 1 : 0)
+        .zarAktywny(c.zarKrwiActive ?? false)
         .aCisza(c.arcaneLevels?.ciszaKrwi ?? 0)
         .aWyssanie(c.arcaneLevels?.wyssanieMocy ?? 0)
         .aMocKrwi(c.arcaneLevels?.mocKrwi ?? 0)
@@ -371,11 +438,14 @@ export class DashboardService {
         .aCienBestii(c.arcaneLevels?.cienBestii ? 1 : 0)
         .aNocny(c.arcaneLevels?.nocnyLowca ?? 0)
         .aTchnienie(c.arcaneLevels?.tchnienieSmierci ?? 0)
+        .tchnienieAktywne(c.tchnienieSmierciActive ?? false)
         .ambicja(c.talizmanLevels?.ambicja ?? 0)
         .behemot(c.talizmanLevels?.behemot ?? 0)
         .ziz(c.talizmanLevels?.ziz ?? 0)
         .kamienSpota(c.talizmanLevels?.kamienPrzestrzeni ?? 0)
         .kamienZwinki(c.talizmanLevels?.kamienCzasu ?? 0)
+        .kamienDobra(c.talizmanLevels?.kamienDobra ?? 0)
+        .kamienZla(c.talizmanLevels?.kamienZla ?? 0)
         .szpony(c.talizmanLevels?.szponyNocy ?? 0)
         .zycieSmierc(c.talizmanLevels?.zycieISmierc ?? 0)
         .otchlan(c.talizmanLevels?.otchlaniCiszy ?? 0)
@@ -404,7 +474,7 @@ export class DashboardService {
           p.addIgnore(0.75);
           break;
         case 'Adrenalina':
-          p.life += Math.floor(p.baseLife * 0.25);
+          p.lifeMultiplier *= 1.15;
           break;
         case 'SokoleOko':
           p.addTrafienieProcentowePalna(0.2);
@@ -700,6 +770,9 @@ export class DashboardService {
       case 'dzień poszukiwaczy':
         p.addSzczescie(100);
         break;
+      case 'urodzinowa wizja kaina':
+        p.addSzczescie(100);
+        break;
       case 'dzień vlada':
         break;
       case 'dzień gwiazd północy':
@@ -757,6 +830,10 @@ export class DashboardService {
       case 'zwycięzca jest tylko jeden':
         p.addSzczescie(50);
         break;
+      case 'noc bohaterów':
+        break;
+      case 'pamięci ofiar ii wojny światowej':
+        break;
     }
   }
   calculateRunyZTalkow(c: Character, p: Player): void {
@@ -778,7 +855,7 @@ export class DashboardService {
         case 'sila':
           if (value <= 2) {
             p.addSila(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value === 3) {
             p.addSila(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addSila(Math.floor(c.poziom / 60) * 3);
@@ -788,7 +865,7 @@ export class DashboardService {
         case 'spostrzegawczosc':
           if (value <= 2) {
             p.addSpostrzegawczosc(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value === 3) {
             p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addSpostrzegawczosc(Math.floor(c.poziom / 60) * 3);
@@ -798,7 +875,7 @@ export class DashboardService {
         case 'inteligencja':
           if (value <= 2) {
             p.addInteligencja(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value === 3) {
             p.addInteligencja(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addInteligencja(Math.floor(c.poziom / 60) * 3);
@@ -808,7 +885,7 @@ export class DashboardService {
         case 'wiedza':
           if (value <= 2) {
             p.addWiedza(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value === 3) {
             p.addWiedza(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addWiedza(Math.floor(c.poziom / 60) * 3);
@@ -818,7 +895,7 @@ export class DashboardService {
         case 'zwinnosc':
           if (value <= 2) {
             p.addZwinnosc(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value === 3) {
             p.addZwinnosc(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addZwinnosc(Math.floor(c.poziom / 60) * 3);
@@ -829,9 +906,9 @@ export class DashboardService {
           p.addObronaDodatkowa(Math.floor(c.poziom / 8) * value);
           break;
         case 'odpornosc':
-          if (value <= 2) {
+          if (value <= 4) {
             p.addOdpornosc(Math.floor(c.poziom / 60));
-          } else if (value == 3) {
+          } else if (value == 6) {
             p.addOdpornosc(Math.floor(c.poziom / 60) * 2);
           } else {
             p.addOdpornosc(Math.floor(c.poziom / 60) * 3);
@@ -918,17 +995,18 @@ export class DashboardService {
       const cappedRedukcja = Math.min(player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01, 0.30);
       const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
       return {
-        punktyZycia: player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife),
+        punktyZycia: Math.floor((player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife)) * player.lifeMultiplier),
         effectiveHp: effectiveHp,
         punktyKrwi: 0,
         szczescie: player.stats.szczescie,
         obrona: player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc,
         attributes: attributes,
         twardrosc: player.stats.twardosc,
-        redukcja: player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01,
+        redukcja: cappedRedukcja,
         unikBiala: player.stats.unikBiala,
         unikPalna: player.stats.unikPalna,
         unikDystans: player.stats.unikDystans,
+        enemyCritChanceReduction: Math.floor(player.stats.enemyCritChanceReductionRaw) / 100,
         trafienieDodatkoweDystans: player.stats.trafienieDystans,
         trafienieDodatkowePalna: player.stats.trafieniePalna,
         trafienieDodatkoweBiala: player.stats.trafienieBiala,
@@ -984,7 +1062,7 @@ export class DashboardService {
   }
 
   private simulateRoundsPerWeapon(damages: WeaponDamage[], rounds: number, ziz: boolean): { name: string; rounds: number[] }[] {
-    const oneHandedGenres: string[] = [ItemGenre.WHITE_1H, ItemGenre.GUN_1H, ItemGenre.RANGE_1H];
+    const oneHandedGenres: string[] = [ItemGenre.WHITE_1H, ItemGenre.GUN_1H];
     return damages.map(d => {
       let accumulatedBonus = 0;
       const roundValues: number[] = [];
@@ -1007,7 +1085,7 @@ export class DashboardService {
 
   private simulateZiz4Rounds(damages: WeaponDamage[]): number[] {
     const ROUNDS = 10;
-    const oneHandedGenres: string[] = [ItemGenre.WHITE_1H, ItemGenre.GUN_1H, ItemGenre.RANGE_1H];
+    const oneHandedGenres: string[] = [ItemGenre.WHITE_1H, ItemGenre.GUN_1H];
     const rounds: number[] = [];
     let accumulatedBonus = 0;
     for (let round = 0; round < ROUNDS; round++) {
@@ -1225,11 +1303,13 @@ export class DashboardService {
       let finalCritChance = critChance;
 
       if ((player.stats.szczescie - player.szczesciePrzeciwnika) >= 5) {
-        finalCritChance += toDecimal(Math.floor((player.stats.szczescie - player.szczesciePrzeciwnika) / 5))
+        finalCritChance += Math.min(toDecimal(Math.floor((player.stats.szczescie - player.szczesciePrzeciwnika) / 5)), 0.2)
       }
 
+      const uncappedCritChance = finalCritChance;
+
       if (finalCritChance > 0.85) {
-        critChance = 0.85;
+        finalCritChance = 0.85;
       }
 
       let laczneProcentoweDmg = (player.stats.laczneObrazeniaWszystkichBroni * 100) / 100;
@@ -1254,12 +1334,15 @@ export class DashboardService {
         }
       }
 
-      const critDmgMin = Math.floor(minDmg * critMulti);
-      const critDmgMax = Math.floor(maxDmg * critMulti);
+      minDmg = Math.max(1, minDmg);
+      maxDmg = Math.max(1, maxDmg);
+
+      const critDmgMin = Math.max(1, Math.floor(minDmg * critMulti));
+      const critDmgMax = Math.max(1, Math.floor(maxDmg * critMulti));
       const avgDmg = Math.floor((minDmg + maxDmg) / 2);
       const avgCritDmg = Math.floor((critDmgMin + critDmgMax) / 2);
       const estimatedHitChance = genre ? this.calculateHitChance(genre, player, trafienieLegDystans) : 1;
-      const obrazeniaNaRundeAvg = Math.floor(estimatedHitChance * (critChance * ataki * avgCritDmg + (1 - critChance) * ataki * avgDmg));
+      const obrazeniaNaRundeAvg = Math.floor(estimatedHitChance * (finalCritChance * ataki * avgCritDmg + (1 - finalCritChance) * ataki * avgDmg));
       return {
         name: this.constructWeaponName(weapon),
         genre: genre,
@@ -1270,6 +1353,7 @@ export class DashboardService {
         trafienieProcentowe: trafienieProcentowe,
         ignore: player.stats.ignoreObrony,
         critChance: finalCritChance,
+        rawCritChance: uncappedCritChance,
         critMulti,
         critDmgMin,
         critDmgMax,

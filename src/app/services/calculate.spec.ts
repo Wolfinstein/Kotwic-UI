@@ -7,6 +7,8 @@ const CHARACTER: Character = {
   blaszkaZaMoba: true,
   blaszkaZaKronosa: true,
   blaszkaZaHastura: false,
+  tchnienieSmierciActive: false,
+  zarKrwiActive: false,
   attributes: {
     sila: 96,
     zwinnosc: 125,
@@ -39,7 +41,7 @@ const CHARACTER: Character = {
     ziz: 0
   },
   arcaneLevels: {
-    maskaAdnisa: 0,
+    maskaAdonisa: 0,
     maskaKaliguli: 0,
     majestat: 0,
     krewZycia: 0,
@@ -73,6 +75,7 @@ const CHARACTER: Character = {
   },
   mysliwy: 5,
   ninja: 5,
+  assasyn: 0,
   strateg: 5,
   kaplica: 6,
   obronaPrzeciwnika: 905,

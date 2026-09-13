@@ -145,8 +145,8 @@
             <span class="sub-text">ataki</span>
           </div>
           <div class="value-badge" *ngIf="weapon.critChance !== undefined">
-            <div>{{ weapon.critChance * 100 | number:'1.1-1' }}%</div>
-            <span class="sub-text">crit chance</span>
+            <div>{{ (weapon.rawCritChance ?? weapon.critChance) * 100 | number:'1.1-1' }}%</div>
+            <span class="sub-text">crit chance <ng-container *ngIf="(weapon.rawCritChance ?? 0) > 0.85">(capped 85%)</ng-container><ng-container *ngIf="(weapon.rawCritChance ?? 0) <= 0.85">(max 85%)</ng-container></span>
           </div>
           <div class="value-badge" *ngIf="weapon.critMulti !== undefined">
             <div>{{ weapon.critMulti * 100 | number:'1.1-1' }}%</div>

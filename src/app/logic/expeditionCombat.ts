@@ -1,0 +1,1793 @@
+import { StarMob } from '../data/mobsData';
+import { scaledRangeForStar } from '../data/mobStatUtils';
+import { SavedCharacter } from '../services/saved-characters.service';
+import { DashboardService } from '../services/calculate';
+import { Character, WeaponDamage } from '../models/character';
+import { MOB_COMBAT_PROFILES, MobCombatProfile, MobWeaponGenre } from '../data/mobCombatProfiles';
+
+const ROUNDS = 10;
+
+export type MobStatVariant = 'min' | 'max';
+
+/** Picks the min or max end of a star-scaled stat range — lets the user preview/fight the weakest or strongest roll for a given star. */
+function pickStat(range: { min: number; max: number } | null, variant: MobStatVariant): number {
+  if (!range) return 0;
+  return variant === 'max' ? range.max : range.min;
+}
+
+function randomInt(min: number, max: number): number {
+  if (max <= min) return Math.max(0, Math.round(min));
+  return Math.round(min + Math.random() * (max - min));
+}
+
+/** Mob combat-profile damage scales +60% per star above 1 (star 1 = base, star 2 = 1.6x, star 3 = 2.2x, ...). */
+function mobDamageStarMultiplier(star: number): number {
+  return 1 + Math.max(0, star - 1) * 0.6;
+}
+
+/** Parses a MobCombatProfile "min-max" damage-range string (e.g. "600-900") into numbers. */
+function parseDmgRange(range: string): { min: number; max: number } {
+  const [min, max] = range.split('-').map(Number);
+  return { min: min || 0, max: max || 0 };
+}
+
+/** Resolves a mob's per-attack damage roll range for the selected stat variant — minMobDmg for MIN, maxMobDmg for MAX. These are independent, explicitly-authored ranges (no flat/percent derivation between them). Also adds the profile's per-star flat growth (maxDmgFlatPerStar for MAX, minDmgFlatPerStar for MIN) × (star-1) to both ends, on top of (not multiplied by) the shared dmgStarMulti scaling. */
+function mobDmgRangeForVariant(variant: MobStatVariant, profile: MobCombatProfile | undefined, star: number): { min: number; max: number } {
+  if (!profile) return { min: 0, max: 0 };
+  const range = parseDmgRange(variant === 'max' ? profile.maxMobDmg : profile.minMobDmg);
+  const flatPerStar = variant === 'max' ? profile.maxDmgFlatPerStar : profile.minDmgFlatPerStar;
+  if (flatPerStar) {
+    const bonus = flatPerStar * Math.max(0, star - 1);
+    return { min: range.min + bonus, max: range.max + bonus };
+  }
+  return range;
+}
+
+/** Player level cap scales +50% per star above 1 (star 1 = base, star 2 = 1.5x, star 3 = 2x, ...). */
+function mobLevelCapForStar(baseCap: number, star: number): number {
+  return Math.round(baseCap * (1 + Math.max(0, star - 1) * 0.5));
+}
+
+/** Resolves a mob's star-scaled player level cap, or null if it has none. Skips the +50%/star scaling when the profile sets levelCapScalesWithStar to false, keeping playerLevelCap fixed at every star. */
+function resolveLevelCap(profile: MobCombatProfile | undefined, star: number): number | null {
+  if (!profile?.playerLevelCap) return null;
+  return profile.levelCapScalesWithStar === false ? profile.playerLevelCap : mobLevelCapForStar(profile.playerLevelCap, star);
+}
+
+/** One of a boss's lesser "Słudzy Plagi" cannon-fodder adds — a small independent HP pool with its own initiative, fighting alongside it for the whole fight. Originally Merihim's, reused as-is for Bokrug. */
+export interface MerihimAdd {
+  id: string;
+  name: string;
+  hp: number;
+  maxHp: number;
+  initiative: number;
+  alive: boolean;
+}
+
+/** Merihim add count: 1 at star 1-2, 2 at star 3-4, ... up to 6 at star 11-12. */
+function merihimAddCountForStar(star: number): number {
+  return Math.min(6, Math.max(1, Math.ceil(Math.max(1, star) / 2)));
+}
+
+/** Merihim add HP/initiative linearly interpolated between star 1 (1000 hp, 250 init) and star 12 (8000 hp, 650 init). */
+function merihimAddStatsForStar(star: number): { hp: number; initiative: number } {
+  const t = (Math.min(12, Math.max(1, star)) - 1) / 11;
+  return {
+    hp: Math.round(1000 + t * (8000 - 1000)),
+    initiative: Math.round(250 + t * (650 - 250)),
+  };
+}
+
+function buildMerihimAdds(star: number): MerihimAdd[] {
+  const count = merihimAddCountForStar(star);
+  const { hp, initiative } = merihimAddStatsForStar(star);
+  return Array.from({ length: count }, (_, i) => ({
+    id: `merihim-add-${i}`,
+    name: `Sługa Plagi ${i + 1}`,
+    hp,
+    maxHp: hp,
+    initiative,
+    alive: true,
+  }));
+}
+
+/** Zepar's mid-fight reinforcement wave: a fixed 8 more "Słudzy Plagi" adds, same hp/initiative curve as the initial wave, uniquely id'd so they don't collide with it (or with each other, across an offset). */
+function buildZeparReinforcements(star: number, idOffset: number): MerihimAdd[] {
+  const { hp, initiative } = merihimAddStatsForStar(star);
+  return Array.from({ length: 8 }, (_, i) => ({
+    id: `zepar-reinforcement-${idOffset + i}`,
+    name: `Sługa Plagi (posiłki) ${i + 1}`,
+    hp,
+    maxHp: hp,
+    initiative,
+    alive: true,
+  }));
+}
+
+/**
+ * Yog-Sothoth ignores stars entirely — his stats instead scale with the LOWEST level among
+ * joined players (not the sum). PKT ŻYCIA is a fixed constant regardless of party (7,200,000).
+ * For now the five other stats are flat placeholders, not yet actually scaled by that lowest
+ * level — the `lowestPlayerLevel` param is threaded through ready for when real scaling data
+ * (multiple lowest-level samples) is available.
+ */
+const YOG_SOTHOTH_HP = 7_200_000;
+const YOG_SOTHOTH_FLAT_STATS = { zwinnosc: 800, spostrzegawczosc: 600, szczescie: 30, obrona: 3000, odpornosc: 1300 };
+
+function yogSothothStat(lowestPlayerLevel: number, key: 'zwinnosc' | 'spostrzegawczosc' | 'szczescie' | 'obrona' | 'odpornosc'): number {
+  return YOG_SOTHOTH_FLAT_STATS[key];
+}
+
+/** Yog-Sothoth's own attack count — flat 36/round regardless of party size (both real logs had 18 players and 36 attacks/round; not scaled per-player). */
+const YOG_SOTHOTH_ATTACKS_PER_ROUND = 36;
+/** His huge initiative means most of his attacks land in an immediate burst at the start of the round; the rest are mixed into the normal initiative-ordered round-robin with everyone else. */
+const YOG_SOTHOTH_BURST_ATTACK_SHARE = 0.6;
+/** Cannon-fodder ("Piekielny Ogar") count per round during the rounds 1-4 summon phase — playerCount × 2 total spawned across 4 rounds. */
+const YOG_SOTHOTH_FODDER_PER_ROUND_DIVISOR = 2;
+const YOG_SOTHOTH_FODDER_MIN_HP = 18000;
+const YOG_SOTHOTH_FODDER_MAX_HP = 35000;
+const YOG_SOTHOTH_FODDER_OBRONA = 100;
+const YOG_SOTHOTH_FODDER_ODPORNOSC = 50;
+/** His crit chance/multi can never be reduced (by Skóra Bestii / Potęga Mocy) below these floors — the engine defaults are 1% and 150%. */
+const YOG_SOTHOTH_CRIT_CHANCE_FLOOR = 0.15;
+const YOG_SOTHOTH_CRIT_MULTI_FLOOR = 2.0;
+/** "Zakrzywienie czasu" (active every round 7, 8 and 9): all his attacks in those rounds concentrate on whoever has dealt the most damage so far (cascading to the next-highest on a kill), always roll the top of his damage range (instead of a random roll), gain +1000 flat hit chance, and his crit multi is overridden to a flat 4.5 (down from the normal-round 6.5). */
+const YOG_SOTHOTH_CURVE_EXTRA_HIT_CHANCE = 1000;
+const YOG_SOTHOTH_CURVE_CRIT_MULTI = 4.5;
+/** Players' own attack count is cut to ×0.25 (rounded up) against him. Their damage-dealt and damage-taken multipliers scale with each player's own level instead of being flat — see YOG_SOTHOTH_DEALT_BREAKPOINTS / YOG_SOTHOTH_RECEIVED_BREAKPOINTS below. */
+const YOG_SOTHOTH_PLAYER_ATTACK_COUNT_MULTI = 0.25;
+
+/**
+ * Per-level "damage dealt" multiplier, piecewise-linear between these (level, multiplier) points.
+ * Below the first point it's flat at that value; above the last point it keeps extrapolating the
+ * final segment's slope (clamped at 0), since the 287→303 data shows it still declining.
+ */
+const YOG_SOTHOTH_DEALT_BREAKPOINTS: ReadonlyArray<readonly [number, number]> = [
+  [225, 1.5],
+  [230, 1.45],
+  [245, 1.3],
+  [254, 1.21],
+  [260, 1.15],
+  [270, 1.0],
+  [287, 0.96],
+  [303, 0.91],
+];
+
+/**
+ * Per-level "damage taken" multiplier (before the crit-specific extra reduction below), piecewise-linear
+ * between these points. Below the first point it's flat at that value; at/above the last point (270,
+ * neutral) it stays flat at 1.0 — only the dealt-side multiplier keeps changing past 270.
+ */
+const YOG_SOTHOTH_RECEIVED_BREAKPOINTS: ReadonlyArray<readonly [number, number]> = [
+  [225, 0.5],
+  [230, 0.55],
+  [245, 0.7],
+  [254, 0.79],
+  [260, 0.9],
+  [270, 1.0],
+];
+
+/** Piecewise-linear interpolation across (level, value) breakpoints; flat below the first point. Above the last point, either extrapolates the final segment's slope (clamped at 0) or stays flat, per `extrapolatePastEnd`. */
+function interpolateLevelBreakpoints(level: number, points: ReadonlyArray<readonly [number, number]>, extrapolatePastEnd: boolean): number {
+  if (level <= points[0][0]) return points[0][1];
+  for (let i = 0; i < points.length - 1; i++) {
+    const [lvlA, valA] = points[i];
+    const [lvlB, valB] = points[i + 1];
+    if (level <= lvlB) {
+      const t = (level - lvlA) / (lvlB - lvlA);
+      return valA + t * (valB - valA);
+    }
+  }
+  const [lastLvl, lastVal] = points[points.length - 1];
+  if (!extrapolatePastEnd) return lastVal;
+  const [prevLvl, prevVal] = points[points.length - 2];
+  const slope = (lastVal - prevVal) / (lastLvl - prevLvl);
+  return Math.max(0, lastVal + slope * (level - lastLvl));
+}
+
+function yogSothothDealtMultiplier(level: number): number {
+  return interpolateLevelBreakpoints(level, YOG_SOTHOTH_DEALT_BREAKPOINTS, true);
+}
+
+function yogSothothReceivedBaseMultiplier(level: number): number {
+  return interpolateLevelBreakpoints(level, YOG_SOTHOTH_RECEIVED_BREAKPOINTS, false);
+}
+
+/** Final damage-taken multiplier against Yog-Sothoth's hits, scaled by the player's own level — same curve for normal hits and crits, so his crit multi (6, or 4.5 on rounds 7-9) applies at full value rather than being dampened further. */
+function yogSothothDamageTakenMulti(level: number): number {
+  return yogSothothReceivedBaseMultiplier(level);
+}
+
+function isYogSothoth(mobName: string): boolean {
+  return mobName === 'Yog-Sothoth';
+}
+
+/** Mutates a player's weapon stats in place to apply Yog-Sothoth's fight-wide player modifiers (attack count ×0.25 round up, damage scaled by the player's own level). */
+function applyYogSothothWeaponMods(weapons: WeaponDamage[], playerLevel: number): void {
+  const dmgMulti = yogSothothDealtMultiplier(playerLevel);
+  for (const w of weapons) {
+    w.iloscAtakow = Math.ceil((w.iloscAtakow ?? 0) * YOG_SOTHOTH_PLAYER_ATTACK_COUNT_MULTI);
+    w.minDmg = Math.round(w.minDmg * dmgMulti);
+    w.maxDmg = Math.round(w.maxDmg * dmgMulti);
+    w.critDmgMin = Math.round((w.critDmgMin ?? w.minDmg) * dmgMulti);
+    w.critDmgMax = Math.round((w.critDmgMax ?? w.maxDmg) * dmgMulti);
+  }
+}
+
+export interface RosterBonus {
+  extraDamage: number;
+  extraHitChance: number;
+}
+
+/**
+ * Incomplete-roster penalty: activates when the joined players' level sum is
+ * under half of the star-scaled player level cap. The mob then gets extra
+ * flat damage equal to (levelCap/damageCapDivisor - joinedLevelSum) — divisor
+ * defaults to 1 (full levelCap), but a mob can use a smaller reference cap for
+ * its damage bonus specifically (e.g. Abaddon uses half the cap) via
+ * MobCombatProfile.rosterBonusDamageCapDivisor — plus extra hit-chance points
+ * scaled by how large the FULL (undivided) deficit is relative to the cap
+ * (deficit²/levelCap), plus a flat +1000 hit-chance bonus when the expedition
+ * is done solo. Both levelCap and the deficits scale with star. Never negative.
+ */
+function computeRosterBonus(levelCap: number | null, joinedLevelSum: number, playerCount: number, damageCapDivisor: number = 1): RosterBonus {
+  if (!levelCap || levelCap <= 0) return { extraDamage: 0, extraHitChance: 0 };
+  if (joinedLevelSum >= levelCap / 2) return { extraDamage: 0, extraHitChance: 0 };
+  const deficit = Math.max(0, levelCap - joinedLevelSum);
+  const damageDeficit = Math.max(0, levelCap / damageCapDivisor - joinedLevelSum);
+  const soloBonus = playerCount === 1 ? 1000 : 0;
+  return {
+    extraDamage: damageDeficit,
+    extraHitChance: Math.max(0, deficit * (deficit / levelCap) + soloBonus),
+  };
+}
+
+/**
+ * Talizman Lewiatan: only meaningful in real-time combat, not the static
+ * calculator — each crit the player takes grants a flat obrona/odpornosc
+ * buff that resets at the start of every round, plus HP regen at tier 3+.
+ */
+const LEWIATAN_BONUS: Record<number, { obrona: number; odpornosc: number; hpRegen: number }> = {
+  1: { obrona: 5, odpornosc: 3, hpRegen: 0 },
+  2: { obrona: 10, odpornosc: 6, hpRegen: 0 },
+  3: { obrona: 20, odpornosc: 10, hpRegen: 40 },
+  4: { obrona: 26, odpornosc: 14, hpRegen: 80 },
+};
+
+/** Szpony Nocy tier 4: each point of Nocny Łowca adds 0.5% chance to also trigger Groza in round 3, capped at 25%. */
+function grozaRound3Chance(szponyNocyTier: number, nocnyLowcaPoints: number): number {
+  if (szponyNocyTier !== 4) return 0;
+  return Math.min(0.005 * nocnyLowcaPoints, 0.25);
+}
+
+export interface PlayerCombatState {
+  id: string;
+  name: string;
+  level: number;
+  maxHp: number;
+  hp: number;
+  alive: boolean;
+  initiative: number;
+  redukcja: number;
+  obrona: number;
+  odpornosc: number;
+  /** Pancerz: boosts non-arcane odpornosc used specifically against gun (palna) attacks — the Skóra Bestii-derived portion is excluded. */
+  skoraBestiiOdpornosc: number;
+  pancerzGunMulti: number;
+  spostrzegawczosc: number;
+  szczescie: number;
+  unikBiala: number;
+  unikPalna: number;
+  unikDystans: number;
+  enemyCritChanceReduction: number;
+  hasGroza: boolean;
+  grozaRound3Chance: number;
+  lewiatanLevel: number;
+  lewiatanBonusObrona: number;
+  lewiatanBonusOdpornosc: number;
+  /** Tchnienie Śmierci: sticky once triggered — activates when hp/maxHp drops to/below tchnienieThreshold. */
+  tchnienieLevel: number;
+  tchnienieThreshold: number;
+  tchnienieActive: boolean;
+  /** Żar Krwi: +5% damage from the start of the fight, +1% per 2% of max HP lost, capped at +35% total. Sticky — never drops even if HP regens. */
+  zarLevel: boolean;
+  zarDamageBonus: number;
+  /** Merihim's Pasożyty: whether this player's weapons have already had the one-time crit debuff applied. */
+  pasozytyActive: boolean;
+  /** Bokrug's Kolce Jadowe: whether this player has already been stung (sticky — at most once per player, ever). Once true, they take his 5% max-HP poison tick every following round and their regen is permanently cut 75%. */
+  bokrugPoisoned: boolean;
+  weaponsActivated: WeaponDamage[];
+  unikBialaActivated: number;
+  unikPalnaActivated: number;
+  unikDystansActivated: number;
+  /** Otchłań Ciszy: on this player's first landed hit each round, the mob's CURRENT odpornosc is multiplied by (1 - otchlanReduction); obrona instead loses (obrona - odpornosc) * otchlanReduction, i.e. the talisman % of the gap between the two stats, not a % of obrona itself. Compounds every round, per qualifying player, uncapped in total. */
+  otchlanReduction: number;
+  /** Macki Strachu (mob special): once triggered, this player's ignoreObrony is treated as 0 for the rest of the round. */
+  ignoreDisabledThisRound: boolean;
+  /** Potęga Mocy: on this player's first landed hit of the whole fight, steals up to this much crit-multiplier from the mob (floored so the mob keeps at least 150%) and adds it to their own weapons. Fires once, ever. */
+  potegaStealPotential: number;
+  potegaTriggered: boolean;
+  potegaAppliedSteal: number;
+  /** Furia Bestii: chance to counterattack with every equipped weapon each time the mob crits this player, capped per round at furiaCapPercent of that round's normal weapon-attack count. */
+  furiaChance: number;
+  furiaCapPercent: number;
+  furiaMaxCountersThisRound: number;
+  furiaCountersUsedThisRound: number;
+  /** Cichy Łowca: chance to immediately swing again with the same weapon after a missed/dodged attack. */
+  cichyLowcaChance: number;
+  /** Ziz tier 4: each of this player's own crits permanently adds to their crit-multiplier for the rest of the fight (+0.05 for a 2H weapon crit or a 1H RANGE crit, +0.025 for other 1H) — same mechanic shape as the mob's Demoniczny Gniew special, though the two scale independently. */
+  zizActive: boolean;
+  zizBonus: number;
+  /** End-of-round HP regen (from the calculator's dashboard), capped at half of this player's own damage dealt that round. */
+  regenPerRound: number;
+  damageDealtThisRound: number;
+  weapons: WeaponDamage[];
+  // ── Post-fight summary counters (simulateExpedition only — left at 0 in the stat-preview builder). ──
+  attacksMade: number;
+  hitsLanded: number;
+  critsLanded: number;
+  attacksReceived: number;
+  hitsReceived: number;
+  totalDamageDealt: number;
+  kills: number;
+}
+
+/** Bakes an added crit-multiplier straight into a weapon's critDmgMin/Max, matching how calculate.ts derives them (minDmg/maxDmg * critMulti). */
+function boostWeaponsCritMulti(weapons: WeaponDamage[], addedMulti: number): void {
+  for (const weapon of weapons) {
+    const newCritMulti = (weapon.critMulti ?? 1) + addedMulti;
+    weapon.critMulti = newCritMulti;
+    weapon.critDmgMin = Math.floor(weapon.minDmg * newCritMulti);
+    weapon.critDmgMax = Math.floor(weapon.maxDmg * newCritMulti);
+  }
+}
+
+/** Merihim's Pasożyty: permanently strips 50 percentage points of crit chance and 1.0 crit multi from every weapon, floored at 0% chance / 1.0x multi. Applied once per player. */
+function applyPasozytyDebuff(weapons: WeaponDamage[]): void {
+  for (const weapon of weapons) {
+    // Subtract from the UNCAPPED crit chance (rawCritChance) so a player sitting above the 85%
+    // engine cap — e.g. 130% — correctly lands on 80%, not 35% (85% cap - 50%). critChance is
+    // then re-derived from that and re-capped at 85%.
+    const rawBefore = weapon.rawCritChance ?? weapon.critChance ?? 0;
+    const rawAfter = Math.max(0, rawBefore - 0.5);
+    weapon.rawCritChance = rawAfter;
+    weapon.critChance = Math.min(rawAfter, 0.85);
+    const newCritMulti = Math.max(1, (weapon.critMulti ?? 1) - 1);
+    weapon.critMulti = newCritMulti;
+    weapon.critDmgMin = Math.floor(weapon.minDmg * newCritMulti);
+    weapon.critDmgMax = Math.floor(weapon.maxDmg * newCritMulti);
+  }
+}
+
+/** Otchłań Ciszy tiers cap how large a single proc's reduction can be (0.5% per Cisza Krwi point, capped per tier). */
+const OTCHLAN_PER_HIT_CAP: Record<number, number> = { 1: 0.10, 2: 0.15, 3: 0.20, 4: 0.25 };
+
+/** Potęga Mocy tiers: % of each invested Wyssanie Mocy point stolen from the mob's crit multiplier. */
+const POTEGA_RATE_PER_LEVEL: Record<number, number> = { 1: 0.005, 2: 0.0075, 3: 0.01, 4: 0.015 };
+
+function potegaStealPotentialFor(potegaTier: number, wyssanieMocyPoints: number): number {
+  const rate = POTEGA_RATE_PER_LEVEL[potegaTier];
+  if (!rate) return 0;
+  return rate * wyssanieMocyPoints;
+}
+
+/** Furia Bestii tiers: max counterattack chance, and max counterattacks per round as a % of that round's normal attack count. */
+const FURIA_CHANCE_CAP: Record<number, number> = { 1: 0.45, 2: 0.55, 3: 0.65, 4: 0.75 };
+const FURIA_COUNTER_CAP_PERCENT: Record<number, number> = { 1: 0.30, 2: 0.40, 3: 0.50, 4: 0.60 };
+
+function furiaChanceFor(furiaTier: number, dzikiSzalLevel: number): number {
+  const cap = FURIA_CHANCE_CAP[furiaTier];
+  if (!cap) return 0;
+  return Math.min(0.01 * dzikiSzalLevel, cap);
+}
+
+function otchlanReductionFor(otchlanTier: number, ciszaKrwiLevel: number): number {
+  const cap = OTCHLAN_PER_HIT_CAP[otchlanTier];
+  if (!cap) return 0;
+  return Math.min(0.005 * ciszaKrwiLevel, cap);
+}
+
+export interface AuraBestiiTeamBonus {
+  /** The 4 strongest qualifying contributors on the team, each already getting their own personal Aura Bestii tier-4 baseLife bonus (skora×30) via doAura — kept per-contributor so each player's HP-bonus share can exclude their own contribution. */
+  contributors: { id: string; skoraBestii: number }[];
+  critReductionBonus: number;
+}
+
+/**
+ * Aura Bestii tier 4: each Skóra Bestii point a qualifying player has invested grants the REST of
+ * the team +10 baseLife each — fed into each recipient's own calculateStuff() call as extraBaseLife
+ * so it compounds with Życie i Śmierć × Tchnienie Śmierci, Majestat, and the Wzmocniony set's
+ * punktyZycia% exactly like equipment/umagi baseLife does. A contributor doesn't also collect a
+ * share of their own contribution — they already get skora×30 personally via doAura — only
+ * everyone else's. Crit-chance reduction (-0.75%/point) is unaffected and applies team-wide
+ * including the contributor. Only the 4 strongest such contributors on the team count. Static (team
+ * composition doesn't change mid-fight), so this is computed once and applied to every player alike.
+ */
+function computeAuraBestiiTeamBonus(savedPlayers: SavedCharacter[]): AuraBestiiTeamBonus {
+  const contributors = savedPlayers
+    .filter(p => (p.character.talizmanLevels?.auraBestii ?? 0) === 4 && (p.character.arcaneLevels?.skoraBestii ?? 0) > 0)
+    .map(p => ({ id: p.id, skoraBestii: p.character.arcaneLevels!.skoraBestii }))
+    .sort((a, b) => b.skoraBestii - a.skoraBestii)
+    .slice(0, 4);
+  const totalSkoraBestii = contributors.reduce((sum, c) => sum + c.skoraBestii, 0);
+  return {
+    contributors,
+    critReductionBonus: totalSkoraBestii * 0.0075,
+  };
+}
+
+/** This player's share of the Aura Bestii team HP bonus: 10×skoraBestii from every OTHER qualifying contributor, excluding their own (already covered by their personal tier-4 bonus). */
+function auraBestiiHpShareFor(bonus: AuraBestiiTeamBonus, playerId: string): number {
+  return bonus.contributors.filter(c => c.id !== playerId).reduce((sum, c) => sum + c.skoraBestii, 0) * 10;
+}
+
+/** Cichy Łowca tier 4: each Kocie Ścieżki point gives 1% chance to immediately swing again after a missed or dodged attack, capped at 50%. */
+function cichyLowcaChanceFor(cichyLowcaTier: number, kocieSciezkiLevel: number): number {
+  if (cichyLowcaTier !== 4) return 0;
+  return Math.min(0.01 * kocieSciezkiLevel, 0.50);
+}
+
+/** Macki Strachu: eligible once the mob has taken 25% of its max HP; each subsequent player attack against it then has this chance to disable that attacker's ignoreObrony for the rest of the round. */
+const MACKI_STRACHU_HP_THRESHOLD = 0.75;
+const MACKI_STRACHU_PROC_CHANCE = 0.30;
+
+/** Recomputes a weapon's damage bounds as if its ignoreObrony were 0 — i.e. the mob's obrona/odpornosc is subtracted in full instead of discounted by the weapon's ignore stat, mirroring the reduction calculate.ts applies before ignore. */
+function ignoreDisabledWeaponBounds(w: WeaponDamage, mobObrona: number, mobOdpornosc: number, genre: MobWeaponGenre): { minDmg: number; maxDmg: number; critDmgMin: number; critDmgMax: number } {
+  const ignore = w.ignore ?? 0;
+  const factor = genre === 'dystans' ? mobObrona / 4 : genre === 'biala' ? mobObrona / 2 : mobOdpornosc / 2;
+  const extraReduction = Math.floor(factor) - Math.floor(factor * (1 - ignore));
+  const minDmg = Math.max(1, w.minDmg - extraReduction);
+  const maxDmg = Math.max(1, w.maxDmg - extraReduction);
+  const critMulti = w.critMulti ?? 1;
+  return {
+    minDmg,
+    maxDmg,
+    critDmgMin: Math.max(1, Math.floor(minDmg * critMulti)),
+    critDmgMax: Math.max(1, Math.floor(maxDmg * critMulti)),
+  };
+}
+
+const TCHNIENIE_ACCEL_PER_LEVEL: Record<number, number> = { 1: 0.005, 2: 0.01, 3: 0.015, 4: 0.02 };
+
+/** Życie i Śmierć tiers accelerate Tchnienie Śmierci's base 35%-hp activation threshold, capped at a combined 70%. */
+function tchnienieActivationThreshold(zycieSmierciTier: number, tchnienieLevel: number): number {
+  const accel = TCHNIENIE_ACCEL_PER_LEVEL[zycieSmierciTier] ?? 0;
+  return 0.35 + Math.min(accel * tchnienieLevel, 0.35);
+}
+
+/** Flips the sticky Tchnienie Śmierci activation once the target's hp fraction drops to/below its threshold. Returns whether it just activated. */
+function tryActivateTchnienie(target: PlayerCombatState): boolean {
+  if (target.tchnienieActive || target.tchnienieLevel <= 0) return false;
+  if (target.hp / target.maxHp > target.tchnienieThreshold) return false;
+  target.tchnienieActive = true;
+  target.weapons = target.weaponsActivated;
+  target.unikBiala = target.unikBialaActivated;
+  target.unikPalna = target.unikPalnaActivated;
+  target.unikDystans = target.unikDystansActivated;
+  return true;
+}
+
+/** Żar Krwi: recomputes the sticky damage bonus from the current HP fraction lost — +5% base, +1% per 2% of max HP lost, capped at +35%. Only ever increases (regen doesn't undo it). */
+function updateZarBonus(target: PlayerCombatState): void {
+  if (!target.zarLevel) return;
+  const hpLostPercent = Math.max(0, (1 - target.hp / target.maxHp) * 100);
+  const computed = Math.min(0.35, 0.05 + 0.01 * Math.floor(hpLostPercent / 2));
+  if (computed > target.zarDamageBonus) target.zarDamageBonus = computed;
+}
+
+/** Skóra Bestii: reduces the mob's crit chance against this player, floored at a minimum (1% normally, higher for some bosses — e.g. Yog-Sothoth's is floored at 15%). */
+function effectiveMobCritChance(baseCritChance: number, target: PlayerCombatState, floor = 0.01): number {
+  return Math.max(floor, baseCritChance - target.enemyCritChanceReduction);
+}
+
+export interface CombatAttackLog {
+  round: number;
+  attackerName: string;
+  attackerSide: 'players' | 'mob';
+  weaponName: string;
+  targetName: string;
+  hit: boolean;
+  dodged: boolean;
+  crit: boolean;
+  damage: number;
+  targetHpAfter: number;
+  mobHpAfter: number;
+  /** When set, the UI shows this exact text instead of the normal hit/crit/dodge phrasing (e.g. a Groza activation). */
+  note?: string;
+  /** Set on the death-announcement line pushed the instant a player or the mob hits 0 HP — lets the UI color it by side instead of as a generic special-effect note. */
+  died?: boolean;
+}
+
+export type ExpeditionOutcome = 'win' | 'loss' | 'draw';
+
+/** Per-combatant post-fight scoreboard row (damage/kills/hp header + hit-rate detail box). */
+export interface CombatantSummary {
+  name: string;
+  side: 'players' | 'mob';
+  damageDealt: number;
+  kills: number;
+  hpRemaining: number;
+  hpMax: number;
+  attacksMade: number;
+  hitsLanded: number;
+  critsLanded: number;
+  attacksReceived: number;
+  hitsReceived: number;
+}
+
+/** Post-fight HP row for one of a boss's "Słudzy Plagi" cannon-fodder adds (Merihim/Bokrug/Zepar). */
+export interface AddSummary {
+  name: string;
+  hpRemaining: number;
+  hpMax: number;
+  alive: boolean;
+}
+
+export interface CombatSummary {
+  players: CombatantSummary[];
+  mob: CombatantSummary;
+  /** Empty for mobs with no cannon-fodder adds. */
+  adds: AddSummary[];
+}
+
+export interface ExpeditionResult {
+  outcome: ExpeditionOutcome;
+  attacks: CombatAttackLog[];
+  players: PlayerCombatState[];
+  mobName: string;
+  mobMaxHp: number;
+  mobHpRemaining: number;
+  roundsElapsed: number;
+  summary: CombatSummary;
+}
+
+function unikForGenre(target: PlayerCombatState, genre: MobWeaponGenre): number {
+  if (genre === 'biala') return target.unikBiala;
+  if (genre === 'dystans') return target.unikDystans;
+  return target.unikPalna;
+}
+
+/** Maps a player weapon's ItemGenre (e.g. WHITE_2H, GUN_1H) to the mob-side biala/palna/dystans bucket. */
+function mobGenreForWeapon(genre?: string): MobWeaponGenre {
+  if (!genre) return 'biala';
+  if (genre.startsWith('GUN')) return 'palna';
+  if (genre.startsWith('RANGE')) return 'dystans';
+  return 'biala';
+}
+
+/**
+ * Resolves the mob stat that feeds a player's "Trafienie Przeciwnika" for hit-chance math,
+ * mirroring the manual guidance for that field in Kalkulator Postaci: a white-weapon user
+ * subtracts the mob's zwinnosc, a gun user its spostrzegawczosc, and a ranged-weapon user the
+ * sum of both — driven by the player's first equipped weapon (dual 1H+1H combos use weapon1).
+ * Using a single fixed stat (previously always spostrzegawczosc) regardless of weapon type
+ * under- or over-counted the mob's real evasion-relevant stat and inflated hit chance for
+ * white/ranged users. The genre itself is read off a throwaway calculateStuff call since the
+ * ItemType→genre mapping lives in the calculator layer, not here.
+ */
+function resolveTrafieniePrzeciwnik(character: Character, dashboardService: DashboardService, mobZwinnosc: number, mobSpostrzegawczosc: number): number {
+  const probe = dashboardService.calculateStuff({
+    ...character,
+    obronaPrzeciwnika: 0,
+    odpornoscPrzeciwnika: 0,
+    szczesciePrzeciwnika: 0,
+    trafieniePrzeciwnika: 0,
+    tchnienieSmierciActive: false,
+  });
+  const genre = mobGenreForWeapon(probe.obrazenia?.[0]?.genre);
+  if (genre === 'biala') return mobZwinnosc;
+  if (genre === 'palna') return mobSpostrzegawczosc;
+  return mobZwinnosc + mobSpostrzegawczosc;
+}
+
+function mobUnikFor(profile: MobCombatProfile | undefined, genre: MobWeaponGenre): number {
+  return profile?.unik?.[genre] ?? 0;
+}
+
+/** Pancerz evolution: boosts non-arcane odpornosc used against gun (palna) attacks — 50% at 5-8, 100% at 9-14, 150% at 15. */
+function pancerzGunDefenseMultiplier(pancerzLevel: number): number {
+  if (pancerzLevel >= 15) return 1.5;
+  if (pancerzLevel >= 9) return 1.0;
+  if (pancerzLevel >= 5) return 0.5;
+  return 0;
+}
+
+/** Flat obrona/odpornosc-based reduction, applied AFTER the target's redukcja obrażeń percentage. */
+function mobHitDefenseReduction(profile: MobCombatProfile, target: PlayerCombatState): number {
+  const obrona = target.obrona + target.lewiatanBonusObrona;
+  const odpornosc = target.odpornosc + target.lewiatanBonusOdpornosc;
+  if (profile.weaponGenre === 'dystans') return Math.floor(obrona / 4);
+  if (profile.weaponGenre === 'biala') return Math.floor(obrona / 2);
+  // Palna (gun): Pancerz boosts the non-arcane portion of odpornosc — Skóra Bestii's contribution is excluded, then added back unmultiplied.
+  const nonArcaneOdpornosc = Math.max(0, odpornosc - target.skoraBestiiOdpornosc);
+  const boostedOdpornosc = nonArcaneOdpornosc * (1 + target.pancerzGunMulti) + target.skoraBestiiOdpornosc;
+  return Math.floor(boostedOdpornosc / 2);
+}
+
+/** Applies the Lewiatan crit-received proc to the target: stacking obrona/odpornosc (reset each round) plus HP regen at tier 3+. Returns whether it fired. */
+function applyLewiatanProc(target: PlayerCombatState): boolean {
+  const bonus = LEWIATAN_BONUS[target.lewiatanLevel];
+  if (!bonus) return false;
+  target.lewiatanBonusObrona += bonus.obrona;
+  target.lewiatanBonusOdpornosc += bonus.odpornosc;
+  if (bonus.hpRegen > 0 && target.alive) {
+    target.hp = Math.min(target.maxHp, target.hp + bonus.hpRegen);
+  }
+  return true;
+}
+
+/**
+ * Same luck/skill-clamped hit-chance formula the player side already uses
+ * (calculate.ts#calculateHitChance), applied with the mob as attacker:
+ * - skill stat (y) depends on weapon genre: zwinność for biała, spostrzegawczość
+ *   for palna, both combined for dystans.
+ * - luck (szczęście) difference sets the min/max hit-chance band (90+/10+ diff/5,
+ *   clamped to 20-99 / 1-65), it does not shift the raw hit chance itself.
+ */
+function mobHitChance(weaponGenre: MobWeaponGenre, mobZwinnosc: number, mobSpostrzegawczosc: number, mobSzczescie: number, target: PlayerCombatState, extraHitChance = 0): number {
+  const y = weaponGenre === 'biala' ? mobZwinnosc
+    : weaponGenre === 'palna' ? mobSpostrzegawczosc
+    : mobZwinnosc + mobSpostrzegawczosc;
+  const r = target.spostrzegawczosc;
+
+  const luckDiff = mobSzczescie - target.szczescie;
+  let luckModifier = Math.floor(luckDiff / 5);
+  if (luckDiff < 0) {
+    const skillDiff = y - r;
+    if (skillDiff > 0) {
+      const reduction = Math.floor(skillDiff / 10);
+      luckModifier = Math.min(luckModifier + reduction, 0);
+    }
+  }
+
+  const maxHit = Math.min(Math.max(90 + luckModifier, 20), 99);
+  const minHit = Math.min(Math.max(10 + luckModifier, 1), 65);
+  const rawHit = 70 + 2 * y - 2 * r + extraHitChance;
+
+  return Math.min(Math.max(rawHit, minHit), maxHit) / 100;
+}
+
+export interface CombatPreviewWeapon {
+  name: string;
+  minDmg: number;
+  maxDmg: number;
+  hitChance: number;
+  critChance: number;
+  critMulti: number;
+  mobDodge: number;
+  attacksPerRound: number;
+}
+
+export interface CombatPreviewPlayer {
+  id: string;
+  name: string;
+  rasa: string;
+  maxHp: number;
+  redukcja: number;
+  obrona: number;
+  odpornosc: number;
+  luck: number;
+  initiative: number;
+  dodge: number;
+  mobHitChance: number;
+  mobCritChance: number;
+  /** Damage this specific player would take from a normal (non-crit) mob hit, after their own redukcja and flat obrona/odpornosc-based reduction. 0/0 when the mob has no combat profile. */
+  mobMinDmgToPlayer: number;
+  mobMaxDmgToPlayer: number;
+  /** Same as above but for a crit mob hit (mob minDmg/maxDmg scaled by its critMulti first). */
+  mobMinCritDmgToPlayer: number;
+  mobMaxCritDmgToPlayer: number;
+  weapons: CombatPreviewWeapon[];
+}
+
+export interface CombatPreviewMob {
+  name: string;
+  maxHp: number;
+  minDmg: number;
+  maxDmg: number;
+  critChance: number;
+  critMulti: number;
+  obrona: number;
+  odpornosc: number;
+  luck: number;
+  initiative: number;
+  hasProfile: boolean;
+  unikBiala: number;
+  unikPalna: number;
+  unikDystans: number;
+  playerLevelCap: number | null;
+  rosterBonus: RosterBonus;
+  weaponName: string | null;
+  attacksPerRound: number;
+}
+
+export interface CombatPreview {
+  mob: CombatPreviewMob;
+  players: CombatPreviewPlayer[];
+}
+
+/** Same scaled-stat + dashboard math as simulateExpedition, without running any rounds — for a pre-fight stat readout. */
+export function computeCombatPreview(
+  savedPlayers: SavedCharacter[],
+  mob: StarMob,
+  star: number,
+  dashboardService: DashboardService,
+  mobVariant: MobStatVariant = 'min',
+  dmgOverride?: { min: number; max: number } | null,
+): CombatPreview {
+  const yogSothoth = isYogSothoth(mob.name);
+  const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
+  const lowestPlayerLevel = savedPlayers.length ? Math.min(...savedPlayers.map(p => p.character.poziom ?? 0)) : 0;
+  const mobObrona = yogSothoth ? yogSothothStat(lowestPlayerLevel, 'obrona') : pickStat(scaledRangeForStar(mob, 'obrona', star), mobVariant);
+  const mobOdpornosc = yogSothoth ? yogSothothStat(lowestPlayerLevel, 'odpornosc') : pickStat(scaledRangeForStar(mob, 'odpornosc', star), mobVariant);
+  const mobSpostrzegawczosc = yogSothoth ? yogSothothStat(lowestPlayerLevel, 'spostrzegawczosc') : pickStat(scaledRangeForStar(mob, 'spostrzegawczosc', star), mobVariant);
+  const mobSzczescie = yogSothoth ? yogSothothStat(lowestPlayerLevel, 'szczescie') : pickStat(scaledRangeForStar(mob, 'szczescie', star), mobVariant);
+  const mobZwinnosc = yogSothoth ? yogSothothStat(lowestPlayerLevel, 'zwinnosc') : pickStat(scaledRangeForStar(mob, 'zwinnosc', star), mobVariant);
+  const mobMaxHp = yogSothoth ? YOG_SOTHOTH_HP : (pickStat(scaledRangeForStar(mob, 'zycie', star), mobVariant) || 1);
+  const mobInitiative = mobZwinnosc + mobSpostrzegawczosc;
+  const profile = MOB_COMBAT_PROFILES[mob.name];
+  const levelCap = resolveLevelCap(profile, star);
+  const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length, profile?.rosterBonusDamageCapDivisor ?? 1);
+  const auraBestiiBonus = computeAuraBestiiTeamBonus(savedPlayers);
+  const dmgStarMulti = yogSothoth ? 1 : mobDamageStarMultiplier(star);
+  const attacksPerRound = yogSothoth ? YOG_SOTHOTH_ATTACKS_PER_ROUND : (profile?.attacksPerRound ?? 0);
+
+  const previewDmgRange = mobDmgRangeForVariant(mobVariant, profile, star);
+  const mobMinDmgBase = dmgOverride ? dmgOverride.min : (profile ? Math.round(previewDmgRange.min * dmgStarMulti) + rosterBonus.extraDamage : 0);
+  const mobMaxDmgBase = dmgOverride ? dmgOverride.max : (profile ? Math.round(previewDmgRange.max * dmgStarMulti) + rosterBonus.extraDamage : 0);
+
+  const players: CombatPreviewPlayer[] = savedPlayers.map(saved => {
+    const character: Character = {
+      ...saved.character,
+      obronaPrzeciwnika: mobObrona,
+      odpornoscPrzeciwnika: mobOdpornosc,
+      szczesciePrzeciwnika: mobSzczescie,
+      trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
+      // Preview always shows the pre-activation (full-hp) state — the real, HP-gated activation only runs in simulateExpedition.
+      tchnienieSmierciActive: false,
+      zarKrwiActive: false,
+    };
+    const dashboard = dashboardService.calculateStuff(character, auraBestiiHpShareFor(auraBestiiBonus, saved.id));
+    if (yogSothoth) applyYogSothothWeaponMods(dashboard.obrazenia ?? [], saved.character.poziom ?? 0);
+    const tchnienieLevel = saved.character.arcaneLevels?.tchnienieSmierci ?? 0;
+    const target: PlayerCombatState = {
+      id: saved.id,
+      name: saved.name,
+      level: saved.character.poziom ?? 0,
+      maxHp: dashboard.punktyZycia ?? 1,
+      hp: 0,
+      alive: true,
+      initiative: dashboard.inicjatywa ?? 0,
+      redukcja: dashboard.redukcja ?? 0,
+      obrona: dashboard.obrona ?? 0,
+      odpornosc: dashboard.attributes?.odpornosc ?? 0,
+      skoraBestiiOdpornosc: saved.character.arcaneLevels?.skoraBestii ?? 0,
+      pancerzGunMulti: pancerzGunDefenseMultiplier(saved.character.evolutions?.pancerz ?? 0),
+      spostrzegawczosc: dashboard.attributes?.spostrzegawczosc ?? 0,
+      szczescie: dashboard.szczescie ?? 0,
+      unikBiala: dashboard.unikBiala ?? 0,
+      unikPalna: dashboard.unikPalna ?? 0,
+      unikDystans: dashboard.unikDystans ?? 0,
+      enemyCritChanceReduction: (dashboard.enemyCritChanceReduction ?? 0) + auraBestiiBonus.critReductionBonus,
+      hasGroza: saved.character.arcaneLevels?.groza ?? false,
+      grozaRound3Chance: grozaRound3Chance(saved.character.talizmanLevels?.szponyNocy ?? 0, saved.character.arcaneLevels?.nocnyLowca ?? 0),
+      lewiatanLevel: saved.character.talizmanLevels?.lewiatan ?? 0,
+      lewiatanBonusObrona: 0,
+      lewiatanBonusOdpornosc: 0,
+      tchnienieLevel,
+      tchnienieThreshold: tchnienieActivationThreshold(saved.character.talizmanLevels?.zycieISmierc ?? 0, tchnienieLevel),
+      tchnienieActive: false,
+      zarLevel: !!saved.character.arcaneLevels?.zarKrwi,
+      zarDamageBonus: saved.character.arcaneLevels?.zarKrwi ? 0.05 : 0,
+      pasozytyActive: false,
+      bokrugPoisoned: false,
+      weaponsActivated: [],
+      unikBialaActivated: dashboard.unikBiala ?? 0,
+      unikPalnaActivated: dashboard.unikPalna ?? 0,
+      unikDystansActivated: dashboard.unikDystans ?? 0,
+      otchlanReduction: otchlanReductionFor(saved.character.talizmanLevels?.otchlaniCiszy ?? 0, saved.character.arcaneLevels?.ciszaKrwi ?? 0),
+      ignoreDisabledThisRound: false,
+      potegaStealPotential: potegaStealPotentialFor(saved.character.talizmanLevels?.potegaMocy ?? 0, saved.character.arcaneLevels?.wyssanieMocy ?? 0),
+      potegaTriggered: false,
+      potegaAppliedSteal: 0,
+      furiaChance: furiaChanceFor(saved.character.talizmanLevels?.furiaBestii ?? 0, saved.character.arcaneLevels?.dzikiSzal ?? 0),
+      furiaCapPercent: FURIA_COUNTER_CAP_PERCENT[saved.character.talizmanLevels?.furiaBestii ?? 0] ?? 0,
+      furiaMaxCountersThisRound: 0,
+      furiaCountersUsedThisRound: 0,
+      cichyLowcaChance: cichyLowcaChanceFor(saved.character.talizmanLevels?.cichyLowca ?? 0, saved.character.arcaneLevels?.kocieSciezki ?? 0),
+      zizActive: (saved.character.talizmanLevels?.ziz ?? 0) === 4,
+      zizBonus: 0,
+      regenPerRound: dashboard.regeneracja ?? 0,
+      damageDealtThisRound: 0,
+      weapons: [],
+      attacksMade: 0,
+      hitsLanded: 0,
+      critsLanded: 0,
+      attacksReceived: 0,
+      hitsReceived: 0,
+      totalDamageDealt: 0,
+      kills: 0,
+    };
+    const genre: MobWeaponGenre = profile?.weaponGenre ?? 'biala';
+    const defenseReduction = profile ? mobHitDefenseReduction(profile, target) : 0;
+    const mobCritMultiPreview = profile?.critMulti ?? 1;
+    return {
+      id: saved.id,
+      name: saved.name,
+      rasa: saved.character.rasa,
+      maxHp: target.maxHp,
+      redukcja: target.redukcja,
+      obrona: target.obrona,
+      odpornosc: target.odpornosc,
+      luck: target.szczescie,
+      initiative: target.initiative,
+      dodge: unikForGenre(target, genre),
+      mobHitChance: mobHitChance(profile?.weaponGenre ?? 'dystans', mobZwinnosc, mobSpostrzegawczosc, mobSzczescie, target, rosterBonus.extraHitChance),
+      mobCritChance: profile ? effectiveMobCritChance(profile.critChance, target, yogSothoth ? YOG_SOTHOTH_CRIT_CHANCE_FLOOR : 0.01) : 0,
+      mobMinDmgToPlayer: profile ? Math.max(0, Math.round((mobMinDmgBase * (1 - target.redukcja) - defenseReduction) * (yogSothoth ? yogSothothDamageTakenMulti(target.level) : 1))) : 0,
+      mobMaxDmgToPlayer: profile ? Math.max(0, Math.round((mobMaxDmgBase * (1 - target.redukcja) - defenseReduction) * (yogSothoth ? yogSothothDamageTakenMulti(target.level) : 1))) : 0,
+      // Crit multiplier applies last, on top of the fully-reduced normal hit — matching resolveMobAttack.
+      mobMinCritDmgToPlayer: profile ? Math.max(0, Math.round(Math.max(0, mobMinDmgBase * (1 - target.redukcja) - defenseReduction) * mobCritMultiPreview * (yogSothoth ? yogSothothDamageTakenMulti(target.level) : 1))) : 0,
+      mobMaxCritDmgToPlayer: profile ? Math.max(0, Math.round(Math.max(0, mobMaxDmgBase * (1 - target.redukcja) - defenseReduction) * mobCritMultiPreview * (yogSothoth ? yogSothothDamageTakenMulti(target.level) : 1))) : 0,
+      weapons: (dashboard.obrazenia ?? []).map((w: WeaponDamage) => ({
+        name: w.name,
+        minDmg: w.minDmg,
+        maxDmg: w.maxDmg,
+        hitChance: w.estimatedHitChance ?? 1,
+        critChance: w.critChance ?? 0,
+        critMulti: w.critMulti ?? 1,
+        mobDodge: mobUnikFor(profile, mobGenreForWeapon(w.genre)),
+        attacksPerRound: w.iloscAtakow ?? 0,
+      })),
+    };
+  });
+
+  const mobPreview: CombatPreviewMob = {
+    name: mob.name,
+    maxHp: mobMaxHp,
+    minDmg: mobMinDmgBase,
+    maxDmg: mobMaxDmgBase,
+    critChance: profile?.critChance ?? 0,
+    critMulti: profile?.critMulti ?? 1,
+    obrona: mobObrona,
+    odpornosc: mobOdpornosc,
+    luck: mobSzczescie,
+    initiative: mobInitiative,
+    unikBiala: profile?.unik?.biala ?? 0,
+    unikPalna: profile?.unik?.palna ?? 0,
+    unikDystans: profile?.unik?.dystans ?? 0,
+    playerLevelCap: levelCap,
+    rosterBonus,
+    hasProfile: !!profile,
+    weaponName: profile?.weaponName ?? null,
+    attacksPerRound,
+  };
+
+  return { mob: mobPreview, players };
+}
+
+interface ShotQueueEntry {
+  side: 'player' | 'mob' | 'add';
+  player?: PlayerCombatState;
+  /** Index into the player's CURRENT `weapons` array, resolved live at attack time — not a snapshot — so a
+   *  mid-round Tchnienie Śmierci activation (which swaps `player.weapons` to the boosted set) immediately
+   *  applies to this player's still-queued shots for the rest of the round, instead of only from next round. */
+  weaponIndex?: number;
+  /** Merihim add id, when side is 'add'. */
+  addId?: string;
+  /** For side 'mob': how many mob attacks resolve when this ONE queue slot comes up, back-to-back, instead of the usual one. Used for Zepar's grouped late-round attack spots. Defaults to 1. */
+  burstCount?: number;
+}
+
+/**
+ * v2 expedition simulation: real per-attack RNG (hit / crit / damage rolls),
+ * individual attacks interleaved across all combatants by initiative
+ * (round-robin — highest initiative fires first each cycle, repeating until
+ * everyone's attacks for the round are used), maxed at 10 rounds. Combat
+ * stops the instant either side is fully emptied, not just at round end.
+ *
+ * Player-side hit/crit/damage uses the exact same weapon math as the
+ * calculator (WeaponDamage.estimatedHitChance / critChance / min-max /
+ * critDmgMin-Max), plus the boss's own per-weapon-genre dodge chance
+ * (MobCombatProfile.unik). Mob-side damage uses its MobCombatProfile where
+ * one exists (falls back to a rough placeholder otherwise); incoming damage
+ * is first reduced by the target's redukcja obrażeń percentage, then by the
+ * usual flat obrona/odpornosc-based genre reduction on what's left, with
+ * target dodge chance pulled from the same unik stats already computed for
+ * the player.
+ */
+export function simulateExpedition(
+  savedPlayers: SavedCharacter[],
+  mob: StarMob,
+  star: number,
+  dashboardService: DashboardService,
+  mobVariant: MobStatVariant = 'min',
+  dmgOverride?: { min: number; max: number } | null,
+): ExpeditionResult {
+  const yogSothoth = isYogSothoth(mob.name);
+  const joinedLevelSum = savedPlayers.reduce((sum, p) => sum + (p.character.poziom ?? 0), 0);
+  const lowestPlayerLevel = savedPlayers.length ? Math.min(...savedPlayers.map(p => p.character.poziom ?? 0)) : 0;
+  const mobObrona = yogSothoth ? yogSothothStat(lowestPlayerLevel, 'obrona') : pickStat(scaledRangeForStar(mob, 'obrona', star), mobVariant);
+  const mobOdpornosc = yogSothoth ? yogSothothStat(lowestPlayerLevel, 'odpornosc') : pickStat(scaledRangeForStar(mob, 'odpornosc', star), mobVariant);
+  const mobSpostrzegawczosc = yogSothoth ? yogSothothStat(lowestPlayerLevel, 'spostrzegawczosc') : pickStat(scaledRangeForStar(mob, 'spostrzegawczosc', star), mobVariant);
+  const mobSzczescie = yogSothoth ? yogSothothStat(lowestPlayerLevel, 'szczescie') : pickStat(scaledRangeForStar(mob, 'szczescie', star), mobVariant);
+  const mobZwinnosc = yogSothoth ? yogSothothStat(lowestPlayerLevel, 'zwinnosc') : pickStat(scaledRangeForStar(mob, 'zwinnosc', star), mobVariant);
+  const mobMaxHp = yogSothoth ? YOG_SOTHOTH_HP : (pickStat(scaledRangeForStar(mob, 'zycie', star), mobVariant) || 1);
+  const mobInitiative = mobZwinnosc + mobSpostrzegawczosc;
+
+  const profile = MOB_COMBAT_PROFILES[mob.name];
+  const merihim = profile?.special?.kind === 'merihim';
+  const bokrug = profile?.special?.kind === 'bokrug';
+  const zepar = profile?.special?.kind === 'zepar';
+  const bossAdds: MerihimAdd[] = (merihim || bokrug || zepar) ? buildMerihimAdds(star) : [];
+  let mobCritMulti = profile?.critMulti ?? 1;
+  const placeholderDamagePerAttack = Math.max(1, Math.round((mobObrona + mobZwinnosc) / 2));
+  const dmgStarMulti = yogSothoth ? 1 : mobDamageStarMultiplier(star);
+  /** A manual dmgOverride is treated as the final, already-scaled per-hit range — the star multiplier and roster bonus (both otherwise baked into it) are skipped so the roll lands exactly between the slider values. */
+  const dmgRange = dmgOverride ?? mobDmgRangeForVariant(mobVariant, profile, star);
+  const critMultiFloor = yogSothoth ? YOG_SOTHOTH_CRIT_MULTI_FLOOR : 1.5;
+  const critChanceFloor = yogSothoth ? YOG_SOTHOTH_CRIT_CHANCE_FLOOR : 0.01;
+  /** "Zakrzywienie czasu" active rounds — rounds 7, 8 and 9 for Yog-Sothoth, never for any other mob. */
+  const CURVE_ROUNDS = new Set([7, 8, 9]);
+  function isYogSothothCurveRound(round: number): boolean {
+    return yogSothoth && CURVE_ROUNDS.has(round);
+  }
+
+  const levelCap = resolveLevelCap(profile, star);
+  const rosterBonus = computeRosterBonus(levelCap, joinedLevelSum, savedPlayers.length, profile?.rosterBonusDamageCapDivisor ?? 1);
+  const auraBestiiBonus = computeAuraBestiiTeamBonus(savedPlayers);
+
+  const players: PlayerCombatState[] = savedPlayers.map(saved => {
+    const characterBase: Character = {
+      ...saved.character,
+      obronaPrzeciwnika: mobObrona,
+      odpornoscPrzeciwnika: mobOdpornosc,
+      szczesciePrzeciwnika: mobSzczescie,
+      trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
+      // The real activation is HP-gated below, not the manual calculator toggle — combat always starts un-activated.
+      tchnienieSmierciActive: false,
+      // Żar Krwi's damage bonus is modeled dynamically below (see zarDamageBonus), not via the calculator's flat toggle.
+      zarKrwiActive: false,
+    };
+    const dashboard = dashboardService.calculateStuff(characterBase, auraBestiiHpShareFor(auraBestiiBonus, saved.id));
+    const maxHp = dashboard.punktyZycia ?? 1;
+    const tchnienieLevel = saved.character.arcaneLevels?.tchnienieSmierci ?? 0;
+    const dashboardActivated = tchnienieLevel > 0
+      ? dashboardService.calculateStuff({ ...characterBase, tchnienieSmierciActive: true })
+      : dashboard;
+    if (yogSothoth) {
+      applyYogSothothWeaponMods(dashboard.obrazenia ?? [], saved.character.poziom ?? 0);
+      if (dashboardActivated !== dashboard) applyYogSothothWeaponMods(dashboardActivated.obrazenia ?? [], saved.character.poziom ?? 0);
+    }
+    return {
+      id: saved.id,
+      name: saved.name,
+      level: saved.character.poziom ?? 0,
+      maxHp,
+      hp: maxHp,
+      alive: true,
+      initiative: dashboard.inicjatywa ?? 0,
+      redukcja: dashboard.redukcja ?? 0,
+      obrona: dashboard.obrona ?? 0,
+      odpornosc: dashboard.attributes?.odpornosc ?? 0,
+      skoraBestiiOdpornosc: saved.character.arcaneLevels?.skoraBestii ?? 0,
+      pancerzGunMulti: pancerzGunDefenseMultiplier(saved.character.evolutions?.pancerz ?? 0),
+      spostrzegawczosc: dashboard.attributes?.spostrzegawczosc ?? 0,
+      szczescie: dashboard.szczescie ?? 0,
+      unikBiala: dashboard.unikBiala ?? 0,
+      unikPalna: dashboard.unikPalna ?? 0,
+      unikDystans: dashboard.unikDystans ?? 0,
+      enemyCritChanceReduction: (dashboard.enemyCritChanceReduction ?? 0) + auraBestiiBonus.critReductionBonus,
+      hasGroza: saved.character.arcaneLevels?.groza ?? false,
+      grozaRound3Chance: grozaRound3Chance(saved.character.talizmanLevels?.szponyNocy ?? 0, saved.character.arcaneLevels?.nocnyLowca ?? 0),
+      lewiatanLevel: saved.character.talizmanLevels?.lewiatan ?? 0,
+      lewiatanBonusObrona: 0,
+      lewiatanBonusOdpornosc: 0,
+      tchnienieLevel,
+      tchnienieThreshold: tchnienieActivationThreshold(saved.character.talizmanLevels?.zycieISmierc ?? 0, tchnienieLevel),
+      tchnienieActive: false,
+      zarLevel: !!saved.character.arcaneLevels?.zarKrwi,
+      zarDamageBonus: saved.character.arcaneLevels?.zarKrwi ? 0.05 : 0,
+      pasozytyActive: false,
+      bokrugPoisoned: false,
+      weaponsActivated: dashboardActivated.obrazenia ?? [],
+      unikBialaActivated: dashboardActivated.unikBiala ?? 0,
+      unikPalnaActivated: dashboardActivated.unikPalna ?? 0,
+      unikDystansActivated: dashboardActivated.unikDystans ?? 0,
+      otchlanReduction: otchlanReductionFor(saved.character.talizmanLevels?.otchlaniCiszy ?? 0, saved.character.arcaneLevels?.ciszaKrwi ?? 0),
+      ignoreDisabledThisRound: false,
+      potegaStealPotential: potegaStealPotentialFor(saved.character.talizmanLevels?.potegaMocy ?? 0, saved.character.arcaneLevels?.wyssanieMocy ?? 0),
+      potegaTriggered: false,
+      potegaAppliedSteal: 0,
+      furiaChance: furiaChanceFor(saved.character.talizmanLevels?.furiaBestii ?? 0, saved.character.arcaneLevels?.dzikiSzal ?? 0),
+      furiaCapPercent: FURIA_COUNTER_CAP_PERCENT[saved.character.talizmanLevels?.furiaBestii ?? 0] ?? 0,
+      furiaMaxCountersThisRound: 0,
+      furiaCountersUsedThisRound: 0,
+      cichyLowcaChance: cichyLowcaChanceFor(saved.character.talizmanLevels?.cichyLowca ?? 0, saved.character.arcaneLevels?.kocieSciezki ?? 0),
+      zizActive: (saved.character.talizmanLevels?.ziz ?? 0) === 4,
+      zizBonus: 0,
+      regenPerRound: dashboard.regeneracja ?? 0,
+      damageDealtThisRound: 0,
+      weapons: dashboard.obrazenia ?? [],
+      attacksMade: 0,
+      hitsLanded: 0,
+      critsLanded: 0,
+      attacksReceived: 0,
+      hitsReceived: 0,
+      totalDamageDealt: 0,
+      kills: 0,
+    };
+  });
+
+  // Otchłań Ciszy: each qualifying player's first landed hit per round multiplies the mob's
+  // CURRENT obrona/odpornosc by (1 - their own reduction) — compounds every round, uncapped
+  // in total (only the per-proc reduction itself is capped, per talisman tier).
+  let mobObronaCurrent = mobObrona;
+  let mobOdpornoscCurrent = mobOdpornosc;
+
+  /** Rebuilds every player's weapon stats against the mob's current (post-debuff) obrona/odpornosc, preserving each player's own Tchnienie Śmierci activation state. */
+  function refreshWeaponsForMobDebuff(): void {
+    const effObrona = mobObronaCurrent;
+    const effOdpornosc = mobOdpornoscCurrent;
+    players.forEach((p, i) => {
+      const saved = savedPlayers[i];
+      const characterBase: Character = {
+        ...saved.character,
+        obronaPrzeciwnika: effObrona,
+        odpornoscPrzeciwnika: effOdpornosc,
+        szczesciePrzeciwnika: mobSzczescie,
+        trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
+        tchnienieSmierciActive: false,
+        zarKrwiActive: false,
+      };
+      const dashboardBase = dashboardService.calculateStuff(characterBase);
+      if (yogSothoth) applyYogSothothWeaponMods(dashboardBase.obrazenia ?? [], saved.character.poziom ?? 0);
+      const activatedDashboard = p.tchnienieLevel > 0
+        ? dashboardService.calculateStuff({ ...characterBase, tchnienieSmierciActive: true })
+        : dashboardBase;
+      if (yogSothoth && activatedDashboard !== dashboardBase) applyYogSothothWeaponMods(activatedDashboard.obrazenia ?? [], saved.character.poziom ?? 0);
+      p.weaponsActivated = activatedDashboard.obrazenia ?? [];
+      p.weapons = p.tchnienieActive ? p.weaponsActivated : (dashboardBase.obrazenia ?? []);
+      // Rebuilding from scratch loses Merihim's Pasożyty debuff — reapply it first, chronologically before any Ziz/Potęga crit-multi gains.
+      if (p.pasozytyActive) {
+        applyPasozytyDebuff(p.weapons);
+        if (p.weaponsActivated !== p.weapons) {
+          applyPasozytyDebuff(p.weaponsActivated);
+        }
+      }
+      // Rebuilding from scratch loses any already-triggered Potęga Mocy crit-multi steal and any accumulated Ziz bonus — reapply them.
+      const reapplyBonus = p.potegaAppliedSteal + p.zizBonus;
+      if (reapplyBonus > 0) {
+        boostWeaponsCritMulti(p.weapons, reapplyBonus);
+        if (p.weaponsActivated !== p.weapons) {
+          boostWeaponsCritMulti(p.weaponsActivated, reapplyBonus);
+        }
+      }
+    });
+  }
+
+  const attacks: CombatAttackLog[] = [];
+  let mobHp = mobMaxHp;
+  let outcome: ExpeditionOutcome = 'draw';
+  let roundsElapsed = 0;
+  // ── Post-fight summary counters for the mob side ──
+  let mobAttacksMade = 0;
+  let mobHitsLanded = 0;
+  let mobCritsLanded = 0;
+  let mobTotalDamageDealt = 0;
+  let mobKills = 0;
+  /** Merihim's Pasożyty fires once, the first time round 2 is reached. */
+  let pasozytyTriggered = false;
+  /** Bokrug's Tsunami: fires once, the first time he'd be reduced to 0 HP — sticky, so every death after that is real. */
+  let bokrugTsunamiUsed = false;
+  /** Set true for the duration of the round-robin shot loop the instant Tsunami fires, so that loop knows to end the round immediately instead of continuing to drain queues. Reset every round. */
+  let bokrugTsunamiSignal = false;
+  /** True when one of Bokrug's own attacks forced through by Tsunami wipes the party. */
+  let bokrugTsunamiCausedLoss = false;
+  /** Rebuilt every round (needs that round's `queues`/`resolveMobAttack` closures) — forces Bokrug's remaining queued attacks to land, heals him 25% max HP, and empties every other queue for the rest of the round. */
+  let runBokrugTsunami: ((roundNum: number) => void) | null = null;
+  /** Zepar's 50%-HP reinforcement wave: fires once, the first time his HP drops to/below half his max. */
+  let zeparSummonTriggered = false;
+  /** Set the round Zepar first drops to 50% HP — the actual 8-add spawn happens at the START of the FOLLOWING round, then this is cleared. */
+  let zeparSummonPending = false;
+  /** First selected player is the expedition organizer — their death cuts the whole team's damage output by 10%. */
+  const organizer = players[0];
+  /** Yog-Sothoth's "Piekielny Ogar" fodder is fresh every round (rounds 1-4) rather than a persistent wave like Merihim/Bokrug/Zepar's adds — each round's wave gets logged here (round-labeled) so the report can still show every wave's final HP. */
+  const yogFodderSummary: AddSummary[] = [];
+  /** Otchłań Ciszy triggers on each qualifying player's own first landed hit per round — reset fresh every round. */
+  let otchlanProcdThisRound = new Set<string>();
+
+  /** Logs a standalone announcement line (no numbers) for a talisman/arcane activation. */
+  function pushNote(attackerName: string, text: string, roundNum: number, attackerSide: 'players' | 'mob' = 'players'): void {
+    attacks.push({
+      round: roundNum,
+      attackerName,
+      attackerSide,
+      weaponName: '',
+      targetName: mob.name,
+      hit: true,
+      dodged: false,
+      crit: false,
+      damage: 0,
+      targetHpAfter: mobHp,
+      mobHpAfter: mobHp,
+      note: text,
+    });
+  }
+
+  /** Logs the death-announcement line the instant a combatant's HP hits 0. */
+  function pushDeath(name: string, side: 'players' | 'mob', roundNum: number): void {
+    attacks.push({
+      round: roundNum,
+      attackerName: name,
+      attackerSide: side,
+      weaponName: '',
+      targetName: mob.name,
+      hit: true,
+      dodged: false,
+      crit: false,
+      damage: 0,
+      targetHpAfter: mobHp,
+      mobHpAfter: mobHp,
+      note: side === 'mob' ? 'zostaje pokonany!' : 'ginie!',
+      died: true,
+    });
+  }
+
+  /** Resolves one player attack (normal shot or Furia Bestii counterattack) against the mob: dodge/hit/crit/damage, plus the Otchłań Ciszy and Potęga Mocy first-hit triggers. Returns whether the mob died. */
+  function resolvePlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number): boolean {
+    attacker.attacksMade++;
+    const dodgedByMob = Math.random() < mobUnikFor(profile, mobGenreForWeapon(w.genre));
+    const hit = !dodgedByMob && Math.random() < (w.estimatedHitChance ?? 1);
+    let crit = false;
+    let dmg = 0;
+    let otchlanProced = false;
+    let otchlanObronaRemoved = 0;
+    let otchlanOdpornoscRemoved = 0;
+    let potegaSteal = 0;
+    const effBounds = (attacker.ignoreDisabledThisRound || yogSothoth)
+      ? ignoreDisabledWeaponBounds(w, mobObronaCurrent, mobOdpornoscCurrent, mobGenreForWeapon(w.genre))
+      : { minDmg: w.minDmg, maxDmg: w.maxDmg, critDmgMin: w.critDmgMin ?? w.minDmg, critDmgMax: w.critDmgMax ?? w.maxDmg };
+    if (hit) {
+      attacker.hitsLanded++;
+      crit = Math.random() < (w.critChance ?? 0);
+      if (crit) attacker.critsLanded++;
+      dmg = crit
+        ? randomInt(effBounds.critDmgMin, effBounds.critDmgMax)
+        : randomInt(effBounds.minDmg, effBounds.maxDmg);
+      if (organizer && !organizer.alive) {
+        dmg = Math.round(dmg * 0.9);
+      }
+      if (attacker.zarDamageBonus > 0) {
+        dmg = Math.round(dmg * (1 + attacker.zarDamageBonus));
+      }
+      // Don't count overkill — a killing blow only "deals" as much damage as the mob actually had left.
+      dmg = Math.min(dmg, mobHp);
+      mobHp = Math.max(0, mobHp - dmg);
+      attacker.damageDealtThisRound += dmg;
+      attacker.totalDamageDealt += dmg;
+      if (crit && profile?.special?.kind === 'demonicznyGniew') {
+        mobCritMulti += 0.25;
+      }
+      if (crit && attacker.zizActive) {
+        const zizDelta = (w.genre?.endsWith('2H') || w.genre === 'RANGE_1H') ? 0.05 : 0.025;
+        attacker.zizBonus += zizDelta;
+        boostWeaponsCritMulti(attacker.weapons, zizDelta);
+        if (attacker.weaponsActivated !== attacker.weapons) {
+          boostWeaponsCritMulti(attacker.weaponsActivated, zizDelta);
+        }
+      }
+      if (attacker.otchlanReduction > 0 && !otchlanProcdThisRound.has(attacker.id)) {
+        otchlanProcdThisRound.add(attacker.id);
+        const obronaBefore = mobObronaCurrent;
+        const odpornoscBefore = mobOdpornoscCurrent;
+        // Odpornosc is reduced by the talisman % of itself, as before. Obrona instead loses the talisman
+        // % of the GAP between obrona and odpornosc (both read pre-proc) — not a % of obrona itself.
+        mobOdpornoscCurrent *= (1 - attacker.otchlanReduction);
+        const obronaRemoved = Math.max(0, (obronaBefore - odpornoscBefore) * attacker.otchlanReduction);
+        mobObronaCurrent = obronaBefore - obronaRemoved;
+        otchlanObronaRemoved = Math.round(obronaRemoved);
+        otchlanOdpornoscRemoved = Math.round(odpornoscBefore - mobOdpornoscCurrent);
+        refreshWeaponsForMobDebuff();
+        otchlanProced = true;
+      }
+      if (attacker.potegaStealPotential > 0 && !attacker.potegaTriggered) {
+        attacker.potegaTriggered = true;
+        const actualSteal = Math.min(attacker.potegaStealPotential, Math.max(0, mobCritMulti - critMultiFloor));
+        if (actualSteal > 0) {
+          mobCritMulti -= actualSteal;
+          attacker.potegaAppliedSteal = actualSteal;
+          boostWeaponsCritMulti(attacker.weapons, actualSteal);
+          if (attacker.weaponsActivated !== attacker.weapons) {
+            boostWeaponsCritMulti(attacker.weaponsActivated, actualSteal);
+          }
+          potegaSteal = actualSteal;
+        }
+      }
+    }
+    let mackiStrachuProced = false;
+    if (profile?.special?.kind === 'mackiStrachu' && !attacker.ignoreDisabledThisRound
+      && mobHp <= mobMaxHp * MACKI_STRACHU_HP_THRESHOLD && Math.random() < MACKI_STRACHU_PROC_CHANCE) {
+      attacker.ignoreDisabledThisRound = true;
+      mackiStrachuProced = true;
+    }
+    attacks.push({
+      round: roundNum,
+      attackerName: attacker.name,
+      attackerSide: 'players',
+      weaponName: weaponLabel,
+      targetName: mob.name,
+      hit,
+      dodged: dodgedByMob,
+      crit,
+      damage: dmg,
+      targetHpAfter: mobHp,
+      mobHpAfter: mobHp,
+    });
+    if (otchlanProced) {
+      pushNote(attacker.name, `${attacker.name} aktywuje Otchłań Ciszy — ${mob.name} traci ${otchlanObronaRemoved} pkt obrony i ${otchlanOdpornoscRemoved} pkt odporności`, roundNum);
+    }
+    if (potegaSteal > 0) {
+      pushNote(attacker.name, `${attacker.name} aktywuje Potęgę Mocy — przejmuje ${potegaSteal.toFixed(2)}x mnożnika obrażeń krytycznych`, roundNum);
+    }
+    if (mackiStrachuProced) {
+      pushNote(attacker.name, `Macki Strachu napełniają serce ${attacker.name} grozą — jego ataki tracą na skuteczności do końca rundy`, roundNum);
+    }
+    // Zepar: the first time he drops to 50% max HP or below, he summons 8 more Słudzy Plagi at the
+    // start of the FOLLOWING round — flagged here, actually spawned at the top of the next round.
+    if (zepar && !zeparSummonTriggered && mobHp > 0 && mobHp <= mobMaxHp * 0.5) {
+      zeparSummonTriggered = true;
+      zeparSummonPending = true;
+      pushNote(mob.name, `${mob.name} spada do połowy życia i przyzywa posiłki, które dołączą do walki w następnej rundzie`, roundNum, 'mob');
+    }
+    if (mobHp <= 0) {
+      if (bokrug && !bokrugTsunamiUsed) {
+        bokrugTsunamiUsed = true;
+        runBokrugTsunami?.(roundNum);
+        return false;
+      }
+      attacker.kills++;
+      pushDeath(mob.name, 'mob', roundNum);
+      // With Merihim/Bokrug, the fight isn't won until their Słudzy Plagi adds are all dead too.
+      return !(merihim || bokrug || zepar) || bossAdds.every(a => !a.alive);
+    }
+    // Cichy Łowca: a missed or dodged swing has a chance to immediately swing again with the same weapon.
+    if ((dodgedByMob || !hit) && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
+      pushNote(attacker.name, `${attacker.name} aktywuje Cichego Łowcę`, roundNum);
+      return resolvePlayerAttack(attacker, w, `${weaponLabel} (dodatkowy atak)`, roundNum);
+    }
+    return false;
+  }
+
+  /** Resolves one player attack against a Merihim lesser-mob add: a plain HP pool with no dodge/obrona/special-proc interactions. Returns whether this kill completes Merihim's overall victory condition (him and every add dead). */
+  function resolvePlayerAttackOnAdd(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number, add: MerihimAdd): boolean {
+    attacker.attacksMade++;
+    const hit = Math.random() < (w.estimatedHitChance ?? 1);
+    let crit = false;
+    let dmg = 0;
+    if (hit) {
+      attacker.hitsLanded++;
+      crit = Math.random() < (w.critChance ?? 0);
+      if (crit) attacker.critsLanded++;
+      dmg = crit ? randomInt(w.critDmgMin ?? w.minDmg, w.critDmgMax ?? w.maxDmg) : randomInt(w.minDmg, w.maxDmg);
+      if (organizer && !organizer.alive) {
+        dmg = Math.round(dmg * 0.9);
+      }
+      if (attacker.zarDamageBonus > 0) {
+        dmg = Math.round(dmg * (1 + attacker.zarDamageBonus));
+      }
+      // Don't count overkill — a killing blow only "deals" as much damage as the add actually had left.
+      dmg = Math.min(dmg, add.hp);
+      add.hp = Math.max(0, add.hp - dmg);
+      attacker.damageDealtThisRound += dmg;
+      attacker.totalDamageDealt += dmg;
+    }
+    attacks.push({
+      round: roundNum,
+      attackerName: attacker.name,
+      attackerSide: 'players',
+      weaponName: weaponLabel,
+      targetName: add.name,
+      hit,
+      dodged: false,
+      crit,
+      damage: dmg,
+      targetHpAfter: add.hp,
+      mobHpAfter: mobHp,
+    });
+    if (add.hp <= 0 && add.alive) {
+      add.alive = false;
+      attacker.kills++;
+      pushDeath(add.name, 'mob', roundNum);
+      return mobHp <= 0 && bossAdds.every(a => !a.alive);
+    }
+    // Cichy Łowca: a missed swing has a chance to immediately swing again with the same weapon.
+    if (!hit && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
+      pushNote(attacker.name, `${attacker.name} aktywuje Cichego Łowcę`, roundNum);
+      return resolvePlayerAttackOnAdd(attacker, w, `${weaponLabel} (dodatkowy atak)`, roundNum, add);
+    }
+    return false;
+  }
+
+  /** Picks the target for a player's next attack: against Merihim/Bokrug, a random living choice between the boss and its adds; otherwise always the mob. Returns whether the attack completed the fight's win condition. */
+  function performPlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number): boolean {
+    if (!merihim && !bokrug && !zepar) {
+      return resolvePlayerAttack(attacker, w, weaponLabel, roundNum);
+    }
+    const livingAdds = bossAdds.filter(a => a.alive);
+    const options: (MerihimAdd | 'mob')[] = mobHp > 0 ? ['mob', ...livingAdds] : [...livingAdds];
+    if (!options.length) return false;
+    const target = options[Math.floor(Math.random() * options.length)];
+    return target === 'mob'
+      ? resolvePlayerAttack(attacker, w, weaponLabel, roundNum)
+      : resolvePlayerAttackOnAdd(attacker, w, weaponLabel, roundNum, target);
+  }
+
+  /** Resolves one Merihim add's attack: always hits a random living player for a flat 1 damage. */
+  function resolveAddAttack(add: MerihimAdd, roundNum: number): void {
+    const targetPool = players.filter(p => p.alive);
+    if (!targetPool.length) return;
+    const target = targetPool[Math.floor(Math.random() * targetPool.length)];
+    target.attacksReceived++;
+    target.hitsReceived++;
+    const dmg = 1;
+    target.hp = Math.max(0, target.hp - dmg);
+    updateZarBonus(target);
+    if (target.hp <= 0 && target.alive) {
+      target.alive = false;
+      mobKills++;
+    }
+    attacks.push({
+      round: roundNum,
+      attackerName: add.name,
+      attackerSide: 'mob',
+      weaponName: 'Szpony',
+      targetName: target.name,
+      hit: true,
+      dodged: false,
+      crit: false,
+      damage: dmg,
+      targetHpAfter: target.hp,
+      mobHpAfter: mobHp,
+    });
+    if (!target.alive) {
+      pushDeath(target.name, 'players', roundNum);
+    }
+  }
+
+  roundLoop:
+  for (let r = 0; r < ROUNDS; r++) {
+    roundsElapsed = r + 1;
+    for (const p of players) {
+      p.lewiatanBonusObrona = 0;
+      p.lewiatanBonusOdpornosc = 0;
+      p.damageDealtThisRound = 0;
+      p.ignoreDisabledThisRound = false;
+    }
+    otchlanProcdThisRound = new Set<string>();
+
+    // Merihim — Pasożyty: starting round 2, once and for good, strips 50% crit chance and 1.0
+    // crit multi from every player's weapons.
+    if (merihim && r + 1 === 2 && !pasozytyTriggered) {
+      pasozytyTriggered = true;
+      for (const p of players) {
+        p.pasozytyActive = true;
+        applyPasozytyDebuff(p.weapons);
+        if (p.weaponsActivated !== p.weapons) {
+          applyPasozytyDebuff(p.weaponsActivated);
+        }
+      }
+      pushNote(mob.name, `${mob.name} używa Pasożytów — wszyscy gracze tracą 50% szansy na trafienie krytyczne i 1.0 mnożnika obrażeń krytycznych`, r + 1, 'mob');
+    }
+    // Merihim — Pocałunek: starting round 3, each round has a 20% chance to instantly kill one
+    // random living player. Resolved before this round's queues are built so the victim doesn't
+    // still get to act.
+    if (merihim && r + 1 >= 3) {
+      const kissPool = players.filter(p => p.alive);
+      if (kissPool.length && Math.random() < 0.05) {
+        const victim = kissPool[Math.floor(Math.random() * kissPool.length)];
+        victim.hp = 0;
+        victim.alive = false;
+        mobKills++;
+        pushNote(mob.name, `${mob.name} używa Pocałunku i natychmiast zabija ${victim.name}`, r + 1, 'mob');
+        pushDeath(victim.name, 'players', r + 1);
+      }
+    }
+
+    // Bokrug — round 3: heals 15% of his max HP once, at the start of the round.
+    if (bokrug && r + 1 === 3) {
+      const healAmount = Math.round(mobMaxHp * 0.15);
+      mobHp = Math.min(mobMaxHp, mobHp + healAmount);
+      pushNote(mob.name, `${mob.name} regeneruje ${healAmount} PKT ŻYCIA`, r + 1, 'mob');
+    }
+    // Bokrug — Kolce Jadowe. Not part of his regular attack queue, so Groza can't block any of
+    // this. First, everyone poisoned in an earlier round takes this round's 5% max-HP tick; then
+    // he stings one not-yet-poisoned living player (25% max HP, floored at 1 HP — never lethal),
+    // poisoning them so they start taking the tick from next round on and permanently lose 75% of
+    // their regen.
+    if (bokrug) {
+      for (const p of players) {
+        if (!p.alive || !p.bokrugPoisoned) continue;
+        const tickDmg = Math.round(p.maxHp * 0.05);
+        p.hp = Math.max(0, p.hp - tickDmg);
+        updateZarBonus(p);
+        pushNote(p.name, `Jad Bokruga zadaje ${p.name} ${tickDmg} obrażeń`, r + 1, 'mob');
+        if (p.hp <= 0 && p.alive) {
+          p.alive = false;
+          mobKills++;
+          pushDeath(p.name, 'players', r + 1);
+        }
+      }
+      const stingPool = players.filter(p => p.alive && !p.bokrugPoisoned);
+      if (stingPool.length) {
+        const victim = stingPool[Math.floor(Math.random() * stingPool.length)];
+        const stingDmg = Math.round(victim.maxHp * 0.25);
+        victim.hp = Math.max(1, victim.hp - stingDmg);
+        victim.bokrugPoisoned = true;
+        victim.regenPerRound = Math.round(victim.regenPerRound * 0.25);
+        pushNote(mob.name, `${mob.name} wbija żądło jadowe w ${victim.name}, zadając ${stingDmg} obrażeń i zatruwając go`, r + 1, 'mob');
+      }
+    }
+
+    // Zepar — Aura Niewiary: once, at the very start of round 1, blocks 1-3 random players' arcana
+    // for the rest of the fight. Only the purely-arcane abilities go dark (Groza, Żar Krwi, Tchnienie
+    // Śmierci, personal Skóra Bestii odporność) — talizman-driven abilities that merely scale off an
+    // arcane investment keep working exactly the same.
+    if (zepar && r === 0) {
+      const blockCount = Math.min(players.length, randomInt(1, 3));
+      const pool = [...players];
+      const blocked: PlayerCombatState[] = [];
+      for (let i = 0; i < blockCount; i++) {
+        const idx = Math.floor(Math.random() * pool.length);
+        blocked.push(pool.splice(idx, 1)[0]);
+      }
+      for (const p of blocked) {
+        p.hasGroza = false;
+        p.zarLevel = false;
+        p.tchnienieLevel = 0;
+        p.skoraBestiiOdpornosc = 0;
+      }
+      if (blocked.length) {
+        pushNote(mob.name, `${mob.name} używa Aury Niewiary — blokuje arkana: ${blocked.map(p => p.name).join(', ')}`, r + 1, 'mob');
+      }
+    }
+    // Zepar — reinforcement wave: spawns at the start of the round FOLLOWING the one where he first
+    // dropped to 50% max HP.
+    if (zepar && zeparSummonPending) {
+      zeparSummonPending = false;
+      bossAdds.push(...buildZeparReinforcements(star, bossAdds.length));
+      pushNote(mob.name, `${mob.name} przyzywa 8 dodatkowych Sług Plagi`, r + 1, 'mob');
+    }
+
+    const alivePlayers = players.filter(p => p.alive);
+    if (!alivePlayers.length) {
+      outcome = 'loss';
+      break;
+    }
+
+    // Rounds 1-4 of the Yog-Sothoth fight: he's behind the portal and doesn't attack — instead,
+    // a fresh wave of "Piekielny Ogar" cannon fodder (playerCount/2 per round, playerCount×2 total
+    // over the 4 rounds) spawns for the party to clear. No damage flows back to the players here.
+    if (yogSothoth && r < 4) {
+      const fodderCount = Math.max(1, Math.round(savedPlayers.length / YOG_SOTHOTH_FODDER_PER_ROUND_DIVISOR));
+      const fodder = Array.from({ length: fodderCount }, () => {
+        const hp = randomInt(YOG_SOTHOTH_FODDER_MIN_HP, YOG_SOTHOTH_FODDER_MAX_HP);
+        return { hp, maxHp: hp };
+      });
+      for (const p of alivePlayers) {
+        for (const w of p.weapons) {
+          const shots = Math.max(0, Math.round(w.iloscAtakow ?? 0));
+          for (let i = 0; i < shots; i++) {
+            const aliveFodder = fodder.filter(f => f.hp > 0);
+            if (!aliveFodder.length) break;
+            const target = aliveFodder[Math.floor(Math.random() * aliveFodder.length)];
+            p.attacksMade++;
+            const hit = Math.random() < (w.estimatedHitChance ?? 1);
+            let dmg = 0;
+            let crit = false;
+            if (hit) {
+              p.hitsLanded++;
+              crit = Math.random() < (w.critChance ?? 0);
+              if (crit) p.critsLanded++;
+              const genre = mobGenreForWeapon(w.genre);
+              const factor = genre === 'dystans' ? YOG_SOTHOTH_FODDER_OBRONA / 4 : genre === 'biala' ? YOG_SOTHOTH_FODDER_OBRONA / 2 : YOG_SOTHOTH_FODDER_ODPORNOSC / 2;
+              const raw = crit ? randomInt(w.critDmgMin ?? w.minDmg, w.critDmgMax ?? w.maxDmg) : randomInt(w.minDmg, w.maxDmg);
+              dmg = Math.max(1, Math.round((raw - factor) * (1 + p.zarDamageBonus)));
+              // Don't count overkill — a killing blow only "deals" as much damage as the fodder actually had left.
+              dmg = Math.min(dmg, target.hp);
+              target.hp = Math.max(0, target.hp - dmg);
+              p.damageDealtThisRound += dmg;
+              p.totalDamageDealt += dmg;
+            }
+            attacks.push({
+              round: r + 1,
+              attackerName: p.name,
+              attackerSide: 'players',
+              weaponName: w.name,
+              targetName: 'Piekielny Ogar',
+              hit,
+              dodged: false,
+              crit,
+              damage: dmg,
+              targetHpAfter: target.hp,
+              mobHpAfter: mobHp,
+            });
+          }
+        }
+      }
+      fodder.forEach((f, i) => {
+        yogFodderSummary.push({
+          name: `Piekielny Ogar (Runda ${r + 1}) ${i + 1}`,
+          hpRemaining: f.hp,
+          hpMax: f.maxHp,
+          alive: f.hp > 0,
+        });
+      });
+      continue;
+    }
+
+    // Build this round's shot queues, ordered by initiative (mob slotted in by its own).
+    const queues: { initiative: number; shots: ShotQueueEntry[] }[] = [];
+    for (const p of alivePlayers) {
+      const shots: ShotQueueEntry[] = [];
+      let totalWeaponAttacks = 0;
+      p.weapons.forEach((w, weaponIndex) => {
+        const count = Math.max(0, Math.round(w.iloscAtakow ?? 0));
+        totalWeaponAttacks += count;
+        for (let i = 0; i < count; i++) shots.push({ side: 'player', player: p, weaponIndex });
+      });
+      if (shots.length) queues.push({ initiative: p.initiative, shots });
+      // Furia Bestii: this round's counterattack budget is a % of this round's normal attack count.
+      p.furiaMaxCountersThisRound = Math.floor(p.furiaCapPercent * totalWeaponAttacks);
+      p.furiaCountersUsedThisRound = 0;
+    }
+    // A boss's lesser adds each get their own initiative-ordered attack slot, alongside players and the boss itself.
+    for (const add of bossAdds) {
+      if (add.alive) {
+        queues.push({ initiative: add.initiative, shots: [{ side: 'add', addId: add.id }] });
+      }
+    }
+    // Groza: guaranteed to block the mob's regular attack in round 2 if any player has it;
+    // Szpony Nocy tier 4 gives each Groza-carrying player an independent (non-stacking) chance
+    // to also block round 3. This only zeroes out the regular attack queue — a mob's passive
+    // special abilities aren't a separate attack shot in this model, so nothing else to preserve.
+    const playersWithGroza = alivePlayers.filter(p => p.hasGroza);
+    const grozaTriggeredBy = r === 1
+      ? playersWithGroza
+      : r === 2
+        ? playersWithGroza.filter(p => Math.random() < p.grozaRound3Chance)
+        : [];
+    const grozaBlocksRound = grozaTriggeredBy.length > 0;
+    for (const p of grozaTriggeredBy) {
+      pushNote(p.name, `${p.name} używa grozy`, r + 1);
+    }
+
+    const mobAttackCount = yogSothoth ? YOG_SOTHOTH_ATTACKS_PER_ROUND : (profile?.attacksPerRound ?? 1);
+    // Yog-Sothoth's huge initiative means most of his attacks land at the very start of the round —
+    // 60% fire in an immediate burst before anyone else acts, the rest are mixed into the normal
+    // initiative-ordered round-robin (so their exact timing depends on how many shots everyone else has left).
+    // Every other mob with a combat profile works the same way but with a 70% opening burst, each
+    // attack still picking its own random target one at a time (see hasSequencedAttacks below).
+    const hasSequencedAttacks = !!profile && !yogSothoth;
+    const mobBurstShare = yogSothoth ? YOG_SOTHOTH_BURST_ATTACK_SHARE : hasSequencedAttacks ? 0.70 : 0;
+    const mobBurstCount = Math.round(mobAttackCount * mobBurstShare);
+    const mobQueuedCount = mobAttackCount - mobBurstCount;
+    const isCurveRound = isYogSothothCurveRound(r + 1);
+    if (isCurveRound) {
+      pushNote(mob.name, `${mob.name} zakrzywia czas i przestrzeń sprawiając, że jego ataki koncentrują się na wybranym przeciwniku oraz zyskują na sile i celności.`, r + 1, 'mob');
+    }
+
+    /** Resolves one mob attack (target pick, dodge/hit/crit/damage, procs). Returns whether the round loop should stop. */
+    function resolveMobAttack(): 'ok' | 'win' | 'loss' {
+      const targetPool = players.filter(p => p.alive);
+      if (!targetPool.length) return 'loss';
+      const target = isCurveRound
+        ? [...targetPool].sort((a, b) => b.totalDamageDealt - a.totalDamageDealt)[0]
+        : targetPool[Math.floor(Math.random() * targetPool.length)];
+      const genre: MobWeaponGenre = profile?.weaponGenre ?? 'biala';
+      const dodged = Math.random() < unikForGenre(target, genre);
+      const extraHitChance = rosterBonus.extraHitChance + (isCurveRound ? YOG_SOTHOTH_CURVE_EXTRA_HIT_CHANCE : 0);
+      const hit = !dodged && Math.random() < mobHitChance(profile?.weaponGenre ?? 'dystans', mobZwinnosc, mobSpostrzegawczosc, mobSzczescie, target, extraHitChance);
+      mobAttacksMade++;
+      target.attacksReceived++;
+      let crit = false;
+      let dmg = 0;
+      if (hit) {
+        mobHitsLanded++;
+        target.hitsReceived++;
+        if (profile) {
+          crit = Math.random() < effectiveMobCritChance(profile.critChance, target, critChanceFloor);
+          if (crit) mobCritsLanded++;
+          const effectiveCritMulti = isCurveRound ? YOG_SOTHOTH_CURVE_CRIT_MULTI : mobCritMulti;
+          // Crit multiplier is applied LAST, on top of the fully-reduced normal hit (after redukcja
+          // and the flat obrona/odpornosc defense reduction) — not on the raw pre-reduction roll —
+          // so it scales the damage the target would actually have taken, not diluted by flat
+          // additive terms like the incomplete-roster bonus that don't grow with the multiplier.
+          const raw = dmgOverride
+            ? (isCurveRound ? dmgRange.max : randomInt(dmgRange.min, dmgRange.max))
+            : (isCurveRound ? dmgRange.max : randomInt(dmgRange.min, dmgRange.max)) * dmgStarMulti + rosterBonus.extraDamage;
+          const afterRedukcja = raw * (1 - target.redukcja);
+          const defenseReduction = mobHitDefenseReduction(profile, target);
+          const beforeCrit = Math.max(0, afterRedukcja - defenseReduction);
+          dmg = Math.max(0, Math.round(beforeCrit * (crit ? effectiveCritMulti : 1) * (yogSothoth ? yogSothothDamageTakenMulti(target.level) : 1)));
+        } else {
+          dmg = Math.max(0, Math.round(placeholderDamagePerAttack * (1 - target.redukcja)));
+        }
+        // Don't count overkill — a killing blow only "deals" as much damage as the target actually had left.
+        dmg = Math.min(dmg, target.hp);
+        target.hp = Math.max(0, target.hp - dmg);
+        mobTotalDamageDealt += dmg;
+        updateZarBonus(target);
+        if (target.hp <= 0 && target.alive) {
+          target.alive = false;
+          mobKills++;
+        }
+      }
+      attacks.push({
+        round: r + 1,
+        attackerName: mob.name,
+        attackerSide: 'mob',
+        weaponName: profile?.weaponName ?? mob.name,
+        targetName: target.name,
+        hit,
+        dodged,
+        crit,
+        damage: dmg,
+        targetHpAfter: target.hp,
+        mobHpAfter: mobHp,
+      });
+      if (!target.alive) {
+        pushDeath(target.name, 'players', r + 1);
+      }
+      if (hit) {
+        if (crit && applyLewiatanProc(target)) {
+          pushNote(target.name, `${target.name} aktywuje Lewiatana`, r + 1);
+        }
+        if (tryActivateTchnienie(target)) {
+          const dmgBonus = 5 * target.tchnienieLevel;
+          const trafPenalty = target.tchnienieLevel;
+          const unikBonus = 2 * target.tchnienieLevel;
+          pushNote(target.name, `${target.name} aktywuje Tchnienie Śmierci (obrażenia wszystkich broni +${dmgBonus}, trafienie wszystkich broni -${trafPenalty}, unik +${unikBonus}%)`, r + 1);
+        }
+        if (crit && target.alive && target.furiaChance > 0
+          && target.furiaCountersUsedThisRound < target.furiaMaxCountersThisRound
+          && Math.random() < target.furiaChance) {
+          pushNote(target.name, `${target.name} aktywuje Furię Bestii`, r + 1);
+          for (const cw of target.weapons) {
+            if (target.furiaCountersUsedThisRound >= target.furiaMaxCountersThisRound) break;
+            target.furiaCountersUsedThisRound += 1;
+            const wonFromCounter = performPlayerAttack(target, cw, `${cw.name} (kontratak)`, r + 1);
+            if (wonFromCounter) return 'win';
+          }
+        }
+      }
+      if (!players.some(p => p.alive)) return 'loss';
+      return 'ok';
+    }
+
+    if (!grozaBlocksRound && profile && mobBurstCount > 0) {
+      for (let i = 0; i < mobBurstCount; i++) {
+        const result = resolveMobAttack();
+        if (result !== 'ok') {
+          outcome = result;
+          break roundLoop;
+        }
+      }
+    }
+
+    // Every sequenced mob's remaining (post-burst) attacks aren't spread out as individual
+    // single-shot queue slots — they land grouped into 2 later "spots", each firing several
+    // attacks back-to-back the moment its turn comes up in the initiative round-robin, rather
+    // than one at a time. Yog-Sothoth keeps his own original single-shot spread instead.
+    const mobShots: ShotQueueEntry[] = grozaBlocksRound
+      ? []
+      : profile
+        ? (hasSequencedAttacks
+            ? [Math.ceil(mobQueuedCount / 2), Math.floor(mobQueuedCount / 2)]
+                .filter(count => count > 0)
+                .map(count => ({ side: 'mob' as const, burstCount: count }))
+            : Array.from({ length: mobQueuedCount }, () => ({ side: 'mob' as const })))
+        : [{ side: 'mob' as const }];
+    queues.push({ initiative: mobInitiative, shots: mobShots });
+    queues.sort((a, b) => b.initiative - a.initiative);
+
+    // Bokrug — Tsunami: forces any of his own shots still left in `mobShots` this round to resolve
+    // immediately (ignoring initiative order), heals him 25% max HP, then empties every other
+    // queue so the party loses the rest of their queued attacks for the round.
+    bokrugTsunamiSignal = false;
+    runBokrugTsunami = (roundNum: number) => {
+      while (mobShots.length) {
+        mobShots.shift();
+        if (resolveMobAttack() === 'loss') bokrugTsunamiCausedLoss = true;
+      }
+      for (const q of queues) q.shots.length = 0;
+      const healAmount = Math.round(mobMaxHp * 0.25);
+      mobHp = Math.min(mobMaxHp, mobHp + healAmount);
+      pushNote(mob.name, `${mob.name} wywołuje Tsunami — jego pozostałe ataki w tej rundzie dochodzą do skutku, odzyskuje ${healAmount} PKT ŻYCIA, a gracze tracą pozostałe ataki w tej rundzie`, roundNum, 'mob');
+      bokrugTsunamiSignal = true;
+    };
+
+    shotLoop:
+    while (queues.some(q => q.shots.length)) {
+      for (const q of queues) {
+        if (!q.shots.length) continue;
+        const shot = q.shots.shift()!;
+
+        if (shot.side === 'player') {
+          if (!shot.player!.alive) continue;
+          const w = shot.player!.weapons[shot.weaponIndex!];
+          if (!w) continue;
+          const won = performPlayerAttack(shot.player!, w, w.name, r + 1);
+          if (bokrugTsunamiSignal) {
+            if (bokrugTsunamiCausedLoss) {
+              outcome = 'loss';
+              break roundLoop;
+            }
+            break shotLoop;
+          }
+          if (won) {
+            outcome = 'win';
+            break roundLoop;
+          }
+        } else if (shot.side === 'add') {
+          const add = bossAdds.find(a => a.id === shot.addId);
+          if (add?.alive) resolveAddAttack(add, r + 1);
+        } else {
+          const burst = shot.burstCount ?? 1;
+          for (let i = 0; i < burst; i++) {
+            const result = resolveMobAttack();
+            if (result !== 'ok') {
+              outcome = result;
+              break roundLoop;
+            }
+          }
+        }
+      }
+    }
+
+    // End-of-round regen: only for players who survived the round, capped at half of their own damage dealt this round.
+    for (const p of players) {
+      if (!p.alive || p.regenPerRound <= 0) continue;
+      const regenAmount = Math.min(p.regenPerRound, p.damageDealtThisRound / 2);
+      if (regenAmount > 0) {
+        const healed = Math.min(p.maxHp - p.hp, Math.floor(regenAmount));
+        p.hp += healed;
+        if (healed > 0) {
+          pushNote(p.name, `${p.name} regeneruje ${healed} PKT ŻYCIA`, r + 1);
+        }
+      }
+    }
+  }
+
+  const summary: CombatSummary = {
+    players: players.map(p => ({
+      name: p.name,
+      side: 'players',
+      damageDealt: p.totalDamageDealt,
+      kills: p.kills,
+      hpRemaining: p.hp,
+      hpMax: p.maxHp,
+      attacksMade: p.attacksMade,
+      hitsLanded: p.hitsLanded,
+      critsLanded: p.critsLanded,
+      attacksReceived: p.attacksReceived,
+      hitsReceived: p.hitsReceived,
+    })),
+    mob: {
+      name: mob.name,
+      side: 'mob',
+      damageDealt: mobTotalDamageDealt,
+      kills: mobKills,
+      hpRemaining: mobHp,
+      hpMax: mobMaxHp,
+      attacksMade: mobAttacksMade,
+      hitsLanded: mobHitsLanded,
+      critsLanded: mobCritsLanded,
+      attacksReceived: players.reduce((sum, p) => sum + p.attacksMade, 0),
+      hitsReceived: players.reduce((sum, p) => sum + p.hitsLanded, 0),
+    },
+    adds: [...bossAdds.map(a => ({ name: a.name, hpRemaining: a.hp, hpMax: a.maxHp, alive: a.alive })), ...yogFodderSummary],
+  };
+
+  return { outcome, attacks, players, mobName: mob.name, mobMaxHp, mobHpRemaining: mobHp, roundsElapsed, summary };
+}

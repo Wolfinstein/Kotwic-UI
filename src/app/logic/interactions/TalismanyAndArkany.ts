@@ -7,6 +7,7 @@ export class TalismanyAndArkany {
   aKrewZycia: number = 0;
   aKocieSciezki: number = 0;
   aZar: number = 0;
+  zarAktywny: boolean = false;
   aCisza: number = 0;
   aWyssanie: number = 0;
   aMocKrwi: number = 0;
@@ -15,11 +16,14 @@ export class TalismanyAndArkany {
   aCienBestii: number = 0;
   aNocny: number = 0;
   aTchnienie: number = 0;
+  tchnienieAktywne: boolean = false;
   ambicja: number = 0;
   behemot: number = 0;
   ziz: number = 0;
   kamienSpota: number = 0;
   kamienZwinki: number = 0;
+  kamienDobra: number = 0;
+  kamienZla: number = 0;
   szpony: number = 0;
   zycieSmierc: number = 0;
   otchlan: number = 0;
@@ -39,6 +43,8 @@ export class TalismanyAndArkany {
     this.doZiz(p1);
     this.doKamykSpota(p1);
     this.doKamykZwinki(p1);
+    this.doKamienDobra(p1);
+    this.doKamienZla(p1);
     this.doSzpony(p1);
     this.doZycieiSmierc(p1);
     this.doOtchlan(p1);
@@ -225,6 +231,44 @@ export class TalismanyAndArkany {
     }
     return player;
   }
+  private doKamienDobra(player: Player): Player {
+    switch (this.kamienDobra) {
+      case 1:
+        player.addCharyzma(20);
+        break;
+      case 2:
+        player.addCharyzma(40);
+        break;
+      case 3:
+        player.addCharyzma(60);
+        break;
+      case 4:
+        player.addCharyzma(80);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
+  private doKamienZla(player: Player): Player {
+    switch (this.kamienZla) {
+      case 1:
+        player.addWplywy(20);
+        break;
+      case 2:
+        player.addWplywy(40);
+        break;
+      case 3:
+        player.addWplywy(60);
+        break;
+      case 4:
+        player.addWplywy(80);
+        break;
+      default:
+        break;
+    }
+    return player;
+  }
   private doSzpony(player: Player): Player {
     switch (this.szpony) {
       case 1:
@@ -244,22 +288,16 @@ export class TalismanyAndArkany {
     }
     return player;
   }
+  /** Per Tchnienie Śmierci arcane point, PKT Życia bazowe increases by this tier's %, capped at +400% total. */
+  private static readonly ZYCIE_SMIERC_PCT_PER_TCHNIENIE: Record<number, number> = { 1: 0.03, 2: 0.04, 3: 0.05, 4: 0.06 };
+  static tchnienieModifier(zycieSmierc: number, aTchnienie: number): number {
+    const pctPerPoint = TalismanyAndArkany.ZYCIE_SMIERC_PCT_PER_TCHNIENIE[zycieSmierc] ?? 0;
+    return Math.min(pctPerPoint * aTchnienie, 4.00);
+  }
   private doZycieiSmierc(player: Player): Player {
-    switch (this.zycieSmierc) {
-      case 1:
-        player.setLife(Math.floor(player.life + (this.aTchnienie * 0.03) * player.baseLife));
-        break;
-      case 2:
-        player.setLife(Math.floor(player.life + (this.aTchnienie * 0.04) * player.baseLife));
-        break;
-      case 3:
-        player.setLife(Math.floor(player.life + (this.aTchnienie * 0.05) * player.baseLife));
-        break;
-      case 4:
-        player.setLife(Math.floor(player.life + (this.aTchnienie * 0.06) * player.baseLife));
-        break;
-      default:
-        break;
+    const modifier = TalismanyAndArkany.tchnienieModifier(this.zycieSmierc, this.aTchnienie);
+    if (modifier > 0) {
+      player.addLife(Math.floor(modifier * player.baseLife));
     }
     return player;
   }
@@ -303,21 +341,24 @@ export class TalismanyAndArkany {
   private doAura(player: Player): Player {
     switch (this.aura) {
       case 1:
-        player.setLife(player.life + this.aSkora * 5);
-        player.addIgnore(0.0015 * this.aSkora);
+        player.addBaseLife(this.aSkora * 5);
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0015 * this.aSkora, 0.05));
         break;
       case 2:
-        player.setLife(player.life + this.aSkora * 10);
-        player.addIgnore(0.0020 * this.aSkora);
+        player.addBaseLife(this.aSkora * 10);
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.002 * this.aSkora, 0.07));
         break;
       case 3:
-        player.setLife(player.life + this.aSkora * 20);
-        player.addIgnore(0.0025 * this.aSkora);
+        player.addBaseLife(this.aSkora * 20);
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0025 * this.aSkora, 0.10));
         break;
       case 4:
-        player.setLife(player.life + this.aSkora * 30);
-        player.setLife(player.life + this.aSkora * 10);
-        player.addIgnore(0.0035 * this.aSkora);
+        player.addBaseLife(this.aSkora * 30);
+        player.addBaseLife(this.aSkora * 10);
+        // The +10/point team-wide HP + crit-received-reduction aura (Aura Bestii talizman description)
+        // is a cross-player, top-4-contributors mechanic the deterministic calculator can't express —
+        // it's implemented in full in expeditionCombat.ts instead (computeAuraBestiiTeamBonus).
+        player.addLaczneObrazeniaWszystkichBroni(Math.min(0.0035 * this.aSkora, 0.15));
         break;
       default:
         break;
@@ -350,16 +391,16 @@ export class TalismanyAndArkany {
   private doMaskaDef(player: Player): Player {
     switch (this.maskaWladzy) {
       case 1:
-        player.setLife(player.life + this.aMaskaDef * 5);
+        player.addBaseLife(this.aMaskaDef * 5);
         break;
       case 2:
-        player.setLife(player.life + this.aMaskaDef * 10);
+        player.addBaseLife(this.aMaskaDef * 10);
         break;
       case 3:
-        player.setLife(player.life + this.aMaskaDef * 20);
+        player.addBaseLife(this.aMaskaDef * 20);
         break;
       case 4:
-        player.setLife(player.life + this.aMaskaDef * 30);
+        player.addBaseLife(this.aMaskaDef * 30);
         break;
       default:
         break;
@@ -421,8 +462,10 @@ export class TalismanyAndArkany {
   private doZar(player: Player): Player {
     if (this.aZar === 1) {
       player.setLife(Math.floor(player.life + player.baseLife * 0.4));
-      player.addLaczneObrazeniaWszystkichBroni(0.35);
-      player.setHasZar(true);
+      if (this.zarAktywny) {
+        player.addLaczneObrazeniaWszystkichBroni(0.35);
+        player.setHasZar(true);
+      }
     }
     return player;
   }
@@ -433,6 +476,7 @@ export class TalismanyAndArkany {
   }
   private doSkora(player: Player): Player {
     player.addOdpornosc(this.aSkora);
+    player.addEnemyCritChanceReduction(this.aSkora * 1.25);
     return player;
   }
   private doDziki(player: Player): Player {
@@ -460,11 +504,15 @@ export class TalismanyAndArkany {
     return player;
   }
   private doaTchnienie(player: Player): Player {
-    player.addUnikBiala(0.02 * this.aTchnienie);
-    player.addUnikDystans(0.02 * this.aTchnienie);
-    player.addUnikPalna(0.02 * this.aTchnienie);
-    player.addAllTrafienie(-1 * this.aTchnienie);
-    player.addAllDps(5 * this.aTchnienie);
+    // Real activation is HP-threshold-gated (see expeditionCombat.ts) — the calculator has no
+    // live HP to check, so tchnienieAktywne is a manual "assume active" toggle instead.
+    if (this.tchnienieAktywne) {
+      player.addUnikBiala(0.02 * this.aTchnienie);
+      player.addUnikDystans(0.02 * this.aTchnienie);
+      player.addUnikPalna(0.02 * this.aTchnienie);
+      player.addAllTrafienie(-1 * this.aTchnienie);
+      player.addAllDps(5 * this.aTchnienie);
+    }
     if (this.aTchnienie > 0) {
       player.setHalvedRegen(true);
     }
@@ -482,6 +530,7 @@ class TalismanyAndArkanyBuilder {
   private _aKrewZycia: number = 0;
   private _aKocieSciezki: number = 0;
   private _aZar: number = 0;
+  private _zarAktywny: boolean = false;
   private _aCisza: number = 0;
   private _aWyssanie: number = 0;
   private _aMocKrwi: number = 0;
@@ -490,11 +539,14 @@ class TalismanyAndArkanyBuilder {
   private _aCienBestii: number = 0;
   private _aNocny: number = 0;
   private _aTchnienie: number = 0;
+  private _tchnienieAktywne: boolean = false;
   private _ambicja: number = 0;
   private _behemot: number = 0;
   private _ziz: number = 0;
   private _kamienSpota: number = 0;
   private _kamienZwinki: number = 0;
+  private _kamienDobra: number = 0;
+  private _kamienZla: number = 0;
   private _szpony: number = 0;
   private _zycieSmierc: number = 0;
   private _otchlan: number = 0;
@@ -529,6 +581,10 @@ class TalismanyAndArkanyBuilder {
     this._aZar = aZar;
     return this;
   }
+  zarAktywny(zarAktywny: boolean): TalismanyAndArkanyBuilder {
+    this._zarAktywny = zarAktywny;
+    return this;
+  }
   aCisza(aCisza: number): TalismanyAndArkanyBuilder {
     this._aCisza = aCisza;
     return this;
@@ -561,6 +617,10 @@ class TalismanyAndArkanyBuilder {
     this._aTchnienie = aTchnienie;
     return this;
   }
+  tchnienieAktywne(tchnienieAktywne: boolean): TalismanyAndArkanyBuilder {
+    this._tchnienieAktywne = tchnienieAktywne;
+    return this;
+  }
   ambicja(ambicja: number): TalismanyAndArkanyBuilder {
     this._ambicja = ambicja;
     return this;
@@ -579,6 +639,14 @@ class TalismanyAndArkanyBuilder {
   }
   kamienZwinki(kamienZwinki: number): TalismanyAndArkanyBuilder {
     this._kamienZwinki = kamienZwinki;
+    return this;
+  }
+  kamienDobra(kamienDobra: number): TalismanyAndArkanyBuilder {
+    this._kamienDobra = kamienDobra;
+    return this;
+  }
+  kamienZla(kamienZla: number): TalismanyAndArkanyBuilder {
+    this._kamienZla = kamienZla;
     return this;
   }
   szpony(szpony: number): TalismanyAndArkanyBuilder {
@@ -629,6 +697,7 @@ class TalismanyAndArkanyBuilder {
     t.aKrewZycia = this._aKrewZycia;
     t.aKocieSciezki = this._aKocieSciezki;
     t.aZar = this._aZar;
+    t.zarAktywny = this._zarAktywny;
     t.aCisza = this._aCisza;
     t.aWyssanie = this._aWyssanie;
     t.aMocKrwi = this._aMocKrwi;
@@ -637,11 +706,14 @@ class TalismanyAndArkanyBuilder {
     t.aCienBestii = this._aCienBestii;
     t.aNocny = this._aNocny;
     t.aTchnienie = this._aTchnienie;
+    t.tchnienieAktywne = this._tchnienieAktywne;
     t.ambicja = this._ambicja;
     t.behemot = this._behemot;
     t.ziz = this._ziz;
     t.kamienSpota = this._kamienSpota;
     t.kamienZwinki = this._kamienZwinki;
+    t.kamienDobra = this._kamienDobra;
+    t.kamienZla = this._kamienZla;
     t.szpony = this._szpony;
     t.zycieSmierc = this._zycieSmierc;
     t.otchlan = this._otchlan;

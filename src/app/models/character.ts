@@ -30,7 +30,7 @@ export interface TalizmanLevels {
     ziz: number;
 }
 export interface ArcaneLevels {
-    maskaAdnisa: number,
+    maskaAdonisa: number,
     maskaKaliguli: number,
     majestat: number,
     krewZycia: number,
@@ -59,10 +59,11 @@ export interface Evolutions {
     szostyZmysl: number,
     absorpcja: number,
     harmonijnyRozwoj: number,
+    skazenieMana: number,
     pietnoDemona: number,
     wzmocnioneMiesnie: number
 }
-export type ItemRarity = 'ZWYKLY' | 'DOBRY' | 'DOSKONALY' | 'LEGENDARNY' | 'LEGENDARNY_DOBRY' | 'LEGENDARNY_DOSKONALY' | 'EPICKI';
+export type ItemRarity = 'ZWYKLY' | 'DOBRY' | 'DOSKONALY' | 'LEGENDARNY' | 'LEGENDARNY_DOBRY' | 'LEGENDARNY_DOSKONALY' | 'EPICKI' | 'STAROZYTNY';
 export interface EquipmentItem {
     rarity: ItemRarity | null;
     prefix: string | null;
@@ -95,6 +96,10 @@ export interface Character {
     blaszkaZaMoba: boolean;
     blaszkaZaKronosa: boolean;
     blaszkaZaHastura: boolean;
+    /** Manual override for Tchnienie Śmierci's HP-threshold-gated bonuses, since the calculator has no live HP tracking. */
+    tchnienieSmierciActive: boolean;
+    /** Manual override for Żar Krwi's HP-threshold-gated bonuses, since the calculator has no live HP tracking. */
+    zarKrwiActive: boolean;
     evolutions: Evolutions;
     obronaPrzeciwnika: number;
     odpornoscPrzeciwnika: number;
@@ -102,11 +107,17 @@ export interface Character {
     trafieniePrzeciwnika: number;
     mysliwy: number;
     ninja: number;
+    assasyn: number;
     strateg: number;
     kaplica: number;
     posredniak: number;
     domPubliczny: number;
     rzeznia: number;
+    policja: number;
+    schronisko: number;
+    ochrona: number;
+    handlarz: number;
+    gazeta: number;
 }
 export interface WeaponDamage {
     name: string;
@@ -114,6 +125,8 @@ export interface WeaponDamage {
     maxDmg: number;
     iloscAtakow: number;
     critChance?: number;
+    /** Uncapped crit chance before the 85% cap — lets the UI flag when the cap is actually being hit. */
+    rawCritChance?: number;
     critMulti?: number;
     trafienie?: number;
     ignore?: number;
@@ -136,6 +149,7 @@ export interface DashboardValues {
     unikBiala?: number;
     unikPalna?: number;
     unikDystans?: number;
+    enemyCritChanceReduction?: number;
     inicjatywa?: number;
     trafienieDodatkoweDystans?: number;
     trafienieDodatkowePalna?: number;
