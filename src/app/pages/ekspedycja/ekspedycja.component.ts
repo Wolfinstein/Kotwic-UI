@@ -1,11 +1,12 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EXPEDITION_TOWERS, ExpeditionTower } from '../../data/ekspedycjaData';
 import { SavedCharactersService, SavedCharacter } from '../../services/saved-characters.service';
 import { rasaAvatarUrl, rasaLabel as rasaDisplayLabel } from '../../data/avatars';
 import { DashboardService } from '../../services/calculate';
-import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, MobStatVariant, CombatAttackLog, CombatantSummary, AddSummary } from '../../logic/expeditionCombat';
+import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, CombatPreviewWeapon, MobStatVariant, CombatAttackLog, CombatantSummary, AddSummary } from '../../logic/expeditionCombat';
 import { mobImplementationStatus, MobImplementationStatus } from '../../data/mobCombatProfiles';
+import { encodeCharactersToShareCode, decodeShareCode, SharedCharacterEntry } from '../../services/character-share.util';
 
 type VolumeLevel = 'low' | 'mid' | 'high';
 type ExpeditionStep = 'players' | 'towers' | 'combat';
@@ -73,6 +74,15 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   manualMinDmg = 0;
   manualMaxDmg = 0;
 
+  /** Characters decoded from a `?share=` link on load, awaiting the user's confirmation before they're saved locally.
+   *  Signals (not plain fields) because this app runs zoneless — a plain field written from inside a Promise
+   *  callback (the async decode below) would update the component but never schedule a re-render. */
+  pendingShareImport = signal<SharedCharacterEntry[] | null>(null);
+  shareImportError = signal<string | null>(null);
+  /** Briefly flips to true right after a share link is copied, to flash "Skopiowano!" on the button. */
+  shareLinkCopied = signal(false);
+  shareLinkError = signal<string | null>(null);
+
   private readonly selectSound = new Audio('/mk-choose-your-destiny.mp3');
   private readonly mobSelectSound = new Audio('/mob-select.mp3');
   private readonly characterSelectSound = new Audio('/select-character.mp3');
@@ -94,6 +104,65 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
       this.players = players;
       this.selectedPlayerIds = this.selectedPlayerIds.filter(id => players.some(p => p.id === id));
     });
+    this.checkForSharedCharacters();
+  }
+
+  /** Reads a `?share=<code>` param dropped by another user's "Udostępnij" link, decodes it, and stages the result for confirmation instead of importing straight away — the user might not want a stranger's characters silently added to their list. */
+  private checkForSharedCharacters(): void {
+    const code = new URLSearchParams(window.location.search).get('share');
+    if (!code) return;
+    decodeShareCode(code)
+      .then(entries => {
+        this.pendingShareImport.set(entries);
+      })
+      .catch(() => {
+        this.shareImportError.set('Nie udało się odczytać postaci z linku — jest uszkodzony lub pochodzi z innej wersji kalkulatora.');
+      })
+      .finally(() => {
+        // Strip the (potentially huge) share code from the address bar once it's been read, so a refresh doesn't re-prompt and the URL stays shareable-length.
+        const url = new URL(window.location.href);
+        url.searchParams.delete('share');
+        window.history.replaceState({}, '', url);
+      });
+  }
+
+  /** Saves the decoded share-link characters locally (with fresh ids) and selects them, so the recipient can jump straight to fighting. */
+  confirmShareImport(): void {
+    const entries = this.pendingShareImport();
+    if (!entries) return;
+    const newIds = this.savedCharactersService.addMany(entries);
+    this.selectedPlayerIds = [...this.selectedPlayerIds, ...newIds];
+    this.pendingShareImport.set(null);
+  }
+
+  dismissShareImport(): void {
+    this.pendingShareImport.set(null);
+  }
+
+  dismissShareImportError(): void {
+    this.shareImportError.set(null);
+  }
+
+  /** Builds a `?share=` link out of the currently selected players and copies it to the clipboard, so someone else can open it, confirm the import, and simulate fights with the exact same characters. */
+  async shareSelectedPlayers(): Promise<void> {
+    if (!this.selectedPlayerIds.length) return;
+    this.shareLinkError.set(null);
+    const uniqueIds = Array.from(new Set(this.selectedPlayerIds));
+    const entries: SharedCharacterEntry[] = uniqueIds
+      .map(id => this.players.find(p => p.id === id))
+      .filter((p): p is SavedCharacter => !!p)
+      .map(p => ({ name: p.name, character: p.character }));
+    try {
+      const code = await encodeCharactersToShareCode(entries);
+      const url = new URL(window.location.href);
+      url.search = '';
+      url.searchParams.set('share', code);
+      await navigator.clipboard.writeText(url.toString());
+      this.shareLinkCopied.set(true);
+      setTimeout(() => { this.shareLinkCopied.set(false); }, 2000);
+    } catch {
+      this.shareLinkError.set('Nie udało się utworzyć linku do udostępnienia.');
+    }
   }
 
   ngOnDestroy(): void {
@@ -122,6 +191,20 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
 
   rasaLabel(rasa: string): string {
     return rasaDisplayLabel(rasa);
+  }
+
+  /** Collapses preview weapon rows sharing a name (e.g. the same weapon dual-wielded in both hands) into one, summing their per-round attack counts — so "Podgląd starcia" lists a weapon once instead of once per equipped copy. Other stats (dmg/crit/hit) are identical between copies of the same weapon, so the first one's values are kept as-is. */
+  uniqueWeapons(weapons: CombatPreviewWeapon[]): CombatPreviewWeapon[] {
+    const merged: CombatPreviewWeapon[] = [];
+    for (const w of weapons) {
+      const existing = merged.find(m => m.name === w.name);
+      if (existing) {
+        existing.attacksPerRound += w.attacksPerRound;
+      } else {
+        merged.push({ ...w });
+      }
+    }
+    return merged;
   }
 
   isPlayerSelected(id: string): boolean {

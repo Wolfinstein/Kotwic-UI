@@ -665,6 +665,41 @@
   margin-top: 20px;
 }
 
+.share-link-error {
+  margin: 10px 0 0;
+  text-align: center;
+  color: var(--red-500, #f44336);
+  font-size: var(--fs-sm);
+}
+
+.share-import-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+  border-radius: 8px;
+  background: var(--card-bg-alt, rgba(255, 255, 255, 0.03));
+}
+
+.share-import-banner p {
+  margin: 0;
+  flex: 1 1 320px;
+}
+
+.share-import-banner-error {
+  border-color: var(--red-500, #f44336);
+}
+
+.share-import-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 .btn-simulate {
   padding: 12px 28px;
   background: transparent;

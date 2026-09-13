@@ -89,6 +89,30 @@
     </header>
   </section>
 
+  @if (pendingShareImport(); as pending) {
+    <section class="feature-section share-import-banner">
+      <p>
+        Znaleziono w linku <strong>{{ pending.length }}</strong>
+        {{ pending.length === 1 ? 'postać' : 'postaci' }}:
+        {{ pending.map(p => p.name).join(', ') }}.
+        Zaimportować je do zapisanych postaci?
+      </p>
+      <div class="share-import-actions">
+        <button type="button" class="btn-next" (click)="confirmShareImport()">Importuj</button>
+        <button type="button" class="btn-back" (click)="dismissShareImport()">Anuluj</button>
+      </div>
+    </section>
+  }
+
+  @if (shareImportError(); as importError) {
+    <section class="feature-section share-import-banner share-import-banner-error">
+      <p>{{ importError }}</p>
+      <div class="share-import-actions">
+        <button type="button" class="btn-back" (click)="dismissShareImportError()">OK</button>
+      </div>
+    </section>
+  }
+
   @if (step === 'players') {
     <section class="player-arena">
       <div class="arena-vignette"></div>
@@ -131,10 +155,17 @@
       <button type="button" class="btn-back" [disabled]="!players.length" (click)="toggleSelectAllPlayers()">
         {{ allPlayersSelected ? 'Odznacz wszystkich' : 'Zaznacz wszystkich' }}
       </button>
+      <button type="button" class="btn-back" [disabled]="!selectedPlayerIds.length" (click)="shareSelectedPlayers()" [title]="'Skopiuj link do wybranych postaci, żeby ktoś inny mógł nimi walczyć'">
+        <i class="pi" [class.pi-link]="!shareLinkCopied()" [class.pi-check]="shareLinkCopied()"></i>
+        {{ shareLinkCopied() ? 'Skopiowano!' : 'Udostępnij wybrane' }}
+      </button>
       <button type="button" class="btn-next" [disabled]="!selectedPlayerIds.length" (click)="goToTowers()">
         Dalej ({{ selectedPlayerIds.length }})
       </button>
     </div>
+    @if (shareLinkError(); as linkError) {
+      <p class="share-link-error">{{ linkError }}</p>
+    }
   } @else if (step === 'towers') {
     <section class="feature-section ladder-header">
       <button type="button" class="btn-back" (click)="backToPlayers()">
@@ -294,7 +325,7 @@
           @for (p of combatPreview.players; track p.id) {
             <div class="preview-card preview-card-player">
               <h4><i class="pi pi-shield"></i>{{ p.name }}<span class="preview-card-tag">{{ rasaLabel(p.rasa) }}</span></h4>
-              @for (w of p.weapons; track w.name) {
+              @for (w of uniqueWeapons(p.weapons); track w.name) {
                 <div class="preview-stat"><span>Broń</span><span>{{ w.name }}</span></div>
                 <div class="preview-stat"><span>Ilość ataków</span><span>{{ w.attacksPerRound }}</span></div>
                 <div class="preview-stat"><span>Obrażenia</span><span>{{ w.minDmg }}-{{ w.maxDmg }}</span></div>
@@ -302,7 +333,7 @@
               }
               <hr class="preview-divider" />
               <div class="preview-stat"><span>HP</span><span>{{ p.maxHp }}</span></div>
-              @for (w of p.weapons; track w.name) {
+              @for (w of uniqueWeapons(p.weapons); track w.name) {
                 <div class="preview-stat"><span>Szansa na trafienie</span><span>{{ (w.hitChance * 100).toFixed(0) }}%</span></div>
                 <div class="preview-stat"><span>Szansa na kryt.</span><span>{{ (w.critChance * 100).toFixed(0) }}%</span></div>
                 <div class="preview-stat"><span>Mnożnik kryt.</span><span>x{{ w.critMulti.toFixed(2) }}</span></div>

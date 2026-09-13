@@ -25,6 +25,7 @@ import { ACT_MOBS, STAR_MOBS, ActMob, StarMob, MobStats, StatRange } from '../..
 import { scaledRangeForStar, formatMobRange } from '../../data/mobStatUtils';
 import { GameImportService, ImportResult } from '../../services/game-import.service';
 import { SlotCategory, BaseItemDef, RARITIES, BASE_ITEMS, PREFIXES_BY_CATEGORY, SUFFIXES_BY_CATEGORY } from '../../data/equipmentDictionary';
+import { encodeCharactersToShareCode, decodeShareCode, SharedCharacterEntry } from '../../services/character-share.util';
 
 export interface ImportStepDef {
   key: 'trening' | 'main' | 'equip' | 'enchant' | 'talizman' | 'evo' | 'build' | 'arenaSilver' | 'arenaGold' | 'clanbld' | 'huntClanBonus';
@@ -301,6 +302,14 @@ export class CharacterInputComponent implements OnInit {
     }
   }
 
+  // ── Udostępnianie bieżącej postaci przez link (?share=...) ──
+  /** Postać zdekodowana z linku, czekająca na potwierdzenie — jej import nadpisuje bieżącą postać w Kalkulatorze. */
+  pendingShareImport: SharedCharacterEntry | null = null;
+  shareImportError: string | null = null;
+  /** Krótko true zaraz po skopiowaniu linku, żeby mignąć "Skopiowano!" na przycisku. */
+  shareLinkCopied = false;
+  shareLinkError: string | null = null;
+
   // ── Import z gry: wklejenie jednego zbiorczego JSON-a (np. ze skryptu Tampermonkey) ──
   showImportBulkModal = false;
   importBulkInput = '';
@@ -523,20 +532,94 @@ export class CharacterInputComponent implements OnInit {
       this.characterSelections = saved.map((_, i) => this.characterSelections[i] ?? true);
       this.buildAllCharactersChart();
     });
-    try {
-      if (!sessionStorage.getItem(CharacterInputComponent.IMPORT_PROMPT_SHOWN_KEY) && !this.hasStoredCharacterData()) {
-        sessionStorage.setItem(CharacterInputComponent.IMPORT_PROMPT_SHOWN_KEY, '1');
-        this.showImportChoiceModal = true;
+    const hasShareLink = new URLSearchParams(window.location.search).has('share');
+    if (!hasShareLink) {
+      try {
+        if (!sessionStorage.getItem(CharacterInputComponent.IMPORT_PROMPT_SHOWN_KEY) && !this.hasStoredCharacterData()) {
+          sessionStorage.setItem(CharacterInputComponent.IMPORT_PROMPT_SHOWN_KEY, '1');
+          this.showImportChoiceModal = true;
+        }
+      } catch {
+        if (!this.hasStoredCharacterData()) this.showImportChoiceModal = true;
       }
-    } catch {
-      if (!this.hasStoredCharacterData()) this.showImportChoiceModal = true;
     }
+    this.checkForSharedCharacter();
   }
 
   /** True if the character already has meaningful data saved — skip the import prompt in that case. */
   private hasStoredCharacterData(): boolean {
     return ['main', 'trening', 'equip', 'talizmany', 'arkany', 'ewolucje', 'runy', 'umagi']
       .some(key => this.isSectionFilled(key));
+  }
+
+  /** Reads a `?share=<code>` param dropped by another user's "Udostępnij" link, decodes it, and stages the result for confirmation — importing it would overwrite whatever's currently being edited, so it's never applied silently. */
+  private checkForSharedCharacter(): void {
+    const code = new URLSearchParams(window.location.search).get('share');
+    if (!code) return;
+    decodeShareCode(code)
+      .then(entries => {
+        this.ngZone.run(() => {
+          this.pendingShareImport = entries[0] ?? null;
+          this.cdr.detectChanges();
+        });
+      })
+      .catch(() => {
+        this.ngZone.run(() => {
+          this.shareImportError = 'Nie udało się odczytać postaci z linku — jest uszkodzony lub pochodzi z innej wersji kalkulatora.';
+          this.cdr.detectChanges();
+        });
+      })
+      .finally(() => {
+        // Strip the (potentially huge) share code from the address bar once it's been read, so a refresh doesn't re-prompt.
+        const url = new URL(window.location.href);
+        url.searchParams.delete('share');
+        window.history.replaceState({}, '', url);
+      });
+  }
+
+  /** Overwrites the currently edited character with the one from the share link. */
+  confirmShareImport(): void {
+    if (!this.pendingShareImport) return;
+    this.characterService.clearCharacter();
+    this.characterService.updateCharacter(this.pendingShareImport.character);
+    this.pendingShareImport = null;
+  }
+
+  dismissShareImport(): void {
+    this.pendingShareImport = null;
+  }
+
+  dismissShareImportError(): void {
+    this.shareImportError = null;
+  }
+
+  /** Builds a `?share=` link out of the character currently being edited and copies it to the clipboard, so someone else can open it and pick up right where this one left off. */
+  async shareCurrentCharacter(): Promise<void> {
+    if (!this.character) return;
+    this.shareLinkError = null;
+    try {
+      const label = [this.character.rasa, this.character.poziom ? `poz. ${this.character.poziom}` : null].filter(Boolean).join(' ') || 'Postać';
+      const code = await encodeCharactersToShareCode([{ name: label, character: this.character }]);
+      const url = new URL(window.location.href);
+      url.search = '';
+      url.searchParams.set('share', code);
+      await navigator.clipboard.writeText(url.toString());
+      this.ngZone.run(() => {
+        this.shareLinkCopied = true;
+        this.cdr.detectChanges();
+        setTimeout(() => {
+          this.ngZone.run(() => {
+            this.shareLinkCopied = false;
+            this.cdr.detectChanges();
+          });
+        }, 2000);
+      });
+    } catch {
+      this.ngZone.run(() => {
+        this.shareLinkError = 'Nie udało się utworzyć linku do udostępnienia.';
+        this.cdr.detectChanges();
+      });
+    }
   }
 
   private getSlotCategory(slot: string): SlotCategory {

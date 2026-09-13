@@ -7,6 +7,9 @@
       <p-button label="Wyczyść" icon="pi pi-trash" severity="danger" (onClick)="clearSession()" styleClass="action-io-btn" />
       <p-button label="Export JSON" icon="pi pi-download" (onClick)="exportCharacter()" styleClass="action-io-btn" />
       <p-button label="Import JSON" icon="pi pi-upload" (onClick)="importCharacter()" styleClass="action-io-btn" />
+      <p-button [label]="shareLinkCopied ? 'Skopiowano!' : 'Udostępnij link'" [icon]="shareLinkCopied ? 'pi pi-check' : 'pi pi-link'"
+        severity="secondary" (onClick)="shareCurrentCharacter()" styleClass="action-io-btn"
+        pTooltip="Skopiuj link do bieżącej postaci, żeby ktoś inny mógł ją otworzyć" tooltipPosition="bottom" />
     </div>
   </div>
 
@@ -713,6 +716,33 @@
       <p-button label="Anuluj" severity="secondary" (onClick)="showUmagiModal = false" />
       <p-button label="Zapisz Umagi" (onClick)="saveUmagi()" />
     </div>
+  </ng-template>
+</p-dialog>
+
+<!-- ═══════════════════════════════════════════════════
+     SHARE LINK: IMPORT CONFIRMATION
+════════════════════════════════════════════════════ -->
+<p-dialog [visible]="!!pendingShareImport" (visibleChange)="!$event && dismissShareImport()" [modal]="true" [closable]="true"
+  header="Zaimportować postać z linku?" [style]="{'width': 'min(480px, 95vw)'}" [resizable]="false">
+  @if (pendingShareImport) {
+    <p>
+      Znaleziono w linku postać <strong>{{ pendingShareImport.name }}</strong>.
+      Zaimportowanie <strong>nadpisze</strong> obecnie edytowaną postać w Kalkulatorze — bieżące dane zostaną utracone.
+    </p>
+  }
+  <ng-template pTemplate="footer">
+    <div class="import-choice-footer">
+      <p-button label="Anuluj" severity="secondary" (onClick)="dismissShareImport()" />
+      <p-button label="Importuj" (onClick)="confirmShareImport()" />
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [visible]="!!shareImportError" (visibleChange)="!$event && dismissShareImportError()" [modal]="true" [closable]="true"
+  header="Nie udało się zaimportować" [style]="{'width': 'min(480px, 95vw)'}" [resizable]="false">
+  <p>{{ shareImportError }}</p>
+  <ng-template pTemplate="footer">
+    <p-button label="OK" (onClick)="dismissShareImportError()" />
   </ng-template>
 </p-dialog>
 

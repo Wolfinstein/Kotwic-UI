@@ -21,6 +21,13 @@ export class SavedCharactersService {
     this.persist([...this.characters$.value, entry]);
   }
 
+  /** Adds several characters at once (e.g. from an imported share link) with freshly generated ids — never reuses ids from the source, so they can't collide with anything already saved here. Returns the new ids, in the same order as `entries`. */
+  addMany(entries: { name: string; character: Character }[]): string[] {
+    const newEntries: SavedCharacter[] = entries.map(e => ({ id: crypto.randomUUID(), name: e.name, character: e.character }));
+    this.persist([...this.characters$.value, ...newEntries]);
+    return newEntries.map(e => e.id);
+  }
+
   remove(id: string): void {
     this.persist(this.characters$.value.filter(c => c.id !== id));
   }
