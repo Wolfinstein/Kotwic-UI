@@ -63,6 +63,8 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   bulkSimResult: BulkSimResult | null = null;
   /** One losing run from the last bulk simulation, kept so the user can inspect an example defeat instead of just the win/loss tally. */
   sampleLossResult: ExpeditionResult | null = null;
+  /** One winning run from the last bulk simulation, but only kept when winning is rare (≤5% of runs) — an example of how a hard-to-pull-off win actually happened is useful; when winning is already the common outcome, there's nothing notable to inspect. */
+  sampleWinResult: ExpeditionResult | null = null;
   muted = true;
   volumeLevel: VolumeLevel = 'mid';
 
@@ -373,6 +375,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.showStarPicker = false;
     this.bulkSimResult = null;
     this.sampleLossResult = null;
+    this.sampleWinResult = null;
     this.refreshCombatPreview();
   }
 
@@ -380,6 +383,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.mobVariant = this.mobVariant === 'min' ? 'max' : 'min';
     this.bulkSimResult = null;
     this.sampleLossResult = null;
+    this.sampleWinResult = null;
     this.refreshCombatPreview();
   }
 
@@ -403,10 +407,13 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
       totalDamage[p.id] = 0;
     }
     this.sampleLossResult = null;
+    this.sampleWinResult = null;
     for (let i = 0; i < runCount; i++) {
       const result = simulateExpedition(this.selectedPlayers, mob, this.starLevel, this.dashboardService, this.mobVariant, this.dmgOverride);
-      if (result.outcome === 'win') wins++;
-      else if (result.outcome === 'loss') {
+      if (result.outcome === 'win') {
+        wins++;
+        if (!this.sampleWinResult) this.sampleWinResult = result;
+      } else if (result.outcome === 'loss') {
         losses++;
         if (!this.sampleLossResult) this.sampleLossResult = result;
       } else draws++;
@@ -415,6 +422,8 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
         totalDamage[p.id] += p.totalDamageDealt;
       }
     }
+    // Only surface the sample win when winning is rare — otherwise it's just the unremarkable common case.
+    if (wins / runCount > 0.05) this.sampleWinResult = null;
     const players: BulkSimPlayerResult[] = this.selectedPlayers.map(p => ({
       name: p.name,
       survivalRate: survivalCount[p.id] / runCount,

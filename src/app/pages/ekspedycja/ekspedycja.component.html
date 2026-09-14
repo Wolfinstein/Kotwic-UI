@@ -399,6 +399,13 @@
             <ng-container *ngTemplateOutlet="expeditionReportTpl; context: { $implicit: sampleLossResult }"></ng-container>
           </details>
         }
+
+        @if (sampleWinResult) {
+          <details class="bulk-sim-details">
+            <summary>Przykładowe zwycięstwo (rzadkie, ≤5%)</summary>
+            <ng-container *ngTemplateOutlet="expeditionReportTpl; context: { $implicit: sampleWinResult }"></ng-container>
+          </details>
+        }
       </section>
     }
 
