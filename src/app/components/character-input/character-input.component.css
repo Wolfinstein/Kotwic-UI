@@ -332,7 +332,9 @@
   gap: 12px;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow-y: scroll;
+  margin-right: -6px;
+  padding-right: 6px;
 }
 
 /* ─── Big tabs (import vs. manual) ────────────────────── */
@@ -1056,10 +1058,10 @@ label {
 .rune-modal-footer { display: flex; gap: 8px; margin-top: 14px; flex-shrink: 0; }
 
 /* ─── Scrollbar ─────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--bg-main); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--bg-hover); }
+::-webkit-scrollbar-thumb { background: var(--bg-hover); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-accent); }
 
 /* ═══════════════════════════════════════════════════
    PRIMENG OVERRIDES (dark theme)
