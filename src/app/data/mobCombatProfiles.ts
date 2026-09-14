@@ -160,7 +160,7 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     critMulti: 4,
     unik: { biala: 0.15, palna: 0.15, dystans: 0.15 },
     special: { kind: 'zepar' },
-    playerLevelCap: 2500 / 2,
+    playerLevelCap: 2500 / 2.3,
   },
 };
 
