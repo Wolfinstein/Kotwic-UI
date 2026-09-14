@@ -49,7 +49,8 @@ export class DashboardService {
       .obronaPrzeciwnika(c.obronaPrzeciwnika)
       .odpornoscPrzeciwnika(c.odpornoscPrzeciwnika)
       .szczesciePrzeciwnika(c.szczesciePrzeciwnika)
-      .trafieniePrzeciwnika(c.trafieniePrzeciwnika)
+      .trafieniePrzeciwnikaBiala(c.trafieniePrzeciwnikaBiala)
+      .trafieniePrzeciwnikaPalna(c.trafieniePrzeciwnikaPalna)
       .items(this.mapItems(c))
       .build();
     player.baseLife += this.calculateBaseLife(c) + extraBaseLife;
@@ -1027,22 +1028,25 @@ export class DashboardService {
     let y: number;
     let z: number;
     let p: number;
+    let r: number;
 
     if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) {
       y = player.stats.zwinnosc;
       z = player.stats.trafienieBiala;
       p = Math.floor((1 + player.stats.trafienieProcentoweBiala) * 100) / 100;
+      r = player.trafieniePrzeciwnikaBiala;
     } else if (genre === ItemGenre.GUN_1H || genre === ItemGenre.GUN_2H) {
       y = player.stats.spostrzegawczosc;
       z = player.stats.trafieniePalna;
       p = Math.floor((1 + player.stats.trafienieProcentowePalna) * 100) / 100;
+      r = player.trafieniePrzeciwnikaPalna;
     } else {
       y = player.stats.zwinnosc + player.stats.spostrzegawczosc;
       z = player.stats.trafienieDystans + trafienieLegDystans;
       p = Math.floor((1 + player.stats.trafienieProcentoweDystans) * 100) / 100;
+      r = player.trafieniePrzeciwnikaBiala + player.trafieniePrzeciwnikaPalna;
     }
 
-    const r = player.trafieniePrzeciwnika;
     const luckDiff = player.stats.szczescie - player.szczesciePrzeciwnika;
     let luckModifier = Math.floor(luckDiff / 5);
 

@@ -555,30 +555,6 @@ function mobGenreForWeapon(genre?: string): MobWeaponGenre {
   return 'biala';
 }
 
-/**
- * Resolves the mob stat that feeds a player's "Trafienie Przeciwnika" for hit-chance math,
- * mirroring the manual guidance for that field in Kalkulator Postaci: a white-weapon user
- * subtracts the mob's zwinnosc, a gun user its spostrzegawczosc, and a ranged-weapon user the
- * sum of both — driven by the player's first equipped weapon (dual 1H+1H combos use weapon1).
- * Using a single fixed stat (previously always spostrzegawczosc) regardless of weapon type
- * under- or over-counted the mob's real evasion-relevant stat and inflated hit chance for
- * white/ranged users. The genre itself is read off a throwaway calculateStuff call since the
- * ItemType→genre mapping lives in the calculator layer, not here.
- */
-function resolveTrafieniePrzeciwnik(character: Character, dashboardService: DashboardService, mobZwinnosc: number, mobSpostrzegawczosc: number): number {
-  const probe = dashboardService.calculateStuff({
-    ...character,
-    obronaPrzeciwnika: 0,
-    odpornoscPrzeciwnika: 0,
-    szczesciePrzeciwnika: 0,
-    trafieniePrzeciwnika: 0,
-    tchnienieSmierciActive: false,
-  });
-  const genre = mobGenreForWeapon(probe.obrazenia?.[0]?.genre);
-  if (genre === 'biala') return mobZwinnosc;
-  if (genre === 'palna') return mobSpostrzegawczosc;
-  return mobZwinnosc + mobSpostrzegawczosc;
-}
 
 function mobUnikFor(profile: MobCombatProfile | undefined, genre: MobWeaponGenre): number {
   return profile?.unik?.[genre] ?? 0;
@@ -742,7 +718,8 @@ export function computeCombatPreview(
       obronaPrzeciwnika: mobObrona,
       odpornoscPrzeciwnika: mobOdpornosc,
       szczesciePrzeciwnika: mobSzczescie,
-      trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
+      trafieniePrzeciwnikaBiala: mobZwinnosc,
+      trafieniePrzeciwnikaPalna: mobSpostrzegawczosc,
       // Preview always shows the pre-activation (full-hp) state — the real, HP-gated activation only runs in simulateExpedition.
       tchnienieSmierciActive: false,
       zarKrwiActive: false,
@@ -943,7 +920,8 @@ export function simulateExpedition(
       obronaPrzeciwnika: mobObrona,
       odpornoscPrzeciwnika: mobOdpornosc,
       szczesciePrzeciwnika: mobSzczescie,
-      trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
+      trafieniePrzeciwnikaBiala: mobZwinnosc,
+      trafieniePrzeciwnikaPalna: mobSpostrzegawczosc,
       // The real activation is HP-gated below, not the manual calculator toggle — combat always starts un-activated.
       tchnienieSmierciActive: false,
       // Żar Krwi's damage bonus is modeled dynamically below (see zarDamageBonus), not via the calculator's flat toggle.
@@ -1036,7 +1014,8 @@ export function simulateExpedition(
         obronaPrzeciwnika: effObrona,
         odpornoscPrzeciwnika: effOdpornosc,
         szczesciePrzeciwnika: mobSzczescie,
-        trafieniePrzeciwnika: resolveTrafieniePrzeciwnik(saved.character, dashboardService, mobZwinnosc, mobSpostrzegawczosc),
+        trafieniePrzeciwnikaBiala: mobZwinnosc,
+        trafieniePrzeciwnikaPalna: mobSpostrzegawczosc,
         tchnienieSmierciActive: false,
         zarKrwiActive: false,
       };

@@ -53,6 +53,8 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   step: ExpeditionStep = 'players';
   players: SavedCharacter[] = [];
   selectedPlayerIds: string[] = [];
+  /** null = show all; otherwise only players whose tag matches exactly. */
+  playerTagFilter: string | null = null;
 
   selectedTower: ExpeditionTower | null = null;
   selectedMobName: string | null = null;
@@ -239,6 +241,24 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
 
   get allPlayersSelected(): boolean {
     return this.players.length > 0 && this.selectedPlayerIds.length === this.players.length;
+  }
+
+  /** Unique tags currently in use, for the filter dropdown. */
+  get availablePlayerTags(): string[] {
+    return Array.from(new Set(this.players.map(p => p.tag).filter((t): t is string => !!t))).sort();
+  }
+
+  get playerTagFilterOptions(): { label: string; value: string | null }[] {
+    return [{ label: 'Wszystkie', value: null }, ...this.availablePlayerTags.map(t => ({ label: t, value: t }))];
+  }
+
+  /** Players matching the active tag filter — only affects what's shown, not selection or "select all". */
+  get filteredPlayers(): SavedCharacter[] {
+    return this.players.filter(p => !this.playerTagFilter || p.tag === this.playerTagFilter);
+  }
+
+  setPlayerTagFilter(tag: string | null): void {
+    this.playerTagFilter = tag;
   }
 
   toggleSelectAllPlayers(): void {

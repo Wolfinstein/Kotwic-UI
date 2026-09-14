@@ -111,10 +111,10 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  width: 280px;
+  width: 320px;
   flex-shrink: 0;
   overflow-y: auto;
-  max-height: 420px;
+  max-height: 600px;
 }
 
 .preset-add-row {
@@ -126,7 +126,8 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.preset-name-input {
+.preset-name-input,
+.preset-tag-input {
   width: 100%;
 }
 
@@ -139,23 +140,31 @@
   flex: 1;
 }
 
+.preset-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 10px;
+  margin-bottom: 4px;
+}
+
 .presets-chart-panel {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 520px;
+  min-height: 700px;
 }
 
 .preset-chart-wrapper {
   position: relative;
-  height: 480px;
-  min-height: 480px;
+  height: 660px;
+  min-height: 660px;
 }
 
 .preset-chart-wrapper canvas {
-  height: 480px !important;
-  min-height: 480px !important;
+  height: 660px !important;
+  min-height: 660px !important;
 }
 
 .preset-chart-placeholder {
@@ -203,15 +212,70 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.preset-line {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.preset-lv {
+  font-size: 0.8em;
+  font-weight: normal;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.preset-sep {
+  opacity: 0.35;
 }
 
 .preset-name {
   font-weight: bold;
+  font-size: 1.05em;
+  color: var(--color-accent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .preset-desc {
   font-size: 0.8em;
   opacity: 0.65;
+}
+
+.preset-tag-badge {
+  font-size: 0.7em;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.preset-editable {
+  cursor: pointer;
+  border-bottom: 1px dashed transparent;
+}
+
+.preset-editable:hover {
+  border-bottom-color: currentColor;
+}
+
+.preset-inline-input {
+  width: 90px;
+  min-width: 0;
+  background: var(--bg-deep);
+  border: 1px solid var(--color-accent);
+  border-radius: 4px;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.85em;
+  padding: 1px 5px;
 }
 
 .preset-empty {
@@ -1128,6 +1192,12 @@ label {
     width: 17px;
     min-height: 18px;
   }
+}
+
+/* Tag filter select (Postacie modal) — no hover highlight */
+:host ::ng-deep .tag-filter-select.p-select:not(.p-disabled):hover {
+  border-color: var(--color-accent) !important;
+  background: var(--bg-deep) !important;
 }
 
 /* Select (Rasa dropdown) */

@@ -104,7 +104,10 @@ export interface Character {
     obronaPrzeciwnika: number;
     odpornoscPrzeciwnika: number;
     szczesciePrzeciwnika: number;
-    trafieniePrzeciwnika: number;
+    /** Mob's zwinnosc — feeds hit-chance math for the player's white/melee weapons. */
+    trafieniePrzeciwnikaBiala: number;
+    /** Mob's spostrzegawczosc — feeds hit-chance math for the player's gun weapons. Ranged (dystans) weapons use the sum of both. */
+    trafieniePrzeciwnikaPalna: number;
     mysliwy: number;
     ninja: number;
     assasyn: number;

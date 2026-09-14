@@ -561,6 +561,38 @@
 }
 
 /* ── Player select ("Choose your destiny") ── */
+.player-tag-filter {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.player-tag-chip {
+  padding: 4px 12px;
+  border-radius: 14px;
+  border: 1px solid #0c0d0e;
+  background: #222426;
+  color: #cfcdc6;
+  font: inherit;
+  font-size: 0.85em;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.player-tag-chip:hover {
+  border-color: var(--section-icon);
+}
+
+.player-tag-chip--active {
+  border-color: var(--section-icon);
+  background: var(--section-icon);
+  color: #101112;
+}
+
 .player-grid {
   position: relative;
   z-index: 2;

@@ -71,6 +71,12 @@ export class CharacterInputComponent implements OnInit {
   showCharactersModal = false;
   savedCharacters: SavedCharacter[] = [];
   newCharacterName = '';
+  newCharacterTag = '';
+  /** null/'' = show all; otherwise only entries whose tag matches exactly. */
+  characterTagFilter: string | null = null;
+  /** Which saved-character cell is currently being inline-edited (name or tag), if any. */
+  editingCharacterCell: { id: string; field: 'name' | 'tag' } | null = null;
+  editingCharacterValue = '';
   selectedEquipmentSlot = '';
   weaponMode: 'dual1h' | '2h' = 'dual1h';
   draftItem: EquipmentItem = { rarity: null, prefix: null, base: null, suffix: null };
@@ -437,8 +443,54 @@ export class CharacterInputComponent implements OnInit {
   saveCurrentAsCharacter() {
     const name = this.newCharacterName.trim();
     if (!name || !this.character) return;
-    this.savedCharactersService.add(name, this.character);
+    this.savedCharactersService.add(name, this.character, this.newCharacterTag);
     this.newCharacterName = '';
+    this.newCharacterTag = '';
+  }
+
+  /** Unique tags currently in use, for the filter dropdown. */
+  get availableCharacterTags(): string[] {
+    return Array.from(new Set(this.savedCharacters.map(s => s.tag).filter((t): t is string => !!t))).sort();
+  }
+
+  get characterTagFilterOptions(): { label: string; value: string | null }[] {
+    return [{ label: 'Wszystkie', value: null }, ...this.availableCharacterTags.map(t => ({ label: t, value: t }))];
+  }
+
+  /** Saved characters matching the active tag filter, paired with their index in `savedCharacters` — the index still drives `characterSelections`/chart colors, so it must survive filtering. */
+  get filteredSavedCharacters(): { saved: SavedCharacter; index: number }[] {
+    return this.savedCharacters
+      .map((saved, index) => ({ saved, index }))
+      .filter(({ saved }) => !this.characterTagFilter || saved.tag === this.characterTagFilter);
+  }
+
+  /** This getter returns a fresh array/objects every change-detection run — without trackBy, *ngFor would treat every entry as removed+re-added on each cycle, tearing down and rebuilding the row DOM (including the trash button) constantly and making clicks unreliable. */
+  trackByCharacterId(_index: number, entry: { saved: SavedCharacter; index: number }): string {
+    return entry.saved.id;
+  }
+
+  isEditingCharacterCell(saved: SavedCharacter, field: 'name' | 'tag'): boolean {
+    return this.editingCharacterCell?.id === saved.id && this.editingCharacterCell.field === field;
+  }
+
+  startEditCharacterCell(saved: SavedCharacter, field: 'name' | 'tag', event: Event): void {
+    event.stopPropagation();
+    this.editingCharacterCell = { id: saved.id, field };
+    this.editingCharacterValue = field === 'name' ? saved.name : (saved.tag ?? '');
+  }
+
+  commitEditCharacterCell(): void {
+    if (!this.editingCharacterCell) return;
+    const { id, field } = this.editingCharacterCell;
+    const patch: { name?: string; tag?: string } = field === 'name'
+      ? { name: this.editingCharacterValue }
+      : { tag: this.editingCharacterValue };
+    this.savedCharactersService.update(id, patch);
+    this.editingCharacterCell = null;
+  }
+
+  cancelEditCharacterCell(): void {
+    this.editingCharacterCell = null;
   }
 
   importCharacterAsNew() {
@@ -454,8 +506,9 @@ export class CharacterInputComponent implements OnInit {
           try {
             const imported = JSON.parse(event.target.result);
             const name = this.newCharacterName.trim() || file.name.replace(/\.json$/i, '');
-            this.savedCharactersService.add(name, imported);
+            this.savedCharactersService.add(name, imported, this.newCharacterTag);
             this.newCharacterName = '';
+            this.newCharacterTag = '';
             this.cdr.detectChanges();
           } catch (error) {
             console.error('Error importing character JSON:', error);
@@ -1090,7 +1143,8 @@ export class CharacterInputComponent implements OnInit {
           || this.character.equipment?.weapon1?.base || this.character.equipment?.weapon2?.base);
       case 'przeciwnik':
         return this.character.obronaPrzeciwnika > 0 || this.character.odpornoscPrzeciwnika > 0
-          || this.character.trafieniePrzeciwnika > 0 || this.character.szczesciePrzeciwnika > 0;
+          || this.character.trafieniePrzeciwnikaBiala > 0 || this.character.trafieniePrzeciwnikaPalna > 0
+          || this.character.szczesciePrzeciwnika > 0;
       case 'inne':
         return this.character.ninja > 0 || this.character.mysliwy > 0 || this.character.assasyn > 0
           || this.character.strateg > 0 || this.character.kaplica > 0 || !!this.character.eventBonus
@@ -1209,38 +1263,16 @@ export class CharacterInputComponent implements OnInit {
     return variant === 'min' ? range.min : range.max;
   }
 
-  /** Weapon category driving which stat feeds "Trafienie Przeciwnika" — weapon1 wins on a mixed 1H+1H combo. */
-  get equippedWeaponCategory(): 'white' | 'gun' | 'range' | null {
-    const w1 = this.character?.equipment?.weapon1;
-    const w2 = this.character?.equipment?.weapon2;
-    const item = w1?.base ? w1 : w2?.base ? w2 : null;
-    if (!item?.base) return null;
-    try {
-      const genre = this.getGenreForItemType(item.base as ItemType);
-      if (genre === ItemGenre.WHITE_1H || genre === ItemGenre.WHITE_2H) return 'white';
-      if (genre === ItemGenre.GUN_1H || genre === ItemGenre.GUN_2H) return 'gun';
-      if (genre === ItemGenre.RANGE_1H || genre === ItemGenre.RANGE_2H) return 'range';
-    } catch { }
-    return null;
-  }
-
-  /** Fills the 4 "Przeciwnik" fields from the currently picked mob + wariant (obrona/odpornosc/szczescie directly, trafienie per equipped weapon type). */
+  /** Fills the 4 "Przeciwnik" fields from the currently picked mob + wariant. Both genre-specific trafienie fields are filled directly from the mob's own zwinnosc/spostrzegawczosc — the calculator picks the right one per weapon, so this works for mixed dual1h (one white + one gun) too. */
   applyRefStatsToPrzeciwnik(): void {
     const stats = this.refStats;
     if (!stats || !this.character) return;
-    const category = this.equippedWeaponCategory;
-    if (!category) {
-      alert('Nie wykryto żadnej wyekwipowanej broni — uzupełnij "Ekwipunek", aby automatycznie obliczyć Trafienie Przeciwnika.');
-    }
-    let trafienie = 0;
-    if (category === 'white') trafienie = this.variantValue(stats.zwinnosc, this.refVariant);
-    else if (category === 'gun') trafienie = this.variantValue(stats.spostrzegawczosc, this.refVariant);
-    else if (category === 'range') trafienie = this.variantValue(stats.zwinnosc, this.refVariant) + this.variantValue(stats.spostrzegawczosc, this.refVariant);
     this.characterService.updateCharacter({
       ...this.character,
       obronaPrzeciwnika: this.variantValue(stats.obrona, this.refVariant),
       odpornoscPrzeciwnika: this.variantValue(stats.odpornosc, this.refVariant),
-      trafieniePrzeciwnika: trafienie,
+      trafieniePrzeciwnikaBiala: this.variantValue(stats.zwinnosc, this.refVariant),
+      trafieniePrzeciwnikaPalna: this.variantValue(stats.spostrzegawczosc, this.refVariant),
       szczesciePrzeciwnika: this.variantValue(stats.szczescie, this.refVariant),
     });
   }

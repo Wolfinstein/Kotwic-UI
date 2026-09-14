@@ -442,10 +442,16 @@
                 (ngModelChange)="updateCharacterField('odpornoscPrzeciwnika', $event)" />
             </div>
             <div class="compact-item">
-              <label class="label-hint" pTooltip="Jeśli bijesz palną wpisz ilość spostrzegawczości przeciwnika, jeśli białą to zwinność, a jeśli dystansem to sumę" tooltipPosition="top">Trafienie Przeciwnika</label>
-              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.trafieniePrzeciwnika"
-                [inputStyleClass]="character!.trafieniePrzeciwnika > 0 ? 'input-active' : ''"
-                (ngModelChange)="updateCharacterField('trafieniePrzeciwnika', $event)" />
+              <label class="label-hint" pTooltip="Zwinność przeciwnika — używana do trafienia bronią białą (i sumowana z palną dla dystansu)" tooltipPosition="top">Trafienie Przeciwnika (Biała)</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.trafieniePrzeciwnikaBiala"
+                [inputStyleClass]="character!.trafieniePrzeciwnikaBiala > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('trafieniePrzeciwnikaBiala', $event)" />
+            </div>
+            <div class="compact-item">
+              <label class="label-hint" pTooltip="Spostrzegawczość przeciwnika — używana do trafienia bronią palną (i sumowana z białą dla dystansu)" tooltipPosition="top">Trafienie Przeciwnika (Palna)</label>
+              <p-inputnumber [min]="0" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.trafieniePrzeciwnikaPalna"
+                [inputStyleClass]="character!.trafieniePrzeciwnikaPalna > 0 ? 'input-active' : ''"
+                (ngModelChange)="updateCharacterField('trafieniePrzeciwnikaPalna', $event)" />
             </div>
             <div class="compact-item">
               <label>Szczescie Przeciwnika</label>
@@ -574,36 +580,65 @@
      POSTACIE MODAL
 ════════════════════════════════════════════════════ -->
 <p-dialog [(visible)]="showCharactersModal" [modal]="true" [closable]="true"
-  header="Postacie" [style]="{'width': 'min(1200px, 95vw)', 'height': '640px'}" [resizable]="false">
+  header="Postacie" [style]="{'width': 'min(1600px, 97vw)', 'height': '820px'}" [resizable]="false">
   <div class="presets-modal-layout">
     <!-- Left: list -->
     <div class="presets-list">
       <div class="preset-add-row">
         <input type="text" pInputText [(ngModel)]="newCharacterName" placeholder="Nazwa nowej postaci" class="preset-name-input" />
+        <input type="text" pInputText [(ngModel)]="newCharacterTag" placeholder="Tag (opcjonalnie)" class="preset-tag-input" />
         <div class="preset-add-buttons">
           <p-button label="Zapisz bieżącą" size="small" [disabled]="!newCharacterName.trim()" (onClick)="saveCurrentAsCharacter()" />
           <p-button label="Importuj JSON" size="small" severity="secondary" (onClick)="importCharacterAsNew()" />
         </div>
       </div>
 
-      <div *ngFor="let saved of savedCharacters; let i = index"
-        class="preset-item" [class.preset-item--inactive]="!characterSelections[i]"
-        (click)="toggleCharacterSelection(i)">
-        <span class="preset-color-dot" [style.background]="CHART_COLORS[i % CHART_COLORS.length]"></span>
-        <img *ngIf="avatarUrl(saved.character.rasa) as avatar" [src]="avatar" [alt]="saved.character.rasa" class="preset-avatar" />
+      <div class="preset-filter-row" *ngIf="availableCharacterTags.length > 0">
+        <label class="label-hint">Filtruj po tagu</label>
+        <p-select class="tag-filter-select" [options]="characterTagFilterOptions"
+          [(ngModel)]="characterTagFilter" optionLabel="label" optionValue="value"
+          appendTo="body" [style]="{'width':'220px'}" />
+      </div>
+
+      <div *ngFor="let entry of filteredSavedCharacters; trackBy: trackByCharacterId"
+        class="preset-item" [class.preset-item--inactive]="!characterSelections[entry.index]"
+        (click)="toggleCharacterSelection(entry.index)">
+        <span class="preset-color-dot" [style.background]="CHART_COLORS[entry.index % CHART_COLORS.length]"></span>
+        <img *ngIf="avatarUrl(entry.saved.character.rasa) as avatar" [src]="avatar" [alt]="entry.saved.character.rasa" class="preset-avatar" />
         <div class="preset-info">
-          <span class="preset-name">{{ saved.name }}</span>
-          <span class="preset-desc">{{ saved.character.rasa }} • Lv {{ saved.character.poziom }}</span>
+          <span class="preset-line">
+            <span class="preset-lv">Lv {{ entry.saved.character.poziom }}</span>
+            <span class="preset-sep">|</span>
+            <input *ngIf="isEditingCharacterCell(entry.saved, 'name'); else nameDisplay" type="text"
+              class="preset-inline-input" [(ngModel)]="editingCharacterValue" autofocus
+              (click)="$event.stopPropagation()"
+              (keydown.enter)="commitEditCharacterCell()" (keydown.escape)="cancelEditCharacterCell()"
+              (blur)="commitEditCharacterCell()" />
+            <ng-template #nameDisplay>
+              <span class="preset-name preset-editable" (click)="startEditCharacterCell(entry.saved, 'name', $event)">{{ entry.saved.name }}</span>
+            </ng-template>
+            <span class="preset-sep">|</span>
+            <input *ngIf="isEditingCharacterCell(entry.saved, 'tag'); else tagDisplay" type="text"
+              class="preset-inline-input" [(ngModel)]="editingCharacterValue" autofocus placeholder="tag"
+              (click)="$event.stopPropagation()"
+              (keydown.enter)="commitEditCharacterCell()" (keydown.escape)="cancelEditCharacterCell()"
+              (blur)="commitEditCharacterCell()" />
+            <ng-template #tagDisplay>
+              <span class="preset-tag-badge preset-editable" (click)="startEditCharacterCell(entry.saved, 'tag', $event)">{{ entry.saved.tag || '+ tag' }}</span>
+            </ng-template>
+          </span>
+          <span class="preset-desc">{{ entry.saved.character.rasa }}</span>
         </div>
-        <p-button label="Wczytaj" size="small" (onClick)="loadSavedCharacter(saved); $event.stopPropagation()" />
-        <p-button icon="pi pi-trash" size="small" severity="danger" [text]="true" (onClick)="removeSavedCharacter(saved.id); $event.stopPropagation()" />
+        <p-button label="Wczytaj" size="small" (onClick)="loadSavedCharacter(entry.saved); $event.stopPropagation()" />
+        <p-button icon="pi pi-trash" size="small" severity="danger" [text]="true" (onClick)="removeSavedCharacter(entry.saved.id); $event.stopPropagation()" />
       </div>
       <div *ngIf="savedCharacters.length === 0" class="preset-empty">Brak zapisanych postaci</div>
+      <div *ngIf="savedCharacters.length > 0 && filteredSavedCharacters.length === 0" class="preset-empty">Brak postaci z wybranym tagiem</div>
     </div>
     <!-- Right: chart -->
     <div class="presets-chart-panel">
       <div class="preset-chart-wrapper">
-        <p-chart type="line" [data]="charactersChartData ?? emptyChartData" [options]="charactersChartOptions" [style]="{'width':'100%','height':'480px'}" />
+        <p-chart type="line" [data]="charactersChartData ?? emptyChartData" [options]="charactersChartOptions" [style]="{'width':'100%','height':'660px'}" />
       </div>
     </div>
   </div>

@@ -118,8 +118,17 @@
       <div class="arena-vignette"></div>
       <div class="arena-cracks"></div>
 
+      @if (availablePlayerTags.length > 0) {
+        <div class="player-tag-filter">
+          @for (opt of playerTagFilterOptions; track opt.value) {
+            <button type="button" class="player-tag-chip" [class.player-tag-chip--active]="playerTagFilter === opt.value"
+              (click)="setPlayerTagFilter(opt.value)">{{ opt.label }}</button>
+          }
+        </div>
+      }
+
       <div class="player-grid">
-        @for (p of players; track p.id) {
+        @for (p of filteredPlayers; track p.id) {
           <button
             type="button"
             class="player-card"
@@ -150,6 +159,8 @@
         }
         @if (players.length === 0) {
           <p class="player-empty">Brak zapisanych postaci — dodaj je w Kalkulatorze Postaci.</p>
+        } @else if (filteredPlayers.length === 0) {
+          <p class="player-empty">Brak postaci z wybranym tagiem.</p>
         }
       </div>
     </section>

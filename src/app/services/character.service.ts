@@ -58,7 +58,17 @@ export class CharacterService {
   private loadCharacter(): Character {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) return { ...this.createEmptyCharacter(), ...JSON.parse(saved) };
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Migrates the old single "trafieniePrzeciwnika" field (pre-split) onto both new genre-specific fields.
+        const legacyTrafienie = parsed?.trafieniePrzeciwnika;
+        if (typeof legacyTrafienie === 'number' && parsed.trafieniePrzeciwnikaBiala === undefined && parsed.trafieniePrzeciwnikaPalna === undefined) {
+          parsed.trafieniePrzeciwnikaBiala = legacyTrafienie;
+          parsed.trafieniePrzeciwnikaPalna = legacyTrafienie;
+        }
+        delete parsed?.trafieniePrzeciwnika;
+        return { ...this.createEmptyCharacter(), ...parsed };
+      }
     } catch { }
     return this.createEmptyCharacter();
   }
@@ -155,7 +165,8 @@ export class CharacterService {
       eventBonus: '',
       oneTimeBonus: '',
       szczesciePrzeciwnika: 0,
-      trafieniePrzeciwnika: 0,
+      trafieniePrzeciwnikaBiala: 0,
+      trafieniePrzeciwnikaPalna: 0,
       runeValues: [],
       umagiValues: [],
       equipment: {}
