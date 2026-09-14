@@ -156,7 +156,7 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     minMobDmg: '1150-1350',
     maxMobDmg: '1200-1400',
     attacksPerRound: 28,
-    critChance: 1,
+    critChance: 2,
     critMulti: 4,
     unik: { biala: 0.15, palna: 0.15, dystans: 0.15 },
     special: { kind: 'zepar' },
