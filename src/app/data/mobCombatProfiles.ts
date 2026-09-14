@@ -153,8 +153,8 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
   Zepar: {
     weaponName: 'Pejcz Gromów',
     weaponGenre: 'palna',
-    minMobDmg: '11500-13500',
-    maxMobDmg: '12080-14180',
+    minMobDmg: '1150-1350',
+    maxMobDmg: '1200-1400',
     attacksPerRound: 28,
     critChance: 1,
     critMulti: 4,
