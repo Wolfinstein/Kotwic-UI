@@ -87,6 +87,14 @@
   .dashboard-section {
     flex: auto;
   }
+
+  .input-section {
+    scrollbar-width: none;
+  }
+
+  .input-section::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 /* Desktop: 3fr 2fr ratio */
