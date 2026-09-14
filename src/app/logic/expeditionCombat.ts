@@ -128,7 +128,7 @@ const YOG_SOTHOTH_FODDER_MIN_HP = 18000;
 const YOG_SOTHOTH_FODDER_MAX_HP = 35000;
 const YOG_SOTHOTH_FODDER_OBRONA = 100;
 const YOG_SOTHOTH_FODDER_ODPORNOSC = 50;
-/** His crit chance/multi can never be reduced (by Skóra Bestii / Potęga Mocy) below these floors — the engine defaults are 1% and 150%. */
+/** His crit chance/multi can never be reduced (by Skóra Bestii / Potęga Mocy) below these floors — the engine defaults are 1% and 100%. */
 const YOG_SOTHOTH_CRIT_CHANCE_FLOOR = 0.15;
 const YOG_SOTHOTH_CRIT_MULTI_FLOOR = 2.0;
 /** "Zakrzywienie czasu" (active every round 7, 8 and 9): all his attacks in those rounds concentrate on whoever has dealt the most damage so far (cascading to the next-highest on a kill), always roll the top of his damage range (instead of a random roll), gain +1000 flat hit chance, and his crit multi is overridden to a flat 4.5 (down from the normal-round 6.5). */
@@ -925,7 +925,7 @@ export function simulateExpedition(
   const dmgStarMulti = yogSothoth ? 1 : mobDamageStarMultiplier(star);
   /** A manual dmgOverride is treated as the final, already-scaled per-hit range — the star multiplier and roster bonus (both otherwise baked into it) are skipped so the roll lands exactly between the slider values. */
   const dmgRange = dmgOverride ?? mobDmgRangeForVariant(mobVariant, profile, star);
-  const critMultiFloor = yogSothoth ? YOG_SOTHOTH_CRIT_MULTI_FLOOR : 1.5;
+  const critMultiFloor = yogSothoth ? YOG_SOTHOTH_CRIT_MULTI_FLOOR : 1.0;
   const critChanceFloor = yogSothoth ? YOG_SOTHOTH_CRIT_CHANCE_FLOOR : 0.01;
   /** "Zakrzywienie czasu" active rounds — rounds 7, 8 and 9 for Yog-Sothoth, never for any other mob. */
   const CURVE_ROUNDS = new Set([7, 8, 9]);
