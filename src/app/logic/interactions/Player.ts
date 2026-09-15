@@ -355,7 +355,17 @@ export class Player {
       }
     }
   }
+  /** Prefiksy, których forma gramatyczna (przymiotnik dopasowany do rodzaju przedmiotu) różni się od nazwy seta — dopasowanie po samej wartości stringa (poniżej) ich nie złapie. */
+  private static readonly PREFIX_TO_SET_TYPE_OVERRIDES: Partial<Record<PrefixType, SetType>> = {
+    [PrefixType.RUNICZNE]: SetType.RUNICZNY,
+    [PrefixType.KULOODPORNE]: SetType.KULOODPORNY,
+    [PrefixType.SZAMANSKA]: SetType.SZAMASKI
+  };
   private getSetTypeFromPrefixType(prefixType: PrefixType): SetType | null {
+    const override = Player.PREFIX_TO_SET_TYPE_OVERRIDES[prefixType];
+    if (override) {
+      return override;
+    }
     const setTypeEntries = Object.entries(SetType);
     const prefixTypeStr = prefixType as string;
     for (const [, setTypeValue] of setTypeEntries) {
