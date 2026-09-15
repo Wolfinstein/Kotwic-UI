@@ -318,8 +318,12 @@ export interface PlayerCombatState {
   /** Ziz tier 4: each of this player's own crits permanently adds to their crit-multiplier for the rest of the fight (+0.05 for a 2H weapon crit or a 1H RANGE crit, +0.025 for other 1H) — same mechanic shape as the mob's Demoniczny Gniew special, though the two scale independently. */
   zizActive: boolean;
   zizBonus: number;
-  /** End-of-round HP regen (from the calculator's dashboard), capped at half of this player's own damage dealt that round. */
+  /** End-of-round HP regen (from the calculator's dashboard), capped at half of this player's own damage dealt that round. Kept in sync with regenBase/regenReductionFraction whenever a new reduction source applies. */
   regenPerRound: number;
+  /** Regen per round before any Majestat/Tchnienie/Bokrug reduction — the base that regenReductionFraction is applied against. */
+  regenBase: number;
+  /** Sum of all active regen-reduction fractions (Majestat/Tchnienie Śmierci: 0.5, Bokrug's poison: 0.75), added together and capped at 1.0 before being applied to regenBase as a single multiplier — reductions stack additively, not as sequential multipliers. */
+  regenReductionFraction: number;
   damageDealtThisRound: number;
   weapons: WeaponDamage[];
   // ── Post-fight summary counters (simulateExpedition only — left at 0 in the stat-preview builder). ──
@@ -775,6 +779,8 @@ export function computeCombatPreview(
       zizActive: (saved.character.talizmanLevels?.ziz ?? 0) === 4,
       zizBonus: 0,
       regenPerRound: dashboard.regeneracja ?? 0,
+      regenBase: dashboard.regenBase ?? (dashboard.regeneracja ?? 0),
+      regenReductionFraction: dashboard.regenHalved ? 0.5 : 0,
       damageDealtThisRound: 0,
       weapons: [],
       attacksMade: 0,
@@ -985,6 +991,8 @@ export function simulateExpedition(
       zizActive: (saved.character.talizmanLevels?.ziz ?? 0) === 4,
       zizBonus: 0,
       regenPerRound: dashboard.regeneracja ?? 0,
+      regenBase: dashboard.regenBase ?? (dashboard.regeneracja ?? 0),
+      regenReductionFraction: dashboard.regenHalved ? 0.5 : 0,
       damageDealtThisRound: 0,
       weapons: dashboard.obrazenia ?? [],
       attacksMade: 0,
@@ -1403,7 +1411,8 @@ export function simulateExpedition(
         const stingDmg = Math.round(victim.maxHp * 0.25);
         victim.hp = Math.max(1, victim.hp - stingDmg);
         victim.bokrugPoisoned = true;
-        victim.regenPerRound = Math.round(victim.regenPerRound * 0.25);
+        victim.regenReductionFraction = Math.min(1, victim.regenReductionFraction + 0.75);
+        victim.regenPerRound = Math.round(victim.regenBase * (1 - victim.regenReductionFraction));
         pushNote(mob.name, `${mob.name} wbija żądło jadowe w ${victim.name}, zadając ${stingDmg} obrażeń i zatruwając go`, r + 1, 'mob');
       }
     }

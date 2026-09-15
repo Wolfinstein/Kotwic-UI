@@ -159,6 +159,9 @@ export interface DashboardValues {
     trafienieDodatkoweBiala?: number;
     obrazenia?: WeaponDamage[];
     regeneracja?: number;
+    /** Regen per round before the Majestat/Tchnienie Śmierci halving (either one sets the same flag, so they don't stack with each other). Used by the expedition combat sim to combine that reduction additively with Bokrug's poison rather than multiplying sequentially. */
+    regenBase?: number;
+    regenHalved?: boolean;
     zizAverageRounds?: number[];
     roundsPerWeapon?: { name: string; rounds: number[] }[];
 };

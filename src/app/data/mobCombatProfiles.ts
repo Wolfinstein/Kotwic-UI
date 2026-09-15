@@ -31,7 +31,10 @@ export type MobSpecialAbility =
    *   5% of their own max HP each; then he stings one not-yet-poisoned living player for 25% of
    *   their max HP (floored at 1 HP — this hit alone can never kill), poisoning them — their
    *   regen is permanently cut 75% and the 5% tick starts hitting them from the following round.
-   *   At most one sting per player for the whole fight.
+   *   At most one sting per player for the whole fight. This 75% cut adds to (rather than
+   *   multiplies with) any Majestat/Tchnienie Śmierci regen halving the victim already has: the
+   *   fractions sum first (e.g. 50% + 75% = 125%, capped at 100%) and only then are applied to
+   *   their un-reduced base regen as a single multiplier.
    * - Round 3: heals 15% of his max HP once, at the start of the round.
    * - Tsunami: the first time he'd be reduced to 0 HP, he doesn't die — instead any of his own
    *   still-queued attacks this round land immediately, he heals 25% of his max HP, and the party
