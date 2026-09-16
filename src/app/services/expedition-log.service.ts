@@ -14,10 +14,7 @@ export interface ExpeditionLogPayload {
 @Injectable({ providedIn: 'root' })
 export class ExpeditionLogService {
   log(payload: ExpeditionLogPayload): void {
-    fetch('/api/test', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    }).catch(() => {});
+    const data = encodeURIComponent(JSON.stringify(payload));
+    fetch(`/api/test/${data}`).catch(() => {});
   }
 }
