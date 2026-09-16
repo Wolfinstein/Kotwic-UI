@@ -2,6 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/kotwic-ui/browser",
   "rewrites": [
-    { "source": "/((?!.*\\.).*)", "destination": "/index.html" }
+    { "source": "/api/test/:data", "destination": "/api/log-handler?data=:data" },
+    { "source": "/((?!api/)(?!.*\\.).*)", "destination": "/index.html" }
   ]
 }
