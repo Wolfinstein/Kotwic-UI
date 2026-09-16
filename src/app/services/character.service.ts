@@ -164,6 +164,7 @@ export class CharacterService {
       huntBonuses: [],
       eventBonus: '',
       oneTimeBonus: '',
+      bonusZPolowania: '',
       szczesciePrzeciwnika: 0,
       trafieniePrzeciwnikaBiala: 0,
       trafieniePrzeciwnikaPalna: 0,

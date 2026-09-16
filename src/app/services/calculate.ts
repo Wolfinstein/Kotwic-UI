@@ -69,6 +69,7 @@ export class DashboardService {
     this.calculateHuntBonuses(c, player);
     this.calculateOneTimeBonus(c, player);
     this.calculateEventBonus(c, player);
+    this.calculateBonusZPolowania(c, player);
     this.calculateNocBohaterowBudynki(c, player);
     this.calculateStrateg(c, player);
     const dashboard: DashboardValues = this.buildDashboardValues(player);
@@ -491,6 +492,16 @@ export class DashboardService {
           p.addCritMultiDystans2h(1);
           break;
       }
+    }
+  }
+  calculateBonusZPolowania(c: Character, p: Player): void {
+    switch (c.bonusZPolowania) {
+      case '10% obrażenia wszystkich broni':
+        p.addLaczneObrazeniaWszystkichBroni(0.10);
+        break;
+      case '20% obrażenia wszystkich broni':
+        p.addLaczneObrazeniaWszystkichBroni(0.20);
+        break;
     }
   }
   calculateOneTimeBonus(c: Character, p: Player): void {

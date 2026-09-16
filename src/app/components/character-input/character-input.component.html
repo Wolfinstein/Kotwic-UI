@@ -48,6 +48,11 @@
               (onChange)="onEventBonusChange($event.value)" appendTo="body" />
           </div>
           <div class="compact-item">
+            <label>Bonus z Polowania</label>
+            <p-select [options]="bonusZPolowaniaOptions" [ngModel]="selectedBonusZPolowania ?? 'Brak'"
+              (onChange)="onBonusZPolowaniaChange($event.value)" appendTo="body" />
+          </div>
+          <div class="compact-item">
             <label>Ninja</label>
             <p-inputnumber [min]="0" [max]="5" [showButtons]="true" buttonLayout="horizontal" decrementButtonIcon="pi pi-minus" incrementButtonIcon="pi pi-plus" [ngModel]="character!.ninja"
               [inputStyleClass]="character!.ninja > 0 ? 'input-active' : ''"

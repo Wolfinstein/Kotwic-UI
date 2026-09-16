@@ -87,6 +87,7 @@ const CHARACTER: Character = {
   huntBonuses: [],
   eventBonus: null,
   oneTimeBonus: 'Ząb ghula',
+  bonusZPolowania: null,
   runeValues: [
     'obrazenia 5',
     'kryt 12',

@@ -90,6 +90,7 @@ export interface Character {
     huntBonuses: string[];
     eventBonus: string | null;
     oneTimeBonus: string | null;
+    bonusZPolowania: string | null;
     equipment: EquipmentSlot;
     runeValues: string[];
     umagiValues: string[];

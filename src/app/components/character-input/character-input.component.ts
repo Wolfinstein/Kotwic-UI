@@ -233,6 +233,7 @@ export class CharacterInputComponent implements OnInit {
     { label: '2H', value: '2h' },
   ];
   huntBonuses = ['Juggernaut', 'Ronin', 'Adrenalina', 'SokoleOko', 'Rzeźnik'];
+  bonusZPolowaniaOptions = ['Brak', '10% obrażenia wszystkich broni', '20% obrażenia wszystkich broni'];
   dailyBonuses = ['Brak', 'Klątwa Bogów', 'Noc Długich Noży', 'Noc Starych Bogów', 'Noc poszukiwaczy', 'Dzień Vlada', 'Dzień Gwiazd Północy', 'Świąteczna wizja Kaina','Urodzinowa Wizja Kaina', 'Świąteczna Wizja Kaina (deluxe)', 'Potrójna wizja Kaina', 'Pożeracz serc', 'Potęga hormonów', 'Dzień neandertalczyka', 'Pisanki Kaina', 'May the 4th be with you', 'Dzień Przemiany', 'Dzień poszukiwaczy', 'Świąteczna wizja Kaina (deluxe)', 'Więzy krwi', 'Krew z krwi', 'Wszyscy jesteśmy Francuzami', 'Pierwszy gol', 'Pierwszy serwis', 'Szczęście Sprzyja Lepszym', 'Tylko Dla Orłów', 'Zwycięzca Jest Tylko Jeden', 'Noc Bohaterów', 'Pamięci ofiar II wojny światowej'];
   oneTimeBonuses = ['Brak', 'Krew wilka', 'Jabłko żelaznego drzewa', 'Płetwa rekina', 'Eliksir zmysłów', 'Święcona woda', 'Łza feniksa', 'Magiczna pieczęć', 'Serce nietoperza', 'Kwiat lotosu', 'Jad Wielkopchły', 'Serum oświecenia', 'Wywar z czarnego kota', 'Węgiel', 'Sierść kreta', 'Saletra', 'Sok z żuka', 'Esencja młodości', 'Paznokieć trolla', 'Wilcza jagoda', 'Oko kota', 'Absynt', 'Łuski salamandry', 'Woda źródlana', 'Kość męczennika', 'Napój miłosny', 'Jad skorpiona', 'Korzeń mandragory', 'Gwiezdny pył', 'Fiolka kwasu', 'Siarka', 'Czarny diament', 'Oko topielca', 'Boska łza', 'Ząb ghula', 'Wywar z koralowca', 'Serce proroka', 'Pazur bazyliszka', 'Łuski demona', 'Skrzydła chrząszcza', 'Maska gargulca', 'Sok z modliszki', 'Oddech smoka', 'Ząb wiedźmy', 'Grimoire', 'Czarna żółć', 'Palec kowala', 'Kwiat bzu', 'Ogień z serca ziemi'];
   private static readonly EXPANDED_STORAGE_KEY = 'expandedBonuses';
@@ -247,6 +248,7 @@ export class CharacterInputComponent implements OnInit {
   selectedHuntBonuses: string[] = [];
   selectedEventBonus: string | null = null;
   selectedOneTimeBonus: string | null = null;
+  selectedBonusZPolowania: string | null = null;
   charactersChartData: any = null;
   charactersChartOptions: any = {
     responsive: true,
@@ -569,6 +571,7 @@ export class CharacterInputComponent implements OnInit {
         this.selectedHuntBonuses = [...(char.huntBonuses || [])];
         this.selectedEventBonus = char.eventBonus || null;
         this.selectedOneTimeBonus = char.oneTimeBonus || null;
+        this.selectedBonusZPolowania = char.bonusZPolowania || null;
       }
       if (char?.runeValues) {
         this.selectedRunes = [...char.runeValues];
@@ -1009,6 +1012,7 @@ export class CharacterInputComponent implements OnInit {
               this.selectedHuntBonuses = imported.huntBonuses || [];
               this.selectedEventBonus = imported.eventBonus || null;
               this.selectedOneTimeBonus = imported.oneTimeBonus || null;
+              this.selectedBonusZPolowania = imported.bonusZPolowania || null;
             }
             if (imported?.runeValues) {
               this.selectedRunes = imported.runeValues;
@@ -1104,6 +1108,12 @@ export class CharacterInputComponent implements OnInit {
       this.characterService.updateCharacter({ ...this.character, oneTimeBonus: this.selectedOneTimeBonus });
     }
   }
+  onBonusZPolowaniaChange(value: string): void {
+    this.selectedBonusZPolowania = value === 'Brak' ? null : value;
+    if (this.character) {
+      this.characterService.updateCharacter({ ...this.character, bonusZPolowania: this.selectedBonusZPolowania });
+    }
+  }
   isBonusSelected(bonusType: string, bonus: string): boolean {
     if (bonusType === 'hunt') {
       return this.selectedHuntBonuses.includes(bonus);
@@ -1148,6 +1158,7 @@ export class CharacterInputComponent implements OnInit {
       case 'inne':
         return this.character.ninja > 0 || this.character.mysliwy > 0 || this.character.assasyn > 0
           || this.character.strateg > 0 || this.character.kaplica > 0 || !!this.character.eventBonus
+          || !!this.character.bonusZPolowania
           || this.character.poziom > 0 || !!this.character.rasa;
       case 'budynki':
         return this.character.posredniak > 0 || this.character.domPubliczny > 0 || this.character.rzeznia > 0;
