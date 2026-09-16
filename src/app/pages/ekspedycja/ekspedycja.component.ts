@@ -7,6 +7,7 @@ import { DashboardService } from '../../services/calculate';
 import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, CombatPreviewWeapon, MobStatVariant, CombatAttackLog, CombatantSummary, AddSummary } from '../../logic/expeditionCombat';
 import { mobImplementationStatus, MobImplementationStatus } from '../../data/mobCombatProfiles';
 import { encodeCharactersToShareCode, decodeShareCode, SharedCharacterEntry } from '../../services/character-share.util';
+import { ExpeditionLogService } from '../../services/expedition-log.service';
 
 type VolumeLevel = 'low' | 'mid' | 'high';
 type ExpeditionStep = 'players' | 'towers' | 'combat';
@@ -97,6 +98,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   constructor(
     private savedCharactersService: SavedCharactersService,
     private dashboardService: DashboardService,
+    private expeditionLogService: ExpeditionLogService,
   ) {
     this.characterSelectBackground.loop = true;
     this.towerBackground.loop = true;
@@ -316,6 +318,14 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     if (!this.selectedTower || !this.selectedMobName) return;
     const mob = this.selectedTower.mobs.find(m => m.name === this.selectedMobName);
     if (!mob) return;
+    this.expeditionLogService.log({
+      action: 'single',
+      tower: this.selectedTower.id,
+      mob: this.selectedMobName,
+      star: this.starLevel,
+      variant: this.mobVariant,
+      players: this.selectedPlayers.map(p => p.name),
+    });
     this.characterSelectBackground.pause();
     this.towerBackground.pause();
     this.playFightSound();
@@ -397,6 +407,15 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     const mob = this.selectedTower.mobs.find(m => m.name === this.selectedMobName);
     if (!mob) return;
     const runCount = this.bulkSimRunCount;
+    this.expeditionLogService.log({
+      action: 'bulk',
+      tower: this.selectedTower.id,
+      mob: this.selectedMobName,
+      star: this.starLevel,
+      variant: this.mobVariant,
+      players: this.selectedPlayers.map(p => p.name),
+      runs: runCount,
+    });
     let wins = 0;
     let losses = 0;
     let draws = 0;
