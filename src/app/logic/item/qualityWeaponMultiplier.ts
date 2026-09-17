@@ -47,7 +47,7 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
       result.minDpsPalna1h = bazaDps(result.bazaDpsMin);
       result.maxDpsPalna1h = bazaDps(result.bazaDpsMax);
       result.critMultiPalna1h += calcValue(result.critMulti, rarity);
-      result.setAllCritChance(calcValue(result.critChanceGlobal, rarity)); /// TODO fix for one melee one gun
+      result.critChancePalna1h += calcValue(result.critChanceGlobal, rarity);
       result.critChancePalna1h += calcValue(result.critChance, rarity);
     } else {
       result.minDpsPalna2h = bazaDps(result.bazaDpsMin) + (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
