@@ -407,15 +407,6 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     const mob = this.selectedTower.mobs.find(m => m.name === this.selectedMobName);
     if (!mob) return;
     const runCount = this.bulkSimRunCount;
-    this.expeditionLogService.log({
-      action: 'bulk',
-      tower: this.selectedTower.id,
-      mob: this.selectedMobName,
-      star: this.starLevel,
-      variant: this.mobVariant,
-      players: this.selectedPlayers.map(p => p.name),
-      runs: runCount,
-    });
     let wins = 0;
     let losses = 0;
     let draws = 0;
@@ -449,6 +440,18 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
       avgDamage: totalDamage[p.id] / runCount,
     }));
     this.bulkSimResult = { total: runCount, wins, losses, draws, players };
+    this.expeditionLogService.log({
+      action: 'bulk',
+      tower: this.selectedTower.id,
+      mob: this.selectedMobName,
+      star: this.starLevel,
+      variant: this.mobVariant,
+      players: this.selectedPlayers.map(p => p.name),
+      runs: runCount,
+      winPct: Math.round((wins / runCount) * 100),
+      lossPct: Math.round((losses / runCount) * 100),
+      drawPct: Math.round((draws / runCount) * 100),
+    });
   }
 
   /** Auto-computed min/max damage at the moment the override was switched on — kept separately because once the override is active, combatPreview.mob.minDmg/maxDmg reflect the OVERRIDDEN values, not the original auto ones the slider ranges should be centered on. */

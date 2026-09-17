@@ -9,6 +9,10 @@ export interface ExpeditionLogPayload {
   variant: MobStatVariant;
   players: string[];
   runs?: number;
+  /** Win/loss/draw rates from a bulk simulation, as whole percentages (0-100). */
+  winPct?: number;
+  lossPct?: number;
+  drawPct?: number;
 }
 
 /** Strips anything that isn't URL-safe so the log path never needs percent-encoding. */
@@ -28,6 +32,9 @@ export class ExpeditionLogService {
       payload.players.map(slug).join('+') || 'none',
     ];
     if (payload.runs) parts.push(`runs${payload.runs}`);
+    if (payload.winPct !== undefined) parts.push(`win${payload.winPct}`);
+    if (payload.lossPct !== undefined) parts.push(`loss${payload.lossPct}`);
+    if (payload.drawPct !== undefined) parts.push(`draw${payload.drawPct}`);
     fetch(`/api/test/${parts.join('~')}`).catch(() => {});
   }
 }
