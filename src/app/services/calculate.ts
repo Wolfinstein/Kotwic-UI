@@ -14,6 +14,7 @@ import { Item, ItemBuilder } from '../logic/item/Item';
 import { Prefix } from '../logic/item/Prefix';
 import { Set } from '../logic/item/Set';
 import { Stats, StatsBuilder } from '../logic/item/Stats';
+import { WeaponStats } from '../logic/item/WeaponStats';
 import { Suffix } from '../logic/item/Suffix';
 import { SuffixType, PrefixType } from '../logic/item/constants/affixType';
 import { ItemRarity } from '../logic/item/constants/itemRarity';
@@ -976,8 +977,21 @@ export class DashboardService {
 
       const pSnapshot = p.clone();
 
-      for (const weapon of weapons) {
-        const stats = pSnapshot.resolveWeaponItem(weapon, p.lvl);
+      const weaponStatsList = weapons.map(weapon => ({
+        weapon,
+        stats: pSnapshot.resolveWeaponItem(weapon, p.lvl) as WeaponStats
+      }));
+
+      // critChanceGlobal (Deagle/MP5) pools across every equipped gun-1h weapon,
+      // so each one's bonus applies to every gun-1h attack, not just its own.
+      const pooledGunCritChance = weaponStatsList
+        .filter(w => w.weapon.base?.genre === ItemGenre.GUN_1H)
+        .reduce((sum, w) => sum + (w.stats.critChanceGlobal ?? 0), 0);
+
+      for (const { weapon, stats } of weaponStatsList) {
+        if (weapon.base?.genre === ItemGenre.GUN_1H) {
+          stats.critChancePalna1h += pooledGunCritChance;
+        }
         const damage = this.calculateWeaponDamage(weapon, stats, pSnapshot);
         if (damage) {
           obrazenia.push(damage);

@@ -47,7 +47,10 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
       result.minDpsPalna1h = bazaDps(result.bazaDpsMin);
       result.maxDpsPalna1h = bazaDps(result.bazaDpsMax);
       result.critMultiPalna1h += calcValue(result.critMulti, rarity);
-      result.critChancePalna1h += calcValue(result.critChanceGlobal, rarity);
+      // critChanceGlobal is scaled here but intentionally NOT folded into critChancePalna1h yet:
+      // it pools across every equipped gun-1h weapon (see buildDashboardValues) before being
+      // applied, so two guns each contribute their own bonus to the shared gun-crit pool.
+      result.critChanceGlobal = calcValue(result.critChanceGlobal, rarity);
       result.critChancePalna1h += calcValue(result.critChance, rarity);
     } else {
       result.minDpsPalna2h = bazaDps(result.bazaDpsMin) + (calcValue(result.obrazeniaPerLevel, rarity) * Math.ceil(playerLvl / 4));
