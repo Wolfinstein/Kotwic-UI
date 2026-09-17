@@ -64,9 +64,9 @@ export interface MerihimAdd {
   alive: boolean;
 }
 
-/** Merihim add count: 1 at star 1-2, 2 at star 3-4, ... up to 6 at star 11-12. */
+/** Merihim add count: scales from 1 at star 1 up to 10 at star 12 (ceil(star * 10 / 12)). */
 function merihimAddCountForStar(star: number): number {
-  return Math.min(6, Math.max(1, Math.ceil(Math.max(1, star) / 2)));
+  return Math.min(10, Math.max(1, Math.ceil(Math.max(1, star) * 10 / 12)));
 }
 
 /** Merihim add HP/initiative linearly interpolated between star 1 (1000 hp, 250 init) and star 12 (8000 hp, 650 init). */
