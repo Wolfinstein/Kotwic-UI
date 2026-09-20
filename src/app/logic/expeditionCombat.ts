@@ -324,6 +324,8 @@ export interface PlayerCombatState {
   regenBase: number;
   /** Sum of all active regen-reduction fractions (Majestat/Tchnienie Śmierci: 0.5, Bokrug's poison: 0.75), added together and capped at 1.0 before being applied to regenBase as a single multiplier — reductions stack additively, not as sequential multipliers. */
   regenReductionFraction: number;
+  /** Portion of regenBase contributed by the Krew Życia arcane investment. Zeroed out (and subtracted from regenBase) the moment Zepar's Aura Niewiary blocks this player's arcana. */
+  krewZyciaRegenAmount: number;
   damageDealtThisRound: number;
   weapons: WeaponDamage[];
   // ── Post-fight summary counters (simulateExpedition only — left at 0 in the stat-preview builder). ──
@@ -781,6 +783,7 @@ export function computeCombatPreview(
       regenPerRound: dashboard.regeneracja ?? 0,
       regenBase: dashboard.regenBase ?? (dashboard.regeneracja ?? 0),
       regenReductionFraction: dashboard.regenHalved ? 0.5 : 0,
+      krewZyciaRegenAmount: dashboard.krewZyciaRegen ?? 0,
       damageDealtThisRound: 0,
       weapons: [],
       attacksMade: 0,
@@ -993,6 +996,7 @@ export function simulateExpedition(
       regenPerRound: dashboard.regeneracja ?? 0,
       regenBase: dashboard.regenBase ?? (dashboard.regeneracja ?? 0),
       regenReductionFraction: dashboard.regenHalved ? 0.5 : 0,
+      krewZyciaRegenAmount: dashboard.krewZyciaRegen ?? 0,
       damageDealtThisRound: 0,
       weapons: dashboard.obrazenia ?? [],
       attacksMade: 0,
@@ -1419,8 +1423,8 @@ export function simulateExpedition(
 
     // Zepar — Aura Niewiary: once, at the very start of round 1, blocks 1-3 random players' arcana
     // for the rest of the fight. Only the purely-arcane abilities go dark (Groza, Żar Krwi, Tchnienie
-    // Śmierci, personal Skóra Bestii odporność) — talizman-driven abilities that merely scale off an
-    // arcane investment keep working exactly the same.
+    // Śmierci, personal Skóra Bestii odporność, Krew Życia regen) — talizman-driven abilities that
+    // merely scale off an arcane investment keep working exactly the same.
     if (zepar && r === 0) {
       const blockCount = Math.min(players.length, randomInt(1, 3));
       const pool = [...players];
@@ -1434,6 +1438,11 @@ export function simulateExpedition(
         p.zarLevel = false;
         p.tchnienieLevel = 0;
         p.skoraBestiiOdpornosc = 0;
+        if (p.krewZyciaRegenAmount > 0) {
+          p.regenBase = Math.max(0, p.regenBase - p.krewZyciaRegenAmount);
+          p.regenPerRound = Math.round(p.regenBase * (1 - p.regenReductionFraction));
+          p.krewZyciaRegenAmount = 0;
+        }
       }
       if (blocked.length) {
         pushNote(mob.name, `${mob.name} używa Aury Niewiary — blokuje arkana: ${blocked.map(p => p.name).join(', ')}`, r + 1, 'mob');

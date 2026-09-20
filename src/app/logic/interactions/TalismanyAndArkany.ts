@@ -519,7 +519,9 @@ export class TalismanyAndArkany {
     return player;
   }
   private doKrewZycia(player: Player): Player {
-    player.addRegen(this.aKrewZycia * 0.005);
+    const fraction = this.aKrewZycia * 0.005;
+    player.addRegen(fraction);
+    player.stats.krewZyciaRegenFraction += fraction;
     return player;
   }
 }

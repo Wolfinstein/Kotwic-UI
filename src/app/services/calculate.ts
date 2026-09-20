@@ -1013,7 +1013,9 @@ export class DashboardService {
         wiedza: player.stats.wiedza
       };
 
-      const regenBase = Math.floor((player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife)) * player.stats.regen) + player.stats.regenFlat;
+      const regenPoolSize = player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife);
+      const regenBase = Math.floor(regenPoolSize * player.stats.regen) + player.stats.regenFlat;
+      const krewZyciaRegen = Math.floor(regenPoolSize * player.stats.krewZyciaRegenFraction);
       const regenHalved = !!p.stats.halvedRegen;
       let regen = regenHalved ? Math.floor(regenBase / 2) : regenBase;
       const cappedRedukcja = Math.min(player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01, 0.30);
@@ -1038,6 +1040,7 @@ export class DashboardService {
         obrazenia: obrazenia,
         regeneracja: regen,
         regenBase: regenBase,
+        krewZyciaRegen: krewZyciaRegen,
         regenHalved: regenHalved,
         zizAverageRounds: p.ziz4 ? this.simulateZiz4Rounds(obrazenia) : [],
         roundsPerWeapon: this.simulateRoundsPerWeapon(obrazenia, 10, !!p.ziz4)

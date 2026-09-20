@@ -162,6 +162,8 @@ export interface DashboardValues {
     regeneracja?: number;
     /** Regen per round before the Majestat/Tchnienie Śmierci halving (either one sets the same flag, so they don't stack with each other). Used by the expedition combat sim to combine that reduction additively with Bokrug's poison rather than multiplying sequentially. */
     regenBase?: number;
+    /** Portion of regenBase contributed by the Krew Życia arcane investment — used by the expedition combat sim so Zepar's Aura Niewiary can strip just this share from a blocked player's regen. */
+    krewZyciaRegen?: number;
     regenHalved?: boolean;
     zizAverageRounds?: number[];
     roundsPerWeapon?: { name: string; rounds: number[] }[];

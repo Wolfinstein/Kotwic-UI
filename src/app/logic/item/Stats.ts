@@ -64,6 +64,8 @@ export class Stats {
   laczneObrazeniaWszystkichBroni: number = 0;
   regen: number = 0;
   regenFlat: number = 0;
+  /** Portion of `regen` (the % fraction, not a flat amount) contributed by the Krew Życia arcane investment specifically — tracked separately so Zepar's Aura Niewiary can strip just this share when it blocks a player's arcana. */
+  krewZyciaRegenFraction: number = 0;
   additionalIni: number = 0;
   halvedRegen: boolean = false;
   hastur: boolean = false;
