@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { FEATURE_FLAGS } from './config/feature-flags.generated';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'home' },
@@ -45,7 +46,9 @@ export const routes: Routes = [
   {
     path: 'ekspedycja',
     loadComponent: () =>
-      import('./pages/ekspedycja/ekspedycja.component').then(m => m.EkspedycjaComponent)
+      FEATURE_FLAGS.ekspedycjaEnabled
+        ? import('./pages/ekspedycja/ekspedycja.component').then(m => m.EkspedycjaComponent)
+        : import('./pages/ekspedycja-disabled/ekspedycja-disabled.component').then(m => m.EkspedycjaDisabledComponent)
   },
   { path: '**', redirectTo: 'home' }
 ];
