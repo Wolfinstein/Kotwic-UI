@@ -435,6 +435,7 @@ export class DashboardService {
         .zarAktywny(c.zarKrwiActive ?? false)
         .aCisza(c.arcaneLevels?.ciszaKrwi ?? 0)
         .aWyssanie(c.arcaneLevels?.wyssanieMocy ?? 0)
+        .potegaAktywne(c.wyssanieMocyActive ?? false)
         .aMocKrwi(c.arcaneLevels?.mocKrwi ?? 0)
         .aSkora(c.arcaneLevels?.skoraBestii ?? 0)
         .aDziki(c.arcaneLevels?.dzikiSzal ?? 0)

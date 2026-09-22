@@ -9,6 +9,7 @@ const CHARACTER: Character = {
   blaszkaZaHastura: false,
   tchnienieSmierciActive: false,
   zarKrwiActive: false,
+  wyssanieMocyActive: false,
   attributes: {
     sila: 96,
     zwinnosc: 125,

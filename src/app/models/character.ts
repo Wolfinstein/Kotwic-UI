@@ -101,6 +101,8 @@ export interface Character {
     tchnienieSmierciActive: boolean;
     /** Manual override for Żar Krwi's HP-threshold-gated bonuses, since the calculator has no live HP tracking. */
     zarKrwiActive: boolean;
+    /** Manual override for Potęga Mocy's crit-multi bonus, since in expeditions it only applies once the mob's crit has actually been absorbed (first landed hit). */
+    wyssanieMocyActive: boolean;
     evolutions: Evolutions;
     obronaPrzeciwnika: number;
     odpornoscPrzeciwnika: number;

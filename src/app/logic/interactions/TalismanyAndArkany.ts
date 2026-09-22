@@ -10,6 +10,7 @@ export class TalismanyAndArkany {
   zarAktywny: boolean = false;
   aCisza: number = 0;
   aWyssanie: number = 0;
+  potegaAktywne: boolean = false;
   aMocKrwi: number = 0;
   aSkora: number = 0;
   aDziki: number = 0;
@@ -315,26 +316,17 @@ export class TalismanyAndArkany {
     }
     return player;
   }
+  private static readonly POTEGA_RATE_PER_LEVEL: Record<number, number> = { 1: 0.005, 2: 0.0075, 3: 0.01, 4: 0.015 };
   private doPotega(player: Player): Player {
-    switch (this.potega) {
-      case 1:
-        player.setLife(Math.floor(player.life + (player.baseLife * (this.aWyssanie * 0.005))));
-        player.addCritMulti(this.aWyssanie * 0.005);
-        break;
-      case 2:
-        player.setLife(Math.floor(player.life + (player.baseLife * (this.aWyssanie * 0.0075))));
-        player.addCritMulti(this.aWyssanie * 0.0075);
-        break;
-      case 3:
-        player.setLife(Math.floor(player.life + (player.baseLife * (this.aWyssanie * 0.01))));
-        player.addCritMulti(this.aWyssanie * 0.01);
-        break;
-      case 4:
-        player.setLife(Math.floor(player.life + (player.baseLife * (this.aWyssanie * 0.015))));
-        player.addCritMulti(this.aWyssanie * 0.015);
-        break;
-      default:
-        break;
+    const rate = TalismanyAndArkany.POTEGA_RATE_PER_LEVEL[this.potega];
+    if (rate) {
+      player.setLife(Math.floor(player.life + (player.baseLife * (this.aWyssanie * rate))));
+      // Real activation only kicks in once the mob's crit multi has actually been absorbed (see
+      // expeditionCombat.ts's potegaStealPotential) — the calculator has no mob to steal from, so
+      // potegaAktywne is a manual "assume absorbed" toggle instead.
+      if (this.potegaAktywne) {
+        player.addCritMulti(this.aWyssanie * rate);
+      }
     }
     return player;
   }
@@ -535,6 +527,7 @@ class TalismanyAndArkanyBuilder {
   private _zarAktywny: boolean = false;
   private _aCisza: number = 0;
   private _aWyssanie: number = 0;
+  private _potegaAktywne: boolean = false;
   private _aMocKrwi: number = 0;
   private _aSkora: number = 0;
   private _aDziki: number = 0;
@@ -593,6 +586,10 @@ class TalismanyAndArkanyBuilder {
   }
   aWyssanie(aWyssanie: number): TalismanyAndArkanyBuilder {
     this._aWyssanie = aWyssanie;
+    return this;
+  }
+  potegaAktywne(potegaAktywne: boolean): TalismanyAndArkanyBuilder {
+    this._potegaAktywne = potegaAktywne;
     return this;
   }
   aMocKrwi(aMocKrwi: number): TalismanyAndArkanyBuilder {
@@ -702,6 +699,7 @@ class TalismanyAndArkanyBuilder {
     t.zarAktywny = this._zarAktywny;
     t.aCisza = this._aCisza;
     t.aWyssanie = this._aWyssanie;
+    t.potegaAktywne = this._potegaAktywne;
     t.aMocKrwi = this._aMocKrwi;
     t.aSkora = this._aSkora;
     t.aDziki = this._aDziki;

@@ -365,6 +365,11 @@
             (ngModelChange)="updateCharacterField('zarKrwiActive', $event)" />
           <label for="zarKrwiActive">Żar Krwi aktywne</label>
         </div>
+        <div *ngIf="expandedBonuses['arkany']" class="bonus-item">
+          <p-checkbox [binary]="true" [ngModel]="!!character?.wyssanieMocyActive" inputId="wyssanieMocyActive"
+            (ngModelChange)="updateCharacterField('wyssanieMocyActive', $event)" />
+          <label for="wyssanieMocyActive">Wyssanie Mocy aktywne</label>
+        </div>
       </div>
       </div>
       <!-- Column B: Ewolucje -->

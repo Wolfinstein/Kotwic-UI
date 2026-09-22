@@ -81,6 +81,7 @@ export class CharacterService {
       blaszkaZaHastura: false,
       tchnienieSmierciActive: false,
       zarKrwiActive: false,
+      wyssanieMocyActive: false,
       attributes: {
         sila: 0,
         zwinnosc: 0,

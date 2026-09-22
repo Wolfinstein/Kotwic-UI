@@ -729,6 +729,8 @@ export function computeCombatPreview(
       // Preview always shows the pre-activation (full-hp) state — the real, HP-gated activation only runs in simulateExpedition.
       tchnienieSmierciActive: false,
       zarKrwiActive: false,
+      // Potęga Mocy's crit-multi only applies once actually absorbed from the mob (first landed hit) — preview shows the pre-absorption state.
+      wyssanieMocyActive: false,
     };
     const dashboard = dashboardService.calculateStuff(character, auraBestiiHpShareFor(auraBestiiBonus, saved.id));
     if (yogSothoth) applyYogSothothWeaponMods(dashboard.obrazenia ?? [], saved.character.poziom ?? 0);
@@ -935,6 +937,8 @@ export function simulateExpedition(
       tchnienieSmierciActive: false,
       // Żar Krwi's damage bonus is modeled dynamically below (see zarDamageBonus), not via the calculator's flat toggle.
       zarKrwiActive: false,
+      // Potęga Mocy's crit-multi is modeled dynamically below (see potegaStealPotential) — combat always starts un-absorbed.
+      wyssanieMocyActive: false,
     };
     const dashboard = dashboardService.calculateStuff(characterBase, auraBestiiHpShareFor(auraBestiiBonus, saved.id));
     const maxHp = dashboard.punktyZycia ?? 1;
@@ -1030,6 +1034,7 @@ export function simulateExpedition(
         trafieniePrzeciwnikaPalna: mobSpostrzegawczosc,
         tchnienieSmierciActive: false,
         zarKrwiActive: false,
+        wyssanieMocyActive: false,
       };
       const dashboardBase = dashboardService.calculateStuff(characterBase);
       if (yogSothoth) applyYogSothothWeaponMods(dashboardBase.obrazenia ?? [], saved.character.poziom ?? 0);
