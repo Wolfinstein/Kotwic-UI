@@ -671,7 +671,7 @@ export class GameImportService {
       'RONIN': 'Ronin',
       'ADRENALINA': 'Adrenalina',
       'SOKOLE OKO': 'SokoleOko',
-      'RZEŹNIK': 'Rzeźnik',
+      'RZEZNIK': 'Rzeźnik',
     };
     const blocks = [...html.matchAll(/<div class="singleBonusContainer">([\s\S]*?)(?=<div class="singleBonusContainer">|<input type="hidden" name="akey")/g)];
     const huntBonuses: string[] = [];
