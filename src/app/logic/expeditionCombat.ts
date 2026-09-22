@@ -960,14 +960,14 @@ export function simulateExpedition(
     // Zepar — Aura Niewiary needs to strip Cień Bestii/Żar Krwi/Majestat's baked-in max-HP, DPS
     // and extra-attack bonuses too, not just the dynamically-modeled arcana below. Precompute the
     // fully-blocked stat line once here (only for Zepar fights) so the block just swaps it in.
+    // Only these three are zeroed — e.g. leaving tchnienieSmierci alone matters because Życie i
+    // Śmierć's budynkiLife HP multiplier scales off that raw investment regardless of block state
+    // (a talizman-scales-off-arcana case, same as grozaRound3Chance/furiaChance/etc. below).
     const dashboardArkanaBlocked = zepar
       ? dashboardService.calculateStuff({
           ...characterBase,
           arcaneLevels: {
             ...characterBase.arcaneLevels,
-            groza: false,
-            skoraBestii: 0,
-            tchnienieSmierci: 0,
             zarKrwi: false,
             cienBestii: false,
             majestat: 0,
