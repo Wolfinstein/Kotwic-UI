@@ -70,6 +70,9 @@
         @if (importError(); as err) {
           <p class="error-text">{{ err }}</p>
         }
+        @if (deleteError(); as err) {
+          <p class="error-text">{{ err }}</p>
+        }
 
         @if (!filteredLogs.length) {
           <p>Brak symulacji pasujących do filtrów.</p>
@@ -78,7 +81,9 @@
             <table class="dziennik-table">
               <thead>
                 <tr>
-                  <th>Data</th>
+                  <th class="sortable-th" (click)="toggleSort()">
+                    Data {{ sortDirection() === 'asc' ? '▲' : '▼' }}
+                  </th>
                   <th>Typ</th>
                   <th>Wieża</th>
                   <th>Mob</th>
@@ -86,6 +91,7 @@
                   <th>Wariant</th>
                   <th>Gracze</th>
                   <th>Wynik</th>
+                  <th></th>
                   <th></th>
                 </tr>
               </thead>
@@ -107,6 +113,11 @@
                     <td>
                       <button class="import-btn" (click)="importCharacters(log)" [disabled]="wasImported(log.id)">
                         {{ wasImported(log.id) ? 'Zaimportowano' : 'Importuj graczy' }}
+                      </button>
+                    </td>
+                    <td>
+                      <button class="delete-btn" (click)="removeLog(log)" [disabled]="isRemoving(log.id)">
+                        {{ isRemoving(log.id) ? 'Usuwanie…' : 'Usuń' }}
                       </button>
                     </td>
                   </tr>

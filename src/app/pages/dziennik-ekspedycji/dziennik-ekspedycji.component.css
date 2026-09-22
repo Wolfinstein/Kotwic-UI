@@ -135,3 +135,29 @@
   color: var(--label-color);
   cursor: default;
 }
+
+.sortable-th {
+  cursor: pointer;
+  user-select: none;
+}
+
+.sortable-th:hover {
+  color: var(--value-color);
+}
+
+.delete-btn {
+  background: none;
+  border: 1px solid #e05c5c;
+  color: #e05c5c;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: var(--fs-sm, 0.9rem);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.delete-btn:disabled {
+  border-color: var(--border-muted);
+  color: var(--label-color);
+  cursor: default;
+}

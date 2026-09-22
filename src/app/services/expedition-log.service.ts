@@ -51,4 +51,14 @@ export class ExpeditionLogService {
     if (!res.ok) throw new Error('Nie udało się pobrać zapisanych symulacji.');
     return res.json();
   }
+
+  /** Throws an Error whose message is 'UNAUTHORIZED' on a wrong password. */
+  async remove(id: number, password: string): Promise<void> {
+    const res = await fetch(`/api/expedition-log?id=${id}`, {
+      method: 'DELETE',
+      headers: { 'x-dziennik-key': password },
+    });
+    if (res.status === 401) throw new Error('UNAUTHORIZED');
+    if (!res.ok) throw new Error('Nie udało się usunąć zapisu.');
+  }
 }

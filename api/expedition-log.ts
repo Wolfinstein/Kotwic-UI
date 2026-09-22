@@ -34,6 +34,10 @@ function isValidBody(body: unknown): body is ExpeditionLogBody {
     && typeof b['charactersCode'] === 'string';
 }
 
+function hasDziennikAccess(req: VercelRequest): boolean {
+  return !!DZIENNIK_PASSWORD && req.headers['x-dziennik-key'] === DZIENNIK_PASSWORD;
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!CONNECTION_STRING) {
     res.status(500).json({ error: 'NEON_DB_DATABASE_URL is not configured.' });
@@ -77,7 +81,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === 'GET') {
-    if (!DZIENNIK_PASSWORD || req.headers['x-dziennik-key'] !== DZIENNIK_PASSWORD) {
+    if (!hasDziennikAccess(req)) {
       res.status(401).json({ error: 'Nieprawidłowe hasło.' });
       return;
     }
@@ -90,6 +94,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       LIMIT 200
     `;
     res.status(200).json(rows);
+    return;
+  }
+
+  if (req.method === 'DELETE') {
+    if (!hasDziennikAccess(req)) {
+      res.status(401).json({ error: 'Nieprawidłowe hasło.' });
+      return;
+    }
+    const idParam = req.query['id'];
+    const id = Number(Array.isArray(idParam) ? idParam[0] : idParam);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ error: 'Invalid id.' });
+      return;
+    }
+    await sql`DELETE FROM expedition_logs WHERE id = ${id}`;
+    res.status(204).end();
     return;
   }
 

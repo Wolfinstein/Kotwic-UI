@@ -22,12 +22,16 @@ export class DziennikEkspedycjiComponent {
   logs = signal<SavedExpeditionLog[]>([]);
   importError = signal<string | null>(null);
   importedIds = signal<Set<number>>(new Set());
+  deleteError = signal<string | null>(null);
+  removingIds = signal<Set<number>>(new Set());
 
   // ── Filters (client-side, over the already-fetched logs) ──
   filterDate = '';
   filterMob = '';
   filterStar: number | '' = '';
   filterVariant = '';
+
+  sortDirection = signal<'asc' | 'desc'>('desc');
 
   constructor(
     private expeditionLogService: ExpeditionLogService,
@@ -52,13 +56,19 @@ export class DziennikEkspedycjiComponent {
   }
 
   get filteredLogs(): SavedExpeditionLog[] {
-    return this.logs().filter(log => {
+    const filtered = this.logs().filter(log => {
       if (this.filterDate && !log.createdAt.startsWith(this.filterDate)) return false;
       if (this.filterMob && log.mob !== this.filterMob) return false;
       if (this.filterStar !== '' && log.star !== this.filterStar) return false;
       if (this.filterVariant && log.variant !== this.filterVariant) return false;
       return true;
     });
+    const dir = this.sortDirection() === 'asc' ? 1 : -1;
+    return [...filtered].sort((a, b) => dir * (new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()));
+  }
+
+  toggleSort(): void {
+    this.sortDirection.update(d => d === 'asc' ? 'desc' : 'asc');
   }
 
   get availableMobs(): string[] {
@@ -97,5 +107,28 @@ export class DziennikEkspedycjiComponent {
 
   wasImported(id: number): boolean {
     return this.importedIds().has(id);
+  }
+
+  async removeLog(log: SavedExpeditionLog): Promise<void> {
+    const when = new Date(log.createdAt).toLocaleString();
+    if (!confirm(`Usunąć zapis "${log.mob}" (${when})? Tej operacji nie można cofnąć.`)) return;
+    this.deleteError.set(null);
+    this.removingIds.update(ids => new Set(ids).add(log.id));
+    try {
+      await this.expeditionLogService.remove(log.id, this.password);
+      this.logs.update(logs => logs.filter(l => l.id !== log.id));
+    } catch {
+      this.deleteError.set('Nie udało się usunąć zapisu.');
+    } finally {
+      this.removingIds.update(ids => {
+        const next = new Set(ids);
+        next.delete(log.id);
+        return next;
+      });
+    }
+  }
+
+  isRemoving(id: number): boolean {
+    return this.removingIds().has(id);
   }
 }
