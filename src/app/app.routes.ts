@@ -51,7 +51,7 @@ export const routes: Routes = [
         : import('./pages/ekspedycja-disabled/ekspedycja-disabled.component').then(m => m.EkspedycjaDisabledComponent)
   },
   {
-    path: 'dziennik-ekspedycji',
+    path: 'dziennik',
     loadComponent: () =>
       import('./pages/dziennik-ekspedycji/dziennik-ekspedycji.component').then(m => m.DziennikEkspedycjiComponent)
   },

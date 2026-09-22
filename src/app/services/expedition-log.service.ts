@@ -44,8 +44,10 @@ export class ExpeditionLogService {
     }).catch(() => {});
   }
 
-  async list(): Promise<SavedExpeditionLog[]> {
-    const res = await fetch('/api/expedition-log');
+  /** Throws an Error whose message is 'UNAUTHORIZED' on a wrong password, so the Dziennik page can tell that apart from a generic fetch failure. */
+  async list(password: string): Promise<SavedExpeditionLog[]> {
+    const res = await fetch('/api/expedition-log', { headers: { 'x-dziennik-key': password } });
+    if (res.status === 401) throw new Error('UNAUTHORIZED');
     if (!res.ok) throw new Error('Nie udało się pobrać zapisanych symulacji.');
     return res.json();
   }

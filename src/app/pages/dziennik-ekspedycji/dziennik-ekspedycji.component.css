@@ -36,6 +36,65 @@
   font-size: var(--fs-base);
 }
 
+.password-form {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.password-input {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--value-color);
+  padding: 8px 10px;
+  font-size: var(--fs-base);
+  min-width: 220px;
+}
+
+.password-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 16px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--fs-sm, 0.9rem);
+  color: var(--label-color);
+}
+
+.filter-field input,
+.filter-field select {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--value-color);
+  padding: 6px 8px;
+  font-size: var(--fs-sm, 0.9rem);
+}
+
+.clear-filters-btn {
+  background: none;
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--label-color);
+  padding: 6px 12px;
+  font-size: var(--fs-sm, 0.9rem);
+  cursor: pointer;
+  height: fit-content;
+}
+
 .table-wrap {
   overflow-x: auto;
 }

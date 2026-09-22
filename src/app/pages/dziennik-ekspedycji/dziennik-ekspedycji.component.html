@@ -1,60 +1,121 @@
 <div class="dziennik-view">
   <div class="feature-section">
-    <div class="dziennik-header">
-      <h1>Dziennik symulacji ekspedycji</h1>
-      <p>Każde uruchomienie symulacji w kalkulatorze zapisuje tu użytą drużynę — wciśnij "Importuj graczy", żeby dodać dokładnie te same postacie do swojej listy zapisanych postaci.</p>
-    </div>
-
-    @if (loading()) {
-      <p>Ładowanie…</p>
-    } @else if (loadError()) {
-      <p class="error-text">{{ loadError() }}</p>
-    } @else if (!logs().length) {
-      <p>Brak zapisanych symulacji.</p>
-    } @else {
-      @if (importError(); as err) {
+    @if (!unlocked()) {
+      <div class="dziennik-header">
+        <h1>Dziennik symulacji ekspedycji</h1>
+        <p>Ta strona jest chroniona hasłem.</p>
+      </div>
+      <form class="password-form" (ngSubmit)="submitPassword()">
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="password"
+          placeholder="Hasło"
+          autocomplete="off"
+          class="password-input"
+        />
+        <button type="submit" class="import-btn" [disabled]="loading() || !password">
+          {{ loading() ? 'Sprawdzanie…' : 'Wejdź' }}
+        </button>
+      </form>
+      @if (passwordError(); as err) {
         <p class="error-text">{{ err }}</p>
       }
-      <div class="table-wrap">
-        <table class="dziennik-table">
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Typ</th>
-              <th>Wieża</th>
-              <th>Mob</th>
-              <th>★</th>
-              <th>Wariant</th>
-              <th>Gracze</th>
-              <th>Wynik</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (log of logs(); track log.id) {
-              <tr>
-                <td>{{ log.createdAt | date:'short' }}</td>
-                <td>{{ log.action === 'single' ? 'Pojedyncza' : 'Zbiorcza' }}</td>
-                <td>{{ log.tower }}</td>
-                <td>{{ log.mob }}</td>
-                <td>{{ log.star }}</td>
-                <td>{{ log.variant }}</td>
-                <td>{{ log.players.join(', ') }}</td>
-                <td>
-                  @if (log.runs) {
-                    {{ log.runs }} biegów — W:{{ log.winPct }}% P:{{ log.lossPct }}% R:{{ log.drawPct }}%
-                  }
-                </td>
-                <td>
-                  <button class="import-btn" (click)="importCharacters(log)" [disabled]="wasImported(log.id)">
-                    {{ wasImported(log.id) ? 'Zaimportowano' : 'Importuj graczy' }}
-                  </button>
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+    } @else {
+      <div class="dziennik-header">
+        <h1>Dziennik symulacji ekspedycji</h1>
+        <p>Każde uruchomienie symulacji w kalkulatorze zapisuje tu użytą drużynę — wciśnij "Importuj graczy", żeby dodać dokładnie te same postacie do swojej listy zapisanych postaci.</p>
       </div>
+
+      @if (!logs().length) {
+        <p>Brak zapisanych symulacji.</p>
+      } @else {
+        <div class="filters-row">
+          <label class="filter-field">
+            <span>Data</span>
+            <input type="date" [(ngModel)]="filterDate" name="filterDate" />
+          </label>
+          <label class="filter-field">
+            <span>Mob</span>
+            <select [(ngModel)]="filterMob" name="filterMob">
+              <option value="">Wszystkie</option>
+              @for (mob of availableMobs; track mob) {
+                <option [value]="mob">{{ mob }}</option>
+              }
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>★</span>
+            <select [(ngModel)]="filterStar" name="filterStar">
+              <option [ngValue]="''">Wszystkie</option>
+              @for (star of availableStars; track star) {
+                <option [ngValue]="star">{{ star }}</option>
+              }
+            </select>
+          </label>
+          <label class="filter-field">
+            <span>Wariant</span>
+            <select [(ngModel)]="filterVariant" name="filterVariant">
+              <option value="">Wszystkie</option>
+              @for (variant of availableVariants; track variant) {
+                <option [value]="variant">{{ variant }}</option>
+              }
+            </select>
+          </label>
+          @if (hasActiveFilters) {
+            <button type="button" class="clear-filters-btn" (click)="clearFilters()">Wyczyść filtry</button>
+          }
+        </div>
+
+        @if (importError(); as err) {
+          <p class="error-text">{{ err }}</p>
+        }
+
+        @if (!filteredLogs.length) {
+          <p>Brak symulacji pasujących do filtrów.</p>
+        } @else {
+          <div class="table-wrap">
+            <table class="dziennik-table">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Typ</th>
+                  <th>Wieża</th>
+                  <th>Mob</th>
+                  <th>★</th>
+                  <th>Wariant</th>
+                  <th>Gracze</th>
+                  <th>Wynik</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (log of filteredLogs; track log.id) {
+                  <tr>
+                    <td>{{ log.createdAt | date:'short' }}</td>
+                    <td>{{ log.action === 'single' ? 'Pojedyncza' : 'Zbiorcza' }}</td>
+                    <td>{{ log.tower }}</td>
+                    <td>{{ log.mob }}</td>
+                    <td>{{ log.star }}</td>
+                    <td>{{ log.variant }}</td>
+                    <td>{{ log.players.join(', ') }}</td>
+                    <td>
+                      @if (log.runs) {
+                        {{ log.runs }} biegów — W:{{ log.winPct }}% P:{{ log.lossPct }}% R:{{ log.drawPct }}%
+                      }
+                    </td>
+                    <td>
+                      <button class="import-btn" (click)="importCharacters(log)" [disabled]="wasImported(log.id)">
+                        {{ wasImported(log.id) ? 'Zaimportowano' : 'Importuj graczy' }}
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      }
     }
   </div>
 </div>

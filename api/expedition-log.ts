@@ -4,6 +4,9 @@ import { neon } from '@neondatabase/serverless';
 /** Set on the Vercel project by the Neon integration ("NEON_DB" resource). */
 const CONNECTION_STRING = process.env.NEON_DB_DATABASE_URL;
 
+/** Gates reading back saved runs (Dziennik page) — writes stay open since every player's simulation logs one automatically. Not meant as real security, just a casual keep-strangers-out gate. Set on the Vercel project as an env var so it isn't sitting in the repo in plaintext. */
+const DZIENNIK_PASSWORD = process.env.DZIENNIK_PASSWORD;
+
 interface ExpeditionLogBody {
   action: 'single' | 'bulk';
   tower: string;
@@ -74,6 +77,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   if (req.method === 'GET') {
+    if (!DZIENNIK_PASSWORD || req.headers['x-dziennik-key'] !== DZIENNIK_PASSWORD) {
+      res.status(401).json({ error: 'Nieprawidłowe hasło.' });
+      return;
+    }
     const rows = await sql`
       SELECT
         id, created_at AS "createdAt", action, tower, mob, star, variant, players,
