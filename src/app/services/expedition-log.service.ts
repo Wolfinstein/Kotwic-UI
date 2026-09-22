@@ -8,6 +8,8 @@ export interface ExpeditionLogPayload {
   star: number;
   variant: MobStatVariant;
   players: string[];
+  /** Share-code-encoded characters that took part in the run (see character-share.util.ts) — lets the exact builds be re-imported later from the Dziennik page. */
+  charactersCode: string;
   runs?: number;
   /** Win/loss/draw rates from a bulk simulation, as whole percentages (0-100). */
   winPct?: number;
@@ -15,26 +17,36 @@ export interface ExpeditionLogPayload {
   drawPct?: number;
 }
 
-/** Strips anything that isn't URL-safe so the log path never needs percent-encoding. */
-function slug(value: string): string {
-  return value.replace(/[^A-Za-z0-9-]+/g, '_');
+export interface SavedExpeditionLog {
+  id: number;
+  createdAt: string;
+  action: 'single' | 'bulk';
+  tower: string;
+  mob: string;
+  star: number;
+  variant: MobStatVariant;
+  players: string[];
+  charactersCode: string;
+  runs: number | null;
+  winPct: number | null;
+  lossPct: number | null;
+  drawPct: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ExpeditionLogService {
+  /** Fire-and-forget — a failed save should never interrupt the simulation the player is looking at. */
   log(payload: ExpeditionLogPayload): void {
-    const parts = [
-      payload.action,
-      slug(payload.tower),
-      slug(payload.mob),
-      String(payload.star),
-      payload.variant,
-      payload.players.map(slug).join('+') || 'none',
-    ];
-    if (payload.runs) parts.push(`runs${payload.runs}`);
-    if (payload.winPct !== undefined) parts.push(`win${payload.winPct}`);
-    if (payload.lossPct !== undefined) parts.push(`loss${payload.lossPct}`);
-    if (payload.drawPct !== undefined) parts.push(`draw${payload.drawPct}`);
-    fetch(`/api/test/${parts.join('~')}`).catch(() => {});
+    fetch('/api/expedition-log', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }).catch(() => {});
+  }
+
+  async list(): Promise<SavedExpeditionLog[]> {
+    const res = await fetch('/api/expedition-log');
+    if (!res.ok) throw new Error('Nie udało się pobrać zapisanych symulacji.');
+    return res.json();
   }
 }

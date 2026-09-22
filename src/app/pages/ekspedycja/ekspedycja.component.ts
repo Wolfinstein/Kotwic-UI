@@ -7,7 +7,7 @@ import { DashboardService } from '../../services/calculate';
 import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, CombatPreviewWeapon, MobStatVariant, CombatAttackLog, CombatantSummary, AddSummary } from '../../logic/expeditionCombat';
 import { mobImplementationStatus, MobImplementationStatus } from '../../data/mobCombatProfiles';
 import { encodeCharactersToShareCode, decodeShareCode, SharedCharacterEntry } from '../../services/character-share.util';
-import { ExpeditionLogService } from '../../services/expedition-log.service';
+import { ExpeditionLogService, ExpeditionLogPayload } from '../../services/expedition-log.service';
 
 type VolumeLevel = 'low' | 'mid' | 'high';
 type ExpeditionStep = 'players' | 'towers' | 'combat';
@@ -318,7 +318,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     if (!this.selectedTower || !this.selectedMobName) return;
     const mob = this.selectedTower.mobs.find(m => m.name === this.selectedMobName);
     if (!mob) return;
-    this.expeditionLogService.log({
+    this.logExpedition({
       action: 'single',
       tower: this.selectedTower.id,
       mob: this.selectedMobName,
@@ -440,7 +440,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
       avgDamage: totalDamage[p.id] / runCount,
     }));
     this.bulkSimResult = { total: runCount, wins, losses, draws, players };
-    this.expeditionLogService.log({
+    this.logExpedition({
       action: 'bulk',
       tower: this.selectedTower.id,
       mob: this.selectedMobName,
@@ -452,6 +452,14 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
       lossPct: Math.round((losses / runCount) * 100),
       drawPct: Math.round((draws / runCount) * 100),
     });
+  }
+
+  /** Encodes the currently selected players the same way "Udostępnij" does, then saves the run (with their exact builds) to the server — fire-and-forget, never blocks the fight. */
+  private logExpedition(payload: Omit<ExpeditionLogPayload, 'charactersCode'>): void {
+    const entries: SharedCharacterEntry[] = this.selectedPlayers.map(p => ({ name: p.name, character: p.character }));
+    encodeCharactersToShareCode(entries)
+      .then(charactersCode => this.expeditionLogService.log({ ...payload, charactersCode }))
+      .catch(() => {});
   }
 
   /** Auto-computed min/max damage at the moment the override was switched on — kept separately because once the override is active, combatPreview.mob.minDmg/maxDmg reflect the OVERRIDDEN values, not the original auto ones the slider ranges should be centered on. */

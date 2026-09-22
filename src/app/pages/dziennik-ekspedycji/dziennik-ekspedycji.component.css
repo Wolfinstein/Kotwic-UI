@@ -1,0 +1,78 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow: auto;
+}
+
+.dziennik-view {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+.feature-section {
+  padding: 18px 20px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-muted);
+  border-radius: 8px;
+}
+
+.dziennik-header h1 {
+  margin: 0 0 4px;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--section-title-color);
+}
+
+.dziennik-header p {
+  margin: 0 0 18px;
+  font-size: var(--fs-base);
+  color: var(--label-color);
+  line-height: 1.5;
+}
+
+.error-text {
+  color: #e05c5c;
+  font-size: var(--fs-base);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.dziennik-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm, 0.9rem);
+}
+
+.dziennik-table th,
+.dziennik-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-muted);
+  color: var(--value-color);
+  white-space: nowrap;
+}
+
+.dziennik-table th {
+  color: var(--label-color);
+  font-weight: 600;
+}
+
+.import-btn {
+  background: var(--color-accent);
+  color: var(--bg-deep);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: var(--fs-sm, 0.9rem);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.import-btn:disabled {
+  background: var(--border-muted);
+  color: var(--label-color);
+  cursor: default;
+}

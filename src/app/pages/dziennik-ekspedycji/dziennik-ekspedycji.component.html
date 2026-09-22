@@ -1,0 +1,60 @@
+<div class="dziennik-view">
+  <div class="feature-section">
+    <div class="dziennik-header">
+      <h1>Dziennik symulacji ekspedycji</h1>
+      <p>Każde uruchomienie symulacji w kalkulatorze zapisuje tu użytą drużynę — wciśnij "Importuj graczy", żeby dodać dokładnie te same postacie do swojej listy zapisanych postaci.</p>
+    </div>
+
+    @if (loading()) {
+      <p>Ładowanie…</p>
+    } @else if (loadError()) {
+      <p class="error-text">{{ loadError() }}</p>
+    } @else if (!logs().length) {
+      <p>Brak zapisanych symulacji.</p>
+    } @else {
+      @if (importError(); as err) {
+        <p class="error-text">{{ err }}</p>
+      }
+      <div class="table-wrap">
+        <table class="dziennik-table">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Typ</th>
+              <th>Wieża</th>
+              <th>Mob</th>
+              <th>★</th>
+              <th>Wariant</th>
+              <th>Gracze</th>
+              <th>Wynik</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of logs(); track log.id) {
+              <tr>
+                <td>{{ log.createdAt | date:'short' }}</td>
+                <td>{{ log.action === 'single' ? 'Pojedyncza' : 'Zbiorcza' }}</td>
+                <td>{{ log.tower }}</td>
+                <td>{{ log.mob }}</td>
+                <td>{{ log.star }}</td>
+                <td>{{ log.variant }}</td>
+                <td>{{ log.players.join(', ') }}</td>
+                <td>
+                  @if (log.runs) {
+                    {{ log.runs }} biegów — W:{{ log.winPct }}% P:{{ log.lossPct }}% R:{{ log.drawPct }}%
+                  }
+                </td>
+                <td>
+                  <button class="import-btn" (click)="importCharacters(log)" [disabled]="wasImported(log.id)">
+                    {{ wasImported(log.id) ? 'Zaimportowano' : 'Importuj graczy' }}
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+</div>
