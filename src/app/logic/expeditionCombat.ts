@@ -326,6 +326,10 @@ export interface PlayerCombatState {
   regenReductionFraction: number;
   /** Portion of regenBase contributed by the Krew Życia arcane investment. Zeroed out (and subtracted from regenBase) the moment Zepar's Aura Niewiary blocks this player's arcana. */
   krewZyciaRegenAmount: number;
+  /** This player's maxHp/weapons/regenReductionFraction as if Cień Bestii, Żar Krwi and Majestat were never invested — precomputed so Zepar's Aura Niewiary can swap them in and strip those arcana's baked-in HP/DPS/attack-count bonuses along with everything else it blocks. Equal to the unblocked values outside a Zepar fight. */
+  arkanaBlockedMaxHp: number;
+  arkanaBlockedWeapons: WeaponDamage[];
+  arkanaBlockedRegenHalved: boolean;
   damageDealtThisRound: number;
   weapons: WeaponDamage[];
   // ── Post-fight summary counters (simulateExpedition only — left at 0 in the stat-preview builder). ──
@@ -786,6 +790,9 @@ export function computeCombatPreview(
       regenBase: dashboard.regenBase ?? (dashboard.regeneracja ?? 0),
       regenReductionFraction: dashboard.regenHalved ? 0.5 : 0,
       krewZyciaRegenAmount: dashboard.krewZyciaRegen ?? 0,
+      arkanaBlockedMaxHp: dashboard.punktyZycia ?? 1,
+      arkanaBlockedWeapons: dashboard.obrazenia ?? [],
+      arkanaBlockedRegenHalved: dashboard.regenHalved ?? false,
       damageDealtThisRound: 0,
       weapons: [],
       attacksMade: 0,
@@ -950,6 +957,23 @@ export function simulateExpedition(
       applyYogSothothWeaponMods(dashboard.obrazenia ?? [], saved.character.poziom ?? 0);
       if (dashboardActivated !== dashboard) applyYogSothothWeaponMods(dashboardActivated.obrazenia ?? [], saved.character.poziom ?? 0);
     }
+    // Zepar — Aura Niewiary needs to strip Cień Bestii/Żar Krwi/Majestat's baked-in max-HP, DPS
+    // and extra-attack bonuses too, not just the dynamically-modeled arcana below. Precompute the
+    // fully-blocked stat line once here (only for Zepar fights) so the block just swaps it in.
+    const dashboardArkanaBlocked = zepar
+      ? dashboardService.calculateStuff({
+          ...characterBase,
+          arcaneLevels: {
+            ...characterBase.arcaneLevels,
+            groza: false,
+            skoraBestii: 0,
+            tchnienieSmierci: 0,
+            zarKrwi: false,
+            cienBestii: false,
+            majestat: 0,
+          },
+        }, auraBestiiHpShareFor(auraBestiiBonus, saved.id))
+      : null;
     return {
       id: saved.id,
       name: saved.name,
@@ -1001,6 +1025,9 @@ export function simulateExpedition(
       regenBase: dashboard.regenBase ?? (dashboard.regeneracja ?? 0),
       regenReductionFraction: dashboard.regenHalved ? 0.5 : 0,
       krewZyciaRegenAmount: dashboard.krewZyciaRegen ?? 0,
+      arkanaBlockedMaxHp: dashboardArkanaBlocked ? (dashboardArkanaBlocked.punktyZycia ?? 1) : maxHp,
+      arkanaBlockedWeapons: dashboardArkanaBlocked ? (dashboardArkanaBlocked.obrazenia ?? []) : (dashboard.obrazenia ?? []),
+      arkanaBlockedRegenHalved: dashboardArkanaBlocked ? !!dashboardArkanaBlocked.regenHalved : !!dashboard.regenHalved,
       damageDealtThisRound: 0,
       weapons: dashboard.obrazenia ?? [],
       attacksMade: 0,
@@ -1428,8 +1455,9 @@ export function simulateExpedition(
 
     // Zepar — Aura Niewiary: once, at the very start of round 1, blocks 1-3 random players' arcana
     // for the rest of the fight. Only the purely-arcane abilities go dark (Groza, Żar Krwi, Tchnienie
-    // Śmierci, personal Skóra Bestii odporność, Krew Życia regen) — talizman-driven abilities that
-    // merely scale off an arcane investment keep working exactly the same.
+    // Śmierci, personal Skóra Bestii odporność, Krew Życia regen, Cień Bestii, Majestat — each with
+    // ALL of its bonuses, including ones baked into max HP/DPS/attack count) — talizman-driven
+    // abilities that merely scale off an arcane investment keep working exactly the same.
     if (zepar && r === 0) {
       const blockCount = Math.min(players.length, randomInt(1, 3));
       const pool = [...players];
@@ -1441,13 +1469,23 @@ export function simulateExpedition(
       for (const p of blocked) {
         p.hasGroza = false;
         p.zarLevel = false;
+        p.zarDamageBonus = 0;
         p.tchnienieLevel = 0;
         p.skoraBestiiOdpornosc = 0;
         if (p.krewZyciaRegenAmount > 0) {
           p.regenBase = Math.max(0, p.regenBase - p.krewZyciaRegenAmount);
-          p.regenPerRound = Math.round(p.regenBase * (1 - p.regenReductionFraction));
           p.krewZyciaRegenAmount = 0;
         }
+        // Cień Bestii, Żar Krwi and Majestat also go dark — swap in the precomputed stat line
+        // with all three zeroed out, so their baked-in max-HP, DPS and extra-attack bonuses
+        // (and Majestat's own regen-halving downside) disappear along with the rest.
+        const hpFraction = p.maxHp > 0 ? p.hp / p.maxHp : 1;
+        p.maxHp = p.arkanaBlockedMaxHp;
+        p.hp = Math.min(p.maxHp, Math.max(0, Math.round(p.maxHp * hpFraction)));
+        p.weapons = p.arkanaBlockedWeapons;
+        p.weaponsActivated = p.arkanaBlockedWeapons;
+        p.regenReductionFraction = p.arkanaBlockedRegenHalved ? 0.5 : 0;
+        p.regenPerRound = Math.round(p.regenBase * (1 - p.regenReductionFraction));
       }
       if (blocked.length) {
         pushNote(mob.name, `${mob.name} używa Aury Niewiary — blokuje arkana: ${blocked.map(p => p.name).join(', ')}`, r + 1, 'mob');
