@@ -119,10 +119,11 @@
   font-weight: 600;
 }
 
-.players-cell {
+.dziennik-table td.players-cell {
   max-width: 220px;
   white-space: normal;
   overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .import-btn {
