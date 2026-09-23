@@ -157,10 +157,10 @@ export class MobyComponent {
   readonly potegaOptions = [0, 0.07, 0.14, 0.20, 0.25, 0.30, 0.37, 0.44, 0.50, 0.55, 0.60, 0.67, 0.74, 0.80, 0.85, 0.90]
     .map(v => ({ label: `${v}`, value: v }));
 
-  erudyta: number | null = 0;
-  bystrzak: number | null = 0;
-  filozof: number | null = 1;
-  potega: number | null = 0;
+  erudyta: number | null = 0.50;
+  bystrzak: number | null = 0.20;
+  filozof: number | null = 1.10;
+  potega: number | null = 0.90;
 
   get selectedActMob(): ActMob | null {
     return ACT_MOBS.find(m => m.name === this.selectedActMobName) ?? null;
