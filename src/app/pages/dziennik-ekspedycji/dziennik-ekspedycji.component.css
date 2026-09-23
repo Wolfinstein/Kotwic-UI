@@ -119,6 +119,12 @@
   font-weight: 600;
 }
 
+.players-cell {
+  max-width: 220px;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
 .import-btn {
   background: var(--color-accent);
   color: var(--bg-deep);

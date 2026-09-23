@@ -85,7 +85,6 @@
                     Data {{ sortDirection() === 'asc' ? '▲' : '▼' }}
                   </th>
                   <th>Typ</th>
-                  <th>Wieża</th>
                   <th>Mob</th>
                   <th>★</th>
                   <th>Wariant</th>
@@ -100,11 +99,10 @@
                   <tr>
                     <td>{{ log.createdAt | date:'short' }}</td>
                     <td>{{ log.action === 'single' ? 'Pojedyncza' : 'Zbiorcza' }}</td>
-                    <td>{{ log.tower }}</td>
                     <td>{{ log.mob }}</td>
                     <td>{{ log.star }}</td>
                     <td>{{ log.variant }}</td>
-                    <td>{{ log.players.join(', ') }}</td>
+                    <td class="players-cell">{{ log.players.join(', ') }}</td>
                     <td>
                       @if (log.runs) {
                         {{ log.runs }} biegów — W:{{ log.winPct }}% P:{{ log.lossPct }}% R:{{ log.drawPct }}%
