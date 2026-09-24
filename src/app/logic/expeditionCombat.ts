@@ -591,10 +591,9 @@ function mobHitDefenseReduction(profile: MobCombatProfile, target: PlayerCombatS
   return Math.floor(boostedOdpornosc / 2 * ignoreFactor);
 }
 
-/** A player weapon's hit chance against the boss itself (not its adds), clamped to the profile's playerMaxHitChance ceiling when it has one. */
-function playerHitChance(w: WeaponDamage, profile: MobCombatProfile | undefined): number {
-  const base = w.estimatedHitChance ?? 1;
-  return profile?.playerMaxHitChance != null ? Math.min(base, profile.playerMaxHitChance) : base;
+/** A player weapon's hit chance against the boss itself (not its adds) — uses the max-hit-penalised chance when the profile sets playerMaxHitPenalty. */
+function playerHitChance(w: WeaponDamage): number {
+  return w.bossHitChance ?? w.estimatedHitChance ?? 1;
 }
 
 /** Applies the Lewiatan crit-received proc to the target: stacking obrona/odpornosc (reset each round) plus HP regen at tier 3+. Returns whether it fired. */
@@ -735,6 +734,7 @@ export function computeCombatPreview(
       obronaPrzeciwnika: mobObrona,
       odpornoscPrzeciwnika: mobOdpornosc,
       szczesciePrzeciwnika: mobSzczescie,
+      maxTrafieniePenalty: profile?.playerMaxHitPenalty,
       trafieniePrzeciwnikaBiala: mobZwinnosc,
       trafieniePrzeciwnikaPalna: mobSpostrzegawczosc,
       // Preview always shows the pre-activation (full-hp) state — the real, HP-gated activation only runs in simulateExpedition.
@@ -835,7 +835,7 @@ export function computeCombatPreview(
         name: w.name,
         minDmg: w.minDmg,
         maxDmg: w.maxDmg,
-        hitChance: playerHitChance(w, profile),
+        hitChance: playerHitChance(w),
         critChance: w.critChance ?? 0,
         critMulti: w.critMulti ?? 1,
         mobDodge: mobUnikFor(profile, mobGenreForWeapon(w.genre)),
@@ -948,6 +948,7 @@ export function simulateExpedition(
       obronaPrzeciwnika: mobObrona,
       odpornoscPrzeciwnika: mobOdpornosc,
       szczesciePrzeciwnika: mobSzczescie,
+      maxTrafieniePenalty: profile?.playerMaxHitPenalty,
       trafieniePrzeciwnikaBiala: mobZwinnosc,
       trafieniePrzeciwnikaPalna: mobSpostrzegawczosc,
       // The real activation is HP-gated below, not the manual calculator toggle — combat always starts un-activated.
@@ -1067,6 +1068,7 @@ export function simulateExpedition(
         obronaPrzeciwnika: effObrona,
         odpornoscPrzeciwnika: effOdpornosc,
         szczesciePrzeciwnika: mobSzczescie,
+        maxTrafieniePenalty: profile?.playerMaxHitPenalty,
         trafieniePrzeciwnikaBiala: mobZwinnosc,
         trafieniePrzeciwnikaPalna: mobSpostrzegawczosc,
         tchnienieSmierciActive: false,
@@ -1171,7 +1173,7 @@ export function simulateExpedition(
   function resolvePlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number, isCichyRetry = false): boolean {
     attacker.attacksMade++;
     const dodgedByMob = Math.random() < mobUnikFor(profile, mobGenreForWeapon(w.genre));
-    const hit = !dodgedByMob && Math.random() < playerHitChance(w, profile);
+    const hit = !dodgedByMob && Math.random() < playerHitChance(w);
     let crit = false;
     let dmg = 0;
     let otchlanProced = false;
@@ -1295,7 +1297,7 @@ export function simulateExpedition(
   /** Resolves one player attack against a Merihim lesser-mob add: a plain HP pool with no dodge/obrona/special-proc interactions. Returns whether this kill completes Merihim's overall victory condition (him and every add dead). */
   function resolvePlayerAttackOnAdd(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number, add: MerihimAdd, isCichyRetry = false): boolean {
     attacker.attacksMade++;
-    // Adds use the weapon's normal hit chance — the boss's playerMaxHitChance cap applies only to the boss itself.
+    // Adds use the weapon's normal hit chance — the boss's playerMaxHitPenalty applies only to the boss itself.
     const hit = Math.random() < (w.estimatedHitChance ?? 1);
     let crit = false;
     let dmg = 0;

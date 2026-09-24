@@ -113,6 +113,8 @@ export interface Character {
     trafieniePrzeciwnikaPalna: number;
     mysliwy: number;
     ninja: number;
+    /** Mob-imposed cut (in % points) to the luck-based max hit chance — e.g. Malphas's 50 turns the usual 90%+luck (max 99%) ceiling into 40%+luck (max 49%). Unset for normal mobs. */
+    maxTrafieniePenalty?: number;
     assasyn: number;
     strateg: number;
     kaplica: number;
@@ -142,6 +144,8 @@ export interface WeaponDamage {
     critDmgMax?: number;
     genre?: string;
     estimatedHitChance?: number;
+    /** Hit chance against the boss itself when it cuts the max hit chance (Character.maxTrafieniePenalty) — its adds still use estimatedHitChance. Unset otherwise. */
+    bossHitChance?: number;
 }
 export interface DashboardValues {
     punktyKrwi?: number;

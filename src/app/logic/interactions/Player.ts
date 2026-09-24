@@ -38,6 +38,8 @@ export class Player {
   szczesciePrzeciwnika: number;
   trafieniePrzeciwnikaBiala: number;
   trafieniePrzeciwnikaPalna: number;
+  /** See Character.maxTrafieniePenalty. */
+  maxTrafieniePenalty: number = 0;
   constructor(
     lvl: number = 1,
     life: number = 0,
