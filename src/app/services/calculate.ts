@@ -54,7 +54,7 @@ export class DashboardService {
       .trafieniePrzeciwnikaPalna(c.trafieniePrzeciwnikaPalna)
       .items(this.mapItems(c))
       .build();
-    player.maxTrafieniePenalty = c.maxTrafieniePenalty ?? 0;
+    player.maxTrafieniePrzeciwnika = c.maxTrafieniePrzeciwnika;
     player.baseLife += this.calculateBaseLife(c) + extraBaseLife;
     this.calculateUmagi(c, player);
     player.doMysliwy(c.mysliwy);
@@ -1054,7 +1054,7 @@ export class DashboardService {
       };
     }
   }
-  private calculateHitChance(genre: ItemGenre, player: Player, trafienieLegDystans: number, maxHitPenalty: number = 0): number {
+  private calculateHitChance(genre: ItemGenre, player: Player, trafienieLegDystans: number, hitCeiling?: number): number {
     let y: number;
     let z: number;
     let p: number;
@@ -1088,9 +1088,11 @@ export class DashboardService {
       }
     }
 
-    // Some mobs (Malphas) shift the whole max-hit ceiling down, so luck still adds on top but tops out lower.
-    const maxHit = Math.max(Math.min(Math.max(90 + luckModifier, 20), 99) - maxHitPenalty, 1);
-    const minHit = Math.min(Math.max(10 + luckModifier, 1), 65, maxHit);
+    // Some mobs (Malphas) impose a hard ceiling: it replaces the 90 base and the 99/65 caps, so luck can only pull the chance below it.
+    const maxHit = hitCeiling != null
+      ? Math.min(Math.max(hitCeiling + luckModifier, 20), hitCeiling)
+      : Math.min(Math.max(90 + luckModifier, 20), 99);
+    const minHit = Math.min(Math.max(10 + luckModifier, 1), hitCeiling != null ? Math.min(65, hitCeiling) : 65);
     const rawHit = (70 + 2 * y + z) * p - 2 * r;
 
     return Math.min(Math.max(rawHit, minHit), maxHit) / 100;
@@ -1377,7 +1379,7 @@ export class DashboardService {
       const avgDmg = Math.floor((minDmg + maxDmg) / 2);
       const avgCritDmg = Math.floor((critDmgMin + critDmgMax) / 2);
       const estimatedHitChance = genre ? this.calculateHitChance(genre, player, trafienieLegDystans) : 1;
-      const bossHitChance = genre && player.maxTrafieniePenalty > 0 ? this.calculateHitChance(genre, player, trafienieLegDystans, player.maxTrafieniePenalty) : undefined;
+      const bossHitChance = genre && player.maxTrafieniePrzeciwnika != null ? this.calculateHitChance(genre, player, trafienieLegDystans, player.maxTrafieniePrzeciwnika) : undefined;
       const obrazeniaNaRundeAvg = Math.floor(estimatedHitChance * (finalCritChance * ataki * avgCritDmg + (1 - finalCritChance) * ataki * avgDmg));
       return {
         name: this.constructWeaponName(weapon),
