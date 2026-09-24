@@ -462,7 +462,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
       .catch(() => {});
   }
 
-  /** Auto-computed min/max damage at the moment the override was switched on — kept separately because once the override is active, combatPreview.mob.minDmg/maxDmg reflect the OVERRIDDEN values, not the original auto ones the slider ranges should be centered on. */
+  /** Auto-computed min/max damage as of the last non-overridden preview — kept separately because once the override is active, combatPreview.mob.minDmg/maxDmg reflect the OVERRIDDEN values, not the original auto ones the slider ranges should be centered on. */
   private autoMinDmgAtToggle = 0;
   private autoMaxDmgAtToggle = 0;
 
@@ -480,29 +480,26 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     return { min: Math.round(auto / 3), max: Math.round(auto * 3) };
   }
 
-  /** Only meaningful once a preview exists — sliders are hidden until then, and disabled again once toggled off. */
+  /** Only active once the user has moved a slider — null (auto damage) until then and after a reset. */
   private get dmgOverride(): { min: number; max: number } | null {
     return this.manualDmgOverride ? { min: this.manualMinDmg, max: this.manualMaxDmg } : null;
   }
 
-  /** Turning the override on seeds both sliders from the currently displayed (auto-computed) range, so the user nudges from a sane starting point instead of 0. */
-  toggleManualDmgOverride(): void {
-    this.manualDmgOverride = !this.manualDmgOverride;
-    if (this.manualDmgOverride && this.combatPreview) {
-      this.autoMinDmgAtToggle = this.combatPreview.mob.minDmg;
-      this.autoMaxDmgAtToggle = this.combatPreview.mob.maxDmg;
-      this.manualMinDmg = this.autoMinDmgAtToggle;
-      this.manualMaxDmg = this.autoMaxDmgAtToggle;
-    }
+  /** Drops the manual override and snaps both sliders back to the auto-computed range. */
+  resetManualDmgOverride(): void {
+    this.manualDmgOverride = false;
     this.refreshCombatPreview();
   }
 
+  /** The sliders are always visible — the override only kicks in once the user actually moves one. */
   onManualMinDmgChange(value: number): void {
+    this.manualDmgOverride = true;
     this.manualMinDmg = Math.min(value, this.manualMaxDmg);
     this.refreshCombatPreview();
   }
 
   onManualMaxDmgChange(value: number): void {
+    this.manualDmgOverride = true;
     this.manualMaxDmg = Math.max(value, this.manualMinDmg);
     this.refreshCombatPreview();
   }
@@ -513,6 +510,13 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.combatPreview = mob
       ? computeCombatPreview(this.selectedPlayers, mob, this.starLevel, this.dashboardService, this.mobVariant, this.dmgOverride)
       : null;
+    // While not overridden, keep the sliders tracking the auto-computed range (it shifts with star/variant/party), so they always start from a sane default.
+    if (!this.manualDmgOverride && this.combatPreview) {
+      this.autoMinDmgAtToggle = this.combatPreview.mob.minDmg;
+      this.autoMaxDmgAtToggle = this.combatPreview.mob.maxDmg;
+      this.manualMinDmg = this.autoMinDmgAtToggle;
+      this.manualMaxDmg = this.autoMaxDmgAtToggle;
+    }
   }
 
   private get currentBackground(): HTMLAudioElement {

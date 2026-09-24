@@ -1027,9 +1027,19 @@
 .manual-dmg-toggle {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  cursor: pointer;
   font-size: var(--fs-sm);
+}
+
+.manual-dmg-reset {
+  padding: 2px 10px;
+  font-size: var(--fs-sm);
+  color: inherit;
+  background: transparent;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .manual-dmg-sliders {

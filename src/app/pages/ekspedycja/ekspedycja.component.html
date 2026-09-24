@@ -284,24 +284,24 @@
 
         @if (combatPreview.mob.hasProfile) {
           <div class="manual-dmg-override">
-            <label class="manual-dmg-toggle">
-              <input type="checkbox" [checked]="manualDmgOverride" (change)="toggleManualDmgOverride()" />
+            <div class="manual-dmg-toggle">
               Dostosuj obrażenia moba ręcznie
-            </label>
-            @if (manualDmgOverride) {
-              <div class="manual-dmg-sliders">
-                <div class="manual-dmg-slider-row">
-                  <span class="manual-dmg-label">Min: {{ manualMinDmg }}</span>
-                  <input type="range" [min]="minSliderRange.min" [max]="minSliderRange.max" [value]="manualMinDmg"
-                    (input)="onManualMinDmgChange(+$any($event.target).value)" />
-                </div>
-                <div class="manual-dmg-slider-row">
-                  <span class="manual-dmg-label">Max: {{ manualMaxDmg }}</span>
-                  <input type="range" [min]="maxSliderRange.min" [max]="maxSliderRange.max" [value]="manualMaxDmg"
-                    (input)="onManualMaxDmgChange(+$any($event.target).value)" />
-                </div>
+              @if (manualDmgOverride) {
+                <button type="button" class="manual-dmg-reset" (click)="resetManualDmgOverride()">Przywróć domyślne</button>
+              }
+            </div>
+            <div class="manual-dmg-sliders">
+              <div class="manual-dmg-slider-row">
+                <span class="manual-dmg-label">Min: {{ manualMinDmg }}</span>
+                <input type="range" [min]="minSliderRange.min" [max]="minSliderRange.max" [value]="manualMinDmg"
+                  (input)="onManualMinDmgChange(+$any($event.target).value)" />
               </div>
-            }
+              <div class="manual-dmg-slider-row">
+                <span class="manual-dmg-label">Max: {{ manualMaxDmg }}</span>
+                <input type="range" [min]="maxSliderRange.min" [max]="maxSliderRange.max" [value]="manualMaxDmg"
+                  (input)="onManualMaxDmgChange(+$any($event.target).value)" />
+              </div>
+            </div>
           </div>
         }
 

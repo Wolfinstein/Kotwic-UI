@@ -578,16 +578,23 @@ function pancerzGunDefenseMultiplier(pancerzLevel: number): number {
   return 0;
 }
 
-/** Flat obrona/odpornosc-based reduction, applied AFTER the target's redukcja obrażeń percentage. */
+/** Flat obrona/odpornosc-based reduction, applied AFTER the target's redukcja obrażeń percentage. Scaled down by the mob's own ignoreObrony (fully ignored at 100%+), mirroring the player-side formula. */
 function mobHitDefenseReduction(profile: MobCombatProfile, target: PlayerCombatState): number {
+  const ignoreFactor = Math.max(0, 1 - (profile.ignoreObrony ?? 0));
   const obrona = target.obrona + target.lewiatanBonusObrona;
   const odpornosc = target.odpornosc + target.lewiatanBonusOdpornosc;
-  if (profile.weaponGenre === 'dystans') return Math.floor(obrona / 4);
-  if (profile.weaponGenre === 'biala') return Math.floor(obrona / 2);
+  if (profile.weaponGenre === 'dystans') return Math.floor(obrona / 4 * ignoreFactor);
+  if (profile.weaponGenre === 'biala') return Math.floor(obrona / 2 * ignoreFactor);
   // Palna (gun): Pancerz boosts the non-arcane portion of odpornosc — Skóra Bestii's contribution is excluded, then added back unmultiplied.
   const nonArcaneOdpornosc = Math.max(0, odpornosc - target.skoraBestiiOdpornosc);
   const boostedOdpornosc = nonArcaneOdpornosc * (1 + target.pancerzGunMulti) + target.skoraBestiiOdpornosc;
-  return Math.floor(boostedOdpornosc / 2);
+  return Math.floor(boostedOdpornosc / 2 * ignoreFactor);
+}
+
+/** A player weapon's hit chance against the boss itself (not its adds), clamped to the profile's playerMaxHitChance ceiling when it has one. */
+function playerHitChance(w: WeaponDamage, profile: MobCombatProfile | undefined): number {
+  const base = w.estimatedHitChance ?? 1;
+  return profile?.playerMaxHitChance != null ? Math.min(base, profile.playerMaxHitChance) : base;
 }
 
 /** Applies the Lewiatan crit-received proc to the target: stacking obrona/odpornosc (reset each round) plus HP regen at tier 3+. Returns whether it fired. */
@@ -828,7 +835,7 @@ export function computeCombatPreview(
         name: w.name,
         minDmg: w.minDmg,
         maxDmg: w.maxDmg,
-        hitChance: w.estimatedHitChance ?? 1,
+        hitChance: playerHitChance(w, profile),
         critChance: w.critChance ?? 0,
         critMulti: w.critMulti ?? 1,
         mobDodge: mobUnikFor(profile, mobGenreForWeapon(w.genre)),
@@ -914,7 +921,10 @@ export function simulateExpedition(
   const merihim = profile?.special?.kind === 'merihim';
   const bokrug = profile?.special?.kind === 'bokrug';
   const zepar = profile?.special?.kind === 'zepar';
-  const bossAdds: MerihimAdd[] = (merihim || bokrug || zepar) ? buildMerihimAdds(star) : [];
+  const malphas = profile?.special?.kind === 'malphas';
+  /** Zepar and Malphas share the same cannon-fodder mechanic: an initial Słudzy Plagi wave plus a one-time 8-add reinforcement wave after dropping to 50% HP. */
+  const zeparFodder = zepar || malphas;
+  const bossAdds: MerihimAdd[] = (merihim || bokrug || zeparFodder) ? buildMerihimAdds(star) : [];
   let mobCritMulti = profile?.critMulti ?? 1;
   const placeholderDamagePerAttack = Math.max(1, Math.round((mobObrona + mobZwinnosc) / 2));
   const dmgStarMulti = yogSothoth ? 1 : mobDamageStarMultiplier(star);
@@ -1161,7 +1171,7 @@ export function simulateExpedition(
   function resolvePlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number): boolean {
     attacker.attacksMade++;
     const dodgedByMob = Math.random() < mobUnikFor(profile, mobGenreForWeapon(w.genre));
-    const hit = !dodgedByMob && Math.random() < (w.estimatedHitChance ?? 1);
+    const hit = !dodgedByMob && Math.random() < playerHitChance(w, profile);
     let crit = false;
     let dmg = 0;
     let otchlanProced = false;
@@ -1258,7 +1268,7 @@ export function simulateExpedition(
     }
     // Zepar: the first time he drops to 50% max HP or below, he summons 8 more Słudzy Plagi at the
     // start of the FOLLOWING round — flagged here, actually spawned at the top of the next round.
-    if (zepar && !zeparSummonTriggered && mobHp > 0 && mobHp <= mobMaxHp * 0.5) {
+    if (zeparFodder && !zeparSummonTriggered && mobHp > 0 && mobHp <= mobMaxHp * 0.5) {
       zeparSummonTriggered = true;
       zeparSummonPending = true;
       pushNote(mob.name, `${mob.name} spada do połowy życia i przyzywa posiłki, które dołączą do walki w następnej rundzie`, roundNum, 'mob');
@@ -1272,7 +1282,7 @@ export function simulateExpedition(
       attacker.kills++;
       pushDeath(mob.name, 'mob', roundNum);
       // With Merihim/Bokrug, the fight isn't won until their Słudzy Plagi adds are all dead too.
-      return !(merihim || bokrug || zepar) || bossAdds.every(a => !a.alive);
+      return !(merihim || bokrug || zeparFodder) || bossAdds.every(a => !a.alive);
     }
     // Cichy Łowca: a missed or dodged swing has a chance to immediately swing again with the same weapon.
     if ((dodgedByMob || !hit) && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
@@ -1285,6 +1295,7 @@ export function simulateExpedition(
   /** Resolves one player attack against a Merihim lesser-mob add: a plain HP pool with no dodge/obrona/special-proc interactions. Returns whether this kill completes Merihim's overall victory condition (him and every add dead). */
   function resolvePlayerAttackOnAdd(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number, add: MerihimAdd): boolean {
     attacker.attacksMade++;
+    // Adds use the weapon's normal hit chance — the boss's playerMaxHitChance cap applies only to the boss itself.
     const hit = Math.random() < (w.estimatedHitChance ?? 1);
     let crit = false;
     let dmg = 0;
@@ -1334,7 +1345,7 @@ export function simulateExpedition(
 
   /** Picks the target for a player's next attack: against Merihim/Bokrug, a random living choice between the boss and its adds; otherwise always the mob. Returns whether the attack completed the fight's win condition. */
   function performPlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number): boolean {
-    if (!merihim && !bokrug && !zepar) {
+    if (!merihim && !bokrug && !zeparFodder) {
       return resolvePlayerAttack(attacker, w, weaponLabel, roundNum);
     }
     const livingAdds = bossAdds.filter(a => a.alive);
@@ -1493,7 +1504,7 @@ export function simulateExpedition(
     }
     // Zepar — reinforcement wave: spawns at the start of the round FOLLOWING the one where he first
     // dropped to 50% max HP.
-    if (zepar && zeparSummonPending) {
+    if (zeparFodder && zeparSummonPending) {
       zeparSummonPending = false;
       bossAdds.push(...buildZeparReinforcements(star, bossAdds.length));
       pushNote(mob.name, `${mob.name} przyzywa 8 dodatkowych Sług Plagi`, r + 1, 'mob');

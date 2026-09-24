@@ -54,7 +54,15 @@ export type MobSpecialAbility =
    *   drops to 50% max HP or below, he summons 8 more of them at the start of the FOLLOWING round
    *   (on top of whatever's still alive from the initial wave).
    */
-  | { kind: 'zepar' };
+  | { kind: 'zepar' }
+  /**
+   * Malphas's abilities:
+   * - Cannon fodder: same "Słudzy Plagi" adds as Zepar — an initial wave, plus the one-time
+   *   8-add reinforcement wave the round after he first drops to 50% HP. No Aura Niewiary.
+   * - Player hit chance against him is capped at 50% (instead of the usual 99%) — see
+   *   MobCombatProfile.playerMaxHitChance.
+   */
+  | { kind: 'malphas' };
 
 export interface MobCombatProfile {
   weaponName: string;
@@ -79,6 +87,10 @@ export interface MobCombatProfile {
   maxDmgFlatPerStar?: number;
   /** Same as maxDmgFlatPerStar, but for minMobDmg (MIN stat variant). */
   minDmgFlatPerStar?: number;
+  /** Mob's own ignorowanie obrony against players: scales down the flat obrona/odpornosc reduction by (1 - ignoreObrony), same as the player-side formula. 1+ means player defense is ignored entirely. Defaults to 0. */
+  ignoreObrony?: number;
+  /** Ceiling on players' hit chance against this mob itself (not its adds), replacing the normal 99% max. Unset means no extra cap. */
+  playerMaxHitChance?: number;
 }
 
 export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
@@ -165,6 +177,20 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     special: { kind: 'zepar' },
     playerLevelCap: 2500 / 2.3,
   },
+  Malphas: {
+    weaponName: 'Ostrze Mgły',
+    weaponGenre: 'biala',
+    minMobDmg: '950-1500',
+    maxMobDmg: '1000-1650',
+    attacksPerRound: 50,
+    critChance: 1,
+    critMulti: 7,
+    unik: { biala: 0.2, palna: 0.2, dystans: 0.2 },
+    special: { kind: 'malphas' },
+    playerLevelCap: 2999 / 1.5,
+    ignoreObrony: 1.3,
+    playerMaxHitChance: 0.5,
+  },
 };
 
 /**
@@ -182,6 +208,7 @@ export const MOB_IMPLEMENTATION_STATUS: Record<string, MobImplementationStatus> 
   Merihim: 'yellow',
   Bokrug: 'yellow',
   Zepar: 'yellow',
+  Malphas: 'yellow',
 };
 
 export function mobImplementationStatus(mobName: string): MobImplementationStatus {
