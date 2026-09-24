@@ -1088,9 +1088,10 @@ export class DashboardService {
       }
     }
 
-    // Some mobs (Malphas) impose a hard ceiling: it replaces the 90 base and the 99/65 caps, so luck can only pull the chance below it.
+    // Some mobs (Malphas) lower the whole max-hit band so it tops out at hitCeiling instead of 99 — the base drops by the
+    // same amount (90 → hitCeiling - 9), so the luck bonus still counts and reaches the ceiling at the usual +9.
     const maxHit = hitCeiling != null
-      ? Math.min(Math.max(hitCeiling + luckModifier, 20), hitCeiling)
+      ? Math.min(Math.max(hitCeiling - 9 + luckModifier, 20), hitCeiling)
       : Math.min(Math.max(90 + luckModifier, 20), 99);
     const minHit = Math.min(Math.max(10 + luckModifier, 1), hitCeiling != null ? Math.min(65, hitCeiling) : 65);
     const rawHit = (70 + 2 * y + z) * p - 2 * r;

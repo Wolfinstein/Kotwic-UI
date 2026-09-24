@@ -59,8 +59,8 @@ export type MobSpecialAbility =
    * Malphas's abilities:
    * - Cannon fodder: same "Słudzy Plagi" adds as Zepar — an initial wave, plus the one-time
    *   8-add reinforcement wave the round after he first drops to 50% HP. No Aura Niewiary.
-   * - Players' max hit chance against him is 49% + luck bonus, but never above 49% (instead of
-   *   90% + luck, up to 99%) — see MobCombatProfile.playerMaxHitChance.
+   * - Players' max hit chance against him is 40% + luck bonus, up to 49% (instead of 90% + luck,
+   *   up to 99%) — see MobCombatProfile.playerMaxHitChance.
    */
   | { kind: 'malphas' };
 
@@ -89,7 +89,7 @@ export interface MobCombatProfile {
   minDmgFlatPerStar?: number;
   /** Mob's own ignorowanie obrony against players: scales down the flat obrona/odpornosc reduction by (1 - ignoreObrony), same as the player-side formula. 1+ means player defense is ignored entirely. Defaults to 0. */
   ignoreObrony?: number;
-  /** Hard ceiling (in %) on players' hit chance against this mob itself (not its adds): replaces the usual 90% base / 99% cap of the max-hit band and the 65% cap of the min-hit band, so luck can pull the chance below it but never above. Unset means the normal band. */
+  /** Cap (in %) on players' hit chance against this mob itself (not its adds): the max-hit band becomes (cap - 9)% + luck bonus up to cap% instead of 90% + luck up to 99%, and the min-hit band's 65% cap drops to it too. Unset means the normal band. */
   playerMaxHitChance?: number;
 }
 

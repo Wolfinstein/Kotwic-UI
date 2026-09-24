@@ -113,7 +113,7 @@ export interface Character {
     trafieniePrzeciwnikaPalna: number;
     mysliwy: number;
     ninja: number;
-    /** Mob-imposed ceiling (in %) on the player's hit chance — e.g. Malphas's 49 turns the usual 90%+luck (max 99%) band into 49%+luck (max 49%). Unset for normal mobs. */
+    /** Mob-imposed ceiling (in %) on the player's hit chance — e.g. Malphas's 49 turns the usual 90%+luck (max 99%) band into 40%+luck (max 49%). Unset for normal mobs. */
     maxTrafieniePrzeciwnika?: number;
     assasyn: number;
     strateg: number;
