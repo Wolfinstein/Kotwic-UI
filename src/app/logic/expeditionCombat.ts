@@ -1168,7 +1168,7 @@ export function simulateExpedition(
   }
 
   /** Resolves one player attack (normal shot or Furia Bestii counterattack) against the mob: dodge/hit/crit/damage, plus the Otchłań Ciszy and Potęga Mocy first-hit triggers. Returns whether the mob died. */
-  function resolvePlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number): boolean {
+  function resolvePlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number, isCichyRetry = false): boolean {
     attacker.attacksMade++;
     const dodgedByMob = Math.random() < mobUnikFor(profile, mobGenreForWeapon(w.genre));
     const hit = !dodgedByMob && Math.random() < playerHitChance(w, profile);
@@ -1284,16 +1284,16 @@ export function simulateExpedition(
       // With Merihim/Bokrug, the fight isn't won until their Słudzy Plagi adds are all dead too.
       return !(merihim || bokrug || zeparFodder) || bossAdds.every(a => !a.alive);
     }
-    // Cichy Łowca: a missed or dodged swing has a chance to immediately swing again with the same weapon.
-    if ((dodgedByMob || !hit) && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
+    // Cichy Łowca: a missed or dodged swing has a chance to immediately swing again with the same weapon — once; the retry itself can't trigger another.
+    if (!isCichyRetry && (dodgedByMob || !hit) && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
       pushNote(attacker.name, `${attacker.name} aktywuje Cichego Łowcę`, roundNum);
-      return resolvePlayerAttack(attacker, w, `${weaponLabel} (dodatkowy atak)`, roundNum);
+      return resolvePlayerAttack(attacker, w, `${weaponLabel} (dodatkowy atak)`, roundNum, true);
     }
     return false;
   }
 
   /** Resolves one player attack against a Merihim lesser-mob add: a plain HP pool with no dodge/obrona/special-proc interactions. Returns whether this kill completes Merihim's overall victory condition (him and every add dead). */
-  function resolvePlayerAttackOnAdd(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number, add: MerihimAdd): boolean {
+  function resolvePlayerAttackOnAdd(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number, add: MerihimAdd, isCichyRetry = false): boolean {
     attacker.attacksMade++;
     // Adds use the weapon's normal hit chance — the boss's playerMaxHitChance cap applies only to the boss itself.
     const hit = Math.random() < (w.estimatedHitChance ?? 1);
@@ -1335,10 +1335,10 @@ export function simulateExpedition(
       pushDeath(add.name, 'mob', roundNum);
       return mobHp <= 0 && bossAdds.every(a => !a.alive);
     }
-    // Cichy Łowca: a missed swing has a chance to immediately swing again with the same weapon.
-    if (!hit && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
+    // Cichy Łowca: a missed swing has a chance to immediately swing again with the same weapon — once; the retry itself can't trigger another.
+    if (!isCichyRetry && !hit && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
       pushNote(attacker.name, `${attacker.name} aktywuje Cichego Łowcę`, roundNum);
-      return resolvePlayerAttackOnAdd(attacker, w, `${weaponLabel} (dodatkowy atak)`, roundNum, add);
+      return resolvePlayerAttackOnAdd(attacker, w, `${weaponLabel} (dodatkowy atak)`, roundNum, add, true);
     }
     return false;
   }
