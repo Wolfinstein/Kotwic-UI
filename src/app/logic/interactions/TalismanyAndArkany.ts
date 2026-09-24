@@ -47,10 +47,11 @@ export class TalismanyAndArkany {
     this.doKamienDobra(p1);
     this.doKamienZla(p1);
     this.doSzpony(p1);
+    // Aura adds baseLife, so it must run before the baseLife-scaling Życie i Śmierć / Potęga Mocy.
+    this.doAura(p1);
     this.doZycieiSmierc(p1);
     this.doOtchlan(p1);
     this.doPotega(p1);
-    this.doAura(p1);
     this.doCichyLowca(p1);
     this.doMaskaOffa(p1);
     this.doLowca(p1);
