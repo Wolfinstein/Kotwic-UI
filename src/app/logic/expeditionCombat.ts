@@ -933,7 +933,9 @@ export function simulateExpedition(
   /** Zepar and Malphas share the same cannon-fodder mechanic: an initial Słudzy Plagi wave plus a one-time 8-add reinforcement wave after dropping to 50% HP. */
   const zeparFodder = zepar || malphas;
   const hastur = profile?.special?.kind === 'hastur';
-  const bossAdds: MerihimAdd[] = (merihim || bokrug || zeparFodder) ? buildMerihimAdds(star) : [];
+  /** Bosses fighting alongside the Słudzy Plagi cannon fodder — the fight isn't won until every add is dead too. Hastur only gets the initial wave (no 50%-HP reinforcements, those stay Zepar/Malphas-only). */
+  const hasBossAdds = merihim || bokrug || zeparFodder || hastur;
+  const bossAdds: MerihimAdd[] = hasBossAdds ? buildMerihimAdds(star) : [];
   let mobCritMulti = profile?.critMulti ?? 1;
   const placeholderDamagePerAttack = Math.max(1, Math.round((mobObrona + mobZwinnosc) / 2));
   const dmgStarMulti = yogSothoth ? 1 : mobDamageStarMultiplier(star);
@@ -1305,7 +1307,7 @@ export function simulateExpedition(
       attacker.kills++;
       pushDeath(mob.name, 'mob', roundNum);
       // With Merihim/Bokrug, the fight isn't won until their Słudzy Plagi adds are all dead too.
-      return !(merihim || bokrug || zeparFodder) || bossAdds.every(a => !a.alive);
+      return !hasBossAdds || bossAdds.every(a => !a.alive);
     }
     // Cichy Łowca: a missed or dodged swing has a chance to immediately swing again with the same weapon — once; the retry itself can't trigger another.
     if (!isCichyRetry && (dodgedByMob || !hit) && attacker.cichyLowcaChance > 0 && Math.random() < attacker.cichyLowcaChance) {
@@ -1368,7 +1370,7 @@ export function simulateExpedition(
 
   /** Picks the target for a player's next attack: against Merihim/Bokrug, a random living choice between the boss and its adds; otherwise always the mob. Returns whether the attack completed the fight's win condition. */
   function performPlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number): boolean {
-    if (!merihim && !bokrug && !zeparFodder) {
+    if (!hasBossAdds) {
       return resolvePlayerAttack(attacker, w, weaponLabel, roundNum);
     }
     const livingAdds = bossAdds.filter(a => a.alive);

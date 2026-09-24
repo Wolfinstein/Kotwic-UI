@@ -65,6 +65,8 @@ export type MobSpecialAbility =
   | { kind: 'malphas' }
   /**
    * Hastur's abilities:
+   * - Cannon fodder: the same initial "Słudzy Plagi" wave as Zepar/Malphas, but no reinforcement
+   *   wave at 50% HP.
    * - Widmowa postać: from the start of the fight until players have dealt 50% of his max HP, he
    *   takes 25% less damage from player attacks.
    * - Prawdziwa forma: the moment he drops to 50% HP (even mid-round), the damage reduction ends and
