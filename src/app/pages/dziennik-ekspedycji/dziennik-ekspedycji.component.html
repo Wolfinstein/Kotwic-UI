@@ -62,6 +62,14 @@
               }
             </select>
           </label>
+          <label class="filter-field">
+            <span>Typ</span>
+            <select [(ngModel)]="filterAction" name="filterAction">
+              <option value="">Wszystkie</option>
+              <option value="single">Pojedyncza</option>
+              <option value="bulk">Zbiorcza</option>
+            </select>
+          </label>
           @if (hasActiveFilters) {
             <button type="button" class="clear-filters-btn" (click)="clearFilters()">Wyczyść filtry</button>
           }
@@ -95,30 +103,43 @@
                 </tr>
               </thead>
               <tbody>
-                @for (log of filteredLogs; track log.id) {
-                  <tr>
-                    <td>{{ log.createdAt | date:'short' }}</td>
-                    <td>{{ log.action === 'single' ? 'Pojedyncza' : 'Zbiorcza' }}</td>
-                    <td>{{ log.mob }}</td>
-                    <td>{{ log.star }}</td>
-                    <td>{{ log.variant }}</td>
-                    <td class="players-cell">{{ log.players.join(', ') }}</td>
-                    <td>
-                      @if (log.runs) {
-                        {{ log.runs }} biegów — W:{{ log.winPct }}% P:{{ log.lossPct }}% R:{{ log.drawPct }}%
+                @for (group of groupedLogs; track group.key) {
+                  @if (group.logs.length === 1) {
+                    <tr>
+                      <ng-container *ngTemplateOutlet="logCells; context: { $implicit: group.logs[0] }"></ng-container>
+                    </tr>
+                  } @else {
+                    <tr class="group-row" (click)="toggleGroup(group.key)">
+                      <td>
+                        <span class="group-toggle">{{ isExpanded(group.key) ? '▾' : '▸' }}</span>
+                        {{ group.latestAt | date:'short' }}
+                      </td>
+                      <td><span class="group-count">{{ group.logs.length }}×</span></td>
+                      <td>{{ group.mob }}</td>
+                      <td>{{ group.star }}</td>
+                      <td>{{ group.variant }}</td>
+                      <td class="players-cell">{{ group.players.join(', ') }}</td>
+                      <td>
+                        @if (group.totalRuns) {
+                          {{ group.totalRuns }} biegów — W:{{ group.winPct | number:'1.0-1' }}% P:{{ group.lossPct | number:'1.0-1' }}% R:{{ group.drawPct | number:'1.0-1' }}%
+                        }
+                      </td>
+                      <td>
+                        <button class="import-btn" (click)="$event.stopPropagation(); importCharacters(group.logs[0])" [disabled]="wasImported(group.logs[0].id)"
+                          title="Importuje postacie z najnowszego zapisu w tej grupie">
+                          {{ wasImported(group.logs[0].id) ? 'Zaimportowano' : 'Importuj graczy' }}
+                        </button>
+                      </td>
+                      <td></td>
+                    </tr>
+                    @if (isExpanded(group.key)) {
+                      @for (log of group.logs; track log.id) {
+                        <tr class="group-child-row">
+                          <ng-container *ngTemplateOutlet="logCells; context: { $implicit: log }"></ng-container>
+                        </tr>
                       }
-                    </td>
-                    <td>
-                      <button class="import-btn" (click)="importCharacters(log)" [disabled]="wasImported(log.id)">
-                        {{ wasImported(log.id) ? 'Zaimportowano' : 'Importuj graczy' }}
-                      </button>
-                    </td>
-                    <td>
-                      <button class="delete-btn" (click)="removeLog(log)" [disabled]="isRemoving(log.id)">
-                        {{ isRemoving(log.id) ? 'Usuwanie…' : 'Usuń' }}
-                      </button>
-                    </td>
-                  </tr>
+                    }
+                  }
                 }
               </tbody>
             </table>
@@ -128,3 +149,27 @@
     }
   </div>
 </div>
+
+<ng-template #logCells let-log>
+  <td>{{ log.createdAt | date:'short' }}</td>
+  <td>{{ log.action === 'single' ? 'Pojedyncza' : 'Zbiorcza' }}</td>
+  <td>{{ log.mob }}</td>
+  <td>{{ log.star }}</td>
+  <td>{{ log.variant }}</td>
+  <td class="players-cell">{{ log.players.join(', ') }}</td>
+  <td>
+    @if (log.runs) {
+      {{ log.runs }} biegów — W:{{ log.winPct }}% P:{{ log.lossPct }}% R:{{ log.drawPct }}%
+    }
+  </td>
+  <td>
+    <button class="import-btn" (click)="importCharacters(log)" [disabled]="wasImported(log.id)">
+      {{ wasImported(log.id) ? 'Zaimportowano' : 'Importuj graczy' }}
+    </button>
+  </td>
+  <td>
+    <button class="delete-btn" (click)="removeLog(log)" [disabled]="isRemoving(log.id)">
+      {{ isRemoving(log.id) ? 'Usuwanie…' : 'Usuń' }}
+    </button>
+  </td>
+</ng-template>

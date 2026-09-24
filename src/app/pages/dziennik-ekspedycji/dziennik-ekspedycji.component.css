@@ -168,3 +168,33 @@
   color: var(--label-color);
   cursor: default;
 }
+
+.group-row {
+  cursor: pointer;
+}
+
+.group-row:hover td {
+  background: var(--bg-deep);
+}
+
+.group-toggle {
+  display: inline-block;
+  width: 1em;
+  color: var(--label-color);
+}
+
+.group-count {
+  border: 1px solid var(--border-muted);
+  border-radius: 999px;
+  padding: 1px 8px;
+  color: var(--label-color);
+  font-weight: 600;
+}
+
+.group-child-row td {
+  background: var(--bg-deep);
+}
+
+.group-child-row td:first-child {
+  padding-left: 28px;
+}
