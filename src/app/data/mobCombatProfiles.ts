@@ -62,7 +62,22 @@ export type MobSpecialAbility =
    * - Players' max hit chance against him is 40% + luck bonus, up to 49% (instead of 90% + luck,
    *   up to 99%) — see MobCombatProfile.playerMaxHitChance.
    */
-  | { kind: 'malphas' };
+  | { kind: 'malphas' }
+  /**
+   * Hastur's abilities:
+   * - Widmowa postać: from the start of the fight until players have dealt 50% of his max HP, he
+   *   takes 25% less damage from player attacks.
+   * - Prawdziwa forma: the moment he drops to 50% HP (even mid-round), the damage reduction ends and
+   *   his attacks always hit and can't be dodged for the rest of the fight.
+   * - Kometa: from round 2 on, kills one random living player at the start of every round. A Groza
+   *   holder with higher initiative than Hastur still casts it even if the comet kills them; one
+   *   with lower initiative doesn't get to cast it if the comet kills them.
+   * - Żółty Znak: cast right after the comet (Groza doesn't stop it) — always in round 2; from round 3
+   *   on, 50% chance per round, but only once he's in Prawdziwa forma. For that round only, doubles
+   *   his zwinność, spostrzegawczość, szczęście, obrona and odporność, and his attacks deal 20%
+   *   more damage.
+   */
+  | { kind: 'hastur' };
 
 export interface MobCombatProfile {
   weaponName: string;
@@ -191,6 +206,19 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     ignoreObrony: 1.3,
     playerMaxHitChance: 49,
   },
+  Hastur: {
+    weaponName: 'Macki',
+    weaponGenre: 'dystans',
+    minMobDmg: '1000-1600',
+    maxMobDmg: '1100-1700',
+    attacksPerRound: 50,
+    critChance: 1.7,
+    critMulti: 4.9,
+    unik: { biala: 0.2, palna: 0.2, dystans: 0.2 },
+    special: { kind: 'hastur' },
+    playerLevelCap: 3750 / 2.5,
+    levelCapScalesWithStar: true,
+  },
 };
 
 /**
@@ -209,6 +237,7 @@ export const MOB_IMPLEMENTATION_STATUS: Record<string, MobImplementationStatus> 
   Bokrug: 'yellow',
   Zepar: 'yellow',
   Malphas: 'yellow',
+  Hastur: 'yellow',
 };
 
 export function mobImplementationStatus(mobName: string): MobImplementationStatus {

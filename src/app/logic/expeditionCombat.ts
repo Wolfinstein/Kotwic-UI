@@ -440,6 +440,14 @@ function cichyLowcaChanceFor(cichyLowcaTier: number, kocieSciezkiLevel: number):
 /** Macki Strachu: eligible once the mob has taken 25% of its max HP; each subsequent player attack against it then has this chance to disable that attacker's ignoreObrony for the rest of the round. */
 const MACKI_STRACHU_HP_THRESHOLD = 0.75;
 const MACKI_STRACHU_PROC_CHANCE = 0.30;
+/** Hastur's Widmowa postać: player damage to him is cut by this much until he drops to 50% HP. */
+const HASTUR_SPECTRAL_DAMAGE_REDUCTION = 0.25;
+/** Hastur's Żółty Znak: guaranteed in round 2, then this chance every round — but only once he's in Prawdziwa forma. */
+const HASTUR_ZNAK_CHANCE_AFTER_ROUND_2 = 0.5;
+/** Żółty Znak multiplies Hastur's base stats (zwinność, spostrzegawczość, szczęście, obrona, odporność) by this for the round it's cast in. */
+const HASTUR_ZNAK_STAT_MULTI = 2;
+/** Żółty Znak also boosts the damage of Hastur's attacks by this much for that round. */
+const HASTUR_ZNAK_DAMAGE_BONUS = 0.2;
 
 /** Recomputes a weapon's damage bounds as if its ignoreObrony were 0 — i.e. the mob's obrona/odpornosc is subtracted in full instead of discounted by the weapon's ignore stat, mirroring the reduction calculate.ts applies before ignore. */
 function ignoreDisabledWeaponBounds(w: WeaponDamage, mobObrona: number, mobOdpornosc: number, genre: MobWeaponGenre): { minDmg: number; maxDmg: number; critDmgMin: number; critDmgMax: number } {
@@ -924,6 +932,7 @@ export function simulateExpedition(
   const malphas = profile?.special?.kind === 'malphas';
   /** Zepar and Malphas share the same cannon-fodder mechanic: an initial Słudzy Plagi wave plus a one-time 8-add reinforcement wave after dropping to 50% HP. */
   const zeparFodder = zepar || malphas;
+  const hastur = profile?.special?.kind === 'hastur';
   const bossAdds: MerihimAdd[] = (merihim || bokrug || zeparFodder) ? buildMerihimAdds(star) : [];
   let mobCritMulti = profile?.critMulti ?? 1;
   const placeholderDamagePerAttack = Math.max(1, Math.round((mobObrona + mobZwinnosc) / 2));
@@ -1056,6 +1065,8 @@ export function simulateExpedition(
   // in total (only the per-proc reduction itself is capped, per talisman tier).
   let mobObronaCurrent = mobObrona;
   let mobOdpornoscCurrent = mobOdpornosc;
+  /** Hastur's Żółty Znak: 2 for the round it's cast in, 1 otherwise. Scales his zwinność/spostrzegawczość/szczęście (and so his initiative) wherever they're read; obrona/odporność are scaled directly on mobObronaCurrent/mobOdpornoscCurrent. */
+  let mobStatMulti = 1;
 
   /** Rebuilds every player's weapon stats against the mob's current (post-debuff) obrona/odpornosc, preserving each player's own Tchnienie Śmierci activation state. */
   function refreshWeaponsForMobDebuff(): void {
@@ -1067,10 +1078,10 @@ export function simulateExpedition(
         ...saved.character,
         obronaPrzeciwnika: effObrona,
         odpornoscPrzeciwnika: effOdpornosc,
-        szczesciePrzeciwnika: mobSzczescie,
+        szczesciePrzeciwnika: mobSzczescie * mobStatMulti,
         maxTrafieniePrzeciwnika: profile?.playerMaxHitChance,
-        trafieniePrzeciwnikaBiala: mobZwinnosc,
-        trafieniePrzeciwnikaPalna: mobSpostrzegawczosc,
+        trafieniePrzeciwnikaBiala: mobZwinnosc * mobStatMulti,
+        trafieniePrzeciwnikaPalna: mobSpostrzegawczosc * mobStatMulti,
         tchnienieSmierciActive: false,
         zarKrwiActive: false,
         wyssanieMocyActive: false,
@@ -1125,6 +1136,8 @@ export function simulateExpedition(
   let zeparSummonTriggered = false;
   /** Set the round Zepar first drops to 50% HP — the actual 8-add spawn happens at the START of the FOLLOWING round, then this is cleared. */
   let zeparSummonPending = false;
+  /** Hastur's Widmowa postać → Prawdziwa forma switch: flips the first time he drops to 50% max HP, even mid-round. Before it, player damage to him is cut by 25%; after it, his attacks always hit and can't be dodged. */
+  let hasturTrueForm = false;
   /** First selected player is the expedition organizer — their death cuts the whole team's damage output by 10%. */
   const organizer = players[0];
   /** Yog-Sothoth's "Piekielny Ogar" fodder is fresh every round (rounds 1-4) rather than a persistent wave like Merihim/Bokrug/Zepar's adds — each round's wave gets logged here (round-labeled) so the report can still show every wave's final HP. */
@@ -1195,6 +1208,9 @@ export function simulateExpedition(
       }
       if (attacker.zarDamageBonus > 0) {
         dmg = Math.round(dmg * (1 + attacker.zarDamageBonus));
+      }
+      if (hastur && !hasturTrueForm) {
+        dmg = Math.round(dmg * (1 - HASTUR_SPECTRAL_DAMAGE_REDUCTION));
       }
       // Don't count overkill — a killing blow only "deals" as much damage as the mob actually had left.
       dmg = Math.min(dmg, mobHp);
@@ -1267,6 +1283,11 @@ export function simulateExpedition(
     }
     if (mackiStrachuProced) {
       pushNote(attacker.name, `Macki Strachu napełniają serce ${attacker.name} grozą — jego ataki tracą na skuteczności do końca rundy`, roundNum);
+    }
+    // Hastur: the first time he drops to 50% max HP or below, he sheds his spectral form on the spot.
+    if (hastur && !hasturTrueForm && mobHp > 0 && mobHp <= mobMaxHp * 0.5) {
+      hasturTrueForm = true;
+      pushNote(mob.name, `${mob.name} przyjmuje swą prawdziwą formę.`, roundNum, 'mob');
     }
     // Zepar: the first time he drops to 50% max HP or below, he summons 8 more Słudzy Plagi at the
     // start of the FOLLOWING round — flagged here, actually spawned at the top of the next round.
@@ -1512,8 +1533,30 @@ export function simulateExpedition(
       pushNote(mob.name, `${mob.name} przyzywa 8 dodatkowych Sług Plagi`, r + 1, 'mob');
     }
 
-    const alivePlayers = players.filter(p => p.alive);
+    if (hastur && r === 0) {
+      pushNote(mob.name, `${mob.name} manifestuje się w widmowej postaci, stając się częściowo niewrażliwy na obrażenia.`, r + 1, 'mob');
+    }
+    // Hastur — Kometa: from round 2 on, one random living player dies at the start of the round. The
+    // victim is picked here but killed further down, after Groza is resolved, because a Groza holder
+    // who out-initiatives Hastur still gets to cast it before the comet lands.
+    const hasturCometVictim = hastur && r >= 1
+      ? (() => {
+          const pool = players.filter(p => p.alive);
+          return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+        })()
+      : null;
+    const killHasturCometVictim = () => {
+      if (!hasturCometVictim) return;
+      hasturCometVictim.hp = 0;
+      hasturCometVictim.alive = false;
+      mobKills++;
+      pushNote(mob.name, `${mob.name} sprowadza kometę, która zabija ${hasturCometVictim.name}`, r + 1, 'mob');
+      pushDeath(hasturCometVictim.name, 'players', r + 1);
+    };
+
+    const alivePlayers = players.filter(p => p.alive && p !== hasturCometVictim);
     if (!alivePlayers.length) {
+      killHasturCometVictim();
       outcome = 'loss';
       break;
     }
@@ -1604,15 +1647,33 @@ export function simulateExpedition(
     // Szpony Nocy tier 4 gives each Groza-carrying player an independent (non-stacking) chance
     // to also block round 3. This only zeroes out the regular attack queue — a mob's passive
     // special abilities aren't a separate attack shot in this model, so nothing else to preserve.
-    const playersWithGroza = alivePlayers.filter(p => p.hasGroza);
+    // Hastur's comet victim can still cast Groza only if they act before him (higher initiative).
+    const hasturVictimCastsFirst = !!hasturCometVictim && hasturCometVictim.initiative > mobInitiative;
+    const grozaCandidates = hasturVictimCastsFirst ? [...alivePlayers, hasturCometVictim!] : alivePlayers;
+    const playersWithGroza = grozaCandidates.filter(p => p.hasGroza);
     const grozaTriggeredBy = r === 1
       ? playersWithGroza
       : r === 2
         ? playersWithGroza.filter(p => Math.random() < p.grozaRound3Chance)
         : [];
     const grozaBlocksRound = grozaTriggeredBy.length > 0;
+    // Log order follows initiative: Groza cast by anyone faster than Hastur lands before his comet.
     for (const p of grozaTriggeredBy) {
-      pushNote(p.name, `${p.name} używa grozy`, r + 1);
+      if (hasturCometVictim && p.initiative > mobInitiative) pushNote(p.name, `${p.name} używa grozy`, r + 1);
+    }
+    killHasturCometVictim();
+    for (const p of grozaTriggeredBy) {
+      if (!(hasturCometVictim && p.initiative > mobInitiative)) pushNote(p.name, `${p.name} używa grozy`, r + 1);
+    }
+    // Hastur — Żółty Znak: cast right after the comet/Groza (Groza doesn't stop it) — guaranteed in
+    // round 2; from round 3 on, 50% per round but only once he's in Prawdziwa forma. For that round
+    // only, his base stats are doubled and his attacks deal 20% more damage; reverted at round end.
+    if (hastur && (r === 1 || (r >= 2 && hasturTrueForm && Math.random() < HASTUR_ZNAK_CHANCE_AFTER_ROUND_2))) {
+      mobStatMulti = HASTUR_ZNAK_STAT_MULTI;
+      mobObronaCurrent *= HASTUR_ZNAK_STAT_MULTI;
+      mobOdpornoscCurrent *= HASTUR_ZNAK_STAT_MULTI;
+      refreshWeaponsForMobDebuff();
+      pushNote(mob.name, `${mob.name} kreśli magiczny Żółty Znak.`, r + 1, 'mob');
     }
 
     const mobAttackCount = yogSothoth ? YOG_SOTHOTH_ATTACKS_PER_ROUND : (profile?.attacksPerRound ?? 1);
@@ -1638,9 +1699,10 @@ export function simulateExpedition(
         ? [...targetPool].sort((a, b) => b.totalDamageDealt - a.totalDamageDealt)[0]
         : targetPool[Math.floor(Math.random() * targetPool.length)];
       const genre: MobWeaponGenre = profile?.weaponGenre ?? 'biala';
-      const dodged = Math.random() < unikForGenre(target, genre);
+      // Hastur's true form: every attack hits and none can be dodged.
+      const dodged = !hasturTrueForm && Math.random() < unikForGenre(target, genre);
       const extraHitChance = rosterBonus.extraHitChance + (isCurveRound ? YOG_SOTHOTH_CURVE_EXTRA_HIT_CHANCE : 0);
-      const hit = !dodged && Math.random() < mobHitChance(profile?.weaponGenre ?? 'dystans', mobZwinnosc, mobSpostrzegawczosc, mobSzczescie, target, extraHitChance);
+      const hit = !dodged && (hasturTrueForm || Math.random() < mobHitChance(profile?.weaponGenre ?? 'dystans', mobZwinnosc * mobStatMulti, mobSpostrzegawczosc * mobStatMulti, mobSzczescie * mobStatMulti, target, extraHitChance));
       mobAttacksMade++;
       target.attacksReceived++;
       let crit = false;
@@ -1662,7 +1724,8 @@ export function simulateExpedition(
           const afterRedukcja = raw * (1 - target.redukcja);
           const defenseReduction = mobHitDefenseReduction(profile, target);
           const beforeCrit = Math.max(0, afterRedukcja - defenseReduction);
-          dmg = Math.max(0, Math.round(beforeCrit * (crit ? effectiveCritMulti : 1) * (yogSothoth ? yogSothothDamageTakenMulti(target.level) : 1)));
+          const znakBonus = mobStatMulti > 1 ? 1 + HASTUR_ZNAK_DAMAGE_BONUS : 1;
+          dmg = Math.max(0, Math.round(beforeCrit * (crit ? effectiveCritMulti : 1) * znakBonus * (yogSothoth ? yogSothothDamageTakenMulti(target.level) : 1)));
         } else {
           dmg = Math.max(0, Math.round(placeholderDamagePerAttack * (1 - target.redukcja)));
         }
@@ -1741,7 +1804,7 @@ export function simulateExpedition(
                 .map(count => ({ side: 'mob' as const, burstCount: count }))
             : Array.from({ length: mobQueuedCount }, () => ({ side: 'mob' as const })))
         : [{ side: 'mob' as const }];
-    queues.push({ initiative: mobInitiative, shots: mobShots });
+    queues.push({ initiative: mobInitiative * mobStatMulti, shots: mobShots });
     queues.sort((a, b) => b.initiative - a.initiative);
 
     // Bokrug — Tsunami: forces any of his own shots still left in `mobShots` this round to resolve
@@ -1809,6 +1872,14 @@ export function simulateExpedition(
           pushNote(p.name, `${p.name} regeneruje ${healed} PKT ŻYCIA`, r + 1);
         }
       }
+    }
+
+    // Żółty Znak only lasts for the round it was cast in.
+    if (mobStatMulti !== 1) {
+      mobObronaCurrent /= mobStatMulti;
+      mobOdpornoscCurrent /= mobStatMulti;
+      mobStatMulti = 1;
+      refreshWeaponsForMobDebuff();
     }
   }
 
