@@ -72,10 +72,6 @@
   border-color: var(--color-accent);
 }
 
-.level-input {
-  width: 90px;
-}
-
 .filter-search input {
   min-width: 200px;
 }

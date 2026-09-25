@@ -43,9 +43,8 @@ export class RaportyEkspedycjiComponent implements OnInit {
   difficulty = signal('');
   result = signal<'' | 'W' | 'L'>('');
   search = signal('');
-  minLevel = signal<number | null>(null);
-  maxLevel = signal<number | null>(null);
   season = signal<number | ''>('');
+  playerCount = signal<number | ''>('');
 
   sortDesc = signal(true);
   page = signal(0);
@@ -127,6 +126,13 @@ export class RaportyEkspedycjiComponent implements OnInit {
     return [...counts.entries()].sort((a, b) => b[0] - a[0]).map(([season, count]) => ({ season, count }));
   });
 
+  /** Team sizes that occur in the reports, smallest first, with report counts. */
+  playerCounts = computed(() => {
+    const counts = new Map<number, number>();
+    for (const r of this.reports()) counts.set(r.players.length, (counts.get(r.players.length) ?? 0) + 1);
+    return [...counts.entries()].sort((a, b) => a[0] - b[0]).map(([players, count]) => ({ players, count }));
+  });
+
   difficulties = computed(() => [...new Set(this.reports().map(r => r.difficulty))].sort());
 
   filtered = computed(() => {
@@ -137,9 +143,8 @@ export class RaportyEkspedycjiComponent implements OnInit {
     const difficulty = this.difficulty();
     const result = this.result();
     const q = this.search().trim().toLowerCase();
-    const minLvl = this.minLevel();
-    const maxLvl = this.maxLevel();
     const season = this.season();
+    const playerCount = this.playerCount();
 
     const list = this.reports().filter(r => {
       if (location && r.location !== location) return false;
@@ -149,8 +154,7 @@ export class RaportyEkspedycjiComponent implements OnInit {
       if (difficulty && r.difficulty !== difficulty) return false;
       if (result && (result === 'W') !== r.won) return false;
       if (season !== '' && r.season !== season) return false;
-      if (minLvl != null && !r.players.some(p => p.level >= minLvl)) return false;
-      if (maxLvl != null && !r.players.some(p => p.level <= maxLvl)) return false;
+      if (playerCount !== '' && r.players.length !== playerCount) return false;
       if (q && !r.players.some(p =>
         p.name.toLowerCase().includes(q) || p.weapons.some(w => w.toLowerCase().includes(q)))) return false;
       return true;
@@ -173,7 +177,7 @@ export class RaportyEkspedycjiComponent implements OnInit {
 
   hasActiveFilters = computed(() =>
     !!(this.location() || this.event() || this.boss() || this.stars() !== '' || this.difficulty() || this.result() || this.search() ||
-      this.minLevel() != null || this.maxLevel() != null || this.season() !== ''));
+      this.season() !== '' || this.playerCount() !== ''));
 
   ngOnInit(): void {
     loadExpeditionReports()
@@ -203,11 +207,6 @@ export class RaportyEkspedycjiComponent implements OnInit {
     this.page.set(0);
   }
 
-  parseLevel(value: string): number | null {
-    const n = parseInt(value, 10);
-    return Number.isFinite(n) ? n : null;
-  }
-
   clearFilters(): void {
     this.location.set('');
     this.event.set('');
@@ -216,9 +215,8 @@ export class RaportyEkspedycjiComponent implements OnInit {
     this.difficulty.set('');
     this.result.set('');
     this.search.set('');
-    this.minLevel.set(null);
-    this.maxLevel.set(null);
     this.season.set('');
+    this.playerCount.set('');
     this.page.set(0);
   }
 

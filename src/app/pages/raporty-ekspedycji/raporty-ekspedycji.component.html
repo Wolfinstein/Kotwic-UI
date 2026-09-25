@@ -2,7 +2,7 @@
   <div class="feature-section">
     <div class="raporty-header">
       <h1>Raporty z ekspedycji</h1>
-      <p>Prawdziwe raporty z walk z bossami. Filtruj po bossie, gwiazdkach i poziomie graczy, żeby zobaczyć, jakie drużyny wygrywały, i porównać je z wynikami symulatora.</p>
+      <p>Prawdziwe raporty z walk z bossami. Filtruj po sezonie, lokalizacji, bossie i gwiazdkach, żeby zobaczyć, jakie drużyny wygrywały, i porównać je z wynikami symulatora.</p>
     </div>
 
     @if (loading()) {
@@ -11,15 +11,6 @@
       <p class="error-text">{{ err }}</p>
     } @else {
       <div class="filters-row">
-        <label class="filter-field">
-          <span>Sezon</span>
-          <select [ngModel]="season()" (ngModelChange)="setFilter(season, $event)">
-            <option [ngValue]="''">Wszystkie</option>
-            @for (s of seasons(); track s.season) {
-              <option [ngValue]="s.season">{{ s.season ? 'Sezon ' + s.season : 'Przed sezonem 1' }} ({{ s.count }})</option>
-            }
-          </select>
-        </label>
         <label class="filter-field">
           <span>Lokalizacja</span>
           <select [ngModel]="location()" (ngModelChange)="setLocation($event)">
@@ -30,18 +21,6 @@
                   <option [value]="loc.name">{{ loc.name }} ({{ loc.count }})</option>
                 }
               </optgroup>
-            }
-          </select>
-        </label>
-        <label class="filter-field">
-          <span>Wydarzenie</span>
-          <select [ngModel]="event()" (ngModelChange)="setFilter(event, $event)">
-            <option value="">Wszystkie</option>
-            @if (events().none) {
-              <option [value]="noEvent">Bez wydarzenia ({{ events().none }})</option>
-            }
-            @for (e of events().list; track e.name) {
-              <option [value]="e.name">{{ e.name }} ({{ e.count }})</option>
             }
           </select>
         </label>
@@ -73,20 +52,44 @@
           </select>
         </label>
         <label class="filter-field">
+          <span>Liczba graczy</span>
+          <select [ngModel]="playerCount()" (ngModelChange)="setFilter(playerCount, $event)">
+            <option [ngValue]="''">Wszystkie</option>
+            @for (pc of playerCounts(); track pc.players) {
+              <option [ngValue]="pc.players">{{ pc.players }} ({{ pc.count }})</option>
+            }
+          </select>
+        </label>
+      </div>
+      <div class="filters-row">
+        <label class="filter-field">
+          <span>Sezon</span>
+          <select [ngModel]="season()" (ngModelChange)="setFilter(season, $event)">
+            <option [ngValue]="''">Wszystkie</option>
+            @for (s of seasons(); track s.season) {
+              <option [ngValue]="s.season">{{ s.season ? 'Sezon ' + s.season : 'Przed sezonem 1' }} ({{ s.count }})</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Wydarzenie</span>
+          <select [ngModel]="event()" (ngModelChange)="setFilter(event, $event)">
+            <option value="">Wszystkie</option>
+            @if (events().none) {
+              <option [value]="noEvent">Bez wydarzenia ({{ events().none }})</option>
+            }
+            @for (e of events().list; track e.name) {
+              <option [value]="e.name">{{ e.name }} ({{ e.count }})</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
           <span>Wynik</span>
           <select [ngModel]="result()" (ngModelChange)="setFilter(result, $event)">
             <option value="">Wszystkie</option>
             <option value="W">Wygrana</option>
             <option value="L">Przegrana</option>
           </select>
-        </label>
-        <label class="filter-field">
-          <span>Poziom od</span>
-          <input type="number" min="1" class="level-input" [ngModel]="minLevel()" (ngModelChange)="setFilter(minLevel, parseLevel($event))" />
-        </label>
-        <label class="filter-field">
-          <span>Poziom do</span>
-          <input type="number" min="1" class="level-input" [ngModel]="maxLevel()" (ngModelChange)="setFilter(maxLevel, parseLevel($event))" />
         </label>
         <label class="filter-field filter-search">
           <span>Gracz lub broń</span>
