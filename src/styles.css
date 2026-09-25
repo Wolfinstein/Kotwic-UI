@@ -359,3 +359,86 @@ select:focus-visible {
   word-break: break-word !important;
   font-family: 'Consolas', 'Courier New', monospace !important;
 }
+
+/* Hover tables on the Raporty z ekspedycji page (tooltip lives in <body>). */
+.p-tooltip.report-tip {
+  max-width: 460px !important;
+}
+
+.p-tooltip.report-tip .p-tooltip-text {
+  white-space: normal !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  padding: 8px 10px !important;
+}
+
+.report-tip .rt-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border-muted);
+}
+
+.report-tip .rt-name {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.report-tip .rt-name.player {
+  color: #e8c547;
+}
+
+.report-tip .rt-name.enemy {
+  color: #e57373;
+}
+
+.report-tip .rt-sub {
+  color: var(--label-color);
+}
+
+.report-tip .rt-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.report-tip .rt-table th {
+  padding: 1px 16px 1px 0;
+  text-align: left;
+  font-weight: 400;
+  color: var(--label-color);
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.report-tip .rt-table td {
+  padding: 1px 0;
+  text-align: right;
+  font-weight: 600;
+  color: var(--value-color);
+  font-variant-numeric: tabular-nums;
+}
+
+.report-tip .rt-table td.rt-text {
+  text-align: left;
+  font-weight: 400;
+}
+
+.report-tip .rt-table tr:nth-child(even):not(.rt-sep) th,
+.report-tip .rt-table tr:nth-child(even):not(.rt-sep) td {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.report-tip .rt-sep td {
+  height: 6px;
+  padding: 0;
+  border-bottom: 1px solid var(--border-muted);
+}
+
+.report-tip .rt-sep + tr th,
+.report-tip .rt-sep + tr td {
+  padding-top: 4px;
+}

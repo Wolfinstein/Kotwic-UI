@@ -1,12 +1,20 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ExpeditionReport, REPORT_STAT_KEYS, REPORT_STAT_LABELS, loadExpeditionReports, normalizeReportBoss } from '../../data/expedition-reports';
+import { TooltipModule } from 'primeng/tooltip';
+import { ExpeditionReport, ReportEnemy, ReportStats, REPORT_STAT_KEYS, loadExpeditionReports, normalizeReportBoss } from '../../data/expedition-reports';
 import { ACT_MOBS, STAR_MOBS } from '../../data/mobsData';
 
 const PAGE_SIZE = 50;
 /** Filter value for reports fought outside any server event. */
 export const NO_EVENT = '__none__';
+
+/** Stats that decide a fight — listed first in the hover details; the rest follow. */
+const KEY_STATS: (keyof ReportStats)[] = ['agility', 'perception', 'strength', 'resistance', 'defence', 'luck'];
+const STAT_LABELS: Record<keyof ReportStats, string> = {
+  strength: 'Siła', agility: 'Zwinność', resistance: 'Odporność', looks: 'Wygląd', charisma: 'Charyzma', influence: 'Wpływy',
+  perception: 'Spostrzegawczość', intelligence: 'Inteligencja', wisdom: 'Wiedza', luck: 'Szczęście', defence: 'Obrona',
+};
 
 const M1_ORDER = ACT_MOBS.map(m => m.name);
 const M2_ORDER = STAR_MOBS.map(m => m.name);
@@ -24,13 +32,14 @@ const byTotalDesc = (a: { total: number }, b: { total: number }) => b.total - a.
 @Component({
   selector: 'app-raporty-ekspedycji',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TooltipModule],
   templateUrl: './raporty-ekspedycji.component.html',
   styleUrl: './raporty-ekspedycji.component.css',
 })
 export class RaportyEkspedycjiComponent implements OnInit {
-  readonly statKeys = REPORT_STAT_KEYS;
-  readonly statLabels = REPORT_STAT_LABELS;
+  /** Combat stats first, then the rest. */
+  readonly statOrder = [...KEY_STATS, ...REPORT_STAT_KEYS.filter(k => !KEY_STATS.includes(k))];
+  readonly statLabels = STAT_LABELS;
 
   loading = signal(true);
   loadError = signal<string | null>(null);
@@ -49,7 +58,6 @@ export class RaportyEkspedycjiComponent implements OnInit {
 
   sortDesc = signal(true);
   page = signal(0);
-  expanded = signal<Set<number>>(new Set());
 
   /** Classification of every location into M1/M2 plus its display order — static, taken from all reports. */
   private locationOrder = computed(() => {
@@ -259,20 +267,40 @@ export class RaportyEkspedycjiComponent implements OnInit {
     this.page.set(Math.min(Math.max(page, 0), this.pageCount() - 1));
   }
 
-  toggle(id: number): void {
-    this.expanded.update(set => {
-      const next = new Set(set);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  /**
+   * Enemies with identical adds folded together ("Nałożnica", "Nałożnica 2", ... with the same
+   * stats → one "Nałożnica ×6" card). Adds whose stats differ stay separate. Boss first.
+   */
+  enemyGroups(r: ExpeditionReport): { enemy: ReportEnemy; name: string; count: number; isBoss: boolean }[] {
+    const groups = new Map<string, { enemy: ReportEnemy; name: string; count: number; isBoss: boolean }>();
+    for (const e of r.enemies) {
+      const isBoss = e.name === r.boss;
+      const baseName = isBoss ? e.name : e.name.replace(/ \d+$/, '');
+      const key = baseName + '|' + e.hpMax + '|' + e.initiative + '|' + REPORT_STAT_KEYS.map(k => e[k]).join(',');
+      const group = groups.get(key);
+      if (group) group.count++;
+      else groups.set(key, { enemy: e, name: baseName, count: 1, isBoss });
+    }
+    return [...groups.values()].sort((a, b) => Number(b.isBoss) - Number(a.isBoss));
   }
 
-  isExpanded(id: number): boolean {
-    return this.expanded().has(id);
+  /** 1..n, for rendering star icons. */
+  starArray(n: number): number[] {
+    return Array.from({ length: n }, (_, i) => i + 1);
   }
 
-  hasBonuses(p: ExpeditionReport['players'][number]): boolean {
-    return !!(p.talismans.length || p.evolutions.length || p.arcanes.length || p.huntBonuses.length || p.silverBonuses.length || p.goldBonuses.length);
+  /** Talismans, evolutions, arcana and bonuses as label/value rows for the hover table. */
+  bonusRows(p: ExpeditionReport['players'][number]): { label: string; value: string }[] {
+    const groups: [string, string[]][] = [
+      ['Talizmany', p.talismans], ['Ewolucje', p.evolutions], ['Arkana', p.arcanes],
+      ['Polowanie', p.huntBonuses], ['Srebrne', p.silverBonuses], ['Złote', p.goldBonuses],
+    ];
+    return groups.filter(([, list]) => list.length).map(([label, list]) => ({ label, value: list.join(', ') }));
   }
+
+  /** Reports store races in capitals ("ŁAPACZ MYŚLI") — show them as "Łapacz Myśli". */
+  raceLabel(race: string): string {
+    return race.toLocaleLowerCase('pl').replace(/(^|\s)(\S)/g, (_, space, ch) => space + ch.toLocaleUpperCase('pl'));
+  }
+
 }

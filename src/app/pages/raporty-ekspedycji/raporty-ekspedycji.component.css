@@ -147,17 +147,14 @@
   overflow-x: auto;
 }
 
-.raporty-table,
-.stats-table {
+.raporty-table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--fs-sm, 0.9rem);
 }
 
 .raporty-table th,
-.raporty-table td,
-.stats-table th,
-.stats-table td {
+.raporty-table td {
   padding: 7px 10px;
   text-align: left;
   border-bottom: 1px solid var(--border-muted);
@@ -165,8 +162,7 @@
   white-space: nowrap;
 }
 
-.raporty-table th,
-.stats-table th {
+.raporty-table th {
   color: var(--label-color);
   font-weight: 600;
 }
@@ -180,128 +176,115 @@
   color: var(--value-color);
 }
 
-.report-row {
-  cursor: pointer;
+.raporty-table td {
+  vertical-align: top;
+}
+
+.th-hint {
+  margin-left: 6px;
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  color: var(--label-color);
+  opacity: 0.8;
 }
 
 .report-row:hover td {
   background: var(--bg-deep);
 }
 
-.row-toggle {
-  display: inline-block;
-  width: 1em;
+.date-cell .muted {
+  margin-left: 4px;
+}
+
+.season-tag {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--fs-xs);
   color: var(--label-color);
 }
 
-.players-cell {
-  min-width: 220px;
-  max-width: 420px;
-  white-space: normal !important;
-}
-
-.event-cell {
-  max-width: 180px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.result-badge {
-  display: inline-block;
-  padding: 1px 8px;
-  border-radius: 999px;
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  border: 1px solid;
-}
-
-.result-badge.win {
-  color: #6fae9c;
-  border-color: #6fae9c88;
-  background: #6fae9c1a;
-}
-
-.result-badge.loss {
-  color: #e05c5c;
-  border-color: #e05c5c88;
-  background: #e05c5c1a;
-}
-
-.report-link {
-  color: var(--color-accent);
-}
-
-.details-row > td {
-  background: var(--bg-deep);
+/* Expedition summary in the in-game report style: small gold labels, values beside them. */
+.exp-info {
+  display: grid;
+  grid-template-columns: max-content auto;
+  gap: 3px 10px;
+  margin: 0;
   white-space: normal;
 }
 
-.details {
-  padding: 6px 4px 10px;
+.exp-info dt {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #e8c547;
+  align-self: center;
 }
 
-.details h4 {
-  margin: 14px 0 6px;
-  color: var(--section-title-color);
-  font-size: var(--fs-base);
+.exp-info dd {
+  margin: 0;
+  color: var(--value-color);
 }
 
-.details-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 20px;
-  font-size: var(--fs-sm);
+.exp-stars {
+  color: #e8c547;
+  letter-spacing: 1px;
 }
 
-.stats-table td,
-.stats-table th {
-  padding: 5px 8px;
-  font-variant-numeric: tabular-nums;
+.exp-result {
+  font-size: 1.15em;
+  font-weight: 700;
 }
 
-.wrap-cell {
+.exp-result.win {
+  color: #6fae9c;
+}
+
+.exp-result.loss {
+  color: #e05c5c;
+}
+
+.people-cell {
   white-space: normal !important;
   min-width: 160px;
 }
 
-.boss-row td {
+.person {
+  padding: 2px 0;
+  font-size: var(--fs-base);
+}
+
+.person .muted {
+  margin-left: 4px;
+}
+
+.person-name {
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  cursor: help;
   font-weight: 600;
+}
+
+.person-name:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}
+
+.person-name.player {
+  color: #e8c547;
+}
+
+.person-name.enemy {
   color: #e57373;
+  font-weight: 400;
 }
 
-.player-bonuses {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-top: 8px;
+.person-name.enemy.boss {
+  font-weight: 700;
 }
 
-.bonus-card {
-  border: 1px solid var(--border-muted);
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: var(--fs-sm);
-}
-
-.bonus-card summary {
-  cursor: pointer;
+.report-link {
   color: var(--color-accent);
-}
-
-.bonus-card dl {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 4px 12px;
-  margin: 8px 0 2px;
-}
-
-.bonus-card dt {
-  color: var(--label-color);
-}
-
-.bonus-card dd {
-  margin: 0;
-  color: var(--value-color);
 }
 
 .pager {
