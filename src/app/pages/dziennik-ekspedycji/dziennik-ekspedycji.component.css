@@ -198,3 +198,62 @@
 .group-child-row td:first-child {
   padding-left: 28px;
 }
+
+.muted {
+  color: var(--label-color);
+}
+
+/* Expedition summary in the in-game report style — same as on /raporty-ekspedycji. */
+.exp-info {
+  display: grid;
+  grid-template-columns: max-content auto;
+  gap: 3px 10px;
+  margin: 0;
+  white-space: normal;
+}
+
+.exp-info dt {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-accent);
+  align-self: center;
+}
+
+.exp-info dd {
+  margin: 0;
+  color: var(--value-color);
+}
+
+.exp-info dd.exp-stars {
+  color: var(--warning-text);
+  letter-spacing: 1px;
+}
+
+.exp-result-pcts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  font-weight: 600;
+}
+
+.exp-result-pcts .muted {
+  font-weight: 400;
+}
+
+.exp-result-pcts .win {
+  color: var(--success-text);
+}
+
+.exp-result-pcts .loss {
+  color: var(--danger-color);
+}
+
+.exp-result-pcts .draw {
+  color: var(--warning-text);
+}
+
+.dziennik-table td {
+  vertical-align: top;
+}

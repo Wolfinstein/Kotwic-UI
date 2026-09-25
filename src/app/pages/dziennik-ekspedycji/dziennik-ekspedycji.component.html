@@ -90,12 +90,8 @@
                   <th class="sortable-th" (click)="toggleSort()">
                     Data {{ sortDirection() === 'asc' ? '▲' : '▼' }}
                   </th>
-                  <th>Typ</th>
-                  <th>Mob</th>
-                  <th>★</th>
-                  <th>Wariant</th>
+                  <th>Ekspedycja</th>
                   <th>Gracze</th>
-                  <th>Wynik</th>
                   <th></th>
                   <th></th>
                 </tr>
@@ -112,16 +108,14 @@
                         <span class="group-toggle">{{ isExpanded(group.key) ? '▾' : '▸' }}</span>
                         {{ group.latestAt | date:'short' }}
                       </td>
-                      <td><span class="group-count">{{ group.logs.length }}×</span></td>
-                      <td>{{ group.mob }}</td>
-                      <td>{{ group.star }}</td>
-                      <td>{{ group.variant }}</td>
-                      <td class="players-cell">{{ group.players.join(', ') }}</td>
                       <td>
-                        @if (group.totalRuns) {
-                          {{ group.totalRuns }} biegów — W:{{ group.winPct | number:'1.0-1' }}% P:{{ group.lossPct | number:'1.0-1' }}% R:{{ group.drawPct | number:'1.0-1' }}%
-                        }
+                        <ng-container *ngTemplateOutlet="expInfo; context: {
+                          mob: group.mob, star: group.star, variant: group.variant,
+                          type: group.logs.length + '× zapisów', runs: group.totalRuns,
+                          winPct: group.winPct, lossPct: group.lossPct, drawPct: group.drawPct
+                        }"></ng-container>
                       </td>
+                      <td class="players-cell">{{ group.players.join(', ') }}</td>
                       <td>
                         <button class="import-btn" (click)="$event.stopPropagation(); importCharacters(group.logs[0])" [disabled]="wasImported(group.logs[0].id)"
                           title="Importuje postacie z najnowszego zapisu w tej grupie">
@@ -150,16 +144,14 @@
 
 <ng-template #logCells let-log>
   <td>{{ log.createdAt | date:'short' }}</td>
-  <td>{{ log.action === 'single' ? 'Pojedyncza' : 'Zbiorcza' }}</td>
-  <td>{{ log.mob }}</td>
-  <td>{{ log.star }}</td>
-  <td>{{ log.variant }}</td>
-  <td class="players-cell">{{ log.players.join(', ') }}</td>
   <td>
-    @if (log.runs) {
-      {{ log.runs }} biegów — W:{{ log.winPct }}% P:{{ log.lossPct }}% R:{{ log.drawPct }}%
-    }
+    <ng-container *ngTemplateOutlet="expInfo; context: {
+      mob: log.mob, star: log.star, variant: log.variant,
+      type: log.action === 'single' ? 'Pojedyncza' : 'Zbiorcza', runs: log.runs,
+      winPct: log.winPct, lossPct: log.lossPct, drawPct: log.drawPct
+    }"></ng-container>
   </td>
+  <td class="players-cell">{{ log.players.join(', ') }}</td>
   <td>
     <button class="import-btn" (click)="importCharacters(log)" [disabled]="wasImported(log.id)">
       {{ wasImported(log.id) ? 'Zaimportowano' : 'Importuj graczy' }}
@@ -170,4 +162,31 @@
       {{ isRemoving(log.id) ? 'Usuwanie…' : 'Usuń' }}
     </button>
   </td>
+</ng-template>
+
+<!-- Expedition summary in the same style as the "Ekspedycja" column on /raporty-ekspedycji. -->
+<ng-template #expInfo let-mob="mob" let-star="star" let-variant="variant" let-type="type" let-runs="runs"
+  let-winPct="winPct" let-lossPct="lossPct" let-drawPct="drawPct">
+  <dl class="exp-info">
+    <dt>Boss</dt><dd>{{ mob }}</dd>
+    <dt>Gwiazdki</dt>
+    <dd class="exp-stars" [title]="star + ' ★'">
+      @if (star <= 4) {
+        @for (s of starArray(star); track $index) { <span>★</span> } @empty { <span class="muted">—</span> }
+      } @else {
+        {{ star }}★
+      }
+    </dd>
+    <dt>Wariant</dt><dd>{{ variant }}</dd>
+    <dt>Typ</dt><dd>{{ type }}</dd>
+    @if (runs) {
+      <dt>Wynik</dt>
+      <dd class="exp-result-pcts">
+        <span class="muted">{{ runs | number }} biegów</span>
+        <span class="win">W {{ winPct | number:'1.0-1' }}%</span>
+        <span class="loss">P {{ lossPct | number:'1.0-1' }}%</span>
+        <span class="draw">R {{ drawPct | number:'1.0-1' }}%</span>
+      </dd>
+    }
+  </dl>
 </ng-template>

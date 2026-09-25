@@ -164,7 +164,9 @@
                     @for (p of r.players; track $index) {
                       <div class="person">
                         <span class="person-name player" tabindex="0" [pTooltip]="playerTip" tooltipStyleClass="report-tip" tooltipPosition="top" tooltipEvent="both">{{ p.name }}</span>
-                        <span class="muted">({{ p.level }})</span>
+                        @if (p.experience !== null) {
+                          <span class="muted" title="Zdobyte doświadczenie">(+{{ p.experience | number }} PD)</span>
+                        }
                         <ng-template #playerTip>
                           <div class="rt-head">
                             <span class="rt-name player">{{ p.name }}</span>
