@@ -2,7 +2,15 @@
   <div class="feature-section">
     <div class="raporty-header">
       <h1>Raporty z ekspedycji</h1>
-      <p>Prawdziwe raporty z walk z bossami. Filtruj po sezonie, lokalizacji, bossie i gwiazdkach, żeby zobaczyć, jakie drużyny wygrywały, i porównać je z wynikami symulatora.</p>
+      <div class="contribute-note">
+        <i class="pi pi-megaphone"></i>
+        <div>
+          <strong>Chcesz pomóc rozbudować bazę?</strong>
+          Podziel się swoimi raportami z ekspedycji — napisz
+          <a href="https://r20.bloodwars.pl/showmsg.php?a=profile&uid=8779" target="_blank" rel="noopener noreferrer">w grze</a>
+          lub na discordzie.
+        </div>
+      </div>
     </div>
 
     @if (loading()) {
@@ -28,8 +36,8 @@
           <span>Boss</span>
           <select [ngModel]="boss()" (ngModelChange)="setBoss($event)">
             <option value="">Wszyscy</option>
-            @for (b of bosses(); track b.name) {
-              <option [value]="b.name">{{ b.name }} ({{ b.count }})</option>
+            @for (b of bosses(); track b.value) {
+              <option [value]="b.value">{{ b.value }} ({{ b.count }})</option>
             }
           </select>
         </label>
@@ -37,8 +45,8 @@
           <span>★</span>
           <select [ngModel]="stars()" (ngModelChange)="setFilter(stars, $event)">
             <option [ngValue]="''">Wszystkie</option>
-            @for (s of starOptions(); track s) {
-              <option [ngValue]="s">{{ s }}</option>
+            @for (s of starOptions(); track s.value) {
+              <option [ngValue]="s.value">{{ s.value }} ({{ s.count }})</option>
             }
           </select>
         </label>
@@ -46,8 +54,8 @@
           <span>Trudność</span>
           <select [ngModel]="difficulty()" (ngModelChange)="setFilter(difficulty, $event)">
             <option value="">Wszystkie</option>
-            @for (d of difficulties(); track d) {
-              <option [value]="d">{{ d }}</option>
+            @for (d of difficulties(); track d.value) {
+              <option [value]="d.value">{{ d.value }} ({{ d.count }})</option>
             }
           </select>
         </label>
@@ -55,8 +63,8 @@
           <span>Liczba graczy</span>
           <select [ngModel]="playerCount()" (ngModelChange)="setFilter(playerCount, $event)">
             <option [ngValue]="''">Wszystkie</option>
-            @for (pc of playerCounts(); track pc.players) {
-              <option [ngValue]="pc.players">{{ pc.players }} ({{ pc.count }})</option>
+            @for (pc of playerCounts(); track pc.value) {
+              <option [ngValue]="pc.value">{{ pc.value }} ({{ pc.count }})</option>
             }
           </select>
         </label>
@@ -66,8 +74,8 @@
           <span>Sezon</span>
           <select [ngModel]="season()" (ngModelChange)="setFilter(season, $event)">
             <option [ngValue]="''">Wszystkie</option>
-            @for (s of seasons(); track s.season) {
-              <option [ngValue]="s.season">{{ s.season ? 'Sezon ' + s.season : 'Przed sezonem 1' }} ({{ s.count }})</option>
+            @for (s of seasons(); track s.value) {
+              <option [ngValue]="s.value">{{ s.value ? 'Sezon ' + s.value : 'Przed sezonem 1' }} ({{ s.count }})</option>
             }
           </select>
         </label>
@@ -75,11 +83,11 @@
           <span>Wydarzenie</span>
           <select [ngModel]="event()" (ngModelChange)="setFilter(event, $event)">
             <option value="">Wszystkie</option>
-            @if (events().none) {
-              <option [value]="noEvent">Bez wydarzenia ({{ events().none }})</option>
+            @if (events().none; as none) {
+              <option [value]="noEvent">Bez wydarzenia ({{ none.count }})</option>
             }
-            @for (e of events().list; track e.name) {
-              <option [value]="e.name">{{ e.name }} ({{ e.count }})</option>
+            @for (e of events().list; track e.value) {
+              <option [value]="e.value">{{ e.value }} ({{ e.count }})</option>
             }
           </select>
         </label>
@@ -87,17 +95,14 @@
           <span>Wynik</span>
           <select [ngModel]="result()" (ngModelChange)="setFilter(result, $event)">
             <option value="">Wszystkie</option>
-            <option value="W">Wygrana</option>
-            <option value="L">Przegrana</option>
+            <option value="W">Wygrana ({{ results().W }})</option>
+            <option value="L">Przegrana ({{ results().L }})</option>
           </select>
         </label>
         <label class="filter-field filter-search">
           <span>Gracz lub broń</span>
           <input type="search" placeholder="np. Mati, Skorpion" [ngModel]="search()" (ngModelChange)="setFilter(search, $event)" />
         </label>
-        @if (hasActiveFilters()) {
-          <button type="button" class="clear-filters-btn" (click)="clearFilters()">Wyczyść filtry</button>
-        }
       </div>
 
       <div class="summary-row">
@@ -105,6 +110,9 @@
         @if (summary().total) {
           <span class="summary-sep">·</span>
           <span>wygrane <strong class="win">{{ summary().winPct }}%</strong> ({{ summary().wins | number }})</span>
+        }
+        @if (hasActiveFilters()) {
+          <button type="button" class="clear-filters-btn" (click)="clearFilters()">Wyczyść filtry</button>
         }
       </div>
 

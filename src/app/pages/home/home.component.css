@@ -281,6 +281,7 @@
 .tool-accent-ash:hover:not(.disabled) { background: var(--tool-ash-bg); }
 .tool-accent-rose:hover:not(.disabled) { background: var(--tool-rose-bg); }
 .tool-accent-plum:hover:not(.disabled) { background: var(--tool-plum-bg); }
+.tool-accent-mauve:hover:not(.disabled) { background: var(--tool-mauve-bg); }
 
 .tool-accent-teal { background: var(--tool-teal-bg); color: var(--tool-teal-text); }
 .tool-accent-amber { background: var(--tool-amber-bg); color: var(--tool-amber-text); }
@@ -290,6 +291,7 @@
 .tool-accent-ash { background: var(--tool-ash-bg); color: var(--tool-ash-text); }
 .tool-accent-rose { background: var(--tool-rose-bg); color: var(--tool-rose-text); }
 .tool-accent-plum { background: var(--tool-plum-bg); color: var(--tool-plum-text); }
+.tool-accent-mauve { background: var(--tool-mauve-bg); color: var(--tool-mauve-text); }
 
 .tool-accent-teal > .pi:first-child, .tool-accent-teal .tool-card-body h2, .tool-accent-teal .tool-card-arrow { color: var(--tool-teal-text); }
 .tool-accent-amber > .pi:first-child, .tool-accent-amber .tool-card-body h2, .tool-accent-amber .tool-card-arrow { color: var(--tool-amber-text); }
@@ -299,6 +301,7 @@
 .tool-accent-ash > .pi:first-child, .tool-accent-ash .tool-card-body h2, .tool-accent-ash .tool-card-arrow { color: var(--tool-ash-text); }
 .tool-accent-rose > .pi:first-child, .tool-accent-rose .tool-card-body h2, .tool-accent-rose .tool-card-arrow { color: var(--tool-rose-text); }
 .tool-accent-plum > .pi:first-child, .tool-accent-plum .tool-card-body h2, .tool-accent-plum .tool-card-arrow { color: var(--tool-plum-text); }
+.tool-accent-mauve > .pi:first-child, .tool-accent-mauve .tool-card-body h2, .tool-accent-mauve .tool-card-arrow { color: var(--tool-mauve-text); }
 
 .tool-accent-teal .tool-card-body p { color: var(--tool-teal-text); opacity: 0.9; }
 .tool-accent-amber .tool-card-body p { color: var(--tool-amber-text); opacity: 0.9; }

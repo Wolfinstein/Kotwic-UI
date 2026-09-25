@@ -8,6 +8,8 @@ import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPrevi
 import { isMobSelectable, mobImplementationStatus, MobImplementationStatus } from '../../data/mobCombatProfiles';
 import { encodeCharactersToShareCode, decodeShareCode, SharedCharacterEntry } from '../../services/character-share.util';
 import { ExpeditionLogService, ExpeditionLogPayload } from '../../services/expedition-log.service';
+import { ExpeditionReport, loadExpeditionReports } from '../../data/expedition-reports';
+import { ReportSuggestionResult, VARIANT_DIFFICULTY, suggestReports } from '../../logic/reportSuggester';
 
 type ExpeditionStep = 'players' | 'towers' | 'combat';
 
@@ -80,6 +82,12 @@ export class EkspedycjaComponent implements OnInit {
   /** Briefly flips to true right after a share link is copied, to flash "Skopiowano!" on the button. */
   shareLinkCopied = signal(false);
   shareLinkError = signal<string | null>(null);
+
+  /** Closest real expedition reports for the current mob/star/team (see logic/reportSuggester.ts). Signals because the reports load asynchronously. */
+  reportSuggestion = signal<ReportSuggestionResult | null>(null);
+  reportsState = signal<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  readonly variantDifficulty = VARIANT_DIFFICULTY;
+  private reports: ExpeditionReport[] | null = null;
 
   constructor(
     private savedCharactersService: SavedCharactersService,
@@ -456,6 +464,7 @@ export class EkspedycjaComponent implements OnInit {
     this.combatPreview = mob
       ? computeCombatPreview(this.selectedPlayers, mob, this.starLevel, this.dashboardService, this.mobVariant, this.dmgOverride)
       : null;
+    this.updateReportSuggestion();
     // While not overridden, keep the sliders tracking the auto-computed range (it shifts with star/variant/party), so they always start from a sane default.
     if (!this.manualDmgOverride && this.combatPreview) {
       this.autoMinDmgAtToggle = this.combatPreview.mob.minDmg;
@@ -463,5 +472,31 @@ export class EkspedycjaComponent implements OnInit {
       this.manualMinDmg = this.autoMinDmgAtToggle;
       this.manualMaxDmg = this.autoMaxDmgAtToggle;
     }
+  }
+
+  /** Levels of the selected team, in selection order. */
+  get selectedPlayerLevels(): number[] {
+    return this.selectedPlayers.map(p => p.character.poziom ?? 0);
+  }
+
+  /** Recomputes the report suggestion for the current setup, downloading the reports the first time they're needed. */
+  private updateReportSuggestion(): void {
+    if (!this.selectedMobName) {
+      this.reportSuggestion.set(null);
+      return;
+    }
+    if (!this.reports) {
+      if (this.reportsState() === 'loading') return;
+      this.reportsState.set('loading');
+      loadExpeditionReports()
+        .then(reports => {
+          this.reports = reports;
+          this.reportsState.set('ready');
+          this.updateReportSuggestion();
+        })
+        .catch(() => this.reportsState.set('error'));
+      return;
+    }
+    this.reportSuggestion.set(suggestReports(this.reports, this.selectedMobName, this.starLevel, this.mobVariant, this.selectedPlayerLevels));
   }
 }

@@ -31,6 +31,38 @@
   line-height: 1.5;
 }
 
+.contribute-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 6px 0 18px;
+  padding: 12px 16px;
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  border-left: 4px solid var(--color-accent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  font-size: var(--fs-base);
+  line-height: 1.5;
+  color: var(--value-color);
+}
+
+.contribute-note .pi {
+  margin-top: 3px;
+  font-size: 1.15em;
+  color: var(--color-accent);
+}
+
+.contribute-note strong {
+  color: var(--color-accent);
+  margin-right: 4px;
+}
+
+.contribute-note a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 .muted {
   color: var(--label-color);
 }
@@ -40,11 +72,12 @@
   font-size: var(--fs-base);
 }
 
+/* Both filter rows share the same column template, so their fields line up vertically. */
 .filters-row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px 16px;
-  align-items: flex-end;
+  align-items: end;
   margin-bottom: 14px;
 }
 
@@ -52,12 +85,16 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
   font-size: var(--fs-sm, 0.9rem);
   color: var(--label-color);
 }
 
 .filter-field input,
 .filter-field select {
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
   background: var(--bg-deep);
   border: 1px solid var(--border-muted);
   border-radius: 6px;
@@ -66,14 +103,14 @@
   font-size: var(--fs-sm, 0.9rem);
 }
 
+.filter-search {
+  grid-column: span 2;
+}
+
 .filter-field input:focus,
 .filter-field select:focus {
   outline: none;
   border-color: var(--color-accent);
-}
-
-.filter-search input {
-  min-width: 200px;
 }
 
 .clear-filters-btn {
@@ -85,11 +122,13 @@
   font-size: var(--fs-sm, 0.9rem);
   cursor: pointer;
   height: fit-content;
+  margin-left: auto;
 }
 
 .summary-row {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
   margin-bottom: 10px;
   font-size: var(--fs-base);
@@ -294,6 +333,12 @@
   font-size: var(--fs-sm);
 }
 
+@media (max-width: 900px) {
+  .filters-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 640px) {
   .raporty-view {
     padding: 16px 12px 32px;
@@ -303,9 +348,7 @@
     padding: 14px 12px;
   }
 
-  .filter-field,
-  .filter-search input {
-    flex: 1 1 140px;
-    min-width: 0;
+  .filters-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

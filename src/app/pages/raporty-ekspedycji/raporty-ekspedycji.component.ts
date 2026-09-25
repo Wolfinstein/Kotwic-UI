@@ -1,16 +1,13 @@
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ExpeditionReport, REPORT_STAT_KEYS, REPORT_STAT_LABELS, loadExpeditionReports } from '../../data/expedition-reports';
+import { ExpeditionReport, REPORT_STAT_KEYS, REPORT_STAT_LABELS, loadExpeditionReports, normalizeReportBoss } from '../../data/expedition-reports';
 import { ACT_MOBS, STAR_MOBS } from '../../data/mobsData';
 
 const PAGE_SIZE = 50;
 /** Filter value for reports fought outside any server event. */
 export const NO_EVENT = '__none__';
 
-/** Report boss names that are spelled differently in mobsData. */
-const BOSS_ALIASES: Record<string, string> = { Geryon: 'Geyron', Astarte: 'Astrate', Romulus: 'Romulus i Remus', Remus: 'Romulus i Remus' };
-const normalizeBoss = (name: string): string => BOSS_ALIASES[name] ?? name;
 const M1_ORDER = ACT_MOBS.map(m => m.name);
 const M2_ORDER = STAR_MOBS.map(m => m.name);
 
@@ -18,6 +15,10 @@ interface LocationOption {
   name: string;
   count: number;
 }
+
+type FilterKey = 'location' | 'event' | 'boss' | 'stars' | 'difficulty' | 'result' | 'season' | 'playerCount';
+
+const byTotalDesc = (a: { total: number }, b: { total: number }) => b.total - a.total;
 
 /** Searchable list of real expedition reports (see data/expedition-reports.ts). Everything is filtered in memory; only one page is rendered at a time. */
 @Component({
@@ -50,118 +51,147 @@ export class RaportyEkspedycjiComponent implements OnInit {
   page = signal(0);
   expanded = signal<Set<number>>(new Set());
 
+  /** Classification of every location into M1/M2 plus its display order — static, taken from all reports. */
+  private locationOrder = computed(() => {
+    const bossesByLocation = new Map<string, Set<string>>();
+    for (const r of this.reports()) {
+      const set = bossesByLocation.get(r.location) ?? new Set<string>();
+      set.add(normalizeReportBoss(r.boss));
+      bossesByLocation.set(r.location, set);
+    }
+    const out: { name: string; map: 'M1' | 'M2'; order: number }[] = [];
+    for (const [name, bosses] of bossesByLocation) {
+      const starIdx = [...bosses].map(b => M2_ORDER.indexOf(b)).filter(i => i >= 0);
+      if (starIdx.length) {
+        out.push({ name, map: 'M2', order: Math.min(...starIdx) });
+      } else {
+        const actIdx = [...bosses].map(b => M1_ORDER.indexOf(b)).filter(i => i >= 0);
+        out.push({ name, map: 'M1', order: actIdx.length ? Math.min(...actIdx) : Number.MAX_SAFE_INTEGER });
+      }
+    }
+    return out.sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, 'pl'));
+  });
+
   /**
    * Locations split by map: M1 (act bosses) first, then M2 (star bosses). A location counts as M2
    * when any of its bosses is a star mob. Within each map, locations follow the mob list order
-   * (mobsData) of their earliest boss.
+   * (mobsData) of their earliest boss. Counts respect every other active filter.
    */
   locationGroups = computed(() => {
-    const info = new Map<string, { count: number; bosses: Set<string> }>();
-    for (const r of this.reports()) {
-      const entry = info.get(r.location) ?? { count: 0, bosses: new Set<string>() };
-      entry.count++;
-      entry.bosses.add(normalizeBoss(r.boss));
-      info.set(r.location, entry);
-    }
-    const m1: (LocationOption & { order: number })[] = [];
-    const m2: (LocationOption & { order: number })[] = [];
-    for (const [name, { count, bosses }] of info) {
-      const starIdx = [...bosses].map(b => M2_ORDER.indexOf(b)).filter(i => i >= 0);
-      if (starIdx.length) {
-        m2.push({ name, count, order: Math.min(...starIdx) });
-      } else {
-        const actIdx = [...bosses].map(b => M1_ORDER.indexOf(b)).filter(i => i >= 0);
-        m1.push({ name, count, order: actIdx.length ? Math.min(...actIdx) : Number.MAX_SAFE_INTEGER });
-      }
-    }
-    const byOrder = (a: { order: number; name: string }, b: { order: number; name: string }) =>
-      a.order - b.order || a.name.localeCompare(b.name, 'pl');
+    const counts = this.facet('location', r => r.location);
+    const selected = this.location();
+    const pick = (map: 'M1' | 'M2'): LocationOption[] => this.locationOrder()
+      .filter(l => l.map === map)
+      .map(l => ({ name: l.name, count: counts.get(l.name) ?? 0 }))
+      .filter(l => l.count > 0 || l.name === selected);
     return [
-      { label: 'M1 — Akt 1-3', locations: m1.sort(byOrder) },
-      { label: 'M2 — Gwiazdki', locations: m2.sort(byOrder) },
+      { label: 'M1 — Akt 1-3', locations: pick('M1') },
+      { label: 'M2 — Gwiazdki', locations: pick('M2') },
     ].filter(g => g.locations.length);
   });
 
-  /** Bosses ordered by how many reports they have, so the common ones are on top. Narrowed to the picked location. */
-  bosses = computed(() => {
-    const location = this.location();
-    const counts = new Map<string, number>();
-    for (const r of this.reports()) {
-      if (location && r.location !== location) continue;
-      counts.set(r.boss, (counts.get(r.boss) ?? 0) + 1);
-    }
-    return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count }));
-  });
+  /** Bosses in order of their overall report count, with counts under the other active filters. */
+  bosses = computed(() => this.options('boss', r => r.boss, this.boss(), byTotalDesc));
 
-  starOptions = computed(() => {
-    const boss = this.boss();
-    const location = this.location();
-    const set = new Set<number>();
-    for (const r of this.reports()) {
-      if ((!boss || r.boss === boss) && (!location || r.location === location)) set.add(r.stars);
-    }
-    return [...set].sort((a, b) => a - b);
-  });
+  starOptions = computed(() => this.options('stars', r => r.stars, this.stars(), (a, b) => a.value - b.value));
 
   readonly noEvent = NO_EVENT;
 
-  /** Server events ordered by how many reports they have; reports without one are counted separately. */
+  /** Server events in order of their overall report count; reports without one are the NO_EVENT option. */
   events = computed(() => {
-    const counts = new Map<string, number>();
-    let none = 0;
-    for (const r of this.reports()) {
-      if (r.eventName) counts.set(r.eventName, (counts.get(r.eventName) ?? 0) + 1);
-      else none++;
-    }
+    const all = this.options('event', r => r.eventName || NO_EVENT, this.event(), byTotalDesc);
     return {
-      none,
-      list: [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([name, count]) => ({ name, count })),
+      none: all.find(o => o.value === NO_EVENT) ?? null,
+      list: all.filter(o => o.value !== NO_EVENT),
     };
   });
 
-  /** Seasons that have reports, newest first, with report counts. */
-  seasons = computed(() => {
-    const counts = new Map<number, number>();
-    for (const r of this.reports()) counts.set(r.season, (counts.get(r.season) ?? 0) + 1);
-    return [...counts.entries()].sort((a, b) => b[0] - a[0]).map(([season, count]) => ({ season, count }));
-  });
+  /** Seasons newest first. */
+  seasons = computed(() => this.options('season', r => r.season, this.season(), (a, b) => b.value - a.value));
 
-  /** Team sizes that occur in the reports, smallest first, with report counts. */
-  playerCounts = computed(() => {
-    const counts = new Map<number, number>();
-    for (const r of this.reports()) counts.set(r.players.length, (counts.get(r.players.length) ?? 0) + 1);
-    return [...counts.entries()].sort((a, b) => a[0] - b[0]).map(([players, count]) => ({ players, count }));
-  });
+  /** Team sizes, smallest first. */
+  playerCounts = computed(() => this.options('playerCount', r => r.players.length, this.playerCount(), (a, b) => a.value - b.value));
 
-  difficulties = computed(() => [...new Set(this.reports().map(r => r.difficulty))].sort());
+  difficulties = computed(() => this.options('difficulty', r => r.difficulty, this.difficulty(), (a, b) => a.value.localeCompare(b.value, 'pl')));
+
+  results = computed(() => {
+    const counts = this.facet('result', r => (r.won ? 'W' : 'L'));
+    return { W: counts.get('W') ?? 0, L: counts.get('L') ?? 0 };
+  });
 
   filtered = computed(() => {
+    const list = this.reports().filter(r => this.matches(r));
+    // Dataset is stored newest-first.
+    return this.sortDesc() ? list : [...list].reverse();
+  });
+
+  /** Overall count of every boss/event — used only to keep option order stable while filters change. */
+  private totals = computed(() => {
+    const t = new Map<string, number>();
+    for (const r of this.reports()) {
+      for (const key of ['boss:' + r.boss, 'event:' + (r.eventName || NO_EVENT)]) t.set(key, (t.get(key) ?? 0) + 1);
+    }
+    return t;
+  });
+
+  /**
+   * Whether a report passes the active filters. `skip` leaves one filter out — that's how each
+   * dropdown's counts show "how many reports you'd get if you picked this", given everything else.
+   */
+  private matches(r: ExpeditionReport, skip?: FilterKey): boolean {
     const location = this.location();
     const event = this.event();
     const boss = this.boss();
     const stars = this.stars();
     const difficulty = this.difficulty();
     const result = this.result();
-    const q = this.search().trim().toLowerCase();
     const season = this.season();
     const playerCount = this.playerCount();
+    const q = this.search().trim().toLowerCase();
 
-    const list = this.reports().filter(r => {
-      if (location && r.location !== location) return false;
-      if (event && (event === NO_EVENT ? !!r.eventName : r.eventName !== event)) return false;
-      if (boss && r.boss !== boss) return false;
-      if (stars !== '' && r.stars !== stars) return false;
-      if (difficulty && r.difficulty !== difficulty) return false;
-      if (result && (result === 'W') !== r.won) return false;
-      if (season !== '' && r.season !== season) return false;
-      if (playerCount !== '' && r.players.length !== playerCount) return false;
-      if (q && !r.players.some(p =>
-        p.name.toLowerCase().includes(q) || p.weapons.some(w => w.toLowerCase().includes(q)))) return false;
-      return true;
-    });
-    // Dataset is stored newest-first.
-    return this.sortDesc() ? list : [...list].reverse();
-  });
+    if (skip !== 'location' && location && r.location !== location) return false;
+    if (skip !== 'event' && event && (event === NO_EVENT ? !!r.eventName : r.eventName !== event)) return false;
+    if (skip !== 'boss' && boss && r.boss !== boss) return false;
+    if (skip !== 'stars' && stars !== '' && r.stars !== stars) return false;
+    if (skip !== 'difficulty' && difficulty && r.difficulty !== difficulty) return false;
+    if (skip !== 'result' && result && (result === 'W') !== r.won) return false;
+    if (skip !== 'season' && season !== '' && r.season !== season) return false;
+    if (skip !== 'playerCount' && playerCount !== '' && r.players.length !== playerCount) return false;
+    if (q && !r.players.some(p =>
+      p.name.toLowerCase().includes(q) || p.weapons.some(w => w.toLowerCase().includes(q)))) return false;
+    return true;
+  }
+
+  /** Counts reports per value of `key`, under every active filter except `skip`. */
+  private facet<V>(skip: FilterKey, key: (r: ExpeditionReport) => V): Map<V, number> {
+    const counts = new Map<V, number>();
+    for (const r of this.reports()) {
+      if (!this.matches(r, skip)) continue;
+      const v = key(r);
+      counts.set(v, (counts.get(v) ?? 0) + 1);
+    }
+    return counts;
+  }
+
+  /**
+   * Options for one dropdown: every value that has reports under the other filters (plus the
+   * currently selected one, even at 0, so a selection never silently disappears).
+   */
+  private options<V extends string | number>(
+    skip: FilterKey,
+    key: (r: ExpeditionReport) => V,
+    selected: V | '',
+    order: (a: { value: V; total: number }, b: { value: V; total: number }) => number,
+  ): { value: V; count: number }[] {
+    const counts = this.facet(skip, key);
+    const allValues = new Set<V>(this.reports().map(key));
+    const totals = this.totals();
+    return [...allValues]
+      .map(value => ({ value, count: counts.get(value) ?? 0, total: totals.get(skip + ':' + value) ?? 0 }))
+      .filter(o => o.count > 0 || o.value === selected)
+      .sort(order)
+      .map(({ value, count }) => ({ value, count }));
+  }
 
   summary = computed(() => {
     const list = this.filtered();
@@ -194,16 +224,16 @@ export class RaportyEkspedycjiComponent implements OnInit {
 
   setLocation(location: string): void {
     this.location.set(location);
-    // Drop boss/star filters that don't exist at the new location.
-    if (this.boss() && !this.bosses().some(b => b.name === this.boss())) this.boss.set('');
-    if (this.stars() !== '' && !this.starOptions().includes(this.stars() as number)) this.stars.set('');
+    // Drop boss/star filters that have no reports at the new location.
+    if (this.boss() && !this.bosses().some(b => b.value === this.boss() && b.count > 0)) this.boss.set('');
+    if (this.stars() !== '' && !this.starOptions().some(o => o.value === this.stars() && o.count > 0)) this.stars.set('');
     this.page.set(0);
   }
 
   setBoss(boss: string): void {
     this.boss.set(boss);
     // Keep the star filter only if that boss has reports at that star level.
-    if (this.stars() !== '' && !this.starOptions().includes(this.stars() as number)) this.stars.set('');
+    if (this.stars() !== '' && !this.starOptions().some(o => o.value === this.stars() && o.count > 0)) this.stars.set('');
     this.page.set(0);
   }
 

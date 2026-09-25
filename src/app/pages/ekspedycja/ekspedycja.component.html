@@ -273,6 +273,68 @@
       <section class="feature-section combat-preview">
         <h3>Podgląd starcia</h3>
 
+        <details class="report-suggest">
+          <summary class="report-suggest-head">
+            <span class="report-suggest-title"><i class="pi pi-book"></i>Prawdziwe raporty z tym mobem</span>
+            @if (reportSuggestion(); as rs) {
+              @if (rs.suggestions.length) {
+                @if (rs.exact) {
+                  <span class="match-badge match-exact">Dokładne dopasowanie</span>
+                } @else {
+                  <span class="match-badge match-approx">Brak dokładnego dopasowania</span>
+                }
+              }
+            }
+            <i class="pi pi-chevron-down report-suggest-chevron"></i>
+          </summary>
+
+          @if (reportsState() === 'loading') {
+            <p class="report-suggest-note"><i class="pi pi-spin pi-spinner"></i> Wczytywanie raportów…</p>
+          } @else if (reportsState() === 'error') {
+            <p class="report-suggest-note">Nie udało się wczytać raportów.</p>
+          } @else if (reportSuggestion(); as rs) {
+            @if (!rs.suggestions.length) {
+              <p class="report-suggest-note">Brak raportów z tym mobem — nie ma z czym porównać symulacji.</p>
+            } @else {
+              <p class="report-suggest-note">
+                @if (rs.exact) {
+                  Raporty z tym samym ★, liczbą graczy i wariantem moba ({{ variantDifficulty[mobVariant] }}):
+                  <strong>{{ rs.similar.total }}</strong>, wygrane <strong>{{ percent(rs.similar.wins, rs.similar.total) }}%</strong>.
+                  Poniżej 3 najnowsze.
+                } @else {
+                  Nie ma raportu z tym samym ★, liczbą graczy i wariantem moba ({{ variantDifficulty[mobVariant] }}) — poniżej najbliższe dostępne (maks. 3, od najnowszych). Traktuj je jako przybliżenie.
+                }
+              </p>
+              <div class="report-suggest-list">
+                @for (s of rs.suggestions; track s.report.id) {
+                  <div class="report-suggest-item">
+                    <div class="report-suggest-line">
+                      <span class="result-pill" [class.win]="s.report.won" [class.loss]="!s.report.won">{{ s.report.won ? 'Wygrana' : 'Przegrana' }}</span>
+                      <span>★ {{ s.report.stars }} · {{ s.report.difficulty }}</span>
+                      <span class="muted">{{ s.report.date.slice(0, 10) }} · sezon {{ s.report.season }}</span>
+                      @if (s.report.url) {
+                        <a class="report-suggest-link" [href]="s.report.url" target="_blank" rel="noopener noreferrer" title="Otwórz raport w grze"><i class="pi pi-external-link"></i></a>
+                      }
+                    </div>
+                    <div class="report-suggest-team">
+                      @for (p of s.report.players; track $index; let last = $last) {
+                        <span>{{ p.name }} <span class="muted">({{ p.level }})</span></span>{{ last ? '' : ', ' }}
+                      }
+                    </div>
+                    <div class="report-suggest-diffs">
+                      @for (d of s.differences; track d) {
+                        <span class="diff-chip">{{ d }}</span>
+                      }
+                      <span class="level-chip">poziomy {{ s.levelDiff < 0.005 ? 'jak Twoje' : '±' + (s.levelDiff * 100 | number:'1.0-0') + '%' }}</span>
+                    </div>
+                  </div>
+                }
+              </div>
+              <p class="report-suggest-note muted">Twoja drużyna: {{ selectedPlayerLevels.join(', ') }} poz.</p>
+            }
+          }
+        </details>
+
         @if (combatPreview.mob.hasProfile) {
           <div class="manual-dmg-override" [class.manual-dmg-override-active]="manualDmgOverride">
             <div class="manual-dmg-toggle">

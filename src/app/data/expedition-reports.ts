@@ -71,6 +71,16 @@ export const REPORT_STAT_LABELS: Record<keyof ReportStats, string> = {
   wisdom: 'Wiedza', luck: 'Szczęście', defence: 'Obrona',
 };
 
+/** Report boss names that are spelled differently in mobsData (the simulator's mob names). */
+export const REPORT_BOSS_ALIASES: Record<string, string> = {
+  Geryon: 'Geyron', Astarte: 'Astrate', Romulus: 'Romulus i Remus', Remus: 'Romulus i Remus',
+};
+
+/** Maps a report's boss name onto the name the rest of the app (mobsData / simulator) uses. */
+export function normalizeReportBoss(name: string): string {
+  return REPORT_BOSS_ALIASES[name] ?? name;
+}
+
 /** Game seasons (start dates). The last entry is the current season. */
 export const SEASONS: { season: number; startDate: string; endDate: string }[] = [
   { season: 1, startDate: '2020-05-05', endDate: '2020-11-05' },
