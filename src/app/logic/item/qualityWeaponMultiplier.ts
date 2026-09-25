@@ -203,6 +203,10 @@ export function applyQualityWeaponMultiplier(stats: Stats, rarity: ItemRarity, g
 }
 
 function calcValue(value: number, rarity: ItemRarity): number {
+  // Ujemne cechy przedmiotu nie są zwiększane przez mnożnik jakości (np. Przeklęty -10% PŻ zostaje -10%).
+  if (value < 0) {
+    return value;
+  }
   const qualityMult = getQualityMultiplier(rarity);
   const isEpic = isEpicTier(rarity);
   const epicMult = getEpicMultiplier(rarity);

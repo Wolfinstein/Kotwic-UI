@@ -280,6 +280,8 @@ export interface PlayerCombatState {
   unikPalna: number;
   unikDystans: number;
   enemyCritChanceReduction: number;
+  /** Twardość: subtracted from the mob's ignoreObrony before it discounts this player's defense (effective ignore = mob ignore - twardość). */
+  twardosc: number;
   hasGroza: boolean;
   grozaRound3Chance: number;
   lewiatanLevel: number;
@@ -352,14 +354,14 @@ function boostWeaponsCritMulti(weapons: WeaponDamage[], addedMulti: number): voi
   }
 }
 
-/** Merihim's Pasożyty: permanently strips 50 percentage points of crit chance and 1.0 crit multi from every weapon, floored at 0% chance / 1.0x multi. Applied once per player. */
+/** Merihim's Pasożyty: permanently strips 50 percentage points of crit chance and 1.0 crit multi from every weapon, floored at the engine's 1% chance / 1.0x multi. Applied once per player. */
 function applyPasozytyDebuff(weapons: WeaponDamage[]): void {
   for (const weapon of weapons) {
     // Subtract from the UNCAPPED crit chance (rawCritChance) so a player sitting above the 85%
     // engine cap — e.g. 130% — correctly lands on 80%, not 35% (85% cap - 50%). critChance is
     // then re-derived from that and re-capped at 85%.
     const rawBefore = weapon.rawCritChance ?? weapon.critChance ?? 0;
-    const rawAfter = Math.max(0, rawBefore - 0.5);
+    const rawAfter = Math.max(0.01, rawBefore - 0.5);
     weapon.rawCritChance = rawAfter;
     weapon.critChance = Math.min(rawAfter, 0.85);
     const newCritMulti = Math.max(1, (weapon.critMulti ?? 1) - 1);
@@ -586,9 +588,10 @@ function pancerzGunDefenseMultiplier(pancerzLevel: number): number {
   return 0;
 }
 
-/** Flat obrona/odpornosc-based reduction, applied AFTER the target's redukcja obrażeń percentage. Scaled down by the mob's own ignoreObrony (fully ignored at 100%+), mirroring the player-side formula. */
+/** Flat obrona/odpornosc-based reduction, applied AFTER the target's redukcja obrażeń percentage. Scaled down by the mob's own ignoreObrony minus the target's twardość (fully ignored at 100%+), mirroring the player-side formula. */
 function mobHitDefenseReduction(profile: MobCombatProfile, target: PlayerCombatState): number {
-  const ignoreFactor = Math.max(0, 1 - (profile.ignoreObrony ?? 0));
+  const effectiveIgnore = Math.max(0, (profile.ignoreObrony ?? 0) - target.twardosc);
+  const ignoreFactor = Math.max(0, 1 - effectiveIgnore);
   const obrona = target.obrona + target.lewiatanBonusObrona;
   const odpornosc = target.odpornosc + target.lewiatanBonusOdpornosc;
   if (profile.weaponGenre === 'dystans') return Math.floor(obrona / 4 * ignoreFactor);
@@ -773,6 +776,7 @@ export function computeCombatPreview(
       unikPalna: dashboard.unikPalna ?? 0,
       unikDystans: dashboard.unikDystans ?? 0,
       enemyCritChanceReduction: (dashboard.enemyCritChanceReduction ?? 0) + auraBestiiBonus.critReductionBonus,
+      twardosc: dashboard.twardrosc ?? 0,
       hasGroza: saved.character.arcaneLevels?.groza ?? false,
       grozaRound3Chance: grozaRound3Chance(saved.character.talizmanLevels?.szponyNocy ?? 0, saved.character.arcaneLevels?.nocnyLowca ?? 0),
       lewiatanLevel: saved.character.talizmanLevels?.lewiatan ?? 0,
@@ -1015,6 +1019,7 @@ export function simulateExpedition(
       unikPalna: dashboard.unikPalna ?? 0,
       unikDystans: dashboard.unikDystans ?? 0,
       enemyCritChanceReduction: (dashboard.enemyCritChanceReduction ?? 0) + auraBestiiBonus.critReductionBonus,
+      twardosc: dashboard.twardrosc ?? 0,
       hasGroza: saved.character.arcaneLevels?.groza ?? false,
       grozaRound3Chance: grozaRound3Chance(saved.character.talizmanLevels?.szponyNocy ?? 0, saved.character.arcaneLevels?.nocnyLowca ?? 0),
       lewiatanLevel: saved.character.talizmanLevels?.lewiatan ?? 0,

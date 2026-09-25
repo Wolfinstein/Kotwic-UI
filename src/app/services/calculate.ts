@@ -1349,6 +1349,10 @@ export class DashboardService {
       if (finalCritChance > 0.85) {
         finalCritChance = 0.85;
       }
+      // Silnik gry: realna szansa na trafienie krytyczne to min 1% (np. gdy Szybkości zbija ją poniżej zera).
+      if (finalCritChance < 0.01) {
+        finalCritChance = 0.01;
+      }
 
       let laczneProcentoweDmg = (player.stats.laczneObrazeniaWszystkichBroni * 100) / 100;
 
