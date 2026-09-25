@@ -263,35 +263,70 @@
   cursor: not-allowed;
 }
 
-/* ── Accent-colored tool cards ── */
+/* ── Accent-colored tool cards: frosted glass ── */
 .tool-card[class*="tool-accent-"] {
-  border-color: transparent;
+  --glass-alpha: 74%;
+  --glass-alpha-hover: 86%;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Soft light sheen across the top-left of each tile. */
+.tool-card[class*="tool-accent-"]::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.04) 38%, rgba(255, 255, 255, 0) 60%);
+  pointer-events: none;
+}
+
+.tool-card[class*="tool-accent-"] > * {
+  position: relative;
+}
+
+.tool-card[class*="tool-accent-"] > .tool-card-arrow {
+  position: absolute;
 }
 
 .tool-card[class*="tool-accent-"]:hover:not(.disabled) {
-  border-color: transparent;
-  filter: brightness(1.08);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transform: translateY(-3px);
 }
 
-.tool-accent-eggplant:hover:not(.disabled) { background: var(--tile-eggplant-bg); }
-.tool-accent-taupe:hover:not(.disabled) { background: var(--tile-taupe-bg); }
-.tool-accent-copper:hover:not(.disabled) { background: var(--tile-copper-bg); }
-.tool-accent-gold:hover:not(.disabled) { background: var(--tile-gold-bg); }
-.tool-accent-rattan:hover:not(.disabled) { background: var(--tile-rattan-bg); }
-.tool-accent-walnut:hover:not(.disabled) { background: var(--tile-walnut-bg); }
-.tool-accent-beige:hover:not(.disabled) { background: var(--tile-beige-bg); }
-.tool-accent-cream:hover:not(.disabled) { background: var(--tile-cream-bg); }
-.tool-accent-butter:hover:not(.disabled) { background: var(--tile-butter-bg); }
+/* Users who ask for less transparency get solid tiles. */
+@media (prefers-reduced-transparency: reduce) {
+  .tool-card[class*="tool-accent-"] {
+    --glass-alpha: 100%;
+    --glass-alpha-hover: 100%;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
 
-.tool-accent-eggplant { background: var(--tile-eggplant-bg); color: var(--tile-eggplant-text); }
-.tool-accent-taupe { background: var(--tile-taupe-bg); color: var(--tile-taupe-text); }
-.tool-accent-copper { background: var(--tile-copper-bg); color: var(--tile-copper-text); }
-.tool-accent-gold { background: var(--tile-gold-bg); color: var(--tile-gold-text); }
-.tool-accent-rattan { background: var(--tile-rattan-bg); color: var(--tile-rattan-text); }
-.tool-accent-walnut { background: var(--tile-walnut-bg); color: var(--tile-walnut-text); }
-.tool-accent-beige { background: var(--tile-beige-bg); color: var(--tile-beige-text); }
-.tool-accent-cream { background: var(--tile-cream-bg); color: var(--tile-cream-text); }
-.tool-accent-butter { background: var(--tile-butter-bg); color: var(--tile-butter-text); }
+.tool-accent-eggplant:hover:not(.disabled) { background: color-mix(in srgb, var(--tile-eggplant-bg) var(--glass-alpha-hover), transparent); }
+.tool-accent-taupe:hover:not(.disabled) { background: color-mix(in srgb, var(--tile-taupe-bg) var(--glass-alpha-hover), transparent); }
+.tool-accent-copper:hover:not(.disabled) { background: color-mix(in srgb, var(--tile-copper-bg) var(--glass-alpha-hover), transparent); }
+.tool-accent-gold:hover:not(.disabled) { background: color-mix(in srgb, var(--tile-gold-bg) var(--glass-alpha-hover), transparent); }
+.tool-accent-rattan:hover:not(.disabled) { background: color-mix(in srgb, var(--tile-rattan-bg) var(--glass-alpha-hover), transparent); }
+.tool-accent-walnut:hover:not(.disabled) { background: color-mix(in srgb, var(--tile-walnut-bg) var(--glass-alpha-hover), transparent); }
+.tool-accent-beige:hover:not(.disabled) { background: color-mix(in srgb, var(--tile-beige-bg) var(--glass-alpha-hover), transparent); }
+.tool-accent-cream:hover:not(.disabled) { background: color-mix(in srgb, var(--tile-cream-bg) var(--glass-alpha-hover), transparent); }
+.tool-accent-butter:hover:not(.disabled) { background: color-mix(in srgb, var(--tile-butter-bg) var(--glass-alpha-hover), transparent); }
+
+.tool-accent-eggplant { background: color-mix(in srgb, var(--tile-eggplant-bg) var(--glass-alpha), transparent); color: var(--tile-eggplant-text); }
+.tool-accent-taupe { background: color-mix(in srgb, var(--tile-taupe-bg) var(--glass-alpha), transparent); color: var(--tile-taupe-text); }
+.tool-accent-copper { background: color-mix(in srgb, var(--tile-copper-bg) var(--glass-alpha), transparent); color: var(--tile-copper-text); }
+.tool-accent-gold { background: color-mix(in srgb, var(--tile-gold-bg) var(--glass-alpha), transparent); color: var(--tile-gold-text); }
+.tool-accent-rattan { background: color-mix(in srgb, var(--tile-rattan-bg) var(--glass-alpha), transparent); color: var(--tile-rattan-text); }
+.tool-accent-walnut { background: color-mix(in srgb, var(--tile-walnut-bg) var(--glass-alpha), transparent); color: var(--tile-walnut-text); }
+.tool-accent-beige { background: color-mix(in srgb, var(--tile-beige-bg) var(--glass-alpha), transparent); color: var(--tile-beige-text); }
+.tool-accent-cream { background: color-mix(in srgb, var(--tile-cream-bg) var(--glass-alpha), transparent); color: var(--tile-cream-text); }
+.tool-accent-butter { background: color-mix(in srgb, var(--tile-butter-bg) var(--glass-alpha), transparent); color: var(--tile-butter-text); }
 
 .tool-accent-eggplant > .pi:first-child, .tool-accent-eggplant .tool-card-body h2, .tool-accent-eggplant .tool-card-arrow { color: var(--tile-eggplant-text); }
 .tool-accent-taupe > .pi:first-child, .tool-accent-taupe .tool-card-body h2, .tool-accent-taupe .tool-card-arrow { color: var(--tile-taupe-text); }
