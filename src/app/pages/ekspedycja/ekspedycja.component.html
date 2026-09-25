@@ -286,13 +286,19 @@
         <h3>Podgląd starcia</h3>
 
         @if (combatPreview.mob.hasProfile) {
-          <div class="manual-dmg-override">
+          <div class="manual-dmg-override" [class.manual-dmg-override-active]="manualDmgOverride">
             <div class="manual-dmg-toggle">
-              Dostosuj obrażenia moba ręcznie
+              <span class="manual-dmg-title"><i class="pi pi-sliders-h"></i>Dostosuj obrażenia moba ręcznie</span>
               @if (manualDmgOverride) {
+                <span class="manual-dmg-badge">Własne wartości</span>
                 <button type="button" class="manual-dmg-reset" (click)="resetManualDmgOverride()">Przywróć domyślne</button>
               }
             </div>
+            <p class="manual-dmg-hint">
+              Obrażenia mobów są <strong>szacunkowe</strong>. Otwórz swoje stare raporty z walki z tym mobem i sprawdź,
+              ile zadawał Ci obrażeń jednym ciosem. Porównaj to z polem <strong>„Obrażenia od bossa”</strong> na karcie
+              swojej postaci poniżej i przesuń suwaki, aż wartości będą się zgadzać. Dzięki temu symulacja będzie dużo dokładniejsza.
+            </p>
             <div class="manual-dmg-sliders">
               <div class="manual-dmg-slider-row">
                 <span class="manual-dmg-label">Min: {{ manualMinDmg }}</span>

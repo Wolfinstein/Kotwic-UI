@@ -1024,10 +1024,46 @@
 
 .manual-dmg-override {
   margin-bottom: 14px;
-  padding: 10px 14px;
-  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.12));
+  padding: 12px 14px;
+  border: 1px solid #c9954f99;
+  border-left: 4px solid #c9954f;
   border-radius: 8px;
-  background: var(--card-bg-alt, rgba(255, 255, 255, 0.03));
+  background: #c9954f14;
+  box-shadow: 0 0 12px #c9954f22;
+}
+
+.manual-dmg-override-active {
+  border-color: #c9954f;
+  box-shadow: 0 0 16px #c9954f44;
+}
+
+.manual-dmg-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #e0b16f;
+  margin-right: auto;
+}
+
+.manual-dmg-badge {
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: #1a1a1a;
+  background: #c9954f;
+}
+
+.manual-dmg-hint {
+  margin: 8px 0 0;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--text-color-secondary, inherit);
+}
+
+.manual-dmg-hint strong {
+  color: #e0b16f;
 }
 
 .manual-dmg-toggle {
