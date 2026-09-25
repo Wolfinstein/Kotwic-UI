@@ -91,7 +91,7 @@
                     Data {{ sortDirection() === 'asc' ? '▲' : '▼' }}
                   </th>
                   <th>Ekspedycja</th>
-                  <th>Gracze</th>
+                  <th>Drużyna</th>
                   <th></th>
                   <th></th>
                 </tr>
@@ -104,9 +104,10 @@
                     </tr>
                   } @else {
                     <tr class="group-row" (click)="toggleGroup(group.key)">
-                      <td>
+                      <td class="date-cell">
                         <span class="group-toggle">{{ isExpanded(group.key) ? '▾' : '▸' }}</span>
-                        {{ group.latestAt | date:'short' }}
+                        {{ group.latestAt | date:'yyyy-MM-dd' }}
+                        <span class="muted">{{ group.latestAt | date:'HH:mm' }}</span>
                       </td>
                       <td>
                         <ng-container *ngTemplateOutlet="expInfo; context: {
@@ -115,7 +116,9 @@
                           winPct: group.winPct, lossPct: group.lossPct, drawPct: group.drawPct
                         }"></ng-container>
                       </td>
-                      <td class="players-cell">{{ group.players.join(', ') }}</td>
+                      <td class="people-cell">
+                        @for (p of group.players; track $index) { <div class="person"><span class="person-name">{{ p }}</span></div> }
+                      </td>
                       <td>
                         <button class="import-btn" (click)="$event.stopPropagation(); importCharacters(group.logs[0])" [disabled]="wasImported(group.logs[0].id)"
                           title="Importuje postacie z najnowszego zapisu w tej grupie">
@@ -143,7 +146,10 @@
 </div>
 
 <ng-template #logCells let-log>
-  <td>{{ log.createdAt | date:'short' }}</td>
+  <td class="date-cell">
+    {{ log.createdAt | date:'yyyy-MM-dd' }}
+    <span class="muted">{{ log.createdAt | date:'HH:mm' }}</span>
+  </td>
   <td>
     <ng-container *ngTemplateOutlet="expInfo; context: {
       mob: log.mob, star: log.star, variant: log.variant,
@@ -151,7 +157,9 @@
       winPct: log.winPct, lossPct: log.lossPct, drawPct: log.drawPct
     }"></ng-container>
   </td>
-  <td class="players-cell">{{ log.players.join(', ') }}</td>
+  <td class="people-cell">
+    @for (p of log.players; track $index) { <div class="person"><span class="person-name">{{ p }}</span></div> }
+  </td>
   <td>
     <button class="import-btn" (click)="importCharacters(log)" [disabled]="wasImported(log.id)">
       {{ wasImported(log.id) ? 'Zaimportowano' : 'Importuj graczy' }}

@@ -102,12 +102,12 @@
 .dziennik-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--fs-sm, 0.9rem);
+  font-size: var(--fs-base);
 }
 
 .dziennik-table th,
 .dziennik-table td {
-  padding: 8px 10px;
+  padding: 7px 10px;
   text-align: left;
   border-bottom: 1px solid var(--border-muted);
   color: var(--value-color);
@@ -117,13 +117,31 @@
 .dziennik-table th {
   color: var(--label-color);
   font-weight: 600;
+  font-size: var(--fs-md);
 }
 
-.dziennik-table td.players-cell {
-  max-width: 220px;
-  white-space: normal;
-  overflow-wrap: break-word;
-  word-break: break-word;
+.dziennik-table tbody tr:hover td {
+  background: var(--bg-deep);
+}
+
+.date-cell .muted {
+  margin-left: 4px;
+}
+
+/* Team list — one player per line, as on /raporty-ekspedycji. */
+.people-cell {
+  white-space: normal !important;
+  min-width: 160px;
+}
+
+.person {
+  padding: 2px 0;
+  font-size: var(--fs-base);
+}
+
+.person-name {
+  font-weight: 600;
+  color: var(--section-icon);
 }
 
 .import-btn {
