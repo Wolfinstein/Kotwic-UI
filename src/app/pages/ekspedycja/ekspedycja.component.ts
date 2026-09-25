@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EXPEDITION_TOWERS, ExpeditionTower } from '../../data/ekspedycjaData';
 import { SavedCharactersService, SavedCharacter } from '../../services/saved-characters.service';
@@ -9,7 +9,6 @@ import { isMobSelectable, mobImplementationStatus, MobImplementationStatus } fro
 import { encodeCharactersToShareCode, decodeShareCode, SharedCharacterEntry } from '../../services/character-share.util';
 import { ExpeditionLogService, ExpeditionLogPayload } from '../../services/expedition-log.service';
 
-type VolumeLevel = 'low' | 'mid' | 'high';
 type ExpeditionStep = 'players' | 'towers' | 'combat';
 
 interface BulkSimPlayerResult {
@@ -29,10 +28,6 @@ interface BulkSimResult {
 const BULK_SIM_RUNS = 1000;
 const YOG_SOTHOTH_BULK_SIM_RUNS = 50;
 
-const VOLUME_LEVELS: VolumeLevel[] = ['low', 'mid', 'high'];
-const VOLUME_VALUES: Record<VolumeLevel, number> = { low: 0.25, mid: 0.6, high: 1 };
-const VOLUME_LABELS: Record<VolumeLevel, string> = { low: 'Cicho', mid: 'Średnio', high: 'Głośno' };
-
 // Same palette used for the color dots in the Postacie list (Kalkulator Postaci).
 const PLAYER_COLORS = ['#4fc3f7', '#81c784', '#ffb74d', '#f06292', '#ce93d8', '#80cbc4'];
 /** Combat-log line color for every player, regardless of which one. */
@@ -49,7 +44,7 @@ const SPECIAL_EFFECT_LOG_COLOR = '#00e676';
   templateUrl: './ekspedycja.component.html',
   styleUrl: './ekspedycja.component.css',
 })
-export class EkspedycjaComponent implements OnInit, OnDestroy {
+export class EkspedycjaComponent implements OnInit {
   readonly towers = EXPEDITION_TOWERS;
   step: ExpeditionStep = 'players';
   players: SavedCharacter[] = [];
@@ -66,8 +61,6 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   sampleLossResult: ExpeditionResult | null = null;
   /** One winning run from the last bulk simulation, but only kept when winning is rare (≤5% of runs) — an example of how a hard-to-pull-off win actually happened is useful; when winning is already the common outcome, there's nothing notable to inspect. */
   sampleWinResult: ExpeditionResult | null = null;
-  muted = true;
-  volumeLevel: VolumeLevel = 'mid';
 
   readonly starOptions = Array.from({ length: 12 }, (_, i) => i + 1);
   starLevel = 1;
@@ -88,22 +81,11 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   shareLinkCopied = signal(false);
   shareLinkError = signal<string | null>(null);
 
-  private readonly selectSound = new Audio('/mk-choose-your-destiny.mp3');
-  private readonly mobSelectSound = new Audio('/mob-select.mp3');
-  private readonly characterSelectSound = new Audio('/select-character.mp3');
-  private readonly characterSelectBackground = new Audio('/character-select.mp3');
-  private readonly towerBackground = new Audio('/ladder-select.mp3');
-  private readonly fightSound = new Audio('/mk4-fight.wav');
-
   constructor(
     private savedCharactersService: SavedCharactersService,
     private dashboardService: DashboardService,
     private expeditionLogService: ExpeditionLogService,
-  ) {
-    this.characterSelectBackground.loop = true;
-    this.towerBackground.loop = true;
-    this.applyVolume();
-  }
+  ) { }
 
   ngOnInit(): void {
     this.savedCharactersService.getAll$().subscribe(players => {
@@ -171,21 +153,6 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    this.characterSelectBackground.pause();
-    this.towerBackground.pause();
-    this.fightSound.pause();
-    this.muted = true;
-  }
-
-  get volumeLevelIndex(): number {
-    return VOLUME_LEVELS.indexOf(this.volumeLevel);
-  }
-
-  get volumeLabel(): string {
-    return VOLUME_LABELS[this.volumeLevel];
-  }
-
   avatarUrl(rasa: string): string | null {
     return rasaAvatarUrl(rasa);
   }
@@ -235,7 +202,6 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   /** Adds one more instance of this player to the selection — clicking a card always stacks another copy rather than deselecting. */
   togglePlayer(id: string): void {
     this.selectedPlayerIds = [...this.selectedPlayerIds, id];
-    this.playCharacterSelectSound();
   }
 
   /** Removes a single instance of this player from the selection (the badge's own click target). */
@@ -244,7 +210,6 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     const idx = this.selectedPlayerIds.lastIndexOf(id);
     if (idx === -1) return;
     this.selectedPlayerIds = [...this.selectedPlayerIds.slice(0, idx), ...this.selectedPlayerIds.slice(idx + 1)];
-    this.playCharacterSelectSound();
   }
 
   get allPlayersSelected(): boolean {
@@ -271,13 +236,11 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
 
   toggleSelectAllPlayers(): void {
     this.selectedPlayerIds = this.allPlayersSelected ? [] : this.players.map(p => p.id);
-    this.playCharacterSelectSound();
   }
 
   goToTowers(): void {
     if (!this.selectedPlayerIds.length) return;
     this.step = 'towers';
-    this.switchBackgroundTrack();
   }
 
   backToPlayers(): void {
@@ -285,7 +248,6 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.selectedTower = null;
     this.selectedMobName = null;
     this.bulkSimResult = null;
-    this.switchBackgroundTrack();
   }
 
   selectTower(tower: ExpeditionTower): void {
@@ -293,7 +255,6 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.selectedMobName = null;
     this.combatPreview = null;
     this.bulkSimResult = null;
-    this.playSelectSound();
   }
 
   selectMob(mobName: string): void {
@@ -301,7 +262,6 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     this.selectedMobName = mobName;
     this.bulkSimResult = null;
     this.manualDmgOverride = false;
-    this.playMobSelectSound();
     this.refreshCombatPreview();
   }
 
@@ -331,9 +291,6 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
       variant: this.mobVariant,
       players: this.selectedPlayers.map(p => p.name),
     });
-    this.characterSelectBackground.pause();
-    this.towerBackground.pause();
-    this.playFightSound();
     this.combatResult = simulateExpedition(this.selectedPlayers, mob, this.starLevel, this.dashboardService, this.mobVariant, this.dmgOverride);
     this.step = 'combat';
   }
@@ -363,22 +320,6 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   /** Rounded hit-rate percentage for the summary boxes — 0 when there's nothing to divide by. */
   percent(part: number, total: number): number {
     return total > 0 ? Math.round((part / total) * 100) : 0;
-  }
-
-  toggleMute(): void {
-    this.muted = !this.muted;
-    if (this.muted) {
-      this.characterSelectBackground.pause();
-      this.towerBackground.pause();
-    } else {
-      this.switchBackgroundTrack();
-    }
-  }
-
-  cycleVolume(): void {
-    const nextIndex = (this.volumeLevelIndex + 1) % VOLUME_LEVELS.length;
-    this.volumeLevel = VOLUME_LEVELS[nextIndex];
-    this.applyVolume();
   }
 
   toggleStarPicker(): void {
@@ -522,52 +463,5 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
       this.manualMinDmg = this.autoMinDmgAtToggle;
       this.manualMaxDmg = this.autoMaxDmgAtToggle;
     }
-  }
-
-  private get currentBackground(): HTMLAudioElement {
-    return this.step === 'players' ? this.characterSelectBackground : this.towerBackground;
-  }
-
-  private switchBackgroundTrack(): void {
-    this.characterSelectBackground.pause();
-    this.towerBackground.pause();
-    if (this.muted) return;
-    const track = this.currentBackground;
-    track.currentTime = 0;
-    track.play().catch(() => {});
-  }
-
-  private applyVolume(): void {
-    const value = VOLUME_VALUES[this.volumeLevel];
-    this.selectSound.volume = value;
-    this.mobSelectSound.volume = value;
-    this.characterSelectSound.volume = value;
-    this.fightSound.volume = value;
-    this.characterSelectBackground.volume = value * 0.75;
-    this.towerBackground.volume = value * 0.75;
-  }
-
-  private playSelectSound(): void {
-    if (this.muted) return;
-    this.selectSound.currentTime = 0;
-    this.selectSound.play().catch(() => {});
-  }
-
-  private playCharacterSelectSound(): void {
-    if (this.muted) return;
-    this.characterSelectSound.currentTime = 0;
-    this.characterSelectSound.play().catch(() => {});
-  }
-
-  private playMobSelectSound(): void {
-    if (this.muted) return;
-    this.mobSelectSound.currentTime = 0;
-    this.mobSelectSound.play().catch(() => {});
-  }
-
-  private playFightSound(): void {
-    if (this.muted) return;
-    this.fightSound.currentTime = 0;
-    this.fightSound.play().catch(() => {});
   }
 }

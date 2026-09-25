@@ -1,0 +1,232 @@
+<div class="raporty-view">
+  <div class="feature-section">
+    <div class="raporty-header">
+      <h1>Raporty z ekspedycji</h1>
+      <p>Prawdziwe raporty z walk z bossami. Filtruj po bossie, gwiazdkach i poziomie graczy, żeby zobaczyć, jakie drużyny wygrywały, i porównać je z wynikami symulatora.</p>
+    </div>
+
+    @if (loading()) {
+      <p class="muted"><i class="pi pi-spin pi-spinner"></i> Wczytywanie raportów…</p>
+    } @else if (loadError(); as err) {
+      <p class="error-text">{{ err }}</p>
+    } @else {
+      <div class="filters-row">
+        <label class="filter-field">
+          <span>Boss</span>
+          <select [ngModel]="boss()" (ngModelChange)="setBoss($event)">
+            <option value="">Wszyscy</option>
+            @for (b of bosses(); track b.name) {
+              <option [value]="b.name">{{ b.name }} ({{ b.count }})</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>★</span>
+          <select [ngModel]="stars()" (ngModelChange)="setFilter(stars, $event)">
+            <option [ngValue]="''">Wszystkie</option>
+            @for (s of starOptions(); track s) {
+              <option [ngValue]="s">{{ s }}</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Trudność</span>
+          <select [ngModel]="difficulty()" (ngModelChange)="setFilter(difficulty, $event)">
+            <option value="">Wszystkie</option>
+            @for (d of difficulties(); track d) {
+              <option [value]="d">{{ d }}</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Wynik</span>
+          <select [ngModel]="result()" (ngModelChange)="setFilter(result, $event)">
+            <option value="">Wszystkie</option>
+            <option value="W">Wygrana</option>
+            <option value="L">Przegrana</option>
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Poziom od</span>
+          <input type="number" min="1" class="level-input" [ngModel]="minLevel()" (ngModelChange)="setFilter(minLevel, parseLevel($event))" />
+        </label>
+        <label class="filter-field">
+          <span>Poziom do</span>
+          <input type="number" min="1" class="level-input" [ngModel]="maxLevel()" (ngModelChange)="setFilter(maxLevel, parseLevel($event))" />
+        </label>
+        <label class="filter-field">
+          <span>Od daty</span>
+          <input type="date" [ngModel]="dateFrom()" (ngModelChange)="setFilter(dateFrom, $event)" />
+        </label>
+        <label class="filter-field">
+          <span>Do daty</span>
+          <input type="date" [ngModel]="dateTo()" (ngModelChange)="setFilter(dateTo, $event)" />
+        </label>
+        <label class="filter-field filter-search">
+          <span>Gracz lub broń</span>
+          <input type="search" placeholder="np. Mati, Skorpion" [ngModel]="search()" (ngModelChange)="setFilter(search, $event)" />
+        </label>
+        @if (hasActiveFilters()) {
+          <button type="button" class="clear-filters-btn" (click)="clearFilters()">Wyczyść filtry</button>
+        }
+      </div>
+
+      <div class="summary-row">
+        <span><strong>{{ summary().total | number }}</strong> raportów</span>
+        @if (summary().total) {
+          <span class="summary-sep">·</span>
+          <span>wygrane <strong class="win">{{ summary().winPct }}%</strong> ({{ summary().wins | number }})</span>
+        }
+      </div>
+
+      @if (!pageItems().length) {
+        <p class="muted">Brak raportów dla wybranych filtrów.</p>
+      } @else {
+        <div class="table-wrap">
+          <table class="raporty-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th class="sortable-th" (click)="toggleSort()">Data {{ sortDesc() ? '▼' : '▲' }}</th>
+                <th>Boss</th>
+                <th>★</th>
+                <th>Trudność</th>
+                <th>Wynik</th>
+                <th>Drużyna</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of pageItems(); track r.id) {
+                <tr class="report-row" (click)="toggle(r.id)">
+                  <td><span class="row-toggle">{{ isExpanded(r.id) ? '▾' : '▸' }}</span></td>
+                  <td>{{ r.date }}</td>
+                  <td>{{ r.boss }}</td>
+                  <td>{{ r.stars }}</td>
+                  <td>{{ r.difficulty }}</td>
+                  <td><span class="result-badge" [class.win]="r.won" [class.loss]="!r.won">{{ r.won ? 'Wygrana' : 'Przegrana' }}</span></td>
+                  <td class="players-cell">
+                    @for (p of r.players; track $index; let last = $last) {
+                      <span class="player-chip">{{ p.name }} <span class="muted">({{ p.level }})</span></span>{{ last ? '' : ', ' }}
+                    }
+                  </td>
+                  <td>
+                    @if (r.url) {
+                      <a class="report-link" [href]="r.url" target="_blank" rel="noopener noreferrer" (click)="$event.stopPropagation()" title="Otwórz raport w grze">
+                        <i class="pi pi-external-link"></i>
+                      </a>
+                    }
+                  </td>
+                </tr>
+                @if (isExpanded(r.id)) {
+                  <tr class="details-row">
+                    <td colspan="8">
+                      <div class="details">
+                        <div class="details-meta">
+                          <span><span class="muted">Lokacja:</span> {{ r.location }}</span>
+                          @if (r.eventName) {
+                            <span><span class="muted">Wydarzenie:</span> {{ r.eventName }}</span>
+                          }
+                        </div>
+
+                        <h4>Gracze</h4>
+                        <div class="table-wrap">
+                          <table class="stats-table">
+                            <thead>
+                              <tr>
+                                <th>Gracz</th>
+                                <th>Rasa</th>
+                                <th>Poz.</th>
+                                <th>PŻ</th>
+                                <th>Inicj.</th>
+                                @for (k of statKeys; track k) {
+                                  <th>{{ statLabels[k] }}</th>
+                                }
+                                <th>Broń</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (p of r.players; track $index) {
+                                <tr>
+                                  <td>{{ p.name }}</td>
+                                  <td>{{ p.race }}</td>
+                                  <td>{{ p.level }}</td>
+                                  <td>{{ p.hpMax | number }}</td>
+                                  <td>{{ p.initiative }}</td>
+                                  @for (k of statKeys; track k) {
+                                    <td>{{ p[k] | number }}</td>
+                                  }
+                                  <td class="wrap-cell">{{ p.weapons.join(', ') }}</td>
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+
+                        <div class="player-bonuses">
+                          @for (p of r.players; track $index) {
+                            @if (hasBonuses(p)) {
+                              <details class="bonus-card">
+                                <summary>{{ p.name }} — talizmany, ewolucje, arkana, bonusy</summary>
+                                <dl>
+                                  @if (p.talismans.length) { <dt>Talizmany</dt><dd>{{ p.talismans.join(', ') }}</dd> }
+                                  @if (p.evolutions.length) { <dt>Ewolucje</dt><dd>{{ p.evolutions.join(', ') }}</dd> }
+                                  @if (p.arcanes.length) { <dt>Arkana</dt><dd>{{ p.arcanes.join(', ') }}</dd> }
+                                  @if (p.huntBonuses.length) { <dt>Bonusy z polowania</dt><dd>{{ p.huntBonuses.join(', ') }}</dd> }
+                                  @if (p.silverBonuses.length) { <dt>Srebrne bonusy</dt><dd>{{ p.silverBonuses.join(', ') }}</dd> }
+                                  @if (p.goldBonuses.length) { <dt>Złote bonusy</dt><dd>{{ p.goldBonuses.join(', ') }}</dd> }
+                                </dl>
+                              </details>
+                            }
+                          }
+                        </div>
+
+                        <h4>Przeciwnicy</h4>
+                        <div class="table-wrap">
+                          <table class="stats-table">
+                            <thead>
+                              <tr>
+                                <th>Przeciwnik</th>
+                                <th>PŻ</th>
+                                <th>Inicj.</th>
+                                @for (k of statKeys; track k) {
+                                  <th>{{ statLabels[k] }}</th>
+                                }
+                              </tr>
+                            </thead>
+                            <tbody>
+                              @for (e of r.enemies; track $index) {
+                                <tr [class.boss-row]="e.name === r.boss">
+                                  <td>{{ e.name }}</td>
+                                  <td>{{ e.hpMax | number }}</td>
+                                  <td>{{ e.initiative }}</td>
+                                  @for (k of statKeys; track k) {
+                                    <td>{{ e[k] | number }}</td>
+                                  }
+                                </tr>
+                              }
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (pageCount() > 1) {
+          <div class="pager">
+            <button type="button" class="pager-btn" [disabled]="page() === 0" (click)="goToPage(0)">«</button>
+            <button type="button" class="pager-btn" [disabled]="page() === 0" (click)="goToPage(page() - 1)">‹</button>
+            <span class="pager-info">Strona {{ page() + 1 }} z {{ pageCount() }}</span>
+            <button type="button" class="pager-btn" [disabled]="page() >= pageCount() - 1" (click)="goToPage(page() + 1)">›</button>
+            <button type="button" class="pager-btn" [disabled]="page() >= pageCount() - 1" (click)="goToPage(pageCount() - 1)">»</button>
+          </div>
+        }
+      }
+    }
+  </div>
+</div>

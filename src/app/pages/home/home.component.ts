@@ -31,10 +31,10 @@ export class HomeComponent {
     { label: 'Symulator ekspedycji', description: 'Symulator ekspedycji.', icon: 'pi pi-send', route: '/ekspedycja', accent: 'plum', size: 'wide' },
     { label: 'Moby i exp', description: 'Statystyki przeciwników wraz z kalkulatorem doświadczenia.', icon: 'pi pi-users', route: '/moby', accent: 'ash' },
     { label: 'Podróże', description: 'Symulator podróży', icon: 'pi pi-map', route: '/podroze', accent: 'rose' },
+    { label: 'Raporty z ekspedycji', description: 'Wyszukiwarka prawdziwych raportów z ekspedycji — filtruj po bossie, gwiazdkach i poziomie graczy.', icon: 'pi pi-list', route: '/raporty', accent: 'teal' },
   ];
 
   externalTools: HomeTool[] = [
-    { label: 'Raporty z ekspedycji', description: 'Wyszukiwarka raportów z ekspedycji (aktualizowana w miare możliwości).', icon: 'pi pi-chart-bar', href: 'https://bw-report-analyzer.42web.io' },
     { label: 'Tabelka Matiego', description: 'Arkusz kalkulacyjny Google Sheets.', icon: 'pi pi-table', href: 'https://docs.google.com/spreadsheets/d/1U5ju3HvKkieSBx0V1ZC5YE2cfrD1zOBaXsq_g1fUKBM/edit?gid=394641403&pli=1&authuser=0#gid=394641403' },
     { label: 'Podróże Starego Nerda', description: 'Dokument Google Docs.', icon: 'pi pi-file', href: 'https://docs.google.com/document/d/1jZtSvNYHQoS9i6bEJV1Wi1g6hnC2A-GhbKXx3ZLPH6M/edit?tab=t.0' },
     { label: 'ZdrasTool', description: 'Zewnętrzne narzędzie.', icon: 'pi pi-wrench', href: 'https://zdrastools.neocities.org/' },

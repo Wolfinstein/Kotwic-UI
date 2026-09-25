@@ -31,12 +31,12 @@ export class NavBarComponent {
     { label: 'Moby i exp', icon: 'pi pi-users', route: '/moby' },
     { label: 'Podróże', icon: 'pi pi-map', route: '/podroze' },
     { label: 'Symulator ekspedycji', icon: 'pi pi-send', route: '/ekspedycja' },
+    { label: 'Raporty z ekspedycji', icon: 'pi pi-list', route: '/raporty' },
   ];
 
   // External tools — separate source/domain. Collected into a right-aligned
   // dropdown in a distinct accent colour, opening in a new tab. Add more here.
   externalItems: NavItem[] = [
-    { label: 'Raporty z ekspedycji', icon: 'pi pi-chart-bar', href: 'https://bw-report-analyzer.42web.io' },
     { label: 'Tabelka Matiego', icon: 'pi pi-table', href: 'https://docs.google.com/spreadsheets/d/1U5ju3HvKkieSBx0V1ZC5YE2cfrD1zOBaXsq_g1fUKBM/edit?gid=394641403&pli=1&authuser=0#gid=394641403' },
     { label: 'Podróże Starego Nerda', icon: 'pi pi-file', href: 'https://docs.google.com/document/d/1jZtSvNYHQoS9i6bEJV1Wi1g6hnC2A-GhbKXx3ZLPH6M/edit?tab=t.0' },
     { label: 'ZdrasTool', icon: 'pi pi-wrench', href: 'https://zdrastools.neocities.org/' },

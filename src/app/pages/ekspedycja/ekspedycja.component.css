@@ -26,59 +26,6 @@
   position: relative;
 }
 
-.header-controls {
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: flex;
-  gap: 8px;
-}
-
-.btn-mute,
-.btn-volume {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  background: var(--bg-hover);
-  border: 1px solid var(--border-muted);
-  border-radius: 6px;
-  color: var(--label-color);
-  font-size: var(--fs-md);
-  cursor: pointer;
-}
-
-.btn-mute:hover,
-.btn-volume:hover {
-  border-color: var(--section-icon);
-  color: var(--section-icon);
-}
-
-.btn-volume {
-  gap: 3px;
-}
-
-.volume-bar {
-  width: 4px;
-  height: 8px;
-  background: var(--border-muted);
-  border-radius: 1px;
-  transition: background 0.15s ease;
-}
-
-.volume-bar:nth-child(2) {
-  height: 13px;
-}
-
-.volume-bar:nth-child(3) {
-  height: 18px;
-}
-
-.volume-bar.active {
-  background: var(--section-icon);
-}
-
 .star-picker {
   position: relative;
 }
