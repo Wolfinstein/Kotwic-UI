@@ -65,7 +65,8 @@ export function applyQualityMultiplier(stats: Stats, rarity: ItemRarity, playerL
     }
     if (prop == 'critMultiSpeed' && result.critMultiSpeed > 0) {
       let multi = calcValue(value, rarity, prop);
-      tempMultiPalna2h = multi * Math.floor(playerLvl.valueOf() / 4)
+      // Zaokrąglenie do setnych usuwa szum zmiennoprzecinkowy (np. 0.03*37 = 1.1099999999999999).
+      tempMultiPalna2h = Math.round(multi * Math.floor(playerLvl.valueOf() / 4) * 100) / 100;
     }
     if (value > 0 && prop != 'dps' && prop != 'critMultiSpeed') {
       let multipliedValue: number;

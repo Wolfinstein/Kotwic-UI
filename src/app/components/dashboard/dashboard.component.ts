@@ -5,7 +5,7 @@ import { ChartModule } from 'primeng/chart';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Chart } from 'chart.js';
 import { CharacterService } from '../../services/character.service';
-import { Character, DashboardValues } from '../../models/character';
+import { Character, DashboardValues, WeaponDamage } from '../../models/character';
 
 Chart.register(ChartDataLabels);
 
@@ -88,6 +88,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
         borderWidth: 1
       }]
     };
+  }
+
+  /** True when an engine limit changed the value (raw value above the cap). */
+  isCapped(raw: number | undefined, cap: number | undefined): boolean {
+    return raw !== undefined && cap !== undefined && raw > cap + 1e-9;
+  }
+
+  capTooltip(raw: number | undefined, cap: number | undefined): string {
+    return `Masz ${((raw ?? 0) * 100).toFixed(1)}%, ale gra liczy maksymalnie ${((cap ?? 0) * 100).toFixed(0)}% — nadwyżka nic nie daje.`;
+  }
+
+  critLimited(weapon: WeaponDamage): boolean {
+    const raw = weapon.rawCritChance ?? weapon.critChance ?? 0;
+    return raw > 0.85 || raw < 0.01;
   }
 
   getAttrValue(key: string): number {

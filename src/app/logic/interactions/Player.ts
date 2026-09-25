@@ -261,6 +261,13 @@ export class Player {
   }
 
   resolveWeaponItem(a: Item, playerLvl: number): Stats {
+    const temp = Player.rawWeaponStats(a);
+    const multiplied = applyQualityWeaponMultiplier(temp, a.getRarity(), a.getGenre(), playerLvl, a.base?.type);
+    return multiplied;
+  }
+
+  /** Base + prefix + suffix stats summed at the Zwykły level, before any rarity scaling. */
+  static rawWeaponStats(a: Item): WeaponStats {
     const temp = new WeaponStats();
 
     if (a.base?.stats) {
@@ -275,8 +282,7 @@ export class Player {
       temp.addWeaponStats(a.suffix.stats as WeaponStats);
     }
 
-    const multiplied = applyQualityWeaponMultiplier(temp, a.getRarity(), a.getGenre(), playerLvl, a.base?.type);
-    return multiplied;
+    return temp;
   }
 
   resolveSetBonuses(): void {

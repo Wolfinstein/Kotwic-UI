@@ -25,12 +25,15 @@
           <span class="attr-value">{{ dashboardValues?.obrona | number:'1.0-2' }}</span>
         </div>
         <div class="attr-item">
-          <span class="attr-label">Twardość</span>
-          <span class="attr-value">{{ dashboardValues?.twardrosc | number:'1.0-2'}}</span>
+          <span class="attr-label" pTooltip="Zmniejsza ignorowanie obrony przeciwnika (jego ignorowanie − twoja twardość)" tooltipPosition="top">Twardość</span>
+          <span class="attr-value">{{ (dashboardValues?.twardrosc ?? 0) * 100 | number:'1.0-1' }}%</span>
         </div>
         <div class="attr-item">
-          <span class="attr-label">Redukcja</span>
-          <span class="attr-value">{{ dashboardValues?.redukcja | number:'1.0-2' }}</span>
+          <span class="attr-label" pTooltip="Ignorowanie obrażeń: 1% za każde 75 obrony, maksymalnie 30%" tooltipPosition="top">Redukcja</span>
+          <span class="attr-value">
+            {{ (dashboardValues?.redukcja ?? 0) * 100 | number:'1.0-1' }}%
+            <span class="cap-badge" *ngIf="isCapped(dashboardValues?.redukcjaRaw, 0.30)" [pTooltip]="capTooltip(dashboardValues?.redukcjaRaw, 0.30)" tooltipPosition="top">limit</span>
+          </span>
         </div>
       </div>
     </div>
@@ -41,15 +44,24 @@
       <div class="attr-grid attr-grid--3col">
         <div class="attr-item">
           <span class="attr-label">Unik Biała</span>
-          <span class="attr-value">{{ dashboardValues?.unikBiala | number:'1.0-2' }}</span>
+          <span class="attr-value">
+            {{ (dashboardValues?.unikBiala ?? 0) * 100 | number:'1.0-1' }}%
+            <span class="cap-badge" *ngIf="isCapped(dashboardValues?.unikBialaRaw, dashboardValues?.unikCap)" [pTooltip]="capTooltip(dashboardValues?.unikBialaRaw, dashboardValues?.unikCap)" tooltipPosition="top">limit</span>
+          </span>
         </div>
         <div class="attr-item">
           <span class="attr-label">Unik Palna</span>
-          <span class="attr-value">{{ dashboardValues?.unikPalna | number:'1.0-2' }}</span>
+          <span class="attr-value">
+            {{ (dashboardValues?.unikPalna ?? 0) * 100 | number:'1.0-1' }}%
+            <span class="cap-badge" *ngIf="isCapped(dashboardValues?.unikPalnaRaw, dashboardValues?.unikCap)" [pTooltip]="capTooltip(dashboardValues?.unikPalnaRaw, dashboardValues?.unikCap)" tooltipPosition="top">limit</span>
+          </span>
         </div>
         <div class="attr-item">
           <span class="attr-label">Unik Dystans</span>
-          <span class="attr-value">{{ dashboardValues?.unikDystans | number:'1.0-2'}}</span>
+          <span class="attr-value">
+            {{ (dashboardValues?.unikDystans ?? 0) * 100 | number:'1.0-1' }}%
+            <span class="cap-badge" *ngIf="isCapped(dashboardValues?.unikDystansRaw, dashboardValues?.unikCap)" [pTooltip]="capTooltip(dashboardValues?.unikDystansRaw, dashboardValues?.unikCap)" tooltipPosition="top">limit</span>
+          </span>
         </div>
         <div class="attr-item">
           <span class="attr-label">Trafienie Biała</span>
@@ -60,7 +72,7 @@
           <span class="attr-value">{{ dashboardValues?.trafienieDodatkowePalna | number:'1.0-2' }}</span>
         </div>
         <div class="attr-item">
-          <span class="attr-label" pTooltip="Trafienie z legendarnego dystansu jest dodawane osobno">Trafienie Dystans</span>
+          <span class="attr-label" pTooltip="Trafienie z legendarnego dystansu jest dodawane osobno" tooltipPosition="top">Trafienie Dystans</span>
           <span class="attr-value">{{ dashboardValues?.trafienieDodatkoweDystans | number:'1.0-2'}}</span>
         </div>
       </div>
@@ -145,8 +157,11 @@
             <span class="sub-text">ataki</span>
           </div>
           <div class="value-badge" *ngIf="weapon.critChance !== undefined">
-            <div>{{ (weapon.rawCritChance ?? weapon.critChance) * 100 | number:'1.1-1' }}%</div>
-            <span class="sub-text">crit chance <ng-container *ngIf="(weapon.rawCritChance ?? 0) > 0.85">(capped 85%)</ng-container><ng-container *ngIf="(weapon.rawCritChance ?? 0) <= 0.85">(max 85%)</ng-container></span>
+            <div>
+              {{ weapon.critChance * 100 | number:'1.1-1' }}%
+              <span class="cap-badge" *ngIf="critLimited(weapon)" [pTooltip]="'Przed limitem: ' + ((weapon.rawCritChance ?? 0) * 100 | number:'1.1-1') + '% — gra ogranicza szansę do 1–85%'" tooltipPosition="top">limit</span>
+            </div>
+            <span class="sub-text">crit chance</span>
           </div>
           <div class="value-badge" *ngIf="weapon.critMulti !== undefined">
             <div>{{ weapon.critMulti * 100 | number:'1.1-1' }}%</div>
@@ -169,6 +184,22 @@
           <span class="modifier">⚔ Śr. obrażenia/rundę: {{ floor(weapon.obrazeniaNaRundeAvg) | number:'1.0-0' }}</span>
           <span class="modifier" *ngIf="weapon.estimatedHitChance !== undefined">🎯 Szansa trafienia: {{ weapon.estimatedHitChance * 100 | number:'1.1-1' }}%</span>
         </div>
+        <details class="breakdown" *ngIf="weapon.breakdown?.length">
+          <summary>Jak to policzono?</summary>
+          <div class="breakdown-section" *ngFor="let section of weapon.breakdown">
+            <div class="breakdown-title">{{ section.title }}</div>
+            <div class="breakdown-step" *ngFor="let step of section.steps" [class.breakdown-total]="step.total">
+              <div class="breakdown-line">
+                <span class="breakdown-label">{{ step.label }}</span>
+                <span class="breakdown-value">
+                  {{ step.value }}
+                  <span class="cap-badge" *ngIf="step.capped">limit</span>
+                </span>
+              </div>
+              <div class="breakdown-detail" *ngIf="step.detail">{{ step.detail }}</div>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
   </div>

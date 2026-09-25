@@ -3,7 +3,7 @@ import { ItemGenre } from './constants';
 import { ItemRarity } from './constants/itemRarity';
 import { ItemType } from './constants/itemType';
 import { WeaponStats } from './WeaponStats';
-import { getQualityMultiplier, isLegendary, isEpicTier, getEpicMultiplier, getLegendaryBonus, scaleValue } from './qualityMultiplierUtils';
+import { getRarityMultipliers, scaleValue } from './qualityMultiplierUtils';
 
 export { getQualityMultiplier } from './qualityMultiplierUtils';
 
@@ -207,20 +207,72 @@ function calcValue(value: number, rarity: ItemRarity): number {
   if (value < 0) {
     return value;
   }
-  const qualityMult = getQualityMultiplier(rarity);
-  const isEpic = isEpicTier(rarity);
-  const epicMult = getEpicMultiplier(rarity);
-  const isLeg = isLegendary(rarity);
-  const legendaryBonus = getLegendaryBonus(rarity);
-  let multipliedValue: number;
+  return scaleValue(value, getRarityMultipliers(rarity));
+}
 
-  if (isEpic) {
-    multipliedValue = scaleValue(value, [epicMult, legendaryBonus]);
-  } else if (isLeg) {
-    multipliedValue = scaleValue(value, [qualityMult, legendaryBonus]);
-  } else {
-    multipliedValue = scaleValue(value, [qualityMult]);
-  }
+const WEAPON_DMG_FIELDS: Record<string, [keyof WeaponStats, keyof WeaponStats]> = {
+  [ItemGenre.GUN_1H]: ['minDpsPalna1h', 'maxDpsPalna1h'],
+  [ItemGenre.GUN_2H]: ['minDpsPalna2h', 'maxDpsPalna2h'],
+  [ItemGenre.RANGE_1H]: ['minDpsDystans1h', 'maxDpsDystans1h'],
+  [ItemGenre.RANGE_2H]: ['minDpsDystans2h', 'maxDpsDystans2h'],
+  [ItemGenre.WHITE_1H]: ['minDpsBiala1h', 'maxDpsBiala1h'],
+  [ItemGenre.WHITE_2H]: ['minDpsBiala2h', 'maxDpsBiala2h'],
+};
 
-  return multipliedValue;
+const fmtMult = (m: number): string => '×' + String(m).replace('.', ',');
+
+/**
+ * Human-readable trace of how a weapon's own min/max damage is built from its raw (Zwykły-level)
+ * stats — e.g. "22 ×2,5 → 55 ×1,5 → 83 ×2 → 166 + 8×25 (obr./poziom) → 366 ×1,1 → 403".
+ * Mirrors applyQualityWeaponMultiplier step by step; returns null when the trace doesn't land on the
+ * value that function actually produces, so the UI never shows a wrong explanation.
+ */
+export function describeWeaponDamageScaling(raw: Stats, rarity: ItemRarity, genre: ItemGenre, playerLvl: number, itemType?: ItemType): { min: string; max: string } | null {
+  const fields = WEAPON_DMG_FIELDS[genre];
+  if (!fields) return null;
+  const actual = applyQualityWeaponMultiplier(raw, rarity, genre, playerLvl, itemType) as WeaponStats;
+  const r = raw as WeaponStats;
+  const twoHanded = genre == ItemGenre.WHITE_2H || genre == ItemGenre.GUN_2H || genre == ItemGenre.RANGE_2H;
+  const starozytny = rarity === ItemRarity.STAROZYTNY;
+  const mults = getRarityMultipliers(rarity);
+  const hasPerLevel = genre == ItemGenre.WHITE_1H || genre == ItemGenre.WHITE_2H || genre == ItemGenre.GUN_2H;
+  const levelSteps = Math.ceil(playerLvl / 4);
+  const perLevel = hasPerLevel ? calcValue(r.obrazeniaPerLevel, rarity) : 0;
+  const vsPotwory = calcValue(r.dpsVsPotwory, rarity);
+  const isGun = genre == ItemGenre.GUN_1H || genre == ItemGenre.GUN_2H;
+
+  const trace = (baza: number, broni: number, expected: number): string | null => {
+    const parts: string[] = [String(baza)];
+    let v = baza;
+    if (v > 0) {
+      for (const m of mults) {
+        v = scaleValue(v, [m]);
+        if (m !== 1) parts.push(`${fmtMult(m)} → ${v}`);
+      }
+    }
+    if (starozytny) {
+      const bazaMult = twoHanded ? 3 : 2;
+      v *= bazaMult;
+      parts.push(`${fmtMult(bazaMult)} (starożytna baza) → ${v}`);
+    }
+    if (perLevel) {
+      v += perLevel * levelSteps;
+      parts.push(`+ ${perLevel}×${levelSteps} (obr. co 4 poziomy) → ${v}`);
+    }
+    if (starozytny) {
+      const dmgMult = twoHanded ? 1.2 : 1.1;
+      v = Math.ceil(Number((v * dmgMult).toFixed(6)));
+      parts.push(`${fmtMult(dmgMult)} (starożytny) → ${v}`);
+    }
+    const extra = vsPotwory + (isGun ? 0 : calcValue(broni, rarity));
+    if (extra) {
+      v += extra;
+      parts.push(`+ ${extra} (obrażenia broni) → ${v}`);
+    }
+    return v === expected ? parts.join(' ') : null;
+  };
+
+  const min = trace(r.bazaDpsMin, r.dpsBroniMin, actual[fields[0]] as number);
+  const max = trace(r.bazaDpsMax, r.dpsBroniMax, actual[fields[1]] as number);
+  return min && max ? { min, max } : null;
 }

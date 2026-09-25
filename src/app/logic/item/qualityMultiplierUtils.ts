@@ -80,6 +80,13 @@ export function getLegendaryBonus(rarity: ItemRarity): number {
   return rarity === ItemRarity.STAROZYTNY ? STAROZYTNY_BONUS : LEGENDARY_BONUS;
 }
 
+/** The multipliers applied one after another (rounding up after each) for a given rarity. */
+export function getRarityMultipliers(rarity: ItemRarity): number[] {
+  if (isEpicTier(rarity)) return [getEpicMultiplier(rarity), getLegendaryBonus(rarity)];
+  if (isLegendary(rarity)) return [getQualityMultiplier(rarity), getLegendaryBonus(rarity)];
+  return [getQualityMultiplier(rarity)];
+}
+
 export function scaleValue(value: number, multipliers: number[], name: string = ''): number {
   if (value >= 1) {
     let result = value;

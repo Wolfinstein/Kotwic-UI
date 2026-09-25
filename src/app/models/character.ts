@@ -127,6 +127,21 @@ export interface Character {
     handlarz: number;
     gazeta: number;
 }
+/** One line of a "how was this calculated" trace shown on the dashboard. */
+export interface BreakdownStep {
+    label: string;
+    value: string;
+    /** Optional longer explanation, e.g. the rarity scaling chain. */
+    detail?: string;
+    /** Marks the final line of a section. */
+    total?: boolean;
+    /** Marks a line where an engine limit (cap/floor) changed the value. */
+    capped?: boolean;
+}
+export interface BreakdownSection {
+    title: string;
+    steps: BreakdownStep[];
+}
 export interface WeaponDamage {
     name: string;
     minDmg: number;
@@ -146,6 +161,8 @@ export interface WeaponDamage {
     estimatedHitChance?: number;
     /** Hit chance against the boss itself when it caps the hit chance (Character.maxTrafieniePrzeciwnika) — its adds still use estimatedHitChance. Unset otherwise. */
     bossHitChance?: number;
+    /** Step-by-step trace of how damage, crit and hit chance were computed. */
+    breakdown?: BreakdownSection[];
 }
 export interface DashboardValues {
     punktyKrwi?: number;
@@ -171,6 +188,13 @@ export interface DashboardValues {
     /** Portion of regenBase contributed by the Krew Życia arcane investment — used by the expedition combat sim so Zepar's Aura Niewiary can strip just this share from a blocked player's regen. */
     krewZyciaRegen?: number;
     regenHalved?: boolean;
+    /** Engine cap on unik (30%, raised by Mutacja DNA) and the values before it was applied. */
+    unikCap?: number;
+    unikBialaRaw?: number;
+    unikPalnaRaw?: number;
+    unikDystansRaw?: number;
+    /** Redukcja before the 30% cap. */
+    redukcjaRaw?: number;
     zizAverageRounds?: number[];
     roundsPerWeapon?: { name: string; rounds: number[] }[];
 };

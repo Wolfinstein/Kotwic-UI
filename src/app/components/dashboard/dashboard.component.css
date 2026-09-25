@@ -407,3 +407,87 @@ h4 {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--bg-hover);
 }
+.cap-badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 6px;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 1.5;
+  vertical-align: middle;
+  color: #c9954f;
+  border: 1px solid #c9954f88;
+  background: #c9954f1a;
+  cursor: help;
+}
+
+.breakdown {
+  margin-top: 10px;
+  border-top: 1px solid var(--border-muted);
+  padding-top: 8px;
+  font-size: var(--fs-sm);
+}
+
+.breakdown summary {
+  cursor: pointer;
+  color: var(--color-accent);
+  font-size: var(--fs-sm);
+  user-select: none;
+}
+
+.breakdown-section {
+  margin-top: 10px;
+}
+
+.breakdown-title {
+  color: var(--label-color);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.breakdown-step {
+  padding: 3px 0;
+}
+
+.breakdown-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.breakdown-label {
+  color: var(--label-color);
+  min-width: 0;
+}
+
+.breakdown-value {
+  color: var(--value-color);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.breakdown-total {
+  border-top: 1px dashed var(--border-muted);
+  margin-top: 2px;
+  padding-top: 5px;
+  font-weight: 600;
+}
+
+.breakdown-total .breakdown-label {
+  color: var(--value-color);
+}
+
+.breakdown-detail {
+  margin-top: 2px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: var(--bg-deep);
+  color: var(--label-color);
+  font-size: var(--fs-xs);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}

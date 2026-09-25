@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions, WeaponDamage } from '../models/character';
+import { Character, Attributes, TalizmanLevels, ArcaneLevels, DashboardValues, Evolutions, WeaponDamage, BreakdownSection, BreakdownStep } from '../models/character';
+import { describeWeaponDamageScaling } from '../logic/item/qualityWeaponMultiplier';
 import { ArmourDictionary } from '../logic/dictionaries/ArmourDictionary';
 import { BaseDictionary } from '../logic/dictionaries/BaseDictionary';
 import { JewelsDictionary } from '../logic/dictionaries/JewelsDictionary';
@@ -81,6 +82,10 @@ export class DashboardService {
   /** Unik is capped at 30%, raised to 31%/32% by Mutacja DNA level 6-9/10-15. */
   private capUnik(dashboard: DashboardValues, mutacjaDnaLevel: number): void {
     const cap = mutacjaDnaLevel >= 10 ? 0.32 : mutacjaDnaLevel >= 6 ? 0.31 : 0.30;
+    dashboard.unikCap = cap;
+    dashboard.unikBialaRaw = dashboard.unikBiala ?? 0;
+    dashboard.unikPalnaRaw = dashboard.unikPalna ?? 0;
+    dashboard.unikDystansRaw = dashboard.unikDystans ?? 0;
     dashboard.unikBiala = Math.min(dashboard.unikBiala ?? 0, cap);
     dashboard.unikPalna = Math.min(dashboard.unikPalna ?? 0, cap);
     dashboard.unikDystans = Math.min(dashboard.unikDystans ?? 0, cap);
@@ -1020,7 +1025,8 @@ export class DashboardService {
       const krewZyciaRegen = Math.floor(regenPoolSize * player.stats.krewZyciaRegenFraction);
       const regenHalved = !!p.stats.halvedRegen;
       let regen = regenHalved ? Math.floor(regenBase / 2) : regenBase;
-      const cappedRedukcja = Math.min(player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01, 0.30);
+      const rawRedukcja = player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01;
+      const cappedRedukcja = Math.min(rawRedukcja, 0.30);
       const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
       return {
         punktyZycia: Math.floor((player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife)) * player.lifeMultiplier),
@@ -1031,6 +1037,7 @@ export class DashboardService {
         attributes: attributes,
         twardrosc: player.stats.twardosc,
         redukcja: cappedRedukcja,
+        redukcjaRaw: rawRedukcja,
         unikBiala: player.stats.unikBiala,
         unikPalna: player.stats.unikPalna,
         unikDystans: player.stats.unikDystans,
@@ -1055,6 +1062,10 @@ export class DashboardService {
     }
   }
   private calculateHitChance(genre: ItemGenre, player: Player, trafienieLegDystans: number, hitCeiling?: number): number {
+    return this.hitChanceDetails(genre, player, trafienieLegDystans, hitCeiling).final;
+  }
+
+  private hitChanceDetails(genre: ItemGenre, player: Player, trafienieLegDystans: number, hitCeiling?: number): { y: number; z: number; p: number; r: number; rawHit: number; minHit: number; maxHit: number; final: number } {
     let y: number;
     let z: number;
     let p: number;
@@ -1096,7 +1107,7 @@ export class DashboardService {
     const minHit = Math.min(Math.max(10 + luckModifier, 1), hitCeiling != null ? Math.min(65, hitCeiling) : 65);
     const rawHit = (70 + 2 * y + z) * p - 2 * r;
 
-    return Math.min(Math.max(rawHit, minHit), maxHit) / 100;
+    return { y, z, p, r, rawHit, minHit, maxHit, final: Math.min(Math.max(rawHit, minHit), maxHit) / 100 };
   }
 
   private simulateRoundsPerWeapon(damages: WeaponDamage[], rounds: number, ziz: boolean): { name: string; rounds: number[] }[] {
@@ -1337,11 +1348,15 @@ export class DashboardService {
         trafienieLegDystans += player.stats.sila / 2;
       }
 
+      const preLaczneMin = minDmg;
+      const preLaczneMax = maxDmg;
       const toDecimal = (num: number | string): number => Number(num) / 100;
       let finalCritChance = critChance;
+      let luckCritBonus = 0;
 
       if ((player.stats.szczescie - player.szczesciePrzeciwnika) >= 5) {
-        finalCritChance += Math.min(toDecimal(Math.floor((player.stats.szczescie - player.szczesciePrzeciwnika) / 5)), 0.2)
+        luckCritBonus = Math.min(toDecimal(Math.floor((player.stats.szczescie - player.szczesciePrzeciwnika) / 5)), 0.2);
+        finalCritChance += luckCritBonus;
       }
 
       const uncappedCritChance = finalCritChance;
@@ -1362,6 +1377,8 @@ export class DashboardService {
 
       minDmg = Math.floor((1 + laczneProcentoweDmg) * Math.floor(minDmg));
       maxDmg = Math.floor((1 + laczneProcentoweDmg) * Math.floor(maxDmg));
+      const afterLaczneMin = minDmg;
+      const afterLaczneMax = maxDmg;
 
       if (player.stats.ignoreObrony < 1) {
         if (genre === ItemGenre.RANGE_1H || genre === ItemGenre.RANGE_2H) {
@@ -1386,6 +1403,12 @@ export class DashboardService {
       const estimatedHitChance = genre ? this.calculateHitChance(genre, player, trafienieLegDystans) : 1;
       const bossHitChance = genre && player.maxTrafieniePrzeciwnika != null ? this.calculateHitChance(genre, player, trafienieLegDystans, player.maxTrafieniePrzeciwnika) : undefined;
       const obrazeniaNaRundeAvg = Math.floor(estimatedHitChance * (finalCritChance * ataki * avgCritDmg + (1 - finalCritChance) * ataki * avgDmg));
+      const breakdown = genre ? this.buildWeaponBreakdown({
+        weapon, genre, stats, player, bonusResults, preLaczneMin, preLaczneMax, laczneProcentoweDmg,
+        afterLaczneMin, afterLaczneMax, minDmg, maxDmg, critMulti, critDmgMin, critDmgMax,
+        critChance, luckCritBonus, uncappedCritChance, finalCritChance,
+        hit: this.hitChanceDetails(genre, player, trafienieLegDystans),
+      }) : undefined;
       return {
         name: this.constructWeaponName(weapon),
         genre: genre,
@@ -1402,10 +1425,158 @@ export class DashboardService {
         critDmgMax,
         estimatedHitChance,
         bossHitChance,
-        obrazeniaNaRundeAvg
+        obrazeniaNaRundeAvg,
+        breakdown
       };
     } catch (error) {
       return null;
     }
+  }
+
+  /** Builds the "Jak to policzono?" trace for one weapon from the intermediate values of calculateWeaponDamage. */
+  private buildWeaponBreakdown(v: {
+    weapon: Item; genre: ItemGenre; stats: Stats; player: Player;
+    bonusResults: { minDmg: number; maxDmg: number };
+    preLaczneMin: number; preLaczneMax: number; laczneProcentoweDmg: number;
+    afterLaczneMin: number; afterLaczneMax: number; minDmg: number; maxDmg: number;
+    critMulti: number; critDmgMin: number; critDmgMax: number;
+    critChance: number; luckCritBonus: number; uncappedCritChance: number; finalCritChance: number;
+    hit: { y: number; z: number; p: number; r: number; rawHit: number; minHit: number; maxHit: number; final: number };
+  }): BreakdownSection[] {
+    const num = (x: number): string => String(Math.round(x * 100) / 100).replace('.', ',');
+    const range = (a: number, b: number): string => a === b ? num(a) : `${num(a)} – ${num(b)}`;
+    const pct = (x: number, digits = 1): string => `${(x * 100).toFixed(digits).replace('.', ',')}%`;
+    const signed = (a: number, b: number): string => {
+      const one = (x: number): string => (x < 0 ? '−' : '+') + num(Math.abs(x));
+      return a === b ? one(a) : `${one(a)} – ${one(b)}`;
+    };
+    const rarityLabels: Record<string, string> = {
+      ZWYKLY: 'zwykła', DOBRY: 'dobra', DOSKONALY: 'doskonała', LEGENDARNY: 'legendarna',
+      LEGENDARNY_DOBRY: 'legendarna dobra', LEGENDARNY_DOSKONALY: 'legendarna doskonała',
+      EPICKI: 'epicka', STAROZYTNY: 'starożytna',
+    };
+
+    const dmgFields: Record<string, [keyof Stats, keyof Stats]> = {
+      [ItemGenre.WHITE_1H]: ['minDpsBiala1h', 'maxDpsBiala1h'],
+      [ItemGenre.WHITE_2H]: ['minDpsBiala2h', 'maxDpsBiala2h'],
+      [ItemGenre.GUN_1H]: ['minDpsPalna1h', 'maxDpsPalna1h'],
+      [ItemGenre.GUN_2H]: ['minDpsPalna2h', 'maxDpsPalna2h'],
+      [ItemGenre.RANGE_1H]: ['minDpsDystans1h', 'maxDpsDystans1h'],
+      [ItemGenre.RANGE_2H]: ['minDpsDystans2h', 'maxDpsDystans2h'],
+    };
+    const [minField, maxField] = dmgFields[v.genre];
+    const ownMin = v.stats[minField] as number;
+    const ownMax = v.stats[maxField] as number;
+    const totalMin = v.player.stats[minField] as number;
+    const totalMax = v.player.stats[maxField] as number;
+
+    const s = v.player.stats;
+    const attr: Record<string, [string, number]> = {
+      [ItemGenre.WHITE_1H]: ['Siła', s.sila],
+      [ItemGenre.WHITE_2H]: ['Siła', s.sila],
+      [ItemGenre.GUN_1H]: ['1/3 wiedzy', Math.floor(s.wiedza / 3)],
+      [ItemGenre.GUN_2H]: ['1/3 wiedzy', Math.floor(s.wiedza / 3)],
+      [ItemGenre.RANGE_1H]: ['1/4 siły', Math.floor(s.sila / 4)],
+      [ItemGenre.RANGE_2H]: ['1/2 siły', Math.floor(s.sila / 2)],
+    };
+    const [attrLabel, attrValue] = attr[v.genre];
+
+    const isWhite = v.genre === ItemGenre.WHITE_1H || v.genre === ItemGenre.WHITE_2H;
+    const isRange = v.genre === ItemGenre.RANGE_1H || v.genre === ItemGenre.RANGE_2H;
+    const defenseLabel = isRange ? '1/4 obrony' : isWhite ? '1/2 obrony' : '1/2 odporności';
+
+    // --- obrażenia ---
+    const dmg: BreakdownStep[] = [];
+    const rarity = v.weapon.getRarity();
+    const scaling = describeWeaponDamageScaling(Player.rawWeaponStats(v.weapon), rarity, v.genre, v.player.lvl, v.weapon.base?.type);
+    dmg.push({
+      label: `Broń (${rarityLabels[rarity] ?? rarity})`,
+      value: range(ownMin, ownMax),
+      detail: scaling ? `min: ${scaling.min}\nmax: ${scaling.max}` : undefined,
+    });
+    if (totalMin !== ownMin || totalMax !== ownMax) {
+      dmg.push({ label: 'Obrażenia wszystkich broni (inne przedmioty, rasa, efekty)', value: signed(totalMin - ownMin, totalMax - ownMax) });
+    }
+    if (attrValue) dmg.push({ label: attrLabel, value: signed(attrValue, attrValue) });
+    if (v.bonusResults.minDmg || v.bonusResults.maxDmg) {
+      dmg.push({ label: 'Bonusy z talizmanów / ewolucji', value: signed(v.bonusResults.minDmg, v.bonusResults.maxDmg) });
+    }
+    if (v.laczneProcentoweDmg) {
+      dmg.push({
+        label: `Łączne obrażenia broni ${v.laczneProcentoweDmg > 0 ? '+' : ''}${pct(v.laczneProcentoweDmg, 0)}`,
+        value: range(v.afterLaczneMin, v.afterLaczneMax),
+        detail: `${range(Math.floor(v.preLaczneMin), Math.floor(v.preLaczneMax))} × ${num(1 + v.laczneProcentoweDmg)}, zaokrąglone w dół`,
+      });
+    }
+    // Same reduction calculateWeaponDamage subtracts (before the 1-damage floor).
+    const ignore = s.ignoreObrony;
+    const enemyDefense = isRange ? v.player.obronaPrzeciwnika / 4 : isWhite ? v.player.obronaPrzeciwnika / 2 : v.player.odpornoscPrzeciwnika / 2;
+    const reduction = ignore >= 1 ? 0 : Math.floor(enemyDefense * (1 - ignore));
+    const hitFloor = v.afterLaczneMin - reduction < 1 || v.afterLaczneMax - reduction < 1;
+    if (reduction) {
+      dmg.push({
+        label: `Obrona przeciwnika (${defenseLabel}${ignore > 0 ? `, ignorujesz ${pct(Math.min(ignore, 1), 0)}` : ''})`,
+        value: signed(-reduction, -reduction),
+        capped: hitFloor,
+        detail: hitFloor ? 'Obrażenia nie spadają poniżej 1.' : undefined,
+      });
+    }
+    dmg.push({ label: 'Obrażenia', value: range(v.minDmg, v.maxDmg), total: true });
+    dmg.push({ label: `Krytyczne (× ${num(v.critMulti)}, zaokrąglone w dół)`, value: range(v.critDmgMin, v.critDmgMax), total: true });
+
+    // --- krytyk ---
+    const baseCritMulti: Record<string, number> = {
+      [ItemGenre.WHITE_1H]: 2, [ItemGenre.WHITE_2H]: 4, [ItemGenre.GUN_1H]: 1.5,
+      [ItemGenre.GUN_2H]: 2, [ItemGenre.RANGE_1H]: 3.5, [ItemGenre.RANGE_2H]: 3.5,
+    };
+    const baseMulti = baseCritMulti[v.genre];
+    const crit: BreakdownStep[] = [{ label: 'Z przedmiotów i efektów', value: pct(v.critChance) }];
+    if (v.luckCritBonus) {
+      const luckCapped = v.luckCritBonus >= 0.2;
+      crit.push({
+        label: `Szczęście (${s.szczescie} vs ${v.player.szczesciePrzeciwnika}) ÷ 5`,
+        value: '+' + pct(v.luckCritBonus),
+        capped: luckCapped,
+        detail: luckCapped ? 'Samo szczęście daje maksymalnie 20%.' : undefined,
+      });
+    }
+    const critLimited = v.uncappedCritChance > 0.85 || v.uncappedCritChance < 0.01;
+    crit.push({
+      label: 'Szansa na krytyka',
+      value: pct(v.finalCritChance),
+      total: true,
+      capped: critLimited,
+      detail: critLimited ? `Przed limitem: ${pct(v.uncappedCritChance)} — gra ogranicza szansę do 1–85%.` : undefined,
+    });
+    crit.push({
+      label: `Mnożnik krytyka (bazowo ${num(baseMulti)} + ${num(v.critMulti - baseMulti)} z przedmiotów)`,
+      value: `× ${num(v.critMulti)}`,
+      total: true,
+    });
+
+    // --- trafienie ---
+    const h = v.hit;
+    const hitLimited = h.rawHit > h.maxHit ? `górnym limitem ${h.maxHit}%` : h.rawHit < h.minHit ? `dolnym limitem ${h.minHit}%` : null;
+    const skillLabel = isWhite ? 'zwinność' : isRange ? 'zwinność + spostrzegawczość' : 'spostrzegawczość';
+    const hitSteps: BreakdownStep[] = [
+      { label: `Twoja ${skillLabel} × 2`, value: num(2 * h.y) },
+      { label: 'Bonusy do trafienia', value: (h.z >= 0 ? '+' : '') + num(h.z) },
+      { label: 'Trafienie procentowe', value: `× ${num(h.p)}` },
+      { label: `Przeciwnik: ${skillLabel} × 2`, value: num(-2 * h.r) },
+      {
+        label: 'Szansa trafienia',
+        value: pct(h.final),
+        total: true,
+        capped: !!hitLimited,
+        detail: `(70 + ${num(2 * h.y)} + ${num(h.z)}) × ${num(h.p)} − ${num(2 * h.r)} = ${num(h.rawHit)}%` +
+          (hitLimited ? `, ograniczone ${hitLimited} (zależy od różnicy szczęścia).` : ''),
+      },
+    ];
+
+    return [
+      { title: 'Obrażenia', steps: dmg },
+      { title: 'Krytyk', steps: crit },
+      { title: 'Trafienie', steps: hitSteps },
+    ];
   }
 }
