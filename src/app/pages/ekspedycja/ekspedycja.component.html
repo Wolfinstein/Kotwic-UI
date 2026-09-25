@@ -248,6 +248,9 @@
                     type="button"
                     class="tower-brick"
                     [class.selected]="selectedMobName === mob.name"
+                    [class.tower-brick-disabled]="!isMobSelectable(mob.name)"
+                    [disabled]="!isMobSelectable(mob.name)"
+                    [title]="isMobSelectable(mob.name) ? mob.name : 'Niezaimplementowany — niedostępny'"
                     (click)="selectMob(mob.name)"
                   >
                     <span class="mob-name">{{ mob.name }}</span>

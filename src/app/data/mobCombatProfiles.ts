@@ -234,7 +234,7 @@ export type MobImplementationStatus = 'red' | 'yellow' | 'green';
 export const MOB_IMPLEMENTATION_STATUS: Record<string, MobImplementationStatus> = {
   Abaddon: 'yellow',
   Agrameon: 'yellow',
-  'Yog-Sothoth': 'yellow',
+  'Yog-Sothoth': 'red',
   Merihim: 'yellow',
   Bokrug: 'yellow',
   Zepar: 'yellow',
@@ -244,4 +244,9 @@ export const MOB_IMPLEMENTATION_STATUS: Record<string, MobImplementationStatus> 
 
 export function mobImplementationStatus(mobName: string): MobImplementationStatus {
   return MOB_IMPLEMENTATION_STATUS[mobName] ?? 'red';
+}
+
+/** Red (not implemented) mobs can't be picked for combat yet. */
+export function isMobSelectable(mobName: string): boolean {
+  return mobImplementationStatus(mobName) !== 'red';
 }

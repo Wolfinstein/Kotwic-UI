@@ -5,7 +5,7 @@ import { SavedCharactersService, SavedCharacter } from '../../services/saved-cha
 import { rasaAvatarUrl, rasaLabel as rasaDisplayLabel } from '../../data/avatars';
 import { DashboardService } from '../../services/calculate';
 import { simulateExpedition, ExpeditionResult, computeCombatPreview, CombatPreview, CombatPreviewWeapon, MobStatVariant, CombatAttackLog, CombatantSummary, AddSummary } from '../../logic/expeditionCombat';
-import { mobImplementationStatus, MobImplementationStatus } from '../../data/mobCombatProfiles';
+import { isMobSelectable, mobImplementationStatus, MobImplementationStatus } from '../../data/mobCombatProfiles';
 import { encodeCharactersToShareCode, decodeShareCode, SharedCharacterEntry } from '../../services/character-share.util';
 import { ExpeditionLogService, ExpeditionLogPayload } from '../../services/expedition-log.service';
 
@@ -195,6 +195,10 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
     return mobImplementationStatus(mobName);
   }
 
+  isMobSelectable(mobName: string): boolean {
+    return isMobSelectable(mobName);
+  }
+
   rasaLabel(rasa: string): string {
     return rasaDisplayLabel(rasa);
   }
@@ -293,6 +297,7 @@ export class EkspedycjaComponent implements OnInit, OnDestroy {
   }
 
   selectMob(mobName: string): void {
+    if (!isMobSelectable(mobName)) return;
     this.selectedMobName = mobName;
     this.bulkSimResult = null;
     this.manualDmgOverride = false;
