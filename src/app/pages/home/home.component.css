@@ -273,44 +273,45 @@
   filter: brightness(1.08);
 }
 
-.tool-accent-teal:hover:not(.disabled) { background: var(--tool-teal-bg); }
-.tool-accent-amber:hover:not(.disabled) { background: var(--tool-amber-bg); }
-.tool-accent-orange:hover:not(.disabled) { background: var(--tool-orange-bg); }
-.tool-accent-purple:hover:not(.disabled) { background: var(--tool-purple-bg); }
-.tool-accent-slate:hover:not(.disabled) { background: var(--tool-slate-bg); }
-.tool-accent-ash:hover:not(.disabled) { background: var(--tool-ash-bg); }
-.tool-accent-rose:hover:not(.disabled) { background: var(--tool-rose-bg); }
-.tool-accent-plum:hover:not(.disabled) { background: var(--tool-plum-bg); }
-.tool-accent-mauve:hover:not(.disabled) { background: var(--tool-mauve-bg); }
+.tool-accent-eggplant:hover:not(.disabled) { background: var(--tile-eggplant-bg); }
+.tool-accent-taupe:hover:not(.disabled) { background: var(--tile-taupe-bg); }
+.tool-accent-copper:hover:not(.disabled) { background: var(--tile-copper-bg); }
+.tool-accent-gold:hover:not(.disabled) { background: var(--tile-gold-bg); }
+.tool-accent-rattan:hover:not(.disabled) { background: var(--tile-rattan-bg); }
+.tool-accent-walnut:hover:not(.disabled) { background: var(--tile-walnut-bg); }
+.tool-accent-beige:hover:not(.disabled) { background: var(--tile-beige-bg); }
+.tool-accent-cream:hover:not(.disabled) { background: var(--tile-cream-bg); }
+.tool-accent-butter:hover:not(.disabled) { background: var(--tile-butter-bg); }
 
-.tool-accent-teal { background: var(--tool-teal-bg); color: var(--tool-teal-text); }
-.tool-accent-amber { background: var(--tool-amber-bg); color: var(--tool-amber-text); }
-.tool-accent-orange { background: var(--tool-orange-bg); color: var(--tool-orange-text); }
-.tool-accent-purple { background: var(--tool-purple-bg); color: var(--tool-purple-text); }
-.tool-accent-slate { background: var(--tool-slate-bg); color: var(--tool-slate-text); }
-.tool-accent-ash { background: var(--tool-ash-bg); color: var(--tool-ash-text); }
-.tool-accent-rose { background: var(--tool-rose-bg); color: var(--tool-rose-text); }
-.tool-accent-plum { background: var(--tool-plum-bg); color: var(--tool-plum-text); }
-.tool-accent-mauve { background: var(--tool-mauve-bg); color: var(--tool-mauve-text); }
+.tool-accent-eggplant { background: var(--tile-eggplant-bg); color: var(--tile-eggplant-text); }
+.tool-accent-taupe { background: var(--tile-taupe-bg); color: var(--tile-taupe-text); }
+.tool-accent-copper { background: var(--tile-copper-bg); color: var(--tile-copper-text); }
+.tool-accent-gold { background: var(--tile-gold-bg); color: var(--tile-gold-text); }
+.tool-accent-rattan { background: var(--tile-rattan-bg); color: var(--tile-rattan-text); }
+.tool-accent-walnut { background: var(--tile-walnut-bg); color: var(--tile-walnut-text); }
+.tool-accent-beige { background: var(--tile-beige-bg); color: var(--tile-beige-text); }
+.tool-accent-cream { background: var(--tile-cream-bg); color: var(--tile-cream-text); }
+.tool-accent-butter { background: var(--tile-butter-bg); color: var(--tile-butter-text); }
 
-.tool-accent-teal > .pi:first-child, .tool-accent-teal .tool-card-body h2, .tool-accent-teal .tool-card-arrow { color: var(--tool-teal-text); }
-.tool-accent-amber > .pi:first-child, .tool-accent-amber .tool-card-body h2, .tool-accent-amber .tool-card-arrow { color: var(--tool-amber-text); }
-.tool-accent-orange > .pi:first-child, .tool-accent-orange .tool-card-body h2, .tool-accent-orange .tool-card-arrow { color: var(--tool-orange-text); }
-.tool-accent-purple > .pi:first-child, .tool-accent-purple .tool-card-body h2, .tool-accent-purple .tool-card-arrow { color: var(--tool-purple-text); }
-.tool-accent-slate > .pi:first-child, .tool-accent-slate .tool-card-body h2, .tool-accent-slate .tool-card-arrow { color: var(--tool-slate-text); }
-.tool-accent-ash > .pi:first-child, .tool-accent-ash .tool-card-body h2, .tool-accent-ash .tool-card-arrow { color: var(--tool-ash-text); }
-.tool-accent-rose > .pi:first-child, .tool-accent-rose .tool-card-body h2, .tool-accent-rose .tool-card-arrow { color: var(--tool-rose-text); }
-.tool-accent-plum > .pi:first-child, .tool-accent-plum .tool-card-body h2, .tool-accent-plum .tool-card-arrow { color: var(--tool-plum-text); }
-.tool-accent-mauve > .pi:first-child, .tool-accent-mauve .tool-card-body h2, .tool-accent-mauve .tool-card-arrow { color: var(--tool-mauve-text); }
+.tool-accent-eggplant > .pi:first-child, .tool-accent-eggplant .tool-card-body h2, .tool-accent-eggplant .tool-card-arrow { color: var(--tile-eggplant-text); }
+.tool-accent-taupe > .pi:first-child, .tool-accent-taupe .tool-card-body h2, .tool-accent-taupe .tool-card-arrow { color: var(--tile-taupe-text); }
+.tool-accent-copper > .pi:first-child, .tool-accent-copper .tool-card-body h2, .tool-accent-copper .tool-card-arrow { color: var(--tile-copper-text); }
+.tool-accent-gold > .pi:first-child, .tool-accent-gold .tool-card-body h2, .tool-accent-gold .tool-card-arrow { color: var(--tile-gold-text); }
+.tool-accent-rattan > .pi:first-child, .tool-accent-rattan .tool-card-body h2, .tool-accent-rattan .tool-card-arrow { color: var(--tile-rattan-text); }
+.tool-accent-walnut > .pi:first-child, .tool-accent-walnut .tool-card-body h2, .tool-accent-walnut .tool-card-arrow { color: var(--tile-walnut-text); }
+.tool-accent-beige > .pi:first-child, .tool-accent-beige .tool-card-body h2, .tool-accent-beige .tool-card-arrow { color: var(--tile-beige-text); }
+.tool-accent-cream > .pi:first-child, .tool-accent-cream .tool-card-body h2, .tool-accent-cream .tool-card-arrow { color: var(--tile-cream-text); }
+.tool-accent-butter > .pi:first-child, .tool-accent-butter .tool-card-body h2, .tool-accent-butter .tool-card-arrow { color: var(--tile-butter-text); }
 
-.tool-accent-teal .tool-card-body p { color: var(--tool-teal-text); opacity: 0.9; }
-.tool-accent-amber .tool-card-body p { color: var(--tool-amber-text); opacity: 0.9; }
-.tool-accent-orange .tool-card-body p { color: var(--tool-orange-text); opacity: 0.9; }
-.tool-accent-purple .tool-card-body p { color: var(--tool-purple-text); opacity: 0.9; }
-.tool-accent-slate .tool-card-body p { color: var(--tool-slate-text); opacity: 0.9; }
-.tool-accent-ash .tool-card-body p { color: var(--tool-ash-text); opacity: 0.9; }
-.tool-accent-rose .tool-card-body p { color: var(--tool-rose-text); opacity: 0.9; }
-.tool-accent-plum .tool-card-body p { color: var(--tool-plum-text); opacity: 0.9; }
+.tool-accent-eggplant .tool-card-body p { color: var(--tile-eggplant-text); opacity: 0.9; }
+.tool-accent-taupe .tool-card-body p { color: var(--tile-taupe-text); opacity: 0.9; }
+.tool-accent-copper .tool-card-body p { color: var(--tile-copper-text); opacity: 0.9; }
+.tool-accent-gold .tool-card-body p { color: var(--tile-gold-text); opacity: 0.9; }
+.tool-accent-rattan .tool-card-body p { color: var(--tile-rattan-text); opacity: 0.9; }
+.tool-accent-walnut .tool-card-body p { color: var(--tile-walnut-text); opacity: 0.9; }
+.tool-accent-beige .tool-card-body p { color: var(--tile-beige-text); opacity: 0.9; }
+.tool-accent-cream .tool-card-body p { color: var(--tile-cream-text); opacity: 0.9; }
+.tool-accent-butter .tool-card-body p { color: var(--tile-butter-text); opacity: 0.9; }
 
 /* ── Footer ── */
 .home-footer {

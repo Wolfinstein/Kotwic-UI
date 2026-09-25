@@ -2,7 +2,6 @@
   <div class="feature-section">
     @if (!unlocked()) {
       <div class="dziennik-header">
-        <h1>Dziennik symulacji ekspedycji</h1>
         <p>Ta strona jest chroniona hasłem.</p>
       </div>
       <form class="password-form" (ngSubmit)="submitPassword()">
@@ -23,7 +22,6 @@
       }
     } @else {
       <div class="dziennik-header">
-        <h1>Dziennik symulacji ekspedycji</h1>
         <p>Każde uruchomienie symulacji w kalkulatorze zapisuje tu użytą drużynę — wciśnij "Importuj graczy", żeby dodać dokładnie te same postacie do swojej listy zapisanych postaci.</p>
       </div>
 

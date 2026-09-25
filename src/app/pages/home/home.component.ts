@@ -23,16 +23,16 @@ export interface HomeTool {
 })
 export class HomeComponent {
   tools: HomeTool[] = [
-    { label: 'Kalkulator Postaci', description: 'Zbuduj postać — trening, ekwipunek, talizmany, umagi, arkany — i policz jej "realną" siłę bojową.', icon: 'pi pi-calculator', route: '/calculator', accent: 'teal', size: 'lg' },
-    { label: 'Poziomy', description: 'Koszty poziomów, treningu i ewolucji.', icon: 'pi pi-chart-line', route: '/doswiadczenie', accent: 'slate' },
-    { label: 'Kuźnia Kaina', description: 'Plan i koszty tworzenia przedmiotów w Kuźni Kaina.', icon: 'pi pi-hammer', route: '/kuznia', accent: 'amber' },
-    { label: 'Umagi', description: 'Lista umagicznień wraz z symulatorem.', icon: 'pi pi-star-fill', route: '/umagi', accent: 'orange' },
-    { label: 'Zadania', description: 'Lista zadań i wymagań do ich ukończenia.', icon: 'pi pi-book', route: '/zadania', accent: 'purple' },
+    { label: 'Kalkulator Postaci', description: 'Zbuduj postać — trening, ekwipunek, talizmany, umagi, arkany — i policz jej "realną" siłę bojową.', icon: 'pi pi-calculator', route: '/calculator', accent: 'eggplant', size: 'lg' },
+    { label: 'Poziomy', description: 'Koszty poziomów, treningu i ewolucji.', icon: 'pi pi-chart-line', route: '/doswiadczenie', accent: 'taupe' },
+    { label: 'Kuźnia Kaina', description: 'Plan i koszty tworzenia przedmiotów w Kuźni Kaina.', icon: 'pi pi-hammer', route: '/kuznia', accent: 'copper' },
+    { label: 'Umagi', description: 'Lista umagicznień wraz z symulatorem.', icon: 'pi pi-star-fill', route: '/umagi', accent: 'gold' },
+    { label: 'Zadania', description: 'Lista zadań i wymagań do ich ukończenia.', icon: 'pi pi-book', route: '/zadania', accent: 'rattan' },
     // Expedition tools side by side, then Moby + Podróże — all 'wide' so the 4-column grid has no gaps.
-    { label: 'Symulator ekspedycji', description: 'Symulator ekspedycji.', icon: 'pi pi-send', route: '/ekspedycja', accent: 'plum', size: 'wide' },
-    { label: 'Raporty z ekspedycji', description: 'Prawdziwe raporty z ekspedycji — filtruj po sezonie, lokalizacji, bossie i gwiazdkach.', icon: 'pi pi-list', route: '/raporty', accent: 'mauve', size: 'wide' },
-    { label: 'Moby i exp', description: 'Statystyki przeciwników wraz z kalkulatorem doświadczenia.', icon: 'pi pi-users', route: '/moby', accent: 'ash', size: 'wide' },
-    { label: 'Podróże', description: 'Symulator podróży', icon: 'pi pi-map', route: '/podroze', accent: 'rose', size: 'wide' },
+    { label: 'Symulator ekspedycji', description: 'Symulator ekspedycji.', icon: 'pi pi-send', route: '/ekspedycja', accent: 'walnut', size: 'wide' },
+    { label: 'Raporty z ekspedycji', description: 'Prawdziwe raporty z ekspedycji — filtruj po sezonie, lokalizacji, bossie i gwiazdkach.', icon: 'pi pi-list', route: '/raporty', accent: 'beige', size: 'wide' },
+    { label: 'Moby i exp', description: 'Statystyki przeciwników wraz z kalkulatorem doświadczenia.', icon: 'pi pi-users', route: '/moby', accent: 'cream', size: 'wide' },
+    { label: 'Podróże', description: 'Symulator podróży', icon: 'pi pi-map', route: '/podroze', accent: 'butter', size: 'wide' },
   ];
 
   externalTools: HomeTool[] = [

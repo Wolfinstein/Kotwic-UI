@@ -66,24 +66,31 @@
 /* TOOL CARD ACCENTS (theme-independent, landing page)      */
 /* ─────────────────────────────────────────────────────── */
 :root {
-  --tool-teal-bg:      #1b998b;
-  --tool-teal-text:    #062a25;
-  --tool-purple-bg:    #7fabb5;
-  --tool-purple-text:  #16292d;
-  --tool-rose-bg:      #b9d3d9;
-  --tool-rose-text:    #1c3236;
+  /* Only orange is still used (nav bar active line, calculator, "Znane problemy"); landing tiles use --tile-* below. */
   --tool-orange-bg:    #c98652;
   --tool-orange-text:  #3d2210;
-  --tool-amber-bg:     #8f4a28;
-  --tool-amber-text:   #f5ded0;
-  --tool-slate-bg:     #2f4c53;
-  --tool-slate-text:   #cfe4e8;
-  --tool-ash-bg:       #bcabae;
-  --tool-ash-text:     #241c1e;
-  --tool-plum-bg:      #5c4a63;
-  --tool-plum-text:    #f0e3f5;
-  --tool-mauve-bg:     #8a6a94;
-  --tool-mauve-text:   #fbf2fd;
+}
+
+/* Landing page tiles — warm, varied palette (eggplant, copper, gold, wood, cream...). */
+:root {
+  --tile-eggplant-bg:   #4a2d42;
+  --tile-eggplant-text: #f5e8f0;
+  --tile-taupe-bg:      #7a6b5f;
+  --tile-taupe-text:    #fbf6f0;
+  --tile-copper-bg:     #a85a32;
+  --tile-copper-text:   #fff3ea;
+  --tile-gold-bg:       #c79a2e;
+  --tile-gold-text:     #251a02;
+  --tile-rattan-bg:     #b89668;
+  --tile-rattan-text:   #2a1d0e;
+  --tile-walnut-bg:     #5e4030;
+  --tile-walnut-text:   #f6e8dc;
+  --tile-beige-bg:      #d9c6a5;
+  --tile-beige-text:    #33281a;
+  --tile-cream-bg:      #f1e8d6;
+  --tile-cream-text:    #3a2e22;
+  --tile-butter-bg:     #e6cf72;
+  --tile-butter-text:   #2c2408;
 }
 
 html,
@@ -389,11 +396,11 @@ select:focus-visible {
 }
 
 .report-tip .rt-name.player {
-  color: #e8c547;
+  color: var(--section-icon);
 }
 
 .report-tip .rt-name.enemy {
-  color: #e57373;
+  color: var(--error-color);
 }
 
 .report-tip .rt-sub {
@@ -429,7 +436,7 @@ select:focus-visible {
 
 .report-tip .rt-table tr:nth-child(even):not(.rt-sep) th,
 .report-tip .rt-table tr:nth-child(even):not(.rt-sep) td {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--accent-low);
 }
 
 .report-tip .rt-sep td {

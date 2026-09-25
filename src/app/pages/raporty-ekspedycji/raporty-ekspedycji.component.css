@@ -68,7 +68,7 @@
 }
 
 .error-text {
-  color: #e05c5c;
+  color: var(--danger-color);
   font-size: var(--fs-base);
 }
 
@@ -140,7 +140,7 @@
 }
 
 .summary-row strong.win {
-  color: #6fae9c;
+  color: var(--success-text);
 }
 
 .table-wrap {
@@ -150,7 +150,7 @@
 .raporty-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--fs-sm, 0.9rem);
+  font-size: var(--fs-base);
 }
 
 .raporty-table th,
@@ -165,6 +165,7 @@
 .raporty-table th {
   color: var(--label-color);
   font-weight: 600;
+  font-size: var(--fs-md);
 }
 
 .sortable-th {
@@ -213,11 +214,11 @@
 }
 
 .exp-info dt {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  color: #e8c547;
+  color: var(--color-accent);
   align-self: center;
 }
 
@@ -226,8 +227,8 @@
   color: var(--value-color);
 }
 
-.exp-stars {
-  color: #e8c547;
+.exp-info dd.exp-stars {
+  color: var(--warning-text);
   letter-spacing: 1px;
 }
 
@@ -237,11 +238,11 @@
 }
 
 .exp-result.win {
-  color: #6fae9c;
+  color: var(--success-text);
 }
 
 .exp-result.loss {
-  color: #e05c5c;
+  color: var(--danger-color);
 }
 
 .people-cell {
@@ -271,11 +272,11 @@
 }
 
 .person-name.player {
-  color: #e8c547;
+  color: var(--section-icon);
 }
 
 .person-name.enemy {
-  color: #e57373;
+  color: var(--error-color);
   font-weight: 400;
 }
 

@@ -1194,15 +1194,15 @@
 }
 
 .match-exact {
-  color: #6fae9c;
-  border-color: #6fae9c88;
-  background: #6fae9c1a;
+  color: var(--success-text);
+  border-color: var(--success-color);
+  background: var(--success-bg);
 }
 
 .match-approx {
-  color: #e0b16f;
-  border-color: #c9954f88;
-  background: #c9954f1a;
+  color: var(--warning-text);
+  border-color: var(--warning-color);
+  background: var(--warning-bg);
 }
 
 .report-suggest-note {
@@ -1265,8 +1265,8 @@
   padding: 1px 8px;
   border-radius: 10px;
   font-size: var(--fs-xs);
-  color: #e0b16f;
-  border: 1px dashed #c9954f88;
+  color: var(--warning-text);
+  border: 1px dashed var(--warning-color);
 }
 
 .level-chip {
@@ -1286,13 +1286,13 @@
 }
 
 .result-pill.win {
-  color: #6fae9c;
-  border-color: #6fae9c88;
-  background: #6fae9c1a;
+  color: var(--success-text);
+  border-color: var(--success-color);
+  background: var(--success-bg);
 }
 
 .result-pill.loss {
-  color: #e05c5c;
-  border-color: #e05c5c88;
-  background: #e05c5c1a;
+  color: var(--error-color);
+  border-color: var(--error-color);
+  background: var(--error-bg);
 }
