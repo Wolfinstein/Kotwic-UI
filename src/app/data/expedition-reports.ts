@@ -48,6 +48,7 @@ export interface ExpeditionReport {
   /** Position in the (newest-first) dataset — stable id for tracking/expansion. */
   id: number;
   date: string;
+  season: number;
   eventName: string;
   url: string;
   location: string;
@@ -69,6 +70,39 @@ export const REPORT_STAT_LABELS: Record<keyof ReportStats, string> = {
   charisma: 'Charyzma', influence: 'Wpływy', perception: 'Spostrz.', intelligence: 'Intel.',
   wisdom: 'Wiedza', luck: 'Szczęście', defence: 'Obrona',
 };
+
+/** Game seasons (start dates). The last entry is the current season. */
+export const SEASONS: { season: number; startDate: string; endDate: string }[] = [
+  { season: 1, startDate: '2020-05-05', endDate: '2020-11-05' },
+  { season: 2, startDate: '2020-11-05', endDate: '2021-06-09' },
+  { season: 3, startDate: '2021-06-09', endDate: '2021-12-08' },
+  { season: 4, startDate: '2021-12-08', endDate: '2022-06-08' },
+  { season: 5, startDate: '2022-06-08', endDate: '2022-12-13' },
+  { season: 6, startDate: '2022-12-13', endDate: '2023-06-20' },
+  { season: 7, startDate: '2023-06-20', endDate: '2023-12-19' },
+  { season: 8, startDate: '2023-12-20', endDate: '2024-06-25' },
+  { season: 9, startDate: '2024-06-25', endDate: '2024-11-06' },
+  { season: 10, startDate: '2024-11-06', endDate: '2025-03-25' },
+  { season: 11, startDate: '2025-03-25', endDate: '2025-07-29' },
+  { season: 12, startDate: '2025-07-29', endDate: '2025-11-25' },
+  { season: 13, startDate: '2025-11-26', endDate: '2026-03-31' },
+  { season: 14, startDate: '2026-04-01', endDate: '2026-07-28' },
+  { season: 15, startDate: '2026-07-28', endDate: '2099-12-31' },
+];
+
+/**
+ * Season a report belongs to: the latest season that had already started on the report's day.
+ * Consecutive seasons share their boundary date (one ends the day the next starts) — that day
+ * counts as the new season. The single-day gaps (e.g. 2023-12-19 → 12-20) stay in the old one.
+ * 0 = before season 1.
+ */
+export function seasonOf(date: string): number {
+  const day = date.slice(0, 10);
+  for (let i = SEASONS.length - 1; i >= 0; i--) {
+    if (day >= SEASONS[i].startDate) return SEASONS[i].season;
+  }
+  return 0;
+}
 
 interface CompactReports {
   v: number;
@@ -104,6 +138,7 @@ function decode(data: CompactReports): ExpeditionReport[] {
   return data.r.map((r, id) => ({
     id,
     date: s[r[0]],
+    season: seasonOf(s[r[0]]),
     eventName: s[r[1]],
     url: r[2] ? `https://r20.bloodwars.pl/showmsg.php?mid=${r[2]}&key=${s[r[3]]}` : '',
     location: s[r[4]],

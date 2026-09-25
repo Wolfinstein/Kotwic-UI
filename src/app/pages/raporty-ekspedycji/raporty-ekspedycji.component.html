@@ -12,6 +12,40 @@
     } @else {
       <div class="filters-row">
         <label class="filter-field">
+          <span>Sezon</span>
+          <select [ngModel]="season()" (ngModelChange)="setFilter(season, $event)">
+            <option [ngValue]="''">Wszystkie</option>
+            @for (s of seasons(); track s.season) {
+              <option [ngValue]="s.season">{{ s.season ? 'Sezon ' + s.season : 'Przed sezonem 1' }} ({{ s.count }})</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Lokalizacja</span>
+          <select [ngModel]="location()" (ngModelChange)="setLocation($event)">
+            <option value="">Wszystkie</option>
+            @for (group of locationGroups(); track group.label) {
+              <optgroup [label]="group.label">
+                @for (loc of group.locations; track loc.name) {
+                  <option [value]="loc.name">{{ loc.name }} ({{ loc.count }})</option>
+                }
+              </optgroup>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
+          <span>Wydarzenie</span>
+          <select [ngModel]="event()" (ngModelChange)="setFilter(event, $event)">
+            <option value="">Wszystkie</option>
+            @if (events().none) {
+              <option [value]="noEvent">Bez wydarzenia ({{ events().none }})</option>
+            }
+            @for (e of events().list; track e.name) {
+              <option [value]="e.name">{{ e.name }} ({{ e.count }})</option>
+            }
+          </select>
+        </label>
+        <label class="filter-field">
           <span>Boss</span>
           <select [ngModel]="boss()" (ngModelChange)="setBoss($event)">
             <option value="">Wszyscy</option>
@@ -54,14 +88,6 @@
           <span>Poziom do</span>
           <input type="number" min="1" class="level-input" [ngModel]="maxLevel()" (ngModelChange)="setFilter(maxLevel, parseLevel($event))" />
         </label>
-        <label class="filter-field">
-          <span>Od daty</span>
-          <input type="date" [ngModel]="dateFrom()" (ngModelChange)="setFilter(dateFrom, $event)" />
-        </label>
-        <label class="filter-field">
-          <span>Do daty</span>
-          <input type="date" [ngModel]="dateTo()" (ngModelChange)="setFilter(dateTo, $event)" />
-        </label>
         <label class="filter-field filter-search">
           <span>Gracz lub broń</span>
           <input type="search" placeholder="np. Mati, Skorpion" [ngModel]="search()" (ngModelChange)="setFilter(search, $event)" />
@@ -91,6 +117,7 @@
                 <th>Boss</th>
                 <th>★</th>
                 <th>Trudność</th>
+                <th>Wydarzenie</th>
                 <th>Wynik</th>
                 <th>Drużyna</th>
                 <th></th>
@@ -104,6 +131,7 @@
                   <td>{{ r.boss }}</td>
                   <td>{{ r.stars }}</td>
                   <td>{{ r.difficulty }}</td>
+                  <td class="event-cell">{{ r.eventName || '—' }}</td>
                   <td><span class="result-badge" [class.win]="r.won" [class.loss]="!r.won">{{ r.won ? 'Wygrana' : 'Przegrana' }}</span></td>
                   <td class="players-cell">
                     @for (p of r.players; track $index; let last = $last) {
@@ -120,7 +148,7 @@
                 </tr>
                 @if (isExpanded(r.id)) {
                   <tr class="details-row">
-                    <td colspan="8">
+                    <td colspan="9">
                       <div class="details">
                         <div class="details-meta">
                           <span><span class="muted">Lokacja:</span> {{ r.location }}</span>
