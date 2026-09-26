@@ -223,7 +223,7 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
     levelSumDmgBonus: { perLevel: 0.51, threshold: 3430, thresholdPerStar: 0 },
     attacksPerRound: 50,
     critChance: 1.7,
-    critMulti: 5.4,
+    critMulti: 4.9,
     unik: { biala: 0.2, palna: 0.2, dystans: 0.2 },
     special: { kind: 'hastur' },
     playerLevelCap: 3750 / 2.5,
