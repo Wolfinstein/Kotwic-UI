@@ -32,15 +32,17 @@ function parseDmgRange(range: string): { min: number; max: number } {
 }
 
 /** Resolves a mob's per-attack damage roll range for the selected stat variant — minMobDmg for MIN, maxMobDmg for MAX. These are independent, explicitly-authored ranges (no flat/percent derivation between them). Also adds the profile's per-star flat growth (maxDmgFlatPerStar for MAX, minDmgFlatPerStar for MIN) × (star-1) to both ends, on top of (not multiplied by) the shared dmgStarMulti scaling. */
-function mobDmgRangeForVariant(variant: MobStatVariant, profile: MobCombatProfile | undefined, star: number): { min: number; max: number } {
+function mobDmgRangeForVariant(variant: MobStatVariant, profile: MobCombatProfile | undefined, star: number, joinedLevelSum: number): { min: number; max: number } {
   if (!profile) return { min: 0, max: 0 };
   const range = parseDmgRange(variant === 'max' ? profile.maxMobDmg : profile.minMobDmg);
   const flatPerStar = variant === 'max' ? profile.maxDmgFlatPerStar : profile.minDmgFlatPerStar;
-  if (flatPerStar) {
-    const bonus = flatPerStar * Math.max(0, star - 1);
-    return { min: range.min + bonus, max: range.max + bonus };
+  let bonus = flatPerStar ? flatPerStar * Math.max(0, star - 1) : 0;
+  const lvl = profile.levelSumDmgBonus;
+  if (lvl) {
+    const threshold = lvl.threshold + lvl.thresholdPerStar * Math.max(0, star - 1);
+    bonus += Math.max(0, threshold - joinedLevelSum) * lvl.perLevel;
   }
-  return range;
+  return { min: range.min + bonus, max: range.max + bonus };
 }
 
 /** Player level cap scales +50% per star above 1 (star 1 = base, star 2 = 1.5x, star 3 = 2x, ...). */
@@ -735,7 +737,7 @@ export function computeCombatPreview(
   const dmgStarMulti = yogSothoth ? 1 : mobDamageStarMultiplier(star);
   const attacksPerRound = yogSothoth ? YOG_SOTHOTH_ATTACKS_PER_ROUND : (profile?.attacksPerRound ?? 0);
 
-  const previewDmgRange = mobDmgRangeForVariant(mobVariant, profile, star);
+  const previewDmgRange = mobDmgRangeForVariant(mobVariant, profile, star, joinedLevelSum);
   const mobMinDmgBase = dmgOverride ? dmgOverride.min : (profile ? Math.round(previewDmgRange.min * dmgStarMulti) + rosterBonus.extraDamage : 0);
   const mobMaxDmgBase = dmgOverride ? dmgOverride.max : (profile ? Math.round(previewDmgRange.max * dmgStarMulti) + rosterBonus.extraDamage : 0);
 
@@ -944,7 +946,7 @@ export function simulateExpedition(
   const placeholderDamagePerAttack = Math.max(1, Math.round((mobObrona + mobZwinnosc) / 2));
   const dmgStarMulti = yogSothoth ? 1 : mobDamageStarMultiplier(star);
   /** A manual dmgOverride is treated as the final, already-scaled per-hit range — the star multiplier and roster bonus (both otherwise baked into it) are skipped so the roll lands exactly between the slider values. */
-  const dmgRange = dmgOverride ?? mobDmgRangeForVariant(mobVariant, profile, star);
+  const dmgRange = dmgOverride ?? mobDmgRangeForVariant(mobVariant, profile, star, joinedLevelSum);
   const critMultiFloor = yogSothoth ? YOG_SOTHOTH_CRIT_MULTI_FLOOR : 1.0;
   const critChanceFloor = yogSothoth ? YOG_SOTHOTH_CRIT_CHANCE_FLOOR : 0.01;
   /** "Zakrzywienie czasu" active rounds — rounds 7, 8 and 9 for Yog-Sothoth, never for any other mob. */

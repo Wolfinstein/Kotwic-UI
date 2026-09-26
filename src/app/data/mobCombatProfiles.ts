@@ -104,6 +104,12 @@ export interface MobCombatProfile {
   maxDmgFlatPerStar?: number;
   /** Same as maxDmgFlatPerStar, but for minMobDmg (MIN stat variant). */
   minDmgFlatPerStar?: number;
+  /**
+   * Low-level-party damage bonus: while the party's summed levels are below threshold + thresholdPerStar × (star-1),
+   * both ends of the per-attack range gain perLevel × (that threshold - levelSum), BEFORE dmgStarMulti (so it scales
+   * with star like the base range). Unlike the incomplete-roster bonus, it's continuous and has no activation gate.
+   */
+  levelSumDmgBonus?: { perLevel: number; threshold: number; thresholdPerStar: number };
   /** Mob's own ignorowanie obrony against players: scales down the flat obrona/odpornosc reduction by (1 - ignoreObrony), same as the player-side formula. 1+ means player defense is ignored entirely. Defaults to 0. */
   ignoreObrony?: number;
   /** Cap (in %) on players' hit chance against this mob itself (not its adds): the max-hit band becomes (cap - 9)% + luck bonus up to cap% instead of 90% + luck up to 99%, and the min-hit band's 65% cap drops to it too. Unset means the normal band. */
@@ -197,15 +203,16 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
   Malphas: {
     weaponName: 'Ostrze Mgły',
     weaponGenre: 'biala',
-    minMobDmg: '1800-2200',
-    maxMobDmg: '1900-2300',
+    minMobDmg: '2320-3055',
+    maxMobDmg: '2450-3195',
+    levelSumDmgBonus: { perLevel: 0.48, threshold: 1670, thresholdPerStar: 124 },
     attacksPerRound: 50,
     critChance: 1,
-    critMulti: 7,
+    critMulti: 7.5,
     unik: { biala: 0.2, palna: 0.2, dystans: 0.2 },
     special: { kind: 'malphas' },
     playerLevelCap: 1,
-    ignoreObrony: 1.3,
+    ignoreObrony: 1.0,
     playerMaxHitChance: 49,
   },
   Hastur: {
