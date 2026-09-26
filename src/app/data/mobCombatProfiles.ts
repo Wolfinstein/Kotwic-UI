@@ -76,7 +76,7 @@ export type MobSpecialAbility =
    *   with lower initiative doesn't get to cast it if the comet kills them.
    * - Żółty Znak: cast right after the comet (Groza doesn't stop it) — always in round 2; from round 3
    *   on, 50% chance per round, but only once he's in Prawdziwa forma. For that round only, doubles
-   *   his zwinność, spostrzegawczość, szczęście, obrona and odporność, and his attacks deal 20%
+   *   his zwinność, spostrzegawczość, szczęście, obrona and odporność, and his attacks deal 13%
    *   more damage.
    */
   | { kind: 'hastur' };
@@ -218,15 +218,17 @@ export const MOB_COMBAT_PROFILES: Record<string, MobCombatProfile> = {
   Hastur: {
     weaponName: 'Macki',
     weaponGenre: 'dystans',
-    minMobDmg: '1000-1600',
-    maxMobDmg: '1100-1700',
+    minMobDmg: '1660-2480',
+    maxMobDmg: '1660-2480',
+    levelSumDmgBonus: { perLevel: 0.51, threshold: 3430, thresholdPerStar: 0 },
     attacksPerRound: 50,
     critChance: 1.7,
-    critMulti: 4.9,
+    critMulti: 5.4,
     unik: { biala: 0.2, palna: 0.2, dystans: 0.2 },
     special: { kind: 'hastur' },
     playerLevelCap: 3750 / 2.5,
     levelCapScalesWithStar: true,
+    rosterBonusDamageCapDivisor: Infinity,
   },
 };
 

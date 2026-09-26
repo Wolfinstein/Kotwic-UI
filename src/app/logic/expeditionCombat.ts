@@ -450,8 +450,8 @@ const HASTUR_SPECTRAL_DAMAGE_REDUCTION = 0.25;
 const HASTUR_ZNAK_CHANCE_AFTER_ROUND_2 = 0.5;
 /** Żółty Znak multiplies Hastur's base stats (zwinność, spostrzegawczość, szczęście, obrona, odporność) by this for the round it's cast in. */
 const HASTUR_ZNAK_STAT_MULTI = 2;
-/** Żółty Znak also boosts the damage of Hastur's attacks by this much for that round. */
-const HASTUR_ZNAK_DAMAGE_BONUS = 0.2;
+/** Żółty Znak also boosts the damage of Hastur's attacks by this much for that round (~13% measured on normal hits in 8-12★ reports). */
+const HASTUR_ZNAK_DAMAGE_BONUS = 0.13;
 
 /** Recomputes a weapon's damage bounds as if its ignoreObrony were 0 — i.e. the mob's obrona/odpornosc is subtracted in full instead of discounted by the weapon's ignore stat, mirroring the reduction calculate.ts applies before ignore. */
 function ignoreDisabledWeaponBounds(w: WeaponDamage, mobObrona: number, mobOdpornosc: number, genre: MobWeaponGenre): { minDmg: number; maxDmg: number; critDmgMin: number; critDmgMax: number } {
@@ -1676,7 +1676,7 @@ export function simulateExpedition(
     }
     // Hastur — Żółty Znak: cast right after the comet/Groza (Groza doesn't stop it) — guaranteed in
     // round 2; from round 3 on, 50% per round but only once he's in Prawdziwa forma. For that round
-    // only, his base stats are doubled and his attacks deal 20% more damage; reverted at round end.
+    // only, his base stats are doubled and his attacks deal 13% more damage; reverted at round end.
     if (hastur && (r === 1 || (r >= 2 && hasturTrueForm && Math.random() < HASTUR_ZNAK_CHANCE_AFTER_ROUND_2))) {
       mobStatMulti = HASTUR_ZNAK_STAT_MULTI;
       mobObronaCurrent *= HASTUR_ZNAK_STAT_MULTI;
