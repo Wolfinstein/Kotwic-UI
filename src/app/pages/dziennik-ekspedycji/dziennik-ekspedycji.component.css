@@ -275,3 +275,52 @@
 .dziennik-table td {
   vertical-align: top;
 }
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: var(--fs-sm, 0.9rem);
+  color: var(--label-color);
+}
+
+.page-btn {
+  background: none;
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--value-color);
+  min-width: 32px;
+  padding: 4px 8px;
+  font-size: var(--fs-base);
+  cursor: pointer;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.page-info {
+  padding: 0 4px;
+}
+
+.page-size-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.page-size-field select {
+  background: var(--bg-deep);
+  border: 1px solid var(--border-muted);
+  border-radius: 6px;
+  color: var(--value-color);
+  padding: 4px 6px;
+}

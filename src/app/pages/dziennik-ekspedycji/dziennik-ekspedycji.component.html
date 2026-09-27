@@ -31,11 +31,11 @@
         <div class="filters-row">
           <label class="filter-field">
             <span>Data</span>
-            <input type="date" [(ngModel)]="filterDate" name="filterDate" />
+            <input type="date" [(ngModel)]="filterDate" name="filterDate" (ngModelChange)="resetPage()" />
           </label>
           <label class="filter-field">
             <span>Mob</span>
-            <select [(ngModel)]="filterMob" name="filterMob">
+            <select [(ngModel)]="filterMob" name="filterMob" (ngModelChange)="resetPage()">
               <option value="">Wszystkie</option>
               @for (mob of availableMobs; track mob) {
                 <option [value]="mob">{{ mob }}</option>
@@ -44,7 +44,7 @@
           </label>
           <label class="filter-field">
             <span>★</span>
-            <select [(ngModel)]="filterStar" name="filterStar">
+            <select [(ngModel)]="filterStar" name="filterStar" (ngModelChange)="resetPage()">
               <option [ngValue]="''">Wszystkie</option>
               @for (star of availableStars; track star) {
                 <option [ngValue]="star">{{ star }}</option>
@@ -53,7 +53,7 @@
           </label>
           <label class="filter-field">
             <span>Wariant</span>
-            <select [(ngModel)]="filterVariant" name="filterVariant">
+            <select [(ngModel)]="filterVariant" name="filterVariant" (ngModelChange)="resetPage()">
               <option value="">Wszystkie</option>
               @for (variant of availableVariants; track variant) {
                 <option [value]="variant">{{ variant }}</option>
@@ -62,7 +62,7 @@
           </label>
           <label class="filter-field">
             <span>Typ</span>
-            <select [(ngModel)]="filterAction" name="filterAction">
+            <select [(ngModel)]="filterAction" name="filterAction" (ngModelChange)="resetPage()">
               <option value="">Wszystkie</option>
               <option value="single">Pojedyncza</option>
               <option value="bulk">Zbiorcza</option>
@@ -83,6 +83,9 @@
         @if (!filteredLogs.length) {
           <p>Brak symulacji pasujących do filtrów.</p>
         } @else {
+          @let groups = groupedLogs;
+          @let current = currentPage(groups);
+          @let pages = totalPages(groups);
           <div class="table-wrap">
             <table class="dziennik-table">
               <thead>
@@ -97,7 +100,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (group of groupedLogs; track group.key) {
+                @for (group of pageSlice(groups); track group.key) {
                   @if (group.logs.length === 1) {
                     <tr>
                       <ng-container *ngTemplateOutlet="logCells; context: { $implicit: group.logs[0] }"></ng-container>
@@ -138,6 +141,22 @@
                 }
               </tbody>
             </table>
+          </div>
+
+          <div class="pagination">
+            <button type="button" class="page-btn" (click)="goToPage(1, groups)" [disabled]="current === 1" title="Pierwsza strona">«</button>
+            <button type="button" class="page-btn" (click)="goToPage(current - 1, groups)" [disabled]="current === 1" title="Poprzednia strona">‹</button>
+            <span class="page-info">Strona {{ current }} z {{ pages }} <span class="muted">({{ groups.length }} wierszy)</span></span>
+            <button type="button" class="page-btn" (click)="goToPage(current + 1, groups)" [disabled]="current === pages" title="Następna strona">›</button>
+            <button type="button" class="page-btn" (click)="goToPage(pages, groups)" [disabled]="current === pages" title="Ostatnia strona">»</button>
+            <label class="page-size-field">
+              <span>Na stronę</span>
+              <select [(ngModel)]="pageSize" name="pageSize" (ngModelChange)="resetPage()">
+                @for (size of pageSizeOptions; track size) {
+                  <option [ngValue]="size">{{ size }}</option>
+                }
+              </select>
+            </label>
           </div>
         }
       }
