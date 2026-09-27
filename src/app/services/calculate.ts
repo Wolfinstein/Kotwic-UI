@@ -126,7 +126,7 @@ export class DashboardService {
     const finalWplywy = p.stats.wplywy;
     let ochronaLife = 0;
     if (c.ochrona >= 1) {
-      p.addLaczneObrazeniaWszystkichBroni(c.ochrona / 100);
+      p.addAllDps(c.ochrona);
       ochronaLife = finalWplywy * c.ochrona;
     }
     if (ochronaLife > 0 && c.assasyn >= 1) {
