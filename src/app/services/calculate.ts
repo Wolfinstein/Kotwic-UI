@@ -1020,7 +1020,8 @@ export class DashboardService {
         wiedza: player.stats.wiedza
       };
 
-      const regenPoolSize = player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife);
+      // Regen scales off the final HP total, including lifeMultiplier bonuses (e.g. Adrenalina ×1.15).
+      const regenPoolSize = Math.floor((player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife)) * player.lifeMultiplier);
       const regenBase = Math.floor(regenPoolSize * player.stats.regen) + player.stats.regenFlat;
       const krewZyciaRegen = Math.floor(regenPoolSize * player.stats.krewZyciaRegenFraction);
       const regenHalved = !!p.stats.halvedRegen;
@@ -1029,7 +1030,7 @@ export class DashboardService {
       const cappedRedukcja = Math.min(rawRedukcja, 0.30);
       const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
       return {
-        punktyZycia: Math.floor((player.life + player.baseLife + Math.floor(player.stats.punktyZycia * player.baseLife)) * player.lifeMultiplier),
+        punktyZycia: regenPoolSize,
         effectiveHp: effectiveHp,
         punktyKrwi: 0,
         szczescie: player.stats.szczescie,
