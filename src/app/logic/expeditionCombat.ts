@@ -308,7 +308,7 @@ export interface PlayerCombatState {
   otchlanReduction: number;
   /** Macki Strachu (mob special): once triggered, this player's ignoreObrony is treated as 0 for the rest of the round. */
   ignoreDisabledThisRound: boolean;
-  /** Potęga Mocy: on this player's first landed hit of the whole fight, steals up to this much crit-multiplier from the mob (floored so the mob keeps at least 150%) and adds it to their own weapons. Fires once, ever. */
+  /** Potęga Mocy: on this player's first landed hit of the whole fight (or first Furia Bestii activation, whichever comes first), steals up to this much crit-multiplier from the mob (floored so the mob keeps at least 150%) and adds it to their own weapons. Fires once, ever. */
   potegaStealPotential: number;
   potegaTriggered: boolean;
   potegaAppliedSteal: number;
@@ -1191,6 +1191,22 @@ export function simulateExpedition(
     });
   }
 
+  /** Potęga Mocy: fires once per fight (on the first landed hit, or on a Furia Bestii activation) — steals crit-multiplier from the mob onto this player's weapons. Returns the amount stolen (0 if already triggered or nothing left above the floor). */
+  function tryTriggerPotega(attacker: PlayerCombatState): number {
+    if (attacker.potegaStealPotential <= 0 || attacker.potegaTriggered) return 0;
+    attacker.potegaTriggered = true;
+    const actualSteal = Math.min(attacker.potegaStealPotential, Math.max(0, mobCritMulti - critMultiFloor));
+    if (actualSteal > 0) {
+      mobCritMulti -= actualSteal;
+      attacker.potegaAppliedSteal = actualSteal;
+      boostWeaponsCritMulti(attacker.weapons, actualSteal);
+      if (attacker.weaponsActivated !== attacker.weapons) {
+        boostWeaponsCritMulti(attacker.weaponsActivated, actualSteal);
+      }
+    }
+    return actualSteal;
+  }
+
   /** Resolves one player attack (normal shot or Furia Bestii counterattack) against the mob: dodge/hit/crit/damage, plus the Otchłań Ciszy and Potęga Mocy first-hit triggers. Returns whether the mob died. */
   function resolvePlayerAttack(attacker: PlayerCombatState, w: WeaponDamage, weaponLabel: string, roundNum: number, isCichyRetry = false): boolean {
     attacker.attacksMade++;
@@ -1251,19 +1267,7 @@ export function simulateExpedition(
         refreshWeaponsForMobDebuff();
         otchlanProced = true;
       }
-      if (attacker.potegaStealPotential > 0 && !attacker.potegaTriggered) {
-        attacker.potegaTriggered = true;
-        const actualSteal = Math.min(attacker.potegaStealPotential, Math.max(0, mobCritMulti - critMultiFloor));
-        if (actualSteal > 0) {
-          mobCritMulti -= actualSteal;
-          attacker.potegaAppliedSteal = actualSteal;
-          boostWeaponsCritMulti(attacker.weapons, actualSteal);
-          if (attacker.weaponsActivated !== attacker.weapons) {
-            boostWeaponsCritMulti(attacker.weaponsActivated, actualSteal);
-          }
-          potegaSteal = actualSteal;
-        }
-      }
+      potegaSteal = tryTriggerPotega(attacker);
     }
     let mackiStrachuProced = false;
     if (profile?.special?.kind === 'mackiStrachu' && !attacker.ignoreDisabledThisRound
@@ -1778,10 +1782,16 @@ export function simulateExpedition(
           && target.furiaCountersUsedThisRound < target.furiaMaxCountersThisRound
           && Math.random() < target.furiaChance) {
           pushNote(target.name, `${target.name} aktywuje Furię Bestii`, r + 1);
+          // Furia Bestii also triggers Potęga Mocy if it hasn't fired yet — before the counters, so they already use the stolen crit-multi.
+          const furiaPotegaSteal = tryTriggerPotega(target);
+          if (furiaPotegaSteal > 0) {
+            pushNote(target.name, `${target.name} aktywuje Potęgę Mocy — przejmuje ${furiaPotegaSteal.toFixed(2)}x mnożnika obrażeń krytycznych`, r + 1);
+          }
           for (const cw of target.weapons) {
-            if (target.furiaCountersUsedThisRound >= target.furiaMaxCountersThisRound) break;
+            if (target.furiaCountersUsedThisRound >= target.furiaMaxCountersThisRound || mobHp <= 0) break;
             target.furiaCountersUsedThisRound += 1;
-            const wonFromCounter = performPlayerAttack(target, cw, `${cw.name} (kontratak)`, r + 1);
+            // Counterattacks always strike back at the mob that landed the crit — never a random add.
+            const wonFromCounter = resolvePlayerAttack(target, cw, `${cw.name} (kontratak)`, r + 1);
             if (wonFromCounter) return 'win';
           }
         }
