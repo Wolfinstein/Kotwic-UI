@@ -91,7 +91,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         characters_code AS "charactersCode", runs, win_pct AS "winPct", loss_pct AS "lossPct", draw_pct AS "drawPct"
       FROM expedition_logs
       ORDER BY created_at DESC
-      LIMIT 200
     `;
     res.status(200).json(rows);
     return;
