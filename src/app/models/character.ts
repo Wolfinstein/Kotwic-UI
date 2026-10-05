@@ -195,6 +195,7 @@ export interface DashboardValues {
     unikDystansRaw?: number;
     /** Redukcja before the 30% cap. */
     redukcjaRaw?: number;
+    redukcjaCap?: number;
     zizAverageRounds?: number[];
     roundsPerWeapon?: { name: string; rounds: number[] }[];
 };

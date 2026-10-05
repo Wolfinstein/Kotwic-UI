@@ -75,9 +75,13 @@ export class DashboardService {
     this.calculateBonusZPolowania(c, player);
     this.calculateNocBohaterowBudynki(c, player);
     this.calculateStrateg(c, player);
-    const dashboard: DashboardValues = this.buildDashboardValues(player);
+    const dashboard: DashboardValues = this.buildDashboardValues(player, this.redukcjaCap(c));
     this.capUnik(dashboard, c.evolutions?.mutacjaDna ?? 0);
     return dashboard;
+  }
+  /** Redukcja obrażeń is capped at 30%; Noc Starych Bogów's +20% goes over that limit, raising it to 50%. */
+  private redukcjaCap(c: Character): number {
+    return c.eventBonus?.toLowerCase() === 'noc starych bogów' ? 0.50 : 0.30;
   }
   /** Unik is capped at 30%, raised to 31%/32% by Mutacja DNA level 6-9/10-15. */
   private capUnik(dashboard: DashboardValues, mutacjaDnaLevel: number): void {
@@ -962,7 +966,7 @@ export class DashboardService {
     }
   }
 
-  buildDashboardValues(p: Player): DashboardValues {
+  buildDashboardValues(p: Player, redukcjaCap: number = 0.30): DashboardValues {
     try {
       const weapons = p.items.filter(item =>
         item.base && (
@@ -1027,7 +1031,7 @@ export class DashboardService {
       const regenHalved = !!p.stats.halvedRegen;
       let regen = regenHalved ? Math.floor(regenBase / 2) : regenBase;
       const rawRedukcja = player.stats.redukcjaObrazen + Math.floor((player.stats.obronaDodatkowa + player.stats.obronaPrzedmiotow + player.stats.odpornosc) / 75) * 0.01;
-      const cappedRedukcja = Math.min(rawRedukcja, 0.30);
+      const cappedRedukcja = Math.min(rawRedukcja, redukcjaCap);
       const effectiveHp = Math.floor((player.life + player.baseLife) * (1 + cappedRedukcja));
       return {
         punktyZycia: regenPoolSize,
@@ -1039,6 +1043,7 @@ export class DashboardService {
         twardrosc: player.stats.twardosc,
         redukcja: cappedRedukcja,
         redukcjaRaw: rawRedukcja,
+        redukcjaCap: redukcjaCap,
         unikBiala: player.stats.unikBiala,
         unikPalna: player.stats.unikPalna,
         unikDystans: player.stats.unikDystans,

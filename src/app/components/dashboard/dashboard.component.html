@@ -32,7 +32,7 @@
           <span class="attr-label" pTooltip="Ignorowanie obrażeń: 1% za każde 75 obrony, maksymalnie 30%" tooltipPosition="top">Redukcja</span>
           <span class="attr-value">
             {{ (dashboardValues?.redukcja ?? 0) * 100 | number:'1.0-1' }}%
-            <span class="cap-badge" *ngIf="isCapped(dashboardValues?.redukcjaRaw, 0.30)" [pTooltip]="capTooltip(dashboardValues?.redukcjaRaw, 0.30)" tooltipPosition="top">limit</span>
+            <span class="cap-badge" *ngIf="isCapped(dashboardValues?.redukcjaRaw, dashboardValues?.redukcjaCap)" [pTooltip]="capTooltip(dashboardValues?.redukcjaRaw, dashboardValues?.redukcjaCap)" tooltipPosition="top">limit</span>
           </span>
         </div>
       </div>
