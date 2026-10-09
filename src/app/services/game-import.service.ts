@@ -109,6 +109,19 @@ function stripDiacritics(s: string): string {
   return s.replace(/[ąćęłńóśźżĄĆĘŁŃÓŚŹŻ]/g, ch => map[ch] || ch);
 }
 
+/**
+ * The game now passes overlib() tooltips as JSON-escaped strings wrapped in &quot; (every "<" is
+ * a backslash-u003C sequence, "/" is backslash-escaped) instead of raw HTML in single quotes,
+ * so tooltip markup has to be unescaped before matching. A no-op on the old format.
+ */
+function decodeOverlibEscapes(s: string): string {
+  return s
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/\\\//g, '/')
+    .replace(/\\[nrt]/g, ' ')
+    .replace(/\\(["'])/g, '$1');
+}
+
 function tryOption(candidate: string, list: string[]): string | null {
   return list.includes(candidate) ? candidate : null;
 }
@@ -382,7 +395,7 @@ export class GameImportService {
       return { ok: false, message: 'Nie znaleziono sekcji EKWIPUNEK w podanym HTML. Upewnij się, że wklejono źródło strony ?a=equip.' };
     }
     const endIdx = html.indexOf('</fieldset>', legendIdx);
-    const slice = endIdx !== -1 ? html.substring(legendIdx, endIdx) : html.substring(legendIdx);
+    const slice = decodeOverlibEscapes(endIdx !== -1 ? html.substring(legendIdx, endIdx) : html.substring(legendIdx));
 
     const categories = [...slice.matchAll(/<div><b><i>([\s\S]*?)<\/i><\/b><\/div>/g)]
       .map(m => m[1].replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim());
@@ -509,11 +522,11 @@ export class GameImportService {
       }
     }
 
-    const runeMatches = [...html.matchAll(/<img src="gfx\/talizman\/srune_\d+\.png"\s*\n?\s*alt="[^"]+? poz\. \d+" onmouseover="return overlib\('([\s\S]*?)',CAPTION/g)];
+    const runeMatches = [...html.matchAll(/<img src="gfx\/talizman\/srune_\d+\.png"\s*\n?\s*alt="[^"]+? poz\. \d+" onmouseover="return overlib\((?:'|&quot;)([\s\S]*?)(?:'|&quot;),CAPTION/g)];
     const runeValues: string[] = [];
     const runeUnmatched: string[] = [];
     for (const m of runeMatches) {
-      const desc = m[1].replace(/<br\/>/g, ' ').replace(/\\r/g, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      const desc = decodeOverlibEscapes(m[1]).replace(/<br\/>/g, ' ').replace(/\\r/g, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
       const translated = translateEffectLine(desc, { obronaDivisor: false }, RUNE_OPTIONS);
       if (translated) runeValues.push(translated);
       else runeUnmatched.push(desc.split(/,| Kliknij/i)[0].trim());
